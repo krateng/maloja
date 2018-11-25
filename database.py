@@ -15,8 +15,9 @@ def get_scrobbles():
 	keys = request.query
 	r = db_query(artist=keys.get("artist"))
 	#print(r)
-	response.content_type = "application/json"
-	return {"object":r} ##json can't be a list apparently???
+	response.content_type = "application/json; charset=UTF-8"
+	#response.charset = 'UTF-8'
+	return {"list":r} ##json can't be a list apparently???
 
 	#r = db_query(artist=keys.get("artist"))
 	#text = ""
@@ -32,8 +33,23 @@ def get_scrobbles():
 def get_tracks():
 	artist = request.query.get("artist")
 	
-	ls = [t for t in TRACKS if (artist in t["artists"])]
-	return {"object":ls}
+	# turn the tupel of frozensets into a jsonable object
+	tracklist = [{"artists":list(a[0]),"title":a[1]} for a in TRACKS]
+	ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
+	return {"list":ls}
+	
+@route("/artists")
+def get_artists():
+	response.content_type = "application/json; charset=UTF-8"
+	#response.charset = "utf-8"
+	return {"list":ARTISTS}
+	
+@route("/charts")
+def get_charts():
+	since = request.query.get("since")
+	to = request.query.get("to")
+	results = db_query(since=since,to=to)
+	return {"list":results}
 
 # Starts the server
 def runserver(DATABASE_PORT):
@@ -76,7 +92,7 @@ def build():
 			#		break
 			#	#else:
 			#		#print("NO MATCH!")
-					
+			#		
 			#if not foundexisting:
 			#	tracklist.append({"artists":t["artists"],"title":t["title"]})
 		else:
@@ -97,18 +113,21 @@ def buildh():
 	trackset = set()
 	for t in DATABASE:
 		for a in t["artists"]:
-			if a not in artistset:
-				artistset.add(a)
+			#if a not in artistset:
+			artistset.add(a)
 		
 		# we list the tracks as tupels of frozenset(artists) and track
 		# this way they're hashable and easily comparable, but we need to change them back after we have the list		
-		if ((frozenset(t["artists"]),t["title"])) not in trackset:
-			trackset.add((frozenset(t["artists"]),t["title"]))
+		#if ((frozenset(t["artists"]),t["title"])) not in trackset:
+		trackset.add((frozenset(t["artists"]),t["title"]))
 			
 	print("Done, now converting back!")
 	
 	ARTISTS = list(artistset)
-	TRACKS = [{"artists":list(a[0]),"title":a[1]} for a in trackset]
+	#TRACKS = [{"artists":list(a[0]),"title":a[1]} for a in trackset]
+	#actually lets only convert this once we need it, kinda makes sense to store it in the tuple frozenset form
+	TRACKS = list(trackset)
+
 
 # Rebuilds the database from disk, keeps cached entries	
 def reload():
@@ -127,6 +146,8 @@ def reload():
 			data = l.split(",")
 			#print(l)
 			
+			
+			## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
 			artists = data[1].split("/")
 			#album = data[3]
 			title = data[2]

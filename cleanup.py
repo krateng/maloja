@@ -27,6 +27,12 @@ def cleanup(artiststr):
 	artists = flatten(artistsnew)
 	artistsnew = []
 	
+	for a in artists:
+		artistsnew.append(a.split(" & "))
+		
+	artists = flatten(artistsnew)
+	artistsnew = []
+	
 	
 	for a in artists:
 		artistsnew.append(a.split(" ft. "))
@@ -126,7 +132,7 @@ def findartistsintitle(title):
 		
 	newtitle = re.sub(r"(.*) \(Featuring (.*?)\)",r"\1",title)
 	if (title != newtitle):
-		artists = re.sub(r"(.*) \(Featuring. (.*?)\).*",r"\2",title)
+		artists = re.sub(r"(.*) \(Featuring (.*?)\).*",r"\2",title)
 		truetitle = newtitle
 		
 	newtitle = re.sub(r"(.*) \(featuring (.*?)\)",r"\1",title)
