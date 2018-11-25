@@ -4,7 +4,6 @@ import waitress
 import os
 import datetime
 
-DATABASE = []
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
@@ -25,7 +24,6 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 # by object
 
 def getScrobbleObject(o):
-	#return {"artists":getTrackObject(SCROBBLES[o][0])["artists"],"title":getTrackObject(SCROBBLES[o][0])["title"],"time":SCROBBLES[o][1],"saved":SCROBBLES[o][2]}
 	track = getTrackObject(TRACKS[o[0]])
 	return {"artists":track["artists"],"title":track["title"],"time":o[1]}
 	
@@ -76,36 +74,12 @@ def getTrackID(artists,title):
 def get_scrobbles():
 	keys = request.query
 	r = db_query(artist=keys.get("artist"))
-	#print(r)
-	response.content_type = "application/json; charset=UTF-8"
-	#response.charset = 'UTF-8'
-	return {"list":r} ##json can't be a list apparently???
 
-	#r = db_query(artist=keys.get("artist"))
-	#text = ""
-	#for e in r:
-	#	entry = ""
-	#	for a in e["artists"]:
-	#		entry += a + "/"
-	#	entry += "	" + e["title"] + "\n"
-	#	text += entry
-	#return text
+	return {"list":r} ##json can't be a list apparently???
 
 @route("/tracks")
 def get_tracks():
 	artist = request.query.get("artist")
-	
-	global TRACKS
-	
-	
-	# turn the tupel of frozensets into a jsonable object
-	#tracklist = [{"artists":list(a[0]),"title":a[1]} for a in TRACKS]
-	
-	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
-	
-	
-	### WHICH ONE IS FASTER
-	import time
 	
 	# Option 1
 	ls = [getTrackObject(t) for t in TRACKS if (artist in t[0]) or (artist==None)]
@@ -118,8 +92,7 @@ def get_tracks():
 	
 @route("/artists")
 def get_artists():
-	response.content_type = "application/json; charset=UTF-8"
-	#response.charset = "utf-8"
+	
 	return {"list":ARTISTS}
 	
 @route("/charts")
@@ -144,10 +117,16 @@ def runserver(DATABASE_PORT):
 
 def build_db():
 	
-	newscrobbles = [t for t in SCROBBLES if not t[2]]
+	global SCROBBLES
+	
+	SCROBBLESNEW = []
+	for t in SCROBBLES:
+		if not t[2]:
+			SCROBBLESNEW.append(t)
+
+	SCROBBLES = SCROBBLESNEW
 	
 	for f in os.listdir("logs/"):
-		#print(f)
 		
 		if not (".csv" in f):
 			continue
@@ -157,8 +136,6 @@ def build_db():
 			
 			l = l.replace("\n","")
 			data = l.split(",")
-			#print(l)
-			
 			
 			## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
 			artists = data[1].split("/")
@@ -167,8 +144,6 @@ def build_db():
 			time = int(data[0])
 			
 			readScrobble(artists,title,time)
-			
-			#DATABASE.append({"artists":artists,"title":title,"time":time,"saved":True})
 	
 		
 
@@ -271,9 +246,11 @@ def reload():
 
 # Saves all cached entries to disk			
 def flush():
-	for t in DATABASE:
-		if not t["saved"]:
-		
+	for s in SCROBBLES:
+		if not s[2]:
+			
+			t = getScrobbleObject(s)
+			
 			artistss = "/".join(t["artists"])
 			timestamp = datetime.date.fromtimestamp(t["time"])
 			
@@ -284,7 +261,7 @@ def flush():
 			monthfile.write("\n")
 			monthfile.close()
 			
-			t["saved"] = True
+			t[2] = True
 			
 
 # Queries the database			
