@@ -3,6 +3,7 @@ from importlib.machinery import SourceFileLoader
 import waitress
 import os
 import datetime
+import cleanup
 
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
@@ -104,6 +105,16 @@ def get_charts():
 	
 	#results = db_query(since=since,to=to)
 	#return {"list":results}
+	
+@route("/newscrobble")
+def post_scrobble():
+	keys = request.query
+	artists = keys.get("artist")
+	title = keys.get("title")
+	(artists,title) = cleanup.fullclean(artists,title)
+	time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	
+	createScrobble(artists,title,time)
 
 # Starts the server
 def runserver(DATABASE_PORT):

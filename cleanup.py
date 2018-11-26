@@ -1,9 +1,21 @@
 import re
 
+def fullclean(artist,title):
+	artists = cleanup(removespecial(artist))
+	title = cleantitle(removespecial(title))
+	(title,moreartists) = findartistsintitle(title)
+	artists += moreartists
+	
+	return (artists,title)
+
+def removespecial(s):
+	return s.replace("\t","").replace("␟","").replace("\n","")
+
 def cleanup(artiststr):
 
 	if artiststr == "":
 		return []
+		
 
 	artists = [artiststr]
 	

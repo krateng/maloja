@@ -5,6 +5,7 @@ from importlib.machinery import SourceFileLoader
 import _thread
 import waitress
 import urllib.request
+import urllib.parse
 
 
 MAIN_PORT = 12345
@@ -35,7 +36,11 @@ def mainpage():
 
 @route("/db/<pth:path>")
 def database(pth):
-	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth).read()
+	keys = request.query
+	keystring = "?"
+	for k in keys:
+		keystring += urllib.parse.quote(k) + "=" + urllib.parse.quote(keys[k]) + "&"
+	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth + keystring).read()
 	response.content_type = "application/json"
 	#print("Returning " + "http://localhost:" + str(DATABASE_PORT) + "/" + pth)
 	return contents
