@@ -18,7 +18,7 @@ for l in log:
 	(title,extraartists) = cleanup.findartistsintitle(title)
 	artists = list(set(artists + extraartists))
 	
-	artistsstr = "/".join(artists)
+	artistsstr = "␟".join(artists)
 	
 	
 	timeparts = time.split(" ")
@@ -28,7 +28,7 @@ for l in log:
 	
 	timestamp = int(datetime.datetime(int(timeparts[2]),months[timeparts[1]],int(timeparts[0]),int(h),int(m)).timestamp())
 	
-	entry = ",".join([str(timestamp),artistsstr,title,album])
+	entry = "\t".join([str(timestamp),artistsstr,title,album])
 	
 	
 	outputlog.write(entry)

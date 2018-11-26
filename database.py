@@ -128,17 +128,17 @@ def build_db():
 	
 	for f in os.listdir("logs/"):
 		
-		if not (".csv" in f):
+		if not (".tsv" in f):
 			continue
 		
 		logfile = open("logs/" + f)
 		for l in logfile:
 			
 			l = l.replace("\n","")
-			data = l.split(",")
+			data = l.split("\t")
 			
 			## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
-			artists = data[1].split("/")
+			artists = data[1].split("␟")
 			#album = data[3]
 			title = data[2]
 			time = int(data[0])
@@ -251,12 +251,12 @@ def flush():
 			
 			t = getScrobbleObject(s)
 			
-			artistss = "/".join(t["artists"])
+			artistss = "␟".join(t["artists"])
 			timestamp = datetime.date.fromtimestamp(t["time"])
 			
-			entry = ",".join([str(t["time"]),artistss,t["title"]])
+			entry = "\t".join([str(t["time"]),artistss,t["title"]])
 		
-			monthfile = open("logs/" + str(timestamp.year) + "_" + str(timestamp.month) + ".csv","a")
+			monthfile = open("logs/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
 			monthfile.write(entry)
 			monthfile.write("\n")
 			monthfile.close()
