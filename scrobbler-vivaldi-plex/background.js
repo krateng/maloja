@@ -129,5 +129,3 @@ function scrobble(artist,title) {
 	xhttp.open("GET","http://localhost:12345/db/newscrobble?artist=" + artiststring + "&title=" + titlestring,true);
 	xhttp.send()
 }
-
-/// i have to add content scripts to the specific tab and then send messages to the extension
