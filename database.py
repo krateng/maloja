@@ -1,5 +1,6 @@
-from bottle import route, run, template, static_file, request, response
+from bottle import route, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
+import urllib
 import waitress
 import os
 import datetime
@@ -109,7 +110,10 @@ def get_charts():
 	
 @route("/newscrobble")
 def post_scrobble():
-	keys = request.query
+	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
+	#import bottle.FormsDict
+	#artists = urllib.parse.unquote(keys.get("artist"),encoding='utf-8')
+	#title = urllib.parse.unquote(keys.get("title"))
 	artists = keys.get("artist")
 	title = keys.get("title")
 	(artists,title) = cleanup.fullclean(artists,title)
@@ -269,10 +273,10 @@ def reload():
 
 # Saves all cached entries to disk			
 def flush():
-	for s in SCROBBLES:
-		if not s[2]:
+	for idx in range(len(SCROBBLES)):
+		if not SCROBBLES[idx][2]:
 			
-			t = getScrobbleObject(s)
+			t = getScrobbleObject(SCROBBLES[idx])
 			
 			artistss = "␟".join(t["artists"])
 			timestamp = datetime.date.fromtimestamp(t["time"])
@@ -284,7 +288,7 @@ def flush():
 			monthfile.write("\n")
 			monthfile.close()
 			
-			t[2] = True
+			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 			
 
 # Queries the database			
