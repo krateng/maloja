@@ -75,7 +75,7 @@ def getTrackID(artists,title):
 @route("/scrobbles")
 def get_scrobbles():
 	keys = request.query
-	r = db_query(artist=keys.get("artist"))
+	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"))
 
 	return {"list":r} ##json can't be a list apparently???
 
@@ -299,6 +299,11 @@ def db_query(artist=None,track=None,since=0,to=9999999999):
 		date = [1970,1,1,0,0]
 		date[:len(sdate)] = sdate
 		to = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		
+	if (since==None):
+		since = 0
+	if (to==None):
+		to = 9999999999
 	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly (and title string simply picks the first track with that name)	
 	if isinstance(artist, str):
