@@ -1,0 +1,48 @@
+{
+	"name": "Plexoja",
+	"version": "0.1",
+	"description": "Scrobbles tracks from Plex Web to your Maloja server",
+	"manifest_version": 2,
+	"permissions": ["activeTab", "declarativeContent","tabs","http://app.plex.tv/*"],
+	"background":
+	{
+		"scripts":
+		[
+			"background.js"
+		]
+	},
+	"content_scripts":
+	[
+		{
+			"matches":
+			[
+				"http://app.plex.tv/*",
+				"https://app.plex.tv/*"
+			],
+			"include_globs":
+			[
+				"http://plex.*",
+				"https://plex.*"
+			],
+			"js":
+			[
+				"contentScript.js"
+			]
+		}
+	
+	],
+	
+	"browser_action":
+	{
+		"default_icon": 
+		{
+			"128":"icon128.png",
+			"48":"icon48.png"
+		}
+	},
+	"icons": 
+		{
+			"128":"icon128.png",
+			"48":"icon48.png"
+		}
+}

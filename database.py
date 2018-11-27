@@ -4,6 +4,7 @@ import waitress
 import os
 import datetime
 import cleanup
+import sys
 
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
@@ -114,7 +115,18 @@ def post_scrobble():
 	(artists,title) = cleanup.fullclean(artists,title)
 	time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	
+	## this is necessary for localhost testing
+	response.set_header("Access-Control-Allow-Origin","*")
+	
 	createScrobble(artists,title,time)
+	
+	return ""
+	
+@route("/flush")
+def abouttoshutdown():
+	flush()
+	print("Database saved to disk.")
+	#sys.exit()
 
 # Starts the server
 def runserver(DATABASE_PORT):
