@@ -5,6 +5,7 @@ import waitress
 import urllib.request
 import urllib.parse
 import sys
+import signal
 
 
 MAIN_PORT = 12345
@@ -35,7 +36,10 @@ def database(pth):
 
 @route("/exit")
 def shutdown():
-	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/flush")
+	graceful_exit()
+	
+def graceful_exit(sig=None,frame=None):
+	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/sync")
 	print("Server shutting down...")
 	sys.exit()
 
@@ -46,6 +50,7 @@ def static(pth):
 	return static_file(pth,root="")
 
 
+signal.signal(signal.SIGINT, graceful_exit)
 
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))

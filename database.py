@@ -12,6 +12,8 @@ SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 
+lastsync = 0
+
 
 # by id
 #def getScrobbleObject(o):
@@ -124,17 +126,21 @@ def post_scrobble():
 	
 	createScrobble(artists,title,time)
 	
+	if (time - lastsync) > 3600:
+		sync()
+	
 	return ""
 	
-@route("/flush")
+@route("/sync")
 def abouttoshutdown():
-	flush()
+	sync()
 	print("Database saved to disk.")
 	#sys.exit()
 
 # Starts the server
 def runserver(DATABASE_PORT):
-	
+	global lastsync
+	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	#reload()
 	#buildh()
 	build_db()
@@ -272,7 +278,7 @@ def reload():
 			DATABASE.append({"artists":artists,"title":title,"time":time,"saved":True})
 
 # Saves all cached entries to disk			
-def flush():
+def sync():
 	for idx in range(len(SCROBBLES)):
 		if not SCROBBLES[idx][2]:
 			
@@ -289,6 +295,9 @@ def flush():
 			monthfile.close()
 			
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
+			
+	global lastsync
+	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 			
 
 # Queries the database			
