@@ -23,3 +23,15 @@ I like to name my projects after regions in Grisons, Switzerland. Don't waste yo
 ## Current status
 
 Deep in development. I just uploaded Maloja here in case I die tomorrow. It can accept scrobbles and return some basic stats in JSON format so far.
+
+## How to install
+
+I wouldn't recommend it yet. But if you want to test Maloja, it's fairly easy:
+
+1) Put it anywhere and start server.py
+2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
+
+		location /db {
+			rewrite ^/db(.*)$ $1 break;
+			proxy_pass http://yoururl:12349;
+		}
