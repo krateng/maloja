@@ -13,10 +13,8 @@ for l in log:
 	title = data[2]
 	time = data[3]
 	
-	title = cleanup.cleantitle(title)
-	artists = cleanup.cleanup(artist)
-	(title,extraartists) = cleanup.findartistsintitle(title)
-	artists = list(set(artists + extraartists))
+
+	(artists,title) = cleanup.fullclean(artist,title)
 	
 	artistsstr = "␟".join(artists)
 	

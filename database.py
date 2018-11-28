@@ -118,8 +118,10 @@ def post_scrobble():
 	#title = urllib.parse.unquote(keys.get("title"))
 	artists = keys.get("artist")
 	title = keys.get("title")
+	time = int(keys.get("time"))
 	(artists,title) = cleanup.fullclean(artists,title)
-	time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	if time is None:
+		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -134,7 +136,6 @@ def post_scrobble():
 @route("/sync")
 def abouttoshutdown():
 	sync()
-	print("Database saved to disk.")
 	#sys.exit()
 
 # Starts the server
@@ -298,6 +299,7 @@ def sync():
 			
 	global lastsync
 	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	print("Database saved to disk.")
 			
 
 # Queries the database			

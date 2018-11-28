@@ -1,161 +1,65 @@
 import re
 
 def fullclean(artist,title):
-	artists = cleanup(removespecial(artist))
-	title = cleantitle(removespecial(title))
-	(title,moreartists) = findartistsintitle(title)
+	artists = parseArtists(removespecial(artist))
+	title = parseTitle(removespecial(title))
+	(title,moreartists) = parseTitleForArtists(title)
 	artists += moreartists
 	
-	return (artists,title)
+	return (list(set(artists)),title)
 
 def removespecial(s):
 	return s.replace("\t","").replace("␟","").replace("\n","")
 
-def cleanup(artiststr):
 
-	if artiststr == "":
+delimiters_feat = ["ft.","ft","feat.","feat","featuring"]			#Delimiters used for extra artists, even when in the title field
+delimiters = ["vs.","vs","&"]							#Delimiters in informal titles, spaces expected around them
+delimiters_formal = ["; ",";"]							#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
+
+
+def parseArtists(a):
+
+	if a.strip() == "":
 		return []
+	
+	for d in delimiters_feat:
+		if re.match(r"(.*) \(" + d + " (.*)\)",a) is not None:
+			return parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
+	
+	for d in (delimiters + delimiters_feat):
+		if ((" " + d + " ") in a):
+			ls = []
+			for i in a.split(" " + d + " "):
+				ls += parseArtists(i)
+			return ls
+			
+	for d in delimiters_formal:
+		if (d in a):
+			ls = []
+			for i in a.split(d):
+				ls += parseArtists(i)
+			return ls
 		
+	
+		
+	return [a.strip()]
 
-	artists = [artiststr]
+def parseTitle(t):
+	t = t.replace("[","(").replace("]",")")
 	
-	artistsnew = []
-	for a in artists:
-		artistsnew.append(re.sub(r"(.*) \(ft. (.*)\)",r"\1",a))
-		artistsnew.append(re.sub(r"(.*) \(ft. (.*)\)",r"\2",a))
+	t = re.sub(r" \(as made famous by .*?\)","",t)
+	t = re.sub(r" \(originally by .*?\)","",t)
 	
-	artists = artistsnew
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" vs. "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" vs "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" & "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	
-	for a in artists:
-		artistsnew.append(a.split(" ft. "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" Ft. "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	
-	for a in artists:
-		artistsnew.append(a.split(" Feat. "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" feat. "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	
-	for a in artists:
-		artistsnew.append(a.split(" featuring "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	
-	for a in artists:
-		artistsnew.append(a.split(" Featuring "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(" ; "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split("; "))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	for a in artists:
-		artistsnew.append(a.split(";"))
-		
-	artists = flatten(artistsnew)
-	artistsnew = []
-	
-	#if not artists[0] == artiststr:
-	#	print(artiststr + " became " + str(artists))
-	
-	return artists
-	
-	
-def cleantitle(title):
-	title = title.replace("[","(").replace("]",")")
-	
-	title = re.sub(r" \(as made famous by .*?\)","",title)
-	title = re.sub(r" \(originally by .*?\)","",title)
-	
-	return title
+	return t
 
-def findartistsintitle(title):
+def parseTitleForArtists(t):
+	for d in delimiters_feat:
+		if re.match(r"(.*) \(" + d + " (.*?)\)",t) is not None:
+			(title,artists) = parseTitleForArtists(re.sub(r"(.*) \(" + d + " (.*?)\)",r"\1",t))
+			artists += parseArtists(re.sub(r"(.*) \(" + d + " (.*?)\).*",r"\2",t))
+			return (title,artists)
 	
-	truetitle = title
-	artists = ""
-	
-	newtitle = re.sub(r"(.*) \(ft. (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(ft. (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-	
-	newtitle = re.sub(r"(.*) \(feat. (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(feat. (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-	
-	newtitle = re.sub(r"(.*) \(Feat. (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(Feat. (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-		
-	newtitle = re.sub(r"(.*) \(Ft. (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(Ft. (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-		
-	newtitle = re.sub(r"(.*) \(Featuring (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(Featuring (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-		
-	newtitle = re.sub(r"(.*) \(featuring (.*?)\)",r"\1",title)
-	if (title != newtitle):
-		artists = re.sub(r"(.*) \(featuring (.*?)\).*",r"\2",title)
-		truetitle = newtitle
-		
-	
-	artistlist = cleanup(artists)
-	
-	return (truetitle,artistlist)
+	return (t,[])
 	
 def flatten(lis):
 

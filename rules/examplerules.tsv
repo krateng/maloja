@@ -7,8 +7,8 @@
 ###	countas: defines an artist that should be counted together with another artist for chart statistics etc. This will not change the separation in the database and all effects of this rule will disappear as soon as it is no longer active. Second column is the artist, third column the replacement artist
 ###
 ### THE RULES IN THIS EXAMPLE FILE ARE IGNORED
-notanartist,In Dreams,
-belongtogether,Darth & Vader,
-replacetitle,첫 사랑니 (Rum Pum Pum Pum),Rum Pum Pum Pum
-replaceartist,Dal Shabet,Dal★Shabet
-countas,Trouble Maker,HyunA
+notanartist	In Dreams
+belongtogether	Darth & Vader
+replacetitle	첫 사랑니 (Rum Pum Pum Pum)	Rum Pum Pum Pum
+replaceartist	Dal Shabet			Dal★Shabet
+countas		Trouble Maker			HyunA
