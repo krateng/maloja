@@ -1,4 +1,4 @@
-from bottle import route, run, template, static_file, request, response
+from bottle import route, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import _thread
 import waitress
@@ -23,10 +23,13 @@ def mainpage():
 
 @route("/db/<pth:path>")
 def database(pth):
-	keys = request.query
+	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
+	for k in keys:
+		print(keys[k])
 	keystring = "?"
 	for k in keys:
 		keystring += urllib.parse.quote(k) + "=" + urllib.parse.quote(keys[k]) + "&"
+	print(keystring)
 	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth + keystring).read()
 	response.content_type = "application/json"
 	response.set_header("Access-Control-Allow-Origin","*")
