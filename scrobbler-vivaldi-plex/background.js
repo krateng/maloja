@@ -64,6 +64,16 @@ function startPlayback(artist,title,seconds) {
 	console.log("Playback started!")
 	if (artist == currentArtist && title == currentTitle && !currentlyPlaying) {
 		console.log("Still previous track!")
+		while (alreadyPlayed > currentLength) {
+			console.log("This song is being played several times in a row!")
+			if (!alreadyScrobbled) {
+				scrobble(currentArtist,currentTitle)
+				//alreadyScrobbled = true
+			}
+			alreadyPlayed = alreadyPlayed - currentLength
+			alreadyScrobbled = false
+			
+		}
 		d = new Date()
 		t = Math.floor(d.getTime()/1000)
 		lastUpdate = t

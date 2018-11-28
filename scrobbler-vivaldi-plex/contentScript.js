@@ -1,13 +1,3 @@
-//activeLibrary = document.querySelector("[data-qa-id*=sidebarLibrariesList]").querySelector("[class*=Link-isSelected]")
-
-//currentArtist = ""
-//currentTitle = ""
-//alreadyPlayed = 0
-//maxLength = 0
-//lastUpdate = 0
-
-
-
 bar = document.querySelector("div[class*=PlayerControls]")
 if (bar == null) {
 	console.log("Nothing playing right now!")
