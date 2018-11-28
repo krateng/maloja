@@ -1,8 +1,11 @@
 import sys, os, datetime, re, cleanup
+from cleanup import *
 
 log = open(sys.argv[1])
 
 outputlog = open(sys.argv[2],"a")
+
+c = CleanerAgent()
 
 for l in log:
 	l = l.replace("\n","")
@@ -13,8 +16,8 @@ for l in log:
 	title = data[2]
 	time = data[3]
 	
-
-	(artists,title) = cleanup.fullclean(artist,title)
+	
+	(artists,title) = c.fullclean(artist,title)
 	
 	artistsstr = "␟".join(artists)
 	

@@ -4,13 +4,15 @@ import urllib
 import waitress
 import os
 import datetime
-import cleanup
+from cleanup import *
 import sys
 
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
+
+c = CleanerAgent()
 
 lastsync = 0
 
@@ -118,11 +120,12 @@ def post_scrobble():
 	#title = urllib.parse.unquote(keys.get("title"))
 	artists = keys.get("artist")
 	title = keys.get("title")
-	time = int(keys.get("time"))
-	(artists,title) = cleanup.fullclean(artists,title)
-	if time is None:
+	try:
+		time = int(keys.get("time"))
+	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	
+	(artists,title) = c.fullclean(artists,title)
+
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
 	
