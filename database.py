@@ -88,8 +88,10 @@ def get_scrobbles():
 def get_tracks():
 	artist = request.query.get("artist")
 	
+	artistid = ARTISTS.index(artist)
+	
 	# Option 1
-	ls = [getTrackObject(t) for t in TRACKS if (artist in t[0]) or (artist==None)]
+	ls = [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
 	
 	# Option 2 is a bit more elegant but much slower
 	#tracklist = [getTrackObject(t) for t in TRACKS]
