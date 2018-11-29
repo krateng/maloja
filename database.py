@@ -48,6 +48,7 @@ def getTrackObject(o):
 def createScrobble(artists,title,time):
 	while (time in timestamps):
 		time += 1
+	timestamps.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,False)
 	SCROBBLES.append(obj)
@@ -55,6 +56,7 @@ def createScrobble(artists,title,time):
 def readScrobble(artists,title,time):
 	while (time in timestamps):
 		time += 1
+	timestamps.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
