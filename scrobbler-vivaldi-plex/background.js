@@ -125,6 +125,12 @@ function stopPlayback(artist,title) {
 	}
 }
 
+
+// One problem here: Closing the player while it's paused does not cause an event, so the track will only be scrobbled the next time we play something.
+// Also potentially problematic: Pausing a track and just leaving it should probably trigger a scrobble after some time because we can assume the user just stopped listening but didn't bother to press the X
+// We could simply check for scrobblability when the track is paused, but this would remove the ability to send listening time with the scrobble
+
+
 function ostopPlayback(artist,title) {
 	currentlyPlaying = false
 	console.log("Playback stopped!")
@@ -205,7 +211,7 @@ function scrobble(artist,title,seconds) {
 	artiststring = encodeURIComponent(artist)
 	titlestring = encodeURIComponent(title)
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET","http://localhost:42010/db/newscrobble?artist=" + artiststring + "&title=" + titlestring,true);
+	xhttp.open("GET","http://localhost:42010/db/newscrobble?artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds,true);
 	xhttp.send()
 }
 

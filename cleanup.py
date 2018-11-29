@@ -41,7 +41,7 @@ class CleanerAgent:
 		if a.strip() in self.rules_belongtogether:
 			return [a.strip()]
 		if a.strip() in self.rules_replaceartist:
-			return [self.rules_replaceartist[a.strip()]]
+			return self.rules_replaceartist[a.strip()].split("␟")
 			
 		
 		
