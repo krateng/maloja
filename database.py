@@ -125,9 +125,6 @@ def get_charts():
 @route("/newscrobble")
 def post_scrobble():
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
-	#import bottle.FormsDict
-	#artists = urllib.parse.unquote(keys.get("artist"),encoding='utf-8')
-	#title = urllib.parse.unquote(keys.get("title"))
 	artists = keys.get("artist")
 	title = keys.get("title")
 	try:
@@ -194,102 +191,6 @@ def build_db():
 	
 		
 
-# builds database of artists and tracks
-# UNUSED as it is very resource-heavy, use buildh() instead
-def build():
-	global ARTISTS
-	global TRACKS
-	
-	artistlist = []
-	tracklist = []
-	for t in DATABASE:
-		for a in t["artists"]:
-			if a in artistlist:
-				continue
-			artistlist.append(a)
-		
-		# first check if the title exists at all to quickly rule out most titles	
-		if (t["title"] in [tr["title"] for tr in tracklist]):
-			#only it same title actually exists do we need to check if the song is the same
-			
-			
-			if not (set(t["artists"]) in [set(tr["artists"]) for tr in tracklist if tr["title"] == t["title"]]): #wut
-				tracklist.append({"artists":t["artists"],"title":t["title"]})
-			
-			### ALRIGHT
-			#foundexisting = False
-			#for track in [tr for tr in tracklist if tr["title"] == t["title"]]: #wtf did I just write
-			#	#print("Check duplicate: " + str(track) + " AND " + str(t))
-			#	if (set(track["artists"]) == set(t["artists"])):
-			#		foundexisting = True
-			#		#print("MATCH!")
-			#		break
-			#	#else:
-			#		#print("NO MATCH!")
-			#		
-			#if not foundexisting:
-			#	tracklist.append({"artists":t["artists"],"title":t["title"]})
-		else:
-			tracklist.append({"artists":t["artists"],"title":t["title"]})
-		
-		
-	ARTISTS = artistlist
-	TRACKS = tracklist
-
-
-# builds database of artists and tracks
-# uses better data types to quickly find all unique tracks
-# now also UNUSED since we build everything in one step with build_db()
-def buildh():
-	global ARTISTS
-	global TRACKS
-	
-	artistset = set()
-	trackset = set()
-	for t in DATABASE:
-		for a in t["artists"]:
-			#if a not in artistset:
-			artistset.add(a)
-		
-		# we list the tracks as tupels of frozenset(artists) and track
-		# this way they're hashable and easily comparable, but we need to change them back after we have the list		
-		#if ((frozenset(t["artists"]),t["title"])) not in trackset:
-		trackset.add((frozenset(t["artists"]),t["title"]))
-			
-	print("Done, now converting back!")
-	
-	ARTISTS = list(artistset)
-	#TRACKS = [{"artists":list(a[0]),"title":a[1]} for a in trackset]
-	#actually lets only convert this once we need it, kinda makes sense to store it in the tuple frozenset form
-	TRACKS = list(trackset)
-
-
-# Rebuilds the database from disk, keeps cached entries	
-# unused, this is now done in build_db()
-def reload():
-	newdb = [t for t in DATABASE if not t["saved"]]
-	
-	for f in os.listdir("logs/"):
-		#print(f)
-		
-		if not (".csv" in f):
-			continue
-		
-		logfile = open("logs/" + f)
-		for l in logfile:
-			
-			l = l.replace("\n","")
-			data = l.split(",")
-			#print(l)
-			
-			
-			## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
-			artists = data[1].split("/")
-			#album = data[3]
-			title = data[2]
-			time = int(data[0])
-			
-			DATABASE.append({"artists":artists,"title":title,"time":time,"saved":True})
 
 # Saves all cached entries to disk			
 def sync():

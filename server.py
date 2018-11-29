@@ -44,10 +44,19 @@ def graceful_exit(sig=None,frame=None):
 	sys.exit()
 
 
-@route("/<pth:path>")
-def static(pth):
+@route("/<name:re:.*\\.html>")
+@route("/<name:re:.*\\.js>")
+@route("/<name:re:.*\\.css>")
+@route("/<name:re:.*\\.png>")
+@route("/<name:re:.*\\.jpeg>")
+def static(name):
 	
-	return static_file(pth,root="")
+	return static_file("website/" + name,root="")
+	
+@route("/<name>")
+def static_html(name):
+
+	return static_file("website/" + name + ".html",root="")
 
 
 signal.signal(signal.SIGINT, graceful_exit)
