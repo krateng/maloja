@@ -3,7 +3,7 @@ from cleanup import *
 
 log = open(sys.argv[1])
 
-outputlog = open(sys.argv[2],"a")
+outputlog = open(sys.argv[2],"w")
 
 c = CleanerAgent()
 

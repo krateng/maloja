@@ -8,8 +8,8 @@ import sys
 import signal
 
 
-MAIN_PORT = 12345
-DATABASE_PORT = 12349
+MAIN_PORT = 42010
+DATABASE_PORT = 42011
 
 
 @route("")

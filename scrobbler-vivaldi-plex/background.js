@@ -43,7 +43,7 @@ function party(tab) {
 function onPlaybackUpdate(request,sender) {
 	//console.log("Got update from Plex Web!")
 	if (request.type == "stopPlayback" && currentlyPlaying) {
-		stopPlayback();
+		stopPlayback(request.artist,request.title);
 	}
 	else if (request.type == "startPlayback") {
 		startPlayback(request.artist,request.title,request.duration);
@@ -60,6 +60,88 @@ var alreadyScrobbled = false;
 
 
 function startPlayback(artist,title,seconds) {
+
+
+	// CASE 1: Resuming playback of previously played title
+	if (artist == currentArtist && title == currentTitle && !currentlyPlaying) {
+		console.log("Resuming playback")
+		
+		// Already played full song
+		while (alreadyPlayed > currentLength) {
+			alreadyPlayed = alreadyPlayed - currentLength
+			scrobble(currentArtist,currentTitle,currentLength)
+		}
+		
+		setUpdate()
+		currentlyPlaying = true
+		
+	}
+	
+	// CASE 2: New track is being played
+	else if (artist != currentArtist || title != currentTitle) {
+		
+		//first inform ourselves that the previous track has now been stopped for good
+		stopPlayback(artist,title)
+		//then initialize new playback
+		console.log("New track")
+		setUpdate()
+		alreadyPlayed = 0
+		currentTitle = title
+		currentArtist = artist
+		currentLength = seconds
+		console.log(artist + " - " + title + " is playing!")
+		currentlyPlaying = true
+	}
+}
+
+// the artist and title arguments are not attributes of the track being stopped, but of the track active now
+// they are here to recognize whether the playback has been paused or completely ended / replaced
+function stopPlayback(artist,title) {
+	
+	//CASE 1: Playback just paused OR CASE 2: Playback ended
+	if (currentlyPlaying) {
+		d = setUpdate()
+		alreadyPlayed = alreadyPlayed + d
+		console.log(d + " seconds played since last update, " + alreadyPlayed + " seconds played overall")
+	}
+		
+		
+	// Already played full song
+	while (alreadyPlayed > currentLength) {
+		alreadyPlayed = alreadyPlayed - currentLength
+		scrobble(currentArtist,currentTitle,currentLength)
+	}
+		
+	currentlyPlaying = false
+		
+
+	
+	//ONLY CASE 2: Playback ended
+	if (artist != currentArtist || title != currentTitle) {
+		if (alreadyPlayed > currentLength / 2) {
+			scrobble(currentArtist,currentTitle,alreadyPlayed)
+			alreadyPlayed = 0
+		}
+	}
+}
+
+function ostopPlayback(artist,title) {
+	currentlyPlaying = false
+	console.log("Playback stopped!")
+	d = new Date()
+	t = Math.floor(d.getTime()/1000)
+	delta = t - lastUpdate
+	console.log("Since the last update, " + delta + " seconds of music have been played")
+	alreadyPlayed = alreadyPlayed + delta
+	console.log(alreadyPlayed + " seconds of this track have been played overall")
+	if ((alreadyPlayed > currentLength/2) && !alreadyScrobbled) {
+		console.log("Enough to scrobble: " + currentArtist + " - " + currentTitle)
+		scrobble(currentArtist,currentTitle)
+		alreadyScrobbled = true
+	}
+}
+
+function ostartPlayback(artist,title,seconds) {
 	
 	console.log("Playback started!")
 	if (artist == currentArtist && title == currentTitle && !currentlyPlaying) {
@@ -116,26 +198,21 @@ function startPlayback(artist,title,seconds) {
 	}
 }
 
-function stopPlayback() {
-	currentlyPlaying = false
-	console.log("Playback stopped!")
-	d = new Date()
-	t = Math.floor(d.getTime()/1000)
-	delta = t - lastUpdate
-	console.log("Since the last update, " + delta + " seconds of music have been played")
-	alreadyPlayed = alreadyPlayed + delta
-	console.log(alreadyPlayed + " seconds of this track have been played overall")
-	if ((alreadyPlayed > currentLength/2) && !alreadyScrobbled) {
-		console.log("Enough to scrobble: " + currentArtist + " - " + currentTitle)
-		scrobble(currentArtist,currentTitle)
-		alreadyScrobbled = true
-	}
-}
 
-function scrobble(artist,title) {
+
+function scrobble(artist,title,seconds) {
+	console.log("Scrobbling " + artist + " - " + title + "; " + seconds + " seconds playtime")
 	artiststring = encodeURIComponent(artist)
 	titlestring = encodeURIComponent(title)
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET","http://localhost:12345/db/newscrobble?artist=" + artiststring + "&title=" + titlestring,true);
+	xhttp.open("GET","http://localhost:42010/db/newscrobble?artist=" + artiststring + "&title=" + titlestring,true);
 	xhttp.send()
+}
+
+function setUpdate() {
+	d = new Date()
+	t = Math.floor(d.getTime()/1000)
+	delta = t - lastUpdate
+	lastUpdate = t
+	return delta
 }

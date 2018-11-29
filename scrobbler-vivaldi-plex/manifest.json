@@ -11,26 +11,7 @@
 			"background.js"
 		]
 	},
-	"content_scripts":
-	[
-		{
-			"matches":
-			[
-				"http://app.plex.tv/*",
-				"https://app.plex.tv/*"
-			],
-			"include_globs":
-			[
-				"http://plex.*",
-				"https://plex.*"
-			],
-			"js":
-			[
-				"contentScript.js"
-			]
-		}
 	
-	],
 	
 	"browser_action":
 	{
