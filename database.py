@@ -12,6 +12,8 @@ SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 
+timestamps = set()
+
 c = CleanerAgent()
 
 lastsync = 0
@@ -43,13 +45,17 @@ def getTrackObject(o):
 
 
 	
-def createScrobble(artists,title,time):	
-	i = getTrackID(artists,title)	
+def createScrobble(artists,title,time):
+	while (time in timestamps):
+		time += 1
+	i = getTrackID(artists,title)
 	obj = (i,time,False)
 	SCROBBLES.append(obj)
 
-def readScrobble(artists,title,time):	
-	i = getTrackID(artists,title)	
+def readScrobble(artists,title,time):
+	while (time in timestamps):
+		time += 1
+	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
 
