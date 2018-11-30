@@ -1,4 +1,4 @@
-from bottle import route, run, template, static_file, request, response, FormsDict
+from bottle import route, get, post, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import urllib
 import waitress
@@ -96,7 +96,8 @@ def get_scrobbles():
 def get_tracks():
 	artist = request.query.get("artist")
 	
-	artistid = ARTISTS.index(artist)
+	if artist is not None:
+		artistid = ARTISTS.index(artist)
 	
 	# Option 1
 	ls = [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
@@ -122,9 +123,30 @@ def get_charts():
 	#results = db_query(since=since,to=to)
 	#return {"list":results}
 	
-@route("/newscrobble")
-def post_scrobble():
+@get("/newscrobble")
+def pseudo_post_scrobble():
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
+	artists = keys.get("artist")
+	title = keys.get("title")
+	try:
+		time = int(keys.get("time"))
+	except:
+		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	(artists,title) = c.fullclean(artists,title)
+
+	## this is necessary for localhost testing
+	response.set_header("Access-Control-Allow-Origin","*")
+	
+	createScrobble(artists,title,time)
+	
+	if (time - lastsync) > 3600:
+		sync()
+	
+	return ""
+	
+@post("/newscrobble")
+def post_scrobble():
+	keys = FormsDict.decode(request.forms) # The Dal★Shabet handler
 	artists = keys.get("artist")
 	title = keys.get("title")
 	try:

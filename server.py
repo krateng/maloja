@@ -1,4 +1,4 @@
-from bottle import route, run, template, static_file, request, response, FormsDict
+from bottle import route, get, post, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import _thread
 import waitress
@@ -22,7 +22,7 @@ def mainpage():
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
 # e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
 
-@route("/db/<pth:path>")
+@get("/db/<pth:path>")
 def database(pth):
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	keystring = "?"
@@ -32,6 +32,13 @@ def database(pth):
 	response.content_type = "application/json"
 	response.set_header("Access-Control-Allow-Origin","*")
 	#print("Returning " + "http://localhost:" + str(DATABASE_PORT) + "/" + pth)
+	return contents
+	
+@post("/db/<pth:path>")
+def database(pth):
+	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth,request.body).read()
+	response.content_type = "application/json"
+	response.set_header("Access-Control-Allow-Origin","*")
 	return contents
 
 @route("/exit")

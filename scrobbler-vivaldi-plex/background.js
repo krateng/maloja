@@ -211,8 +211,8 @@ function scrobble(artist,title,seconds) {
 	artiststring = encodeURIComponent(artist)
 	titlestring = encodeURIComponent(title)
 	var xhttp = new XMLHttpRequest();
-	xhttp.open("GET","http://localhost:42010/db/newscrobble?artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds,true);
-	xhttp.send()
+	xhttp.open("POST","http://localhost:42010/db/newscrobble",true);
+	xhttp.send("artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds)
 }
 
 function setUpdate() {
