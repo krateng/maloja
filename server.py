@@ -37,18 +37,20 @@ def database_get(pth):
 	
 @post("/db/<pth:path>")
 def database_post(pth):
+	response.set_header("Access-Control-Allow-Origin","*")
 	try:
 		proxyresponse = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth,request.body)
 		contents = proxyresponse.read()
 		response.status = proxyresponse.getcode()
+		response.content_type = "application/json"
+		return contents
 	except HTTPError as e:
-		contents = ""
 		response.status = e.code
+		return
 		
-		
-	response.content_type = "application/json"
-	response.set_header("Access-Control-Allow-Origin","*")
-	return contents
+	
+	
+	return
 
 @route("/exit")
 def shutdown():

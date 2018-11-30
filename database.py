@@ -24,6 +24,7 @@ lastsync = 0
 ### symmetric keys are fine for now since we hopefully use HTTPS
 def loadAPIkeys():
 	global clients
+	createTSV("clients/authenticated_machines.tsv")
 	clients = parseTSV("clients/authenticated_machines.tsv","string","string")
 
 def checkAPIkey(k):

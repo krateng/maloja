@@ -50,3 +50,9 @@ def parseAllTSV(path,*args):
 			
 	return result
 	
+def createTSV(filename):
+	import os
+	
+	if not os.path.exists(filename):
+		open(filename,"w").close()
+	
