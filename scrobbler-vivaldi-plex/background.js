@@ -210,9 +210,10 @@ function scrobble(artist,title,seconds) {
 	console.log("Scrobbling " + artist + " - " + title + "; " + seconds + " seconds playtime")
 	artiststring = encodeURIComponent(artist)
 	titlestring = encodeURIComponent(title)
+	APIKEY = "YDzcmp8JpYHCcvJbDOVT7nEDoyCEND6K" ///obviously this will not be hardcoded later
 	var xhttp = new XMLHttpRequest();
 	xhttp.open("POST","http://localhost:42010/db/newscrobble",true);
-	xhttp.send("artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds)
+	xhttp.send("artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds + "&key=" + APIKEY)
 }
 
 function setUpdate() {

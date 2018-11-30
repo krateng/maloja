@@ -4,6 +4,7 @@ import _thread
 import waitress
 import urllib.request
 import urllib.parse
+from urllib.error import *
 import sys
 import signal
 
@@ -23,7 +24,7 @@ def mainpage():
 # e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
 
 @get("/db/<pth:path>")
-def database(pth):
+def database_get(pth):
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	keystring = "?"
 	for k in keys:
@@ -35,8 +36,16 @@ def database(pth):
 	return contents
 	
 @post("/db/<pth:path>")
-def database(pth):
-	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth,request.body).read()
+def database_post(pth):
+	try:
+		proxyresponse = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth,request.body)
+		contents = proxyresponse.read()
+		response.status = proxyresponse.getcode()
+	except HTTPError as e:
+		contents = ""
+		response.status = e.code
+		
+		
 	response.content_type = "application/json"
 	response.set_header("Access-Control-Allow-Origin","*")
 	return contents

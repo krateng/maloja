@@ -5,6 +5,7 @@ import waitress
 import os
 import datetime
 from cleanup import *
+from utilities import *
 import sys
 
 
@@ -15,22 +16,18 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 timestamps = set()
 
 c = CleanerAgent()
+clients = []
 
 lastsync = 0
 
 
-# by id
-#def getScrobbleObject(o):
-#	#return {"artists":getTrackObject(SCROBBLES[o][0])["artists"],"title":getTrackObject(SCROBBLES[o][0])["title"],"time":SCROBBLES[o][1],"saved":SCROBBLES[o][2]}
-#	return {"artists":getTrackObject(SCROBBLES[o][0])["artists"],"title":getTrackObject(SCROBBLES[o][0])["title"],"time":SCROBBLES[o][1]}
-#	
-#def getArtistObject(o):
-#	return ARTISTS[o]
-#	
-#def getTrackObject(o):
-#	return {"artists":[getArtistObject(a) for a in TRACKS[o][0]],"title":TRACKS[o][1]}
+### symmetric keys are fine for now since we hopefully use HTTPS
+def loadAPIkeys():
+	global clients
+	clients = parseTSV("clients/authenticated_machines.tsv","string","string")
 
-# by object
+def checkAPIkey(k):
+	return (k in [k for [k,d] in clients])
 
 def getScrobbleObject(o):
 	track = getTrackObject(TRACKS[o[0]])
@@ -149,6 +146,11 @@ def post_scrobble():
 	keys = FormsDict.decode(request.forms) # The Dal★Shabet handler
 	artists = keys.get("artist")
 	title = keys.get("title")
+	apikey = keys.get("key")
+	if not (checkAPIkey(apikey)):
+		response.status = 403
+		return ""
+	
 	try:
 		time = int(keys.get("time"))
 	except:
@@ -177,6 +179,8 @@ def runserver(DATABASE_PORT):
 	#reload()
 	#buildh()
 	build_db()
+
+	loadAPIkeys()
 
 	run(host='0.0.0.0', port=DATABASE_PORT, server='waitress')
 
