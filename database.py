@@ -111,15 +111,19 @@ def get_artists():
 	
 	return {"list":ARTISTS}
 	
-@route("/charts")
+@route("/artistcharts")
 def get_charts():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
-	#better do something here to sum up the totals on db level (before converting to dicts)
+	return {"list":db_aggregate(by="ARTIST",since=since,to=to)}
 	
-	#results = db_query(since=since,to=to)
-	#return {"list":results}
+@route("/trackcharts")
+def get_charts():
+	since = request.query.get("since")
+	to = request.query.get("to")
+	
+	return {"list":db_aggregate(by="TRACK",since=since,to=to)}
 	
 @get("/newscrobble")
 def pseudo_post_scrobble():
@@ -245,21 +249,8 @@ def sync():
 
 # Queries the database			
 def db_query(artist=None,track=None,since=0,to=9999999999):
-	if isinstance(since, str):
-		sdate = [int(x) for x in since.split("/")]
-		date = [1970,1,1,0,0]
-		date[:len(sdate)] = sdate
-		since = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-	if isinstance(to, str):
-		sdate = [int(x) for x in to.split("/")]
-		date = [1970,1,1,0,0]
-		date[:len(sdate)] = sdate
-		to = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-		
-	if (since==None):
-		since = 0
-	if (to==None):
-		to = 9999999999
+	(since, to) = getTimestamps(since,to)
+	
 	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly (and title string simply picks the first track with that name)	
 	if isinstance(artist, str):
@@ -273,6 +264,60 @@ def db_query(artist=None,track=None,since=0,to=9999999999):
 		
 	#thingsweneed = ["artists","title","time"]
 	#return [{key:t[key] for key in thingsweneed} for t in DATABASE if (artist in t["artists"] or artist==None) and (t["title"]==title or title==None) and (since < t["time"] < to)]
+	
+
+# Queries that... well... aggregate
+def db_aggregate(by,since=0,to=9999999999):
+	(since, to) = getTimestamps(since,to)
+	
+	if (by=="ARTIST"):
+		#this is probably a really bad idea
+		#for a in ARTISTS:
+		#	num = len(db_query(artist=a,since=since,to=to))
+		#	
+				
+		# alright let's try for real
+		charts = {}
+		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+			artists = TRACKS[s[0]][0]
+			for a in artists:
+				# this either creates the new entry or increments the existing one
+				charts[a] = charts.setdefault(a,0) + 1
+				
+		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a]} for a in charts]
+		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
+		
+	elif (by=="TRACK"):
+		charts = {}
+		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+			track = s[0]
+			# this either creates the new entry or increments the existing one
+			charts[track] = charts.setdefault(track,0) + 1
+				
+		ls = [{"track":getTrackObject(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
+		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
+	
+
+# Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.	
+def getTimestamps(f,t):
+	#(f,t) = inp
+	if isinstance(f, str):
+		sdate = [int(x) for x in f.split("/")]
+		date = [1970,1,1,0,0]
+		date[:len(sdate)] = sdate
+		f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+	if isinstance(t, str):
+		sdate = [int(x) for x in t.split("/")]
+		date = [1970,1,1,0,0]
+		date[:len(sdate)] = sdate
+		t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		
+	if (f==None):
+		f = 0
+	if (t==None):
+		t = 9999999999
+	
+	return (f,t)
 	
 # Search for strings
 def db_search(query,type=None):
