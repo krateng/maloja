@@ -89,9 +89,40 @@ class CleanerAgent:
 		return (t,[])
 		
 		
+
+#this is for all the runtime changes (counting Trouble Maker as HyunA for charts etc)		
+class CollectorAgent:
+	
+	def __init__(self):
+		self.updateRules()
+	
+	def updateRules(self):
+		raw = utilities.parseAllTSV("rules","string","string","string")
+		self.rules_countas = {b:c for [a,b,c] in raw if a=="countas"}
+		self.rules_include = {} #Twice the memory, double the performance! (Yes, we're saving redundant information here, but it's not unelegant if it's within a closed object!)
+		for a in self.rules_countas:
+			self.rules_include[self.rules_countas[a]] = self.rules_include.setdefault(self.rules_countas[a],[]) + [a]
+	
+	# this agent needs to be aware of the current id assignment in the main program. but unelegant, but the best way i can think of	
+	def updateIDs(self,artistlist):
+		self.rules_countas_id = {artistlist.index(a):artistlist.index(self.rules_countas[a]) for a in self.rules_countas}
+		#self.rules_include_id = {artistlist.index(a):artistlist.index(self.rules_include[a]) for a in self.rules_include}
+		#this needs to take lists into account
 		
+	def getCredited(self,artist):
+		if artist in self.rules_countas_id:
+			return self.rules_countas_id[artist]
+		if artist in self.rules_countas:
+			return self.rules_countas[artist]
+		else:
+			return artist
+	
 		
-		
+	def getCreditedList(self,artists):
+		updatedArtists = []
+		for artist in artists:
+			updatedArtists.append(self.getCredited(artist))
+		return list(set(updatedArtists))
 		
 		
 		

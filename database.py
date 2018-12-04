@@ -16,6 +16,7 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 timestamps = set()
 
 c = CleanerAgent()
+sovereign = CollectorAgent()
 clients = []
 
 lastsync = 0
@@ -184,6 +185,7 @@ def runserver(DATABASE_PORT):
 	#reload()
 	#buildh()
 	build_db()
+	sovereign.updateIDs(ARTISTS)
 
 	loadAPIkeys()
 
@@ -280,7 +282,7 @@ def db_aggregate(by,since=0,to=9999999999):
 		charts = {}
 		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
 			artists = TRACKS[s[0]][0]
-			for a in artists:
+			for a in sovereign.getCreditedList(artists):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
 				
