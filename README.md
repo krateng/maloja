@@ -39,3 +39,5 @@ I wouldn't recommend it yet. But if you want to test Maloja, it's fairly easy:
 			rewrite ^/db(.*)$ $1 break;
 			proxy_pass http://yoururl:42011;
 		}
+		
+If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in logs/ and the server will recognize it on startup.

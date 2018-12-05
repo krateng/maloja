@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from bottle import route, get, post, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import _thread
@@ -76,9 +78,16 @@ def static_html(name):
 
 	return static_file("website/" + name + ".html",root="")
 
-
+#set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
 
+#rename process, not important
+try:
+	import setproctitle
+	setproctitle.setproctitle("Maloja")
+except:
+	pass
+	
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
 

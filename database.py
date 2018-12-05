@@ -52,6 +52,7 @@ def createScrobble(artists,title,time):
 	obj = (i,time,False)
 	SCROBBLES.append(obj)
 
+
 def readScrobble(artists,title,time):
 	while (time in timestamps):
 		time += 1
@@ -59,6 +60,7 @@ def readScrobble(artists,title,time):
 	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
+	
 
 def getArtistID(name):
 
@@ -113,19 +115,81 @@ def get_artists():
 	return {"list":ARTISTS}
 	
 @route("/artistcharts")
-def get_charts():
+def get_charts_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"list":db_aggregate(by="ARTIST",since=since,to=to)}
 	
 @route("/trackcharts")
-def get_charts():
+def get_charts_tracks():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"list":db_aggregate(by="TRACK",since=since,to=to)}
 	
+@route("/top/artists")
+def get_top_artists():
+	date_start = datetime.datetime.utcfromtimestamp(min(timestamps))
+	date_end = datetime.datetime.utcnow()
+	d_end = [date_end.year,date_end.month,date_end.day]
+	
+	step = request.query.get("step")	
+	time = request.query.get("time")	# should not be lower than step
+	if (step == None):
+		step = "month"
+	if (time == None):
+		time = "month-3"
+	
+	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	[time,timen] = (time.split("-") + [1])[:2]	
+	
+	if step == "year":
+		d_start = [date_start.year,1,1]
+	elif step == "month":
+		d_start = [date_start.year,date_start.month,1]
+		
+	inc = [i*int(stepn) for i in {"year":[1,0,0],"month":[0,1,0]}[step]]
+	ran = [i*int(timen) for i in {"year":[1,0,0],"month":[0,1,0]}[time]]
+	
+	d_start = addDate(d_start,inc)				# first range should end right after the first active scrobbling week / month / whatever relevant step
+	d_start = addDate(d_start,[-i for i in ran])		# go one range back to begin
+
+	results = []
+	
+	d_current = d_start
+	while True:
+		d_current_end = addDate(d_current,ran)
+		res = db_aggregate(since=d_current,to=d_current_end,by="ARTIST")[0]
+		results.append({"from":d_current,"to":d_current_end,"artist":res["artist"],"scrobbles":res["scrobbles"]})
+		d_current = addDate(d_current,inc)
+		if isPast(d_current_end,d_end):
+			break
+	
+	return {"list":results}
+		
+	
+# only for months and years so far	
+def addDate(date,inc):
+	newdate = [1,1,1]
+	newdate[0] = date[0] + inc[0]
+	newdate[1] = date[1] + inc[1]
+	while (newdate[1] > 12):
+		newdate[1] -= 12
+		newdate[0] += 1
+	while (newdate[1] < 1):
+		newdate[1] += 12
+		newdate[0] -= 1
+	
+	return newdate
+	
+def isPast(date,limit):
+	if not date[0] == limit[0]:
+		return date[0] > limit[0]
+	if not date[1] == limit[1]:
+		return date[1] > limit[1]
+	return (date[2] > limit[2])
+
 @get("/newscrobble")
 def pseudo_post_scrobble():
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
@@ -221,6 +285,8 @@ def build_db():
 			time = int(data[0])
 			
 			readScrobble(artists,title,time)
+			
+	
 	
 		
 
@@ -304,15 +370,23 @@ def db_aggregate(by,since=0,to=9999999999):
 def getTimestamps(f,t):
 	#(f,t) = inp
 	if isinstance(f, str):
-		sdate = [int(x) for x in f.split("/")]
-		date = [1970,1,1,0,0]
-		date[:len(sdate)] = sdate
-		f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		f = [int(x) for x in f.split("/")]
+		
 	if isinstance(t, str):
-		sdate = [int(x) for x in t.split("/")]
+		t = [int(x) for x in t.split("/")]
+		
+	
+	# this step is done if either the input is a list or the first step was done (which creates a list)	
+	if isinstance(f, list):
 		date = [1970,1,1,0,0]
-		date[:len(sdate)] = sdate
+		date[:len(f)] = f
+		f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		
+	if isinstance(t, list):
+		date = [1970,1,1,0,0]
+		date[:len(t)] = t
 		t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		
 		
 	if (f==None):
 		f = 0
