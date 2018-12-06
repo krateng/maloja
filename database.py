@@ -114,14 +114,14 @@ def get_artists():
 	
 	return {"list":ARTISTS}
 	
-@route("/artistcharts")
+@route("/charts/artists")
 def get_charts_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"list":db_aggregate(by="ARTIST",since=since,to=to)}
 	
-@route("/trackcharts")
+@route("/charts/tracks")
 def get_charts_tracks():
 	since = request.query.get("since")
 	to = request.query.get("to")
@@ -267,12 +267,12 @@ def build_db():
 
 	SCROBBLES = SCROBBLESNEW
 	
-	for f in os.listdir("logs/"):
+	for f in os.listdir("scrobbles/"):
 		
 		if not (".tsv" in f):
 			continue
 		
-		logfile = open("logs/" + f)
+		logfile = open("scrobbles/" + f)
 		for l in logfile:
 			
 			l = l.replace("\n","")
@@ -303,7 +303,7 @@ def sync():
 			
 			entry = "\t".join([str(t["time"]),artistss,t["title"]])
 		
-			monthfile = open("logs/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
+			monthfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
 			monthfile.write(entry)
 			monthfile.write("\n")
 			monthfile.close()

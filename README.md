@@ -28,8 +28,14 @@ Deep in development. I just uploaded Maloja here in case I die tomorrow. It can 
 
 I wouldn't recommend it yet. But if you want to test Maloja, it's fairly easy:
 
-1) Put it anywhere and start server.py
-2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
+1) Install the requirements:
+
+* [bottle.py](https://github.com/bottlepy/bottle)
+* [waitress](https://github.com/Pylons/waitress)
+
+
+2) Put it anywhere and start server.py
+3) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 
 		location / {
 			proxy_pass http://yoururl:42010;
