@@ -80,6 +80,7 @@ def static_html(name):
 
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
+signal.signal(signal.SIGTERM, graceful_exit)
 
 #rename process, not important
 try:

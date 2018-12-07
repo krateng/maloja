@@ -128,10 +128,59 @@ def get_charts_tracks():
 	
 	return {"list":db_aggregate(by="TRACK",since=since,to=to)}
 	
+@route("/charts")
+def get_charts():
+	since = request.query.get("since")
+	to = request.query.get("to")
+	
+	return {"number":db_aggregate(since=since,to=to)}
+	
+@route("/pulse")
+def get_pulse():
+	since = request.query.get("since")
+	to = request.query.get("to")
+	(ts_start,ts_end) = getTimestamps(since,to)
+	date_start = datetime.datetime.utcfromtimestamp(ts_start)
+	date_end = datetime.datetime.utcfromtimestamp(ts_end)
+	#date_start = datetime.datetime.utcfromtimestamp(min(timestamps))
+	#date_end = datetime.datetime.utcnow()
+	d_end = [date_end.year,date_end.month,date_end.day]
+	
+	step = request.query.get("step")
+	if (step == None):
+		step = "month"
+	
+	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	
+	if step == "year":
+		d_start = [date_start.year,1,1]
+	elif step == "month":
+		d_start = [date_start.year,date_start.month,1]
+		
+	inc = [i*int(stepn) for i in {"year":[1,0,0],"month":[0,1,0]}[step]]
+	
+
+	results = []
+	
+	d_current = d_start
+	while True:
+		d_current_end = addDate(d_current,inc)
+		res = db_aggregate(since=d_current,to=d_current_end)
+		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
+		d_current = d_current_end
+		if isPast(d_current_end,d_end):
+			break
+	
+	return {"list":results}
+		
+	
 @route("/top/artists")
 def get_top_artists():
-	date_start = datetime.datetime.utcfromtimestamp(min(timestamps))
-	date_end = datetime.datetime.utcnow()
+	since = request.query.get("since")
+	to = request.query.get("to")
+	(ts_start,ts_end) = getTimestamps(since,to)
+	date_start = datetime.datetime.utcfromtimestamp(ts_start)
+	date_end = datetime.datetime.utcfromtimestamp(ts_end)
 	d_end = [date_end.year,date_end.month,date_end.day]
 	
 	step = request.query.get("step")	
@@ -335,7 +384,7 @@ def db_query(artist=None,track=None,since=0,to=9999999999):
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by,since=0,to=9999999999):
+def db_aggregate(by=None,since=0,to=9999999999):
 	(since, to) = getTimestamps(since,to)
 	
 	if (by=="ARTIST"):
@@ -364,6 +413,9 @@ def db_aggregate(by,since=0,to=9999999999):
 				
 		ls = [{"track":getTrackObject(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
 		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
+		
+	else:
+		return len([scr for scr in SCROBBLES if since < scr[1] < to])
 	
 
 # Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.	
@@ -389,9 +441,9 @@ def getTimestamps(f,t):
 		
 		
 	if (f==None):
-		f = 0
+		f = min(timestamps)
 	if (t==None):
-		t = 9999999999
+		t = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
 	
 	return (f,t)
 	

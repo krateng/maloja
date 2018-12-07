@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 
-import subprocess
+neededmodules = [
+	"bottle",
+	"waitress"
+]
+toinstall = []
 
-subprocess.Popen(["python","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-print("Maloja started!")
+for m in neededmodules:
+	try:
+		exec("import " + m) #I'm sorry
+	except:
+		toinstall.append(m)
+		
+if toinstall != []:
+	print("The following python modules need to be installed:")
+	for m in toinstall:
+		print("\t" + m)
+else:
+	import subprocess
+	subprocess.Popen(["python","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+	print("Maloja started!")

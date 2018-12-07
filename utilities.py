@@ -55,4 +55,8 @@ def createTSV(filename):
 	
 	if not os.path.exists(filename):
 		open(filename,"w").close()
+		
+		
+def log(msg):
+	print(msg)
 	
