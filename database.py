@@ -31,6 +31,11 @@ def loadAPIkeys():
 def checkAPIkey(k):
 	return (k in [k for [k,d] in clients])
 
+
+####
+## Getting dict representations of database objects
+####
+
 def getScrobbleObject(o):
 	track = getTrackObject(TRACKS[o[0]])
 	return {"artists":track["artists"],"title":track["title"],"time":o[1]}
@@ -41,6 +46,11 @@ def getArtistObject(o):
 def getTrackObject(o):
 	artists = [getArtistObject(ARTISTS[a]) for a in o[0]]
 	return {"artists":artists,"title":o[1]}
+
+
+####
+## Creating or finding existing database entries
+####
 
 
 	
@@ -84,6 +94,11 @@ def getTrackID(artists,title):
 		i = len(TRACKS)
 		TRACKS.append(obj)
 	return i
+
+
+####
+## HTTP requests
+####
 
 
 @route("/scrobbles")
@@ -290,6 +305,13 @@ def post_scrobble():
 def abouttoshutdown():
 	sync()
 	#sys.exit()
+	
+	
+####
+## Server operation
+####
+
+
 
 # Starts the server
 def runserver(DATABASE_PORT):
@@ -364,8 +386,17 @@ def sync():
 	print("Database saved to disk.")
 			
 
+
+
+
+####
+## Database queries
+####
+
+
+
 # Queries the database			
-def db_query(artist=None,track=None,since=0,to=9999999999):
+def db_query(artist=None,track=None,since=None,to=None):
 	(since, to) = getTimestamps(since,to)
 	
 	
@@ -384,7 +415,7 @@ def db_query(artist=None,track=None,since=0,to=9999999999):
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=0,to=9999999999):
+def db_aggregate(by=None,since=None,to=None):
 	(since, to) = getTimestamps(since,to)
 	
 	if (by=="ARTIST"):
@@ -418,6 +449,29 @@ def db_aggregate(by=None,since=0,to=9999999999):
 		return len([scr for scr in SCROBBLES if since < scr[1] < to])
 	
 
+
+# Search for strings
+def db_search(query,type=None):
+	if type=="ARTIST":
+		results = []
+		for a in ARTISTS:
+			if query.lower() in a.lower():
+				results.append(a)
+	
+	if type=="TRACK":
+		results = []
+		for t in TRACKS:
+			if query.lower() in t[1].lower():
+				results.append(t)
+	
+	return results
+
+
+####
+## Useful functions
+####
+
+
 # Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.	
 def getTimestamps(f,t):
 	#(f,t) = inp
@@ -447,19 +501,15 @@ def getTimestamps(f,t):
 	
 	return (f,t)
 	
-# Search for strings
-def db_search(query,type=None):
-	if type=="ARTIST":
-		results = []
-		for a in ARTISTS:
-			if query.lower() in a.lower():
-				results.append(a)
+
 	
-	if type=="TRACK":
-		results = []
-		for t in TRACKS:
-			if query.lower() in t[1].lower():
-				results.append(t)
-	
-	return results
+def getArtistId(nameorid):
+	if isinstance(nameorid,int):
+		return nameorid
+	else:
+		try:
+			return ARTISTS.index(nameorid)
+		except:
+			return -1
+			
 			

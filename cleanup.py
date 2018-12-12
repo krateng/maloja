@@ -85,6 +85,14 @@ class CleanerAgent:
 				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) \(" + d + " (.*?)\)",r"\1",t))
 				artists += self.parseArtists(re.sub(r"(.*) \(" + d + " (.*?)\).*",r"\2",t))
 				return (title,artists)
+			if re.match(r"(.*) - " + d + " (.*)",t) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) - " + d + " (.*)",r"\1",t))
+				artists += self.parseArtists(re.sub(r"(.*) - " + d + " (.*).*",r"\2",t))
+				return (title,artists)
+			if re.match(r"(.*) " + d + " (.*)",t) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) " + d + " (.*)",r"\1",t))
+				artists += self.parseArtists(re.sub(r"(.*) " + d + " (.*).*",r"\2",t))
+				return (title,artists)
 		
 		return (t,[])
 		
@@ -103,7 +111,7 @@ class CollectorAgent:
 		for a in self.rules_countas:
 			self.rules_include[self.rules_countas[a]] = self.rules_include.setdefault(self.rules_countas[a],[]) + [a]
 	
-	# this agent needs to be aware of the current id assignment in the main program. but unelegant, but the best way i can think of	
+	# this agent needs to be aware of the current id assignment in the main program. unelegant, but the best way i can think of	
 	def updateIDs(self,artistlist):
 		self.rules_countas_id = {artistlist.index(a):artistlist.index(self.rules_countas[a]) for a in self.rules_countas}
 		#self.rules_include_id = {artistlist.index(a):artistlist.index(self.rules_include[a]) for a in self.rules_include}
