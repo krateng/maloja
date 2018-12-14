@@ -4,13 +4,15 @@
 	<head>
 		<title>Wat</title>
 		<script type="text/javascript" src="settings.js"></script>
+		<meta charset="UTF-8">
 	</head>
-	<body>
+	<body style="width:300px">
 		<div id="wat">
-			<p>Server:</p>
-			<input type="text" id="serverurl" value="http://localhost:42010" />
-			<p>API key:</p>
-			<input type="text" id="apikey" />
+			<span id="checkmark_url"></span> <span style="line-height:20px">Server:</span><br />
+			<input style="width:270px" type="text" id="serverurl" value="http://localhost:42010" /> 
+			<br /><br />
+			<span id="checkmark_key"></span> <span style="line-height:20px">API key:</span><br />
+			<input style="width:270px" type="text" id="apikey" /> 
 		</div>
 	</body>
 </html>

@@ -100,6 +100,17 @@ def getTrackID(artists,title):
 ## HTTP requests
 ####
 
+@route("/test")
+def test_server():
+	apikey = request.query.get("key")
+	response.set_header("Access-Control-Allow-Origin","*")
+	if not (checkAPIkey(apikey)):
+		response.status = 403
+		return "Wrong or Missing API key"
+	
+	else:
+		response.status = 204
+		return
 
 @route("/scrobbles")
 def get_scrobbles():

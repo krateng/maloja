@@ -31,11 +31,16 @@ def database_get(pth):
 	keystring = "?"
 	for k in keys:
 		keystring += urllib.parse.quote(k) + "=" + urllib.parse.quote(keys[k]) + "&"
-	contents = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth + keystring).read()
-	response.content_type = "application/json"
 	response.set_header("Access-Control-Allow-Origin","*")
-	#print("Returning " + "http://localhost:" + str(DATABASE_PORT) + "/" + pth)
-	return contents
+	try:
+		proxyresponse = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth + keystring)
+		contents = proxyresponse.read()
+		response.status = proxyresponse.getcode()
+		response.content_type = "application/json"
+		return contents
+	except HTTPError as e:
+		response.status = e.code
+		return
 	
 @post("/db/<pth:path>")
 def database_post(pth):
