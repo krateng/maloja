@@ -81,8 +81,16 @@ def static(name):
 	
 @route("/<name>")
 def static_html(name):
+	keys = FormsDict.decode(request.query)
 	if os.path.exists("website/" + name + ".py"):
-		return SourceFileLoader(name,"website/" + name + ".py").load_module().page(FormsDict.decode(request.query))
+		txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+		with open("website/" + name + ".html") as htmlfile:
+			html = htmlfile.read()
+			for k in txt_keys:
+				html = html.replace(k,txt_keys[k])		
+			return html
+		
+		
 
 	return static_file("website/" + name + ".html",root="")
 

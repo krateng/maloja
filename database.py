@@ -121,7 +121,8 @@ def get_scrobbles():
 
 @route("/tracks")
 def get_tracks():
-	artist = request.query.get("artist")
+	keys = FormsDict.decode(request.query)
+	artist = keys.get("artist")
 	
 	if artist is not None:
 		artistid = ARTISTS.index(artist)
@@ -297,20 +298,22 @@ def getNext(time,unit,step=1):
 	elif unit == "week":
 		return getNext(time,"day",step * 7)
 		
+@route("/artistinfo")	
+def artistInfo():
+	keys = FormsDict.decode(request.query)
+	artist = keys.get("artist")
 	
-#def addDate(date,inc):
-#	newdate = [1,1,1]
-#	newdate[0] = date[0] + inc[0]
-#	newdate[1] = date[1] + inc[1]
-#	newdate[2] = date[2] + inc[2]
-#	while (newdate[1] > 12):
-#		newdate[1] -= 12
-#		newdate[0] += 1
-#	while (newdate[1] < 1):
-#		newdate[1] += 12
-#		newdate[0] -= 1
-#	
-#	return newdate
+	charts = db_aggregate(by="ARTIST")
+	scrobbles = len(db_query(artist=artist)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
+	try:
+		c = [e for e in charts if e["artist"] == artist][0]
+		others = sovereign.getAllAssociated(artist)
+		return {"scrobbles":scrobbles,"position":charts.index(c) + 1,"associated":others}
+	except:
+		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
+		artist = sovereign.getCredited(artist)
+		c = [e for e in charts if e["artist"] == artist][0]
+		return {"replace":artist,"scrobbles":scrobbles,"position":charts.index(c) + 1}
 	
 def isPast(date,limit):
 	if not date[0] == limit[0]:

@@ -49,6 +49,13 @@ class CleanerAgent:
 			if re.match(r"(.*) \(" + d + " (.*)\)",a) is not None:
 				return self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
 		
+		for d in self.delimiters_formal:
+			if (d in a):
+				ls = []
+				for i in a.split(d):
+					ls += self.parseArtists(i)
+				return ls
+		
 		for d in (self.delimiters_feat + self.delimiters):
 			if ((" " + d + " ") in a):
 				ls = []
@@ -56,12 +63,7 @@ class CleanerAgent:
 					ls += self.parseArtists(i)
 				return ls
 				
-		for d in self.delimiters_formal:
-			if (d in a):
-				ls = []
-				for i in a.split(d):
-					ls += self.parseArtists(i)
-				return ls
+		
 			
 		
 			
@@ -76,6 +78,7 @@ class CleanerAgent:
 		
 		t = re.sub(r" \(as made famous by .*?\)","",t)
 		t = re.sub(r" \(originally by .*?\)","",t)
+		t = re.sub(r" \(.*?Remaster.*?\)","",t)
 		
 		return t.strip()
 
@@ -131,6 +134,9 @@ class CollectorAgent:
 		for artist in artists:
 			updatedArtists.append(self.getCredited(artist))
 		return list(set(updatedArtists))
+		
+	def getAllAssociated(self,artist):
+		return self.rules_include.get(artist,[])
 		
 		
 		
