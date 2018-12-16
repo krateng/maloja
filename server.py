@@ -9,6 +9,7 @@ import urllib.parse
 from urllib.error import *
 import sys
 import signal
+import os
 
 
 MAIN_PORT = 42010
@@ -80,6 +81,8 @@ def static(name):
 	
 @route("/<name>")
 def static_html(name):
+	if os.path.exists("website/" + name + ".py"):
+		return SourceFileLoader(name,"website/" + name + ".py").load_module().page(FormsDict.decode(request.query))
 
 	return static_file("website/" + name + ".html",root="")
 

@@ -166,34 +166,27 @@ def get_pulse():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	(ts_start,ts_end) = getTimestamps(since,to)
-	date_start = datetime.datetime.utcfromtimestamp(ts_start)
-	date_end = datetime.datetime.utcfromtimestamp(ts_end)
-	#date_start = datetime.datetime.utcfromtimestamp(min(timestamps))
-	#date_end = datetime.datetime.utcnow()
-	d_end = [date_end.year,date_end.month,date_end.day]
-	
-	step = request.query.get("step")
-	if (step == None):
-		step = "month"
+	step = request.query.get("step","month")	
+	trail = int(request.query.get("trail",3))
 	
 	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	stepn = int(stepn)
 	
-	if step == "year":
-		d_start = [date_start.year,1,1]
-	elif step == "month":
-		d_start = [date_start.year,date_start.month,1]
-		
-	inc = [i*int(stepn) for i in {"year":[1,0,0],"month":[0,1,0]}[step]]
+	d_start = getStartOf(ts_start,step)
+	d_end = getStartOf(ts_end,step)
 	
+	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
+	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
 
 	results = []
 	
 	d_current = d_start
 	while True:
-		d_current_end = addDate(d_current,inc)
+		d_current_end = getNext(d_current,step,stepn * trail)
+		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
 		res = db_aggregate(since=d_current,to=d_current_end)
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
-		d_current = d_current_end
+		d_current = getNext(d_current,step,stepn)
 		if isPast(d_current_end,d_end):
 			break
 	
@@ -205,33 +198,17 @@ def get_top_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	(ts_start,ts_end) = getTimestamps(since,to)
-	#date_start = datetime.datetime.utcfromtimestamp(ts_start)
-	#date_end = datetime.datetime.utcfromtimestamp(ts_end)
-	#d_end = [date_end.year,date_end.month,date_end.day]
-	
-	# We use a trailing multiplier instead of a separate argument for time and step to avoid weirdness
-	# e.g. if our steps are weeks, but the time is a month, should the value for 3/31 go back to 2/28?
 	step = request.query.get("step","month")	
-	trail = int(request.query.get("trail","3"))
+	trail = int(request.query.get("trail",3))
 	
 	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	#[time,timen] = (time.split("-") + [1])[:2]
 	stepn = int(stepn)
 	
 	d_start = getStartOf(ts_start,step)
 	d_end = getStartOf(ts_end,step)
-	#if step == "year":
-	#	d_start = [date_start.year,1,1]
-	#elif step == "month":
-	#	d_start = [date_start.year,date_start.month,1]
-		
-	#inc = [i*int(stepn) for i in {"year":[1,0,0],"month":[0,1,0]}[step]]
-	#ran = [i*int(timen) for i in {"year":[1,0,0],"month":[0,1,0]}[time]]
 	
-	#d_start = addDate(d_start,inc)				# first range should end right after the first active scrobbling week / month / whatever relevant step
-	#d_start = addDate(d_start,[-i for i in ran])		# go one range back to begin
-	d_start = getNext(d_start,step,stepn)
-	d_start = getNext(d_start,step,stepn * trail * -1)
+	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
+	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
 
 	results = []
 	
@@ -239,14 +216,46 @@ def get_top_artists():
 	while True:
 		d_current_end = getNext(d_current,step,stepn * trail)
 		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
-		#d_current_end = addDate(d_current,ran)
 		try:
 			res = db_aggregate(since=d_current,to=d_current_end,by="ARTIST")[0]
 			results.append({"from":d_current,"to":d_current_end,"artist":res["artist"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"from":d_current,"to":d_current_end,"artist":None,"scrobbles":0})
 		d_current = getNext(d_current,step,stepn)
-		#d_current = addDate(d_current,inc)
+		if isPast(d_current_end,d_end):
+			break
+	
+	return {"list":results}
+	
+@route("/top/tracks")
+def get_top_tracks():
+	since = request.query.get("since")
+	to = request.query.get("to")
+	(ts_start,ts_end) = getTimestamps(since,to)
+	step = request.query.get("step","month")	
+	trail = int(request.query.get("trail",3))
+	
+	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	stepn = int(stepn)
+	
+	d_start = getStartOf(ts_start,step)
+	d_end = getStartOf(ts_end,step)
+	
+	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
+	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
+
+	results = []
+	
+	d_current = d_start
+	while True:
+		d_current_end = getNext(d_current,step,stepn * trail)
+		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
+		try:
+			res = db_aggregate(since=d_current,to=d_current_end,by="TRACK")[0]
+			results.append({"from":d_current,"to":d_current_end,"track":res["track"],"scrobbles":res["scrobbles"]})
+		except:
+			results.append({"from":d_current,"to":d_current_end,"track":None,"scrobbles":0})
+		d_current = getNext(d_current,step,stepn)
 		if isPast(d_current_end,d_end):
 			break
 	
@@ -287,21 +296,21 @@ def getNext(time,unit,step=1):
 		#eugh
 	elif unit == "week":
 		return getNext(time,"day",step * 7)
+		
 	
-# DEPRECATED
-def addDate(date,inc):
-	newdate = [1,1,1]
-	newdate[0] = date[0] + inc[0]
-	newdate[1] = date[1] + inc[1]
-	newdate[2] = date[2] + inc[2]
-	while (newdate[1] > 12):
-		newdate[1] -= 12
-		newdate[0] += 1
-	while (newdate[1] < 1):
-		newdate[1] += 12
-		newdate[0] -= 1
-	
-	return newdate
+#def addDate(date,inc):
+#	newdate = [1,1,1]
+#	newdate[0] = date[0] + inc[0]
+#	newdate[1] = date[1] + inc[1]
+#	newdate[2] = date[2] + inc[2]
+#	while (newdate[1] > 12):
+#		newdate[1] -= 12
+#		newdate[0] += 1
+#	while (newdate[1] < 1):
+#		newdate[1] += 12
+#		newdate[0] -= 1
+#	
+#	return newdate
 	
 def isPast(date,limit):
 	if not date[0] == limit[0]:

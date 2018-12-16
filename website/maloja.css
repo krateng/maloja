@@ -1,8 +1,30 @@
 @import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 body {
-	background-color:#111114;
+	background-color:#333337;
 	color:beige;
 	font-family:"Ubuntu";
 	padding:15px;
+}
+
+a {
+	color:lightgray;
+	text-decoration:none;
+}
+
+a:hover {
+	text-decoration:underline;
+}
+
+table.top_info td.image {
+	padding:20px;
+}
+
+table.top_info td.text {
+	vertical-align: top;
+    	padding-left: 30px;
+}
+
+table.top_info td.text p.stats {
+	color:grey;
 }
