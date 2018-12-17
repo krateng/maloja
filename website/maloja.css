@@ -8,7 +8,7 @@ body {
 }
 
 a {
-	color:lightgray;
+	color:inherit;
 	text-decoration:none;
 }
 
@@ -20,6 +20,13 @@ table.top_info td.image {
 	padding:20px;
 	padding-left:0px;
 	padding-top:0px;
+}
+
+table.top_info td.image div {
+	background-size:cover;
+	background-position:center;
+	height:174px;
+	width:174px
 }
 
 table.top_info td.text {

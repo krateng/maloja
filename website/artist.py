@@ -14,6 +14,7 @@ def replacedict(keys,dbport):
 	db_data = json.loads(response.read())
 	scrobbles = str(db_data["scrobbles"])
 	pos = "#" + str(db_data["position"])
+	
 	credited = db_data.get("replace")
 	includestr = " "
 	if credited is not None:
