@@ -70,18 +70,27 @@ def graceful_exit(sig=None,frame=None):
 	sys.exit()
 
 
+@route("/info/<pth:re:.*\\.jpeg>")
+@route("/info/<pth:re:.*\\.jpg>")
+@route("/info/<pth:re:.*\\.png>")
+def static_image(pth):
+	return static_file("info/" + pth,root="")
+
 @route("/<name:re:.*\\.html>")
 @route("/<name:re:.*\\.js>")
 @route("/<name:re:.*\\.css>")
 @route("/<name:re:.*\\.png>")
 @route("/<name:re:.*\\.jpeg>")
-def static(name):
-	
+def static(name):	
 	return static_file("website/" + name,root="")
+	
+
 	
 @route("/<name>")
 def static_html(name):
 	keys = FormsDict.decode(request.query)
+	
+	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
 		txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
 		with open("website/" + name + ".html") as htmlfile:
@@ -91,7 +100,7 @@ def static_html(name):
 			return html
 		
 		
-
+	# Otherwise, we just serve the html file
 	return static_file("website/" + name + ".html",root="")
 
 #set graceful shutdown

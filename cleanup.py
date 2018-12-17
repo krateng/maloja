@@ -38,6 +38,12 @@ class CleanerAgent:
 		if a.strip() == "":
 			return []
 			
+		if a.strip() in self.rules_notanartist:
+			return []
+			
+		if " performing " in a.lower():
+			return self.parseArtists(re.split(" [Pp]erforming",a)[0])
+			
 		if a.strip() in self.rules_belongtogether:
 			return [a.strip()]
 		if a.strip() in self.rules_replaceartist:

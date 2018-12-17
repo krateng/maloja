@@ -1,34 +1,14 @@
 import urllib
 import json
 
-
-
-#def page(keys):
-#
-#	txt_keys = replace(keys)
-#
-#
-#	with open("website/artist.html","r") as htmlfile:
-#		html = htmlfile.read()
-#			
-#		
-#
-#		for k in txt_keys:
-#			html = html.replace(k,txt_keys[k])
-#			
-#		return html
 		
 def replacedict(keys,dbport):
+	from utilities import getArtistInfo
 
-	with open("website/apikey","r") as keyfile:
-		apikey = keyfile.read().replace("\n","")
 	
-	
-	url = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + urllib.parse.quote(keys["artist"]) + "&api_key=" + apikey + "&format=json"
-	response = urllib.request.urlopen(url)
-	lastfm_data = json.loads(response.read())
-	imgurl = lastfm_data["artist"]["image"][2]["#text"]
-	desc = lastfm_data["artist"]["bio"]["summary"]
+	info = getArtistInfo(keys["artist"])
+	imgurl = info.get("image")
+	desc = info.get("info")
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
