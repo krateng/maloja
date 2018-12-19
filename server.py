@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from bottle import route, get, post, run, template, static_file, request, response, FormsDict
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import _thread
 import waitress
@@ -15,18 +15,19 @@ import os
 MAIN_PORT = 42010
 DATABASE_PORT = 42011
 
+webserver = Bottle()
 
-@route("")
-@route("/")
+
+@webserver.route("")
+@webserver.route("/")
 def mainpage():
 	return static_file("main.html",root="")
-
 
 
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
 # e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
 
-@get("/db/<pth:path>")
+@webserver.get("/db/<pth:path>")
 def database_get(pth):
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	keystring = "?"
@@ -43,7 +44,7 @@ def database_get(pth):
 		response.status = e.code
 		return
 	
-@post("/db/<pth:path>")
+@webserver.post("/db/<pth:path>")
 def database_post(pth):
 	response.set_header("Access-Control-Allow-Origin","*")
 	try:
@@ -60,7 +61,7 @@ def database_post(pth):
 	
 	return
 
-@route("/exit")
+@webserver.route("/exit")
 def shutdown():
 	graceful_exit()
 	
@@ -70,23 +71,23 @@ def graceful_exit(sig=None,frame=None):
 	sys.exit()
 
 
-@route("/info/<pth:re:.*\\.jpeg>")
-@route("/info/<pth:re:.*\\.jpg>")
-@route("/info/<pth:re:.*\\.png>")
+@webserver.route("/info/<pth:re:.*\\.jpeg>")
+@webserver.route("/info/<pth:re:.*\\.jpg>")
+@webserver.route("/info/<pth:re:.*\\.png>")
 def static_image(pth):
 	return static_file("info/" + pth,root="")
 
-@route("/<name:re:.*\\.html>")
-@route("/<name:re:.*\\.js>")
-@route("/<name:re:.*\\.css>")
-@route("/<name:re:.*\\.png>")
-@route("/<name:re:.*\\.jpeg>")
+@webserver.route("/<name:re:.*\\.html>")
+@webserver.route("/<name:re:.*\\.js>")
+@webserver.route("/<name:re:.*\\.css>")
+@webserver.route("/<name:re:.*\\.png>")
+@webserver.route("/<name:re:.*\\.jpeg>")
 def static(name):	
 	return static_file("website/" + name,root="")
 	
 
 	
-@route("/<name>")
+@webserver.route("/<name>")
 def static_html(name):
 	keys = FormsDict.decode(request.query)
 	
@@ -117,4 +118,4 @@ except:
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
 
-run(host='0.0.0.0', port=MAIN_PORT, server='waitress')
+run(webserver, host='0.0.0.0', port=MAIN_PORT, server='waitress')

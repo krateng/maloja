@@ -1,4 +1,4 @@
-from bottle import route, get, post, run, template, static_file, request, response, FormsDict
+from bottle import Bottle, route, get, post, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 import urllib
 import waitress
@@ -8,6 +8,8 @@ from cleanup import *
 from utilities import *
 import sys
 
+dbserver = Bottle()
+
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
@@ -15,8 +17,8 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 
 timestamps = set()
 
-c = CleanerAgent()
-sovereign = CollectorAgent()
+cla = CleanerAgent()
+coa = CollectorAgent()
 clients = []
 
 lastsync = 0
@@ -100,7 +102,7 @@ def getTrackID(artists,title):
 ## HTTP requests
 ####
 
-@route("/test")
+@dbserver.route("/test")
 def test_server():
 	apikey = request.query.get("key")
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -112,14 +114,14 @@ def test_server():
 		response.status = 204
 		return
 
-@route("/scrobbles")
+@dbserver.route("/scrobbles")
 def get_scrobbles():
 	keys = request.query
 	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"))
 
 	return {"list":r} ##json can't be a list apparently???
 
-@route("/tracks")
+@dbserver.route("/tracks")
 def get_tracks():
 	keys = FormsDict.decode(request.query)
 	artist = keys.get("artist")
@@ -136,33 +138,33 @@ def get_tracks():
 	
 	return {"list":ls}
 	
-@route("/artists")
+@dbserver.route("/artists")
 def get_artists():
 	
 	return {"list":ARTISTS}
 	
-@route("/charts/artists")
+@dbserver.route("/charts/artists")
 def get_charts_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"list":db_aggregate(by="ARTIST",since=since,to=to)}
 	
-@route("/charts/tracks")
+@dbserver.route("/charts/tracks")
 def get_charts_tracks():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"list":db_aggregate(by="TRACK",since=since,to=to)}
 	
-@route("/charts")
+@dbserver.route("/charts")
 def get_charts():
 	since = request.query.get("since")
 	to = request.query.get("to")
 	
 	return {"number":db_aggregate(since=since,to=to)}
 	
-@route("/pulse")
+@dbserver.route("/pulse")
 def get_pulse():
 	since = request.query.get("since")
 	to = request.query.get("to")
@@ -194,7 +196,7 @@ def get_pulse():
 	return {"list":results}
 		
 	
-@route("/top/artists")
+@dbserver.route("/top/artists")
 def get_top_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
@@ -228,7 +230,7 @@ def get_top_artists():
 	
 	return {"list":results}
 	
-@route("/top/tracks")
+@dbserver.route("/top/tracks")
 def get_top_tracks():
 	since = request.query.get("since")
 	to = request.query.get("to")
@@ -298,7 +300,7 @@ def getNext(time,unit,step=1):
 	elif unit == "week":
 		return getNext(time,"day",step * 7)
 		
-@route("/artistinfo")	
+@dbserver.route("/artistinfo")	
 def artistInfo():
 	keys = FormsDict.decode(request.query)
 	artist = keys.get("artist")
@@ -307,11 +309,11 @@ def artistInfo():
 	scrobbles = len(db_query(artist=artist)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
-		others = sovereign.getAllAssociated(artist)
+		others = coa.getAllAssociated(artist)
 		return {"scrobbles":scrobbles,"position":charts.index(c) + 1,"associated":others}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
-		artist = sovereign.getCredited(artist)
+		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
 		return {"replace":artist,"scrobbles":scrobbles,"position":charts.index(c) + 1}
 	
@@ -322,7 +324,7 @@ def isPast(date,limit):
 		return date[1] > limit[1]
 	return (date[2] > limit[2])
 
-@get("/newscrobble")
+@dbserver.get("/newscrobble")
 def pseudo_post_scrobble():
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	artists = keys.get("artist")
@@ -331,7 +333,7 @@ def pseudo_post_scrobble():
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	(artists,title) = c.fullclean(artists,title)
+	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -343,7 +345,7 @@ def pseudo_post_scrobble():
 	
 	return ""
 	
-@post("/newscrobble")
+@dbserver.post("/newscrobble")
 def post_scrobble():
 	keys = FormsDict.decode(request.forms) # The Dal★Shabet handler
 	artists = keys.get("artist")
@@ -357,7 +359,7 @@ def post_scrobble():
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	(artists,title) = c.fullclean(artists,title)
+	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -369,7 +371,7 @@ def post_scrobble():
 	
 	return ""
 	
-@route("/sync")
+@dbserver.route("/sync")
 def abouttoshutdown():
 	sync()
 	#sys.exit()
@@ -382,17 +384,17 @@ def abouttoshutdown():
 
 
 # Starts the server
-def runserver(DATABASE_PORT):
+def runserver(PORT):
 	global lastsync
 	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	#reload()
 	#buildh()
 	build_db()
-	sovereign.updateIDs(ARTISTS)
+	coa.updateIDs(ARTISTS)
 
 	loadAPIkeys()
 
-	run(host='0.0.0.0', port=DATABASE_PORT, server='waitress')
+	run(dbserver, host='0.0.0.0', port=PORT, server='waitress')
 
 
 def build_db():
@@ -496,7 +498,7 @@ def db_aggregate(by=None,since=None,to=None):
 		charts = {}
 		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
 			artists = TRACKS[s[0]][0]
-			for a in sovereign.getCreditedList(artists):
+			for a in coa.getCreditedList(artists):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
 				

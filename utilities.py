@@ -123,11 +123,14 @@ def getArtistInfo(artist):
 			imgurl
 		except NameError:
 			imgurl = lastfm_data["artist"]["image"][2]["#text"]
-			_thread.start_new_thread(cacheImage,(imgurl,"info/artists_cache",filename))
+			if imgurl == "":
+				imgurl = "/info/artists/default.jpg"
+			else:
+				_thread.start_new_thread(cacheImage,(imgurl,"info/artists_cache",filename))
 		try:
 			desc
 		except NameError:
-			desc = lastfm_data["artist"]["bio"]["summary"]
+			desc = lastfm_data["artist"]["bio"]["summary"].split("(1) ")[-1]
 			with open(filepath_cache + ".txt","w") as descfile:
 				descfile.write(desc)
 		# this feels so dirty
