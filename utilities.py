@@ -147,3 +147,10 @@ def cacheImage(url,path,filename):
 	response = urllib.request.urlopen(url)
 	target = path + "/" + filename + "." + response.info().get_content_subtype()	
 	urllib.request.urlretrieve(url,target)
+	
+	
+	
+def getTimeDesc(timestamp):
+	import datetime
+	tim = datetime.datetime.utcfromtimestamp(timestamp)
+	return tim.strftime("%d. %b %Y %I:%M %p")

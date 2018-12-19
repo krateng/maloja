@@ -118,6 +118,7 @@ def test_server():
 def get_scrobbles():
 	keys = request.query
 	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"))
+	r.reverse()
 
 	return {"list":r} ##json can't be a list apparently???
 
@@ -426,6 +427,8 @@ def build_db():
 			time = int(data[0])
 			
 			readScrobble(artists,title,time)
+			
+	SCROBBLES.sort(key = lambda tup: tup[1])
 			
 	
 	
