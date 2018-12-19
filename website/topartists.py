@@ -27,9 +27,9 @@ def replacedict(keys,dbport):
 	
 	html = "<table>"
 	for e in charts:
-		html += "<tr><td>"
+		html += "<tr><td class='artist'>"
 		html += "<a href=/artist?artist=" + urllib.parse.quote(e["artist"]) + ">" + e["artist"] + "</a>"
-		html += "</td><td>" + str(e["scrobbles"]) + "</td></tr>"
+		html += "</td><td class='amount'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'>" + str(e["scrobbles"]) + "</a></td></tr>"
 	html += "</table>"
 
 	return {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_SCROBBLES":str(scrobbles),"KEY_ARTISTLIST":html}

@@ -43,3 +43,15 @@ table.top_info td.text h1 {
 table.top_info td.text .stats {
 	color:grey;
 }
+
+table tr:nth-child(even) {
+	background-color:#37373B;
+}
+
+table td.time {
+	width:200px;
+	color:lightgray;
+}
+table td.artists,td.artist,td.title,td.amount {
+	width:300px;
+}

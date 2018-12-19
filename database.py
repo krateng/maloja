@@ -116,7 +116,7 @@ def test_server():
 
 @dbserver.route("/scrobbles")
 def get_scrobbles():
-	keys = request.query
+	keys = FormsDict.decode(request.query)
 	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"))
 	r.reverse()
 

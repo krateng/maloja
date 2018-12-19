@@ -31,11 +31,11 @@ def replacedict(keys,dbport):
 	db_data = json.loads(response.read())
 	tracks = []
 	for e in db_data["list"]:
-		html = "<td>"
+		html = "<td class='artists'>"
 		for a in e["artists"]:
 			html += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
 		html = html[:-2]
-		html += "</td><td>" + e["title"] + "</td>"
+		html += "</td><td class='title'>" + e["title"] + "</td>"
 		tracks.append(html)
 	
 	trackshtml = "<table>"	
@@ -46,4 +46,4 @@ def replacedict(keys,dbport):
 	trackshtml += "</table>"
 	
 
-	return {"KEY_ARTISTNAME":keys["artist"],"KEY_IMAGEURL":imgurl,"KEY_DESCRIPTION":desc,"KEY_TRACKLIST":trackshtml,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}
+	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":desc,"KEY_TRACKLIST":trackshtml,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}

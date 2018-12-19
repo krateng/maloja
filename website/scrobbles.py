@@ -17,7 +17,7 @@ def replacedict(keys,dbport):
 		
 	limitstring = ""
 	if keys.get("artist") is not None:
-		limitstring += "by " + keys.get("artist") + " "	
+		limitstring += "by <a href='/artist?artist=" + urllib.parse.quote(keys.get("artist")) + "'>" + keys.get("artist") + "</a> "	
 		
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
@@ -26,15 +26,15 @@ def replacedict(keys,dbport):
 	
 	html = "<table>"
 	for s in scrobbles:
-		html += "<tr><td>"
+		html += "<tr><td class='time'>"
 		timestring = getTimeDesc(s["time"])
 		html += timestring
-		html += "</td><td>"
+		html += "</td><td class='artists'>"
 		artisthtml = ""
 		for a in s["artists"]:
 			artisthtml += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
 		html += artisthtml[:-2]
-		html += "</td><td>" + s["title"] + "</td></tr>"
+		html += "</td><td class='title'>" + s["title"] + "</td></tr>"
 	html += "</table>"
 	
 	return {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(len(scrobbles)),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}

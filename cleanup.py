@@ -76,7 +76,6 @@ class CleanerAgent:
 		return [a.strip()]
 
 	def parseTitle(self,t):
-		
 		if t.strip() in self.rules_replacetitle:
 			return self.rules_replacetitle[t.strip()]
 	

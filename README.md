@@ -22,7 +22,7 @@ I like to name my projects after regions in Grisons, Switzerland. Don't waste yo
 
 ## Current status
 
-Deep in development. I just uploaded Maloja here in case I die tomorrow. It can accept scrobbles and return some basic stats in JSON format so far.
+Deep in development. I just uploaded Maloja here in case I die tomorrow. It can accept scrobbles and return a few webpages (/artist, /scrobbles, /topartists).
 
 ## How to install
 
