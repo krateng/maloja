@@ -36,6 +36,22 @@ def parseTSV(filename,*args):
 	f.close()
 	return result
 	
+def checksumTSV(folder):
+	import hashlib
+	import os
+	
+	sums = ""
+	
+	for f in os.listdir(folder + "/"):
+		if (f.endswith(".tsv")):
+			f = open(folder + "/" + f,"rb")
+			sums += hashlib.md5(f.read()).hexdigest() + "\n"
+			f.close()
+			
+	return sums
+	
+	
+	
 def parseAllTSV(path,*args):
 	
 	import os

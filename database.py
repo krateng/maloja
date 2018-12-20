@@ -511,7 +511,7 @@ def build_db():
 	
 	for f in os.listdir("scrobbles/"):
 		
-		if not (".tsv" in f):
+		if not (f.endswith(".tsv")):
 			continue
 		
 		logfile = open("scrobbles/" + f)
@@ -551,6 +551,24 @@ def sync():
 			monthfile.write(entry)
 			monthfile.write("\n")
 			monthfile.close()
+			
+			if os.path.exists("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate"):
+				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","r")
+				print("Checking rulestate of " + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv")
+				if checkfile.read() != cla.checksums:
+					print("Checksum does not match, file is inconsistent")
+					#cla.checksums represents the rule state that all current unsaved scrobbles were created under. if this is the same than the existing one, we're all good
+					#if not, the file is not consistent to any single rule state
+					checkfile.close()
+					checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
+					checkfile.write("INVALID") # this will never match any sha256sum
+				checkfile.close()
+			else:
+				print(str(timestamp.year) + "_" + str(timestamp.month) + ".tsv does not yet exist, writing current rulestate")
+				#if the file didn't exist before, all its scrobbles come from our current server instance and are therefore under the current rule state
+				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
+				checkfile.write(cla.checksums)
+				checkfile.close()
 			
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 			

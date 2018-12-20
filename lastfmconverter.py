@@ -5,6 +5,7 @@ from utilities import *
 
 log = open(sys.argv[1])
 outputlog = open(sys.argv[2],"w")
+checksumfile = open(sys.argv[2] + ".rulestate","w") #this file stores an identifier for all rules that were in place when the corresponding file was created
 
 
 c = CleanerAgent()
@@ -34,7 +35,7 @@ for l in log:
 	
 	
 	## We prevent double timestamps in the database creation, so we technically don't need them in the files
-	## however since the conversion from lastfm to maloja is a one-time, thing, we should take any effort to make the file as good as possible
+	## however since the conversion from lastfm to maloja is a one-time thing, we should take any effort to make the file as good as possible
 	if (timestamp < stamps[-1]):
 		pass
 	elif (timestamp == stamps[-1]):
@@ -55,6 +56,11 @@ for l in log:
 	outputlog.write(entry)
 	outputlog.write("\n")
 	
+checksumfile.write(c.checksums)
+	
+log.close()
+outputlog.close()
+checksumfile.close()
 	
 
 

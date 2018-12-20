@@ -13,6 +13,9 @@ class CleanerAgent:
 		self.rules_notanartist = [b for [a,b,c] in raw if a=="notanartist"]
 		self.rules_replacetitle = {b:c for [a,b,c] in raw if a=="replacetitle"}
 		self.rules_replaceartist = {b:c for [a,b,c] in raw if a=="replaceartist"}
+		
+		# we always need to be able to tell if our current database is made with the current rules
+		self.checksums = utilities.checksumTSV("rules")
 			
 	
 	

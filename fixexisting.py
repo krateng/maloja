@@ -30,3 +30,7 @@ for fn in os.listdir("scrobbles/"):
 		fnew.close()
 		
 		os.rename("scrobbles/" + fn + "_new","scrobbles/" + fn)
+		
+		checkfile = open("scrobbles/" + fn + ".rulestate","w")
+		checkfile.write(wendigo.checksums)
+		checkfile.close()
