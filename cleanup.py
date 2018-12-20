@@ -27,6 +27,10 @@ class CleanerAgent:
 	def removespecial(self,s):
 		return s.replace("\t","").replace("␟","").replace("\n","")
 
+	# if an artist appears in any created rule, we can assume that artist is meant to exist and be spelled like that
+	def confirmedReal(self,a):
+		confirmed = self.rules_belongtogether + [self.rules_replaceartist[r] for r in self.rules_replaceartist]
+		return (a in confirmed)
 
 	delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]			#Delimiters used for extra artists, even when in the title field
 	delimiters = ["vs.","vs","&"]											#Delimiters in informal artist strings, spaces expected around them

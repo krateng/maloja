@@ -54,6 +54,15 @@ def createTSV(filename):
 	
 	if not os.path.exists(filename):
 		open(filename,"w").close()
+
+def addEntry(filename,args):
+
+	createTSV(filename)
+	
+	line = "\t".join(args)
+	with open(filename,"a") as f:
+		f.write(line + "\n")
+
 		
 ### Logging
 		
@@ -148,6 +157,9 @@ def cacheImage(url,path,filename):
 	target = path + "/" + filename + "." + response.info().get_content_subtype()	
 	urllib.request.urlretrieve(url,target)
 	
+def artistLink(name):
+	import urllib
+	return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"
 	
 	
 def getTimeDesc(timestamp):

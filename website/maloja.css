@@ -55,3 +55,12 @@ table td.time {
 table td.artists,td.artist,td.title,td.amount {
 	width:300px;
 }
+
+table td.button {
+	width:150px;
+	background-color:yellow;
+	color:#333337;
+	padding:1px;
+	border-radius:4px;
+	cursor:pointer;
+}

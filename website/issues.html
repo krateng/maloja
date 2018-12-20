@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Issues</title>
+		<link rel="stylesheet" href="maloja.css" />
+	</head>
+	
+	<body>
+		<table class="top_info">
+			<tr>
+				
+				<td class="text">
+					<h1>Possible Issues</h1><br/>
+					<span>with your library</span>
+					<p class="stats"><a href="/scrobbles?artist=KEY_ENC_ARTISTNAME">KEY_ISSUES Issues</a></p>
+					
+					<p>Maloja can identify possible problems with consistency or redundancy in your library.</p>
+				</td>
+			</tr>
+		</table>
+
+		KEY_ISSUESLIST
+		
+	</body>
+	
+	<script>
+		function newrule() {
+			keys = ""
+			for (var i = 1; i < arguments.length; i++) {
+				keys += encodeURIComponent(arguments[i]) + "&"
+			}
+			console.log(keys)
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST","/db/newrule?", true);
+			xhttp.send(keys);
+			e = arguments[0]
+			line = e.parentNode
+			line.parentNode.removeChild(line)
+	
+		}
+	
+	</script>
+</html>
