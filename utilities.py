@@ -50,6 +50,34 @@ def checksumTSV(folder):
 			
 	return sums
 	
+# returns whether checksums match and sets the checksum to invalid if they don't (or sets the new one if no previous one exists)
+def combineChecksums(filename,checksums):
+	import os
+	
+	if os.path.exists(filename + ".rulestate"):
+		f = open(filename + ".rulestate","r")
+		oldchecksums = f.read()
+		f.close()
+		if oldchecksums == checksums:
+		# the new checksum given by the calling db server represents the rule state that all current unsaved scrobbles were created under
+		# if this is the same as the existing one, we're all good
+			return True
+		elif (oldchecksums != "INVALID"):
+			#if not, the file is not consistent to any single rule state (some scrobbles were created with an old ruleset, some not)
+			f = open(filename + ".rulestate","w")
+			f.write("INVALID") # this will never match any sha256sum
+			f.close()
+			return False
+		else:
+			#if the file already says invalid, no need to open it and rewrite
+			return False
+	else:
+		f = open(filename + ".rulestate","w")
+		f.write(checksums)
+		f.close()
+		return True
+	
+	
 	
 	
 def parseAllTSV(path,*args):
@@ -71,14 +99,21 @@ def createTSV(filename):
 	if not os.path.exists(filename):
 		open(filename,"w").close()
 
-def addEntry(filename,args):
+def addEntry(filename,a):
 
 	createTSV(filename)
 	
-	line = "\t".join(args)
+	line = "\t".join(a)
 	with open(filename,"a") as f:
 		f.write(line + "\n")
 
+def addEntries(filename,al):
+	
+	with open(filename,"a") as f:
+		for a in al:
+			line = "\t".join(a)
+			f.write(line + "\n")
+		
 		
 ### Logging
 		

@@ -509,24 +509,32 @@ def build_db():
 
 	SCROBBLES = SCROBBLESNEW
 	
-	for f in os.listdir("scrobbles/"):
+	db = parseAllTSV("scrobbles","int","string","string")
+	for sc in db:
+		artists = sc[1].split("␟")
+		title = sc[2]
+		time = sc[0]
 		
-		if not (f.endswith(".tsv")):
-			continue
-		
-		logfile = open("scrobbles/" + f)
-		for l in logfile:
-			
-			l = l.replace("\n","")
-			data = l.split("\t")
-			
-			## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
-			artists = data[1].split("␟")
-			#album = data[3]
-			title = data[2]
-			time = int(data[0])
-			
-			readScrobble(artists,title,time)
+		readScrobble(artists,title,time)
+	
+	#for f in os.listdir("scrobbles/"):
+	#	
+	#	if not (f.endswith(".tsv")):
+	#		continue
+	#	
+	#	logfile = open("scrobbles/" + f)
+	#	for l in logfile:
+	#		
+	#		l = l.replace("\n","")
+	#		data = l.split("\t")
+	#		
+	#		## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
+	#		artists = data[1].split("␟")
+	#		#album = data[3]
+	#		title = data[2]
+	#		time = int(data[0])
+	#		
+	#		readScrobble(artists,title,time)
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
 			
@@ -537,6 +545,11 @@ def build_db():
 
 # Saves all cached entries to disk			
 def sync():
+
+	# all entries by file collected
+	# so we don't open the same file for every entry
+	entries = {}
+	
 	for idx in range(len(SCROBBLES)):
 		if not SCROBBLES[idx][2]:
 			
@@ -545,35 +558,47 @@ def sync():
 			artistss = "␟".join(t["artists"])
 			timestamp = datetime.date.fromtimestamp(t["time"])
 			
-			entry = "\t".join([str(t["time"]),artistss,t["title"]])
-		
-			monthfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
-			monthfile.write(entry)
-			monthfile.write("\n")
-			monthfile.close()
+			entry = [str(t["time"]),artistss,t["title"]]
 			
-			if os.path.exists("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate"):
-				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","r")
-				print("Checking rulestate of " + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv")
-				if checkfile.read() != cla.checksums:
-					print("Checksum does not match, file is inconsistent")
-					#cla.checksums represents the rule state that all current unsaved scrobbles were created under. if this is the same than the existing one, we're all good
-					#if not, the file is not consistent to any single rule state
-					checkfile.close()
-					checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
-					checkfile.write("INVALID") # this will never match any sha256sum
-				checkfile.close()
-			else:
-				print(str(timestamp.year) + "_" + str(timestamp.month) + ".tsv does not yet exist, writing current rulestate")
-				#if the file didn't exist before, all its scrobbles come from our current server instance and are therefore under the current rule state
-				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
-				checkfile.write(cla.checksums)
-				checkfile.close()
+			monthcode = str(timestamp.year) + "_" + str(timestamp.month)
+			entries.setdefault(monthcode,[]).append(entry) #i feckin love the setdefault function
+			#prev = entries.get(monthcode,[])
+			#prev.append(entry)
+			#entries[monthcode] = prev
+			
+		
+	#		monthfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
+	#		monthfile.write(entry)
+	#		monthfile.write("\n")
+	#		monthfile.close()
+	#		
+	#		if os.path.exists("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate"):
+	#			checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","r")
+	#			print("Checking rulestate of " + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv")
+	#			if checkfile.read() != cla.checksums:
+	#				print("Checksum does not match, file is inconsistent")
+	#				#cla.checksums represents the rule state that all current unsaved scrobbles were created under. if this is the same than the existing one, we're all good
+	#				#if not, the file is not consistent to any single rule state
+	#				checkfile.close()
+	#				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
+	#				checkfile.write("INVALID") # this will never match any sha256sum
+	#			checkfile.close()
+	#		else:
+	#			print(str(timestamp.year) + "_" + str(timestamp.month) + ".tsv does not yet exist, writing current rulestate")
+	#			#if the file didn't exist before, all its scrobbles come from our current server instance and are therefore under the current rule state
+	#			checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
+	#			checkfile.write(cla.checksums)
+	#			checkfile.close()
 			
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 			
+	for e in entries:
+		addEntries("scrobbles/" + e + ".tsv",entries[e])
+		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
+		
+			
 	global lastsync
-	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	print("Database saved to disk.")
 			
 
