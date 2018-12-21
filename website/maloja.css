@@ -60,7 +60,12 @@ table td.button {
 	width:200px;
 	background-color:yellow;
 	color:#333337;
-	padding:1px;
+	padding:4px;
 	border-radius:4px;
 	cursor:pointer;
+}
+
+td.button.important {
+	background-color:red;
+	color:white;
 }

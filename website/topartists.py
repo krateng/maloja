@@ -6,7 +6,7 @@ def replacedict(keys,dbport):
 	from utilities import getArtistInfo
 	
 	#hand down the since and from arguments
-	extrakeys = urllib.parse.urlencode(keys)
+	extrakeys = urllib.parse.urlencode(keys,quote_via=urllib.parse.quote,safe="/")
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/artists?" + extrakeys)
 	db_data = json.loads(response.read())

@@ -55,7 +55,7 @@ function checkServer() {
 
 function createCheckmarks() {
 	if (this.readyState == 4) {
-		if (this.status == 204) {
+		if ((this.status == 204) || (this.status == 205)) {
 			//document.getElementById("checkmark_url").innerHTML = "✔️"
 			//document.getElementById("checkmark_key").innerHTML = "✔️"
 			document.getElementById("serverurl").style.backgroundColor = "lawngreen"

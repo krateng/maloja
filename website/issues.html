@@ -40,6 +40,13 @@
 			line.parentNode.removeChild(line)
 	
 		}
+		
+		function fullrebuild() {
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST","/db/rebuild", true);
+			xhttp.send()
+			window.location = "/wait";
+		}
 	
 	</script>
 </html>

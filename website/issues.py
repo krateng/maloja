@@ -9,6 +9,12 @@ def replacedict(keys,dbport):
 	i = 0
 	
 	html = "<table>"
+	if db_data["inconsistent"]:
+		html += "<tr>"
+		html += "<td>The current database wasn't built with all current rules in effect. Any problem below might be a false alarm and fixing it could create redundant rules.</td>"
+		html += """<td class='button important' onclick="fullrebuild()">Rebuild the database</td>"""
+		html += "</tr>"
+		i += 1
 	for d in db_data["duplicates"]:
 		html += "<tr>"
 		html += "<td>'" + artistLink(d[0]) + "'"

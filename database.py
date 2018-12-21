@@ -23,7 +23,8 @@ clients = []
 
 lastsync = 0
 
-rulescheck = ""
+# rulestate that the entire current database was built with, or False if the database was built from inconsistent scrobble files
+db_rulestate = False
 
 
 
@@ -109,12 +110,15 @@ def getTrackID(artists,title):
 def test_server():
 	apikey = request.query.get("key")
 	response.set_header("Access-Control-Allow-Origin","*")
-	if not (checkAPIkey(apikey)):
+	if apikey is not None and not (checkAPIkey(apikey)):
 		response.status = 403
-		return "Wrong or Missing API key"
+		return "Wrong API key"
 	
-	else:
+	elif db_rulestate:
 		response.status = 204
+		return
+	else:
+		response.status = 205
 		return
 
 @dbserver.route("/scrobbles")
@@ -384,12 +388,15 @@ def abouttoshutdown():
 def newrule():
 	keys = FormsDict.decode(request.forms)
 	addEntry("rules/webmade.tsv",[k for k in keys])
+	global db_rulestate
+	db_rulestate = False
 	
 @dbserver.route("/issues")
 def issues():
 	combined = []
 	duplicates = []
 	newartists = []
+	inconsistent = not db_rulestate
 	
 	
 	import itertools
@@ -473,7 +480,16 @@ def issues():
 	#		duplicates.append((c[0],c[1]))
 			
 	
-	return {"duplicates":duplicates,"combined":combined,"newartists":newartists}
+	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
+
+@dbserver.post("/rebuild")
+def rebuild():
+	sync()
+	os.system("python3 fixexisting.py")
+	global cla, coa
+	cla = CleanerAgent()
+	coa = CollectorAgent()
+	build_db()
 
 
 	
@@ -497,17 +513,14 @@ def runserver(PORT):
 
 def build_db():
 	
-	global rulescheck
 	
 	
-	global SCROBBLES
 	
-	SCROBBLESNEW = []
-	for t in SCROBBLES:
-		if not t[2]:
-			SCROBBLESNEW.append(t)
-
-	SCROBBLES = SCROBBLESNEW
+	global SCROBBLES, ARTISTS, TRACKS
+	
+	SCROBBLES = []
+	ARTISTS = []
+	TRACKS = []
 	
 	db = parseAllTSV("scrobbles","int","string","string")
 	for sc in db:
@@ -538,7 +551,8 @@ def build_db():
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
 			
-	
+	global db_rulestate
+	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
 	
 		
 
@@ -691,6 +705,14 @@ def db_search(query,type=None):
 # Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.	
 def getTimestamps(f,t):
 	#(f,t) = inp
+	if isinstance(f, str) and f.lower() == "today":
+		tod = datetime.date.today()
+		f = [tod.year,tod.month,tod.day]
+	if isinstance(t, str) and t.lower() == "today":
+		tod = datetime.date.today()
+		t = [tod.year,tod.month,tod.day]
+	
+	
 	if isinstance(f, str):
 		f = [int(x) for x in f.split("/")]
 		

@@ -77,7 +77,27 @@ def combineChecksums(filename,checksums):
 		f.close()
 		return True
 	
+# checks ALL files for their rule state. if they are all the same as the current loaded one, the entire database can be assumed to be consistent with the current ruleset
+# in any other case, get out
+def consistentRulestate(folder,checksums):
+	import os
 	
+	result = []
+	for scrobblefile in os.listdir(folder + "/"):
+		
+		if (scrobblefile.endswith(".tsv")):
+		
+			try:
+				f = open(folder + "/" + scrobblefile + ".rulestate","r")
+				if f.read() != checksums:
+					return False
+			
+			except:
+				return False
+			finally:
+				f.close()
+	
+	return True
 	
 	
 def parseAllTSV(path,*args):
