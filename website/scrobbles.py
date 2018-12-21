@@ -24,7 +24,7 @@ def replacedict(keys,dbport):
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	
-	html = "<table>"
+	html = "<table class='list'>"
 	for s in scrobbles:
 		html += "<tr><td class='time'>"
 		timestring = getTimeDesc(s["time"])

@@ -8,7 +8,7 @@ def replacedict(keys,dbport):
 	db_data = json.loads(response.read())
 	i = 0
 	
-	html = "<table>"
+	html = "<table class='list'>"
 	if db_data["inconsistent"]:
 		html += "<tr>"
 		html += "<td>The current database wasn't built with all current rules in effect. Any problem below might be a false alarm and fixing it could create redundant rules.</td>"

@@ -38,7 +38,7 @@ def replacedict(keys,dbport):
 		html += "</td><td class='title'>" + e["title"] + "</td>"
 		tracks.append(html)
 	
-	trackshtml = "<table>"	
+	trackshtml = "<table class='list'>"	
 	for t in tracks:
 		trackshtml += "<tr>"
 		trackshtml += t

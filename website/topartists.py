@@ -23,13 +23,18 @@ def replacedict(keys,dbport):
 	scrobbles = len(scrobblelist)
 	
 	
+	maxbar = charts[0]["scrobbles"]
 	
-	
-	html = "<table>"
+	i = 1
+	html = "<table class='list'>"
 	for e in charts:
-		html += "<tr><td class='artist'>"
+		html += "<tr>"
+		html += "<td class='rank'>#" + str(i) + "</td><td class='artist'>"
 		html += "<a href=/artist?artist=" + urllib.parse.quote(e["artist"]) + ">" + e["artist"] + "</a>"
-		html += "</td><td class='amount'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'>" + str(e["scrobbles"]) + "</a></td></tr>"
+		html += "</td><td class='amount'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'>" + str(e["scrobbles"]) + "</a></td>"
+		html += "<td class='bar'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'><div style='width:" + str(int(e["scrobbles"]/maxbar * 100)) + "%;'></div></a></td>"
+		html += "</tr>"
+		i += 1
 	html += "</table>"
 
 	return {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_SCROBBLES":str(scrobbles),"KEY_ARTISTLIST":html}

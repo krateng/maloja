@@ -39,21 +39,60 @@ table.top_info td.text h1 {
 	display:inline;
 	padding-right:5px;
 }
-
+/*
 table.top_info td.text .stats {
 	color:grey;
+}
+*/
+.stats {
+	color:grey;
+}
+.rank {
+	text-align:right;
+	color:grey;
+}
+
+table.list {
+	border-collapse:collapse;
+}
+
+table.list tr {
+	border-bottom:2px solid;
+	border-color:rgba(0,0,0,0)
+	
 }
 
 table tr:nth-child(even) {
 	background-color:#37373B;
 }
 
+table tr:nth-child(5n) {
+	border-color:rgba(120,120,120,0.2);
+	
+}
+
 table td.time {
 	width:200px;
-	color:lightgray;
+	color:gray;
 }
-table td.artists,td.artist,td.title,td.amount {
+table td.artists,td.artist,td.title {
 	width:350px;
+}
+table td.amount {
+	width:50px;
+	text-align:right;
+}
+table td.bar {
+	width:300px;
+}
+table td.bar div {
+	background-color:beige;
+	height:20px; /* can only do this absolute apparently */
+	position:relative;
+}
+table tr:hover td.bar div {
+	background-color:yellow;
+	cursor:pointer;
 }
 
 table td.button {
