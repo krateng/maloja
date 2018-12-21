@@ -502,9 +502,9 @@ def rebuild():
 # Starts the server
 def runserver(PORT):
 	global lastsync
-	lastsync = time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	build_db()
-	coa.updateIDs(ARTISTS)
+	
 
 	loadAPIkeys()
 
@@ -521,6 +521,8 @@ def build_db():
 	SCROBBLES = []
 	ARTISTS = []
 	TRACKS = []
+	
+	
 	
 	db = parseAllTSV("scrobbles","int","string","string")
 	for sc in db:
@@ -550,6 +552,8 @@ def build_db():
 	#		readScrobble(artists,title,time)
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
+	
+	coa.updateIDs(ARTISTS)
 			
 	global db_rulestate
 	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
