@@ -81,25 +81,37 @@ def readScrobble(artists,title,time):
 def getArtistID(name):
 
 	obj = name
+	objlower = name.lower()
+	
 	try:
-		i = ARTISTS.index(obj)
+		return ARTISTS.index(obj)
+	except:
+		pass
+	try:
+		return [a.lower() for a in ARTISTS].index(objlower)
 	except:
 		i = len(ARTISTS)
 		ARTISTS.append(obj)
-	return i
+		return i
 			
 def getTrackID(artists,title):
 	artistset = set()
 	for a in artists:
 		artistset.add(getArtistID(name=a))
 	obj = (frozenset(artistset),title)
+	objlower = (frozenset(artistset),title.lower())
 	
 	try:
-		i = TRACKS.index(obj)
+		return TRACKS.index(obj)
+	except:
+		pass
+	try:
+		# not the best performance
+		return [(t[0],t[1].lower()) for t in TRACKS].index(objlower)
 	except:
 		i = len(TRACKS)
 		TRACKS.append(obj)
-	return i
+		return i
 
 
 ####

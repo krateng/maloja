@@ -28,7 +28,10 @@ class CleanerAgent:
 		return (list(set(artists)),title)
 
 	def removespecial(self,s):
-		return s.replace("\t","").replace("␟","").replace("\n","")
+		s = s.replace("\t","").replace("␟","").replace("\n","")
+		s = re.sub(" +"," ",s)
+		return s
+		
 
 	# if an artist appears in any created rule, we can assume that artist is meant to exist and be spelled like that
 	def confirmedReal(self,a):
