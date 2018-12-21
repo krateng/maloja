@@ -496,6 +496,8 @@ def issues():
 
 @dbserver.post("/rebuild")
 def rebuild():
+	global db_rulestate
+	db_rulestate = False
 	sync()
 	os.system("python3 fixexisting.py")
 	global cla, coa
@@ -585,7 +587,9 @@ def sync():
 			
 			t = getScrobbleObject(SCROBBLES[idx])
 			
-			artistss = "␟".join(t["artists"])
+			artistlist = list(t["artists"])
+			artistlist.sort() #we want the order of artists to be deterministic so when we update files with new rules a diff can see what has actually been changed
+			artistss = "␟".join(artistlist)
 			timestamp = datetime.date.fromtimestamp(t["time"])
 			
 			entry = [str(t["time"]),artistss,t["title"]]

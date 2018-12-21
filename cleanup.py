@@ -25,6 +25,8 @@ class CleanerAgent:
 		(title,moreartists) = self.parseTitleForArtists(title)
 		artists += moreartists
 		
+		artists.sort()
+		
 		return (list(set(artists)),title)
 
 	def removespecial(self,s):

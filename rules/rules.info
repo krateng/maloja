@@ -10,7 +10,6 @@ The first column defines the type of the rule:
 			Second column is the 'wrong' spelling
 			Third column the correct spelling
 	replaceartist	Defines and alternative spelling of an artist that should be replaced
-			Any artist mentioned here will automatically be replaced, there is no need for a separate belongtogether entry
 			Second column is the 'wrong' spelling
 			Third column the correct spelling. Use ␟ if the spelling should correct to several artists
 	countas		Defines an artist that should be counted together with another artist for chart statistics etc.
@@ -29,5 +28,4 @@ belongtogether	AC/DC									# / and ; separate even when there are no spaces, s
 replacetitle	첫 사랑니 (Rum Pum Pum Pum)	Rum Pum Pum Pum
 replaceartist	Dal Shabet			Dal★Shabet
 replaceartist	Mr FijiWiji, AgNO3		Mr FijiWiji␟AgNO3			# one artist is replaced by two artists
-replaceartist	Selena Gomez & the Scene	Selena Gomez & The Scene		# note how there is a &, but we do not need an extra belongtogether entry.
 countas		Trouble Maker			HyunA
