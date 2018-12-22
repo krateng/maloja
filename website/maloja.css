@@ -51,6 +51,11 @@ table.top_info td.text .stats {
 	text-align:right;
 	color:grey;
 }
+.extra {
+	color:gray; /*sue me*/
+	font-size:80%;
+}
+
 a {
 	cursor:pointer;
 }

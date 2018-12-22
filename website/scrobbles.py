@@ -18,7 +18,12 @@ def replacedict(keys,dbport):
 	limitstring = ""
 	if keys.get("artist") is not None:
 		#limitstring += "by <a href='/artist?artist=" + urllib.parse.quote(keys.get("artist")) + "'>" + keys.get("artist") + "</a> "	
-		limitstring += "by " + artistLink(keys.get("artist"))	
+		limitstring += "by " + artistLink(keys.get("artist"))
+		if keys.get("associated") is not None:
+			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
+			db_data = json.loads(response.read())
+			moreartists = db_data["associated"]
+			limitstring += " <span class='extra'>including " + ", ".join(moreartists) + "</span>"
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
 	db_data = json.loads(response.read())

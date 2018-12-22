@@ -136,7 +136,8 @@ def test_server():
 @dbserver.route("/scrobbles")
 def get_scrobbles():
 	keys = FormsDict.decode(request.query)
-	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"))
+	
+	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
 	r.reverse()
 
 	return {"list":r} ##json can't be a list apparently???
@@ -172,10 +173,12 @@ def get_charts_artists():
 	
 @dbserver.route("/charts/tracks")
 def get_charts_tracks():
-	since = request.query.get("since")
-	to = request.query.get("to")
+	keys = FormsDict.decode(request.query)
+	since = keys.get("since")
+	to = keys.get("to")
+	artist = keys.get("artist")
 	
-	return {"list":db_aggregate(by="TRACK",since=since,to=to)}
+	return {"list":db_aggregate(by="TRACK",since=since,to=to,artist=artist)}
 	
 @dbserver.route("/charts")
 def get_charts():
@@ -646,7 +649,7 @@ def sync():
 
 
 # Queries the database			
-def db_query(artist=None,track=None,since=None,to=None):
+def db_query(artist=None,track=None,since=None,to=None,associated=False):
 	(since, to) = getTimestamps(since,to)
 	
 	
@@ -655,8 +658,11 @@ def db_query(artist=None,track=None,since=None,to=None):
 		artist = ARTISTS.index(artist)
 	if isinstance(track, str):
 		track = TRACKS.index(track)
-	
-	return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist in TRACKS[s[0]][0] or artist==None) and (since < s[1] < to)]
+		
+	if associated:
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist in coa.getCreditedList(TRACKS[s[0]][0]) or artist==None) and (since < s[1] < to)]
+	else:
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist in TRACKS[s[0]][0] or artist==None) and (since < s[1] < to)]
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 
 		
@@ -665,8 +671,11 @@ def db_query(artist=None,track=None,since=None,to=None):
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=None,to=None):
+def db_aggregate(by=None,since=None,to=None,artist=None):
 	(since, to) = getTimestamps(since,to)
+	
+	if isinstance(artist, str):
+		artist = ARTISTS.index(artist)
 	
 	if (by=="ARTIST"):
 		#this is probably a really bad idea
@@ -682,12 +691,12 @@ def db_aggregate(by=None,since=None,to=None):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
 				
-		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a]} for a in charts]
+		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
 		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
 		
 	elif (by=="TRACK"):
 		charts = {}
-		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+		for s in [scr for scr in SCROBBLES if since < scr[1] < to and (artist==None or (artist in TRACKS[scr[0]][0]))]:
 			track = s[0]
 			# this either creates the new entry or increments the existing one
 			charts[track] = charts.setdefault(track,0) + 1
