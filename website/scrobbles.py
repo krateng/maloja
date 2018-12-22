@@ -3,7 +3,7 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, getTimeDesc
+	from utilities import getArtistInfo, getTimeDesc, artistLink
 	
 	
 	#hand down the since and from arguments
@@ -17,8 +17,8 @@ def replacedict(keys,dbport):
 		
 	limitstring = ""
 	if keys.get("artist") is not None:
-		limitstring += "by <a href='/artist?artist=" + urllib.parse.quote(keys.get("artist")) + "'>" + keys.get("artist") + "</a> "	
-		
+		#limitstring += "by <a href='/artist?artist=" + urllib.parse.quote(keys.get("artist")) + "'>" + keys.get("artist") + "</a> "	
+		limitstring += "by " + artistLink(keys.get("artist"))	
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
 	db_data = json.loads(response.read())
@@ -30,10 +30,11 @@ def replacedict(keys,dbport):
 		timestring = getTimeDesc(s["time"])
 		html += timestring
 		html += "</td><td class='artists'>"
-		artisthtml = ""
-		for a in s["artists"]:
-			artisthtml += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
-		html += artisthtml[:-2]
+		html += ", ".join([artistLink(a) for a in s["artists"]])
+		#artisthtml = ""
+		#for a in s["artists"]:
+		#	artisthtml += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
+		#html += artisthtml[:-2]
 		html += "</td><td class='title'>" + s["title"] + "</td></tr>"
 	html += "</table>"
 	

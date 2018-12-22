@@ -18,7 +18,6 @@ for fn in os.listdir("scrobbles/"):
 			a = a.replace("␟",";")
 			
 			(al,t) = wendigo.fullclean(a,t)
-			al.sort()
 			a = "␟".join(al)
 			fnew.write(r1 + a + r2 + t + r3 + "\n")
 			#print("Artists: " + a)

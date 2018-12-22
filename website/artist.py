@@ -3,7 +3,7 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo
+	from utilities import getArtistInfo, artistLink
 
 	
 	info = getArtistInfo(keys["artist"])
@@ -18,32 +18,28 @@ def replacedict(keys,dbport):
 	credited = db_data.get("replace")
 	includestr = " "
 	if credited is not None:
-		includestr = "Competing under <a href=/artist?artist=" + urllib.parse.quote(credited) + ">" + credited + "</a> (" + pos + ")"
+		includestr = "Competing under " + artistLink(credited) + " (" + pos + ")"
 		pos = ""
 	included = db_data.get("associated")
 	if included is not None and included != []:
 		includestr = "associated: "
-		for a in included:
-			includestr += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
-		includestr = includestr[:-2]
+		#for a in included:
+		includestr += ", ".join([artistLink(a) for a in included]) #"<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
+		#includestr = includestr[:-2]
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/tracks?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
-	tracks = []
-	for e in db_data["list"]:
-		html = "<td class='artists'>"
-		for a in e["artists"]:
-			html += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
-		html = html[:-2]
-		html += "</td><td class='title'>" + e["title"] + "</td>"
-		tracks.append(html)
 	
-	trackshtml = "<table class='list'>"	
-	for t in tracks:
-		trackshtml += "<tr>"
-		trackshtml += t
-		trackshtml += "</tr>"
-	trackshtml += "</table>"
+	html = "<table class='list'>"
+	for e in db_data["list"]:
+		html += "<tr>"
+		html += "<td class='artists'>"
+		links = [artistLink(a) for a in e["artists"]]
+		html += ", ".join(links)
+		html += "</td><td class='title'>" + e["title"] + "</td>"
+		html += "</tr>"
+	html += "</table>"
+	
 	
 
-	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":desc,"KEY_TRACKLIST":trackshtml,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}
+	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":desc,"KEY_TRACKLIST":html,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}

@@ -23,11 +23,11 @@ class CleanerAgent:
 		artists = self.parseArtists(self.removespecial(artist))
 		title = self.parseTitle(self.removespecial(title))
 		(title,moreartists) = self.parseTitleForArtists(title)
-		artists += moreartists
-		
+		artists += moreartists	
+		artists = list(set(artists))
 		artists.sort()
 		
-		return (list(set(artists)),title)
+		return (artists,title)
 
 	def removespecial(self,s):
 		s = s.replace("\t","").replace("␟","").replace("\n","")

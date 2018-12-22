@@ -51,12 +51,15 @@ table.top_info td.text .stats {
 	text-align:right;
 	color:grey;
 }
+a {
+	cursor:pointer;
+}
 
 table.list {
 	border-collapse:collapse;
 }
 
-table.list tr {
+table.list tr td {
 	border-bottom:2px solid;
 	border-color:rgba(0,0,0,0)
 	
@@ -66,7 +69,7 @@ table tr:nth-child(even) {
 	background-color:#37373B;
 }
 
-table tr:nth-child(5n) {
+table tr:nth-child(5n) td {
 	border-color:rgba(120,120,120,0.2);
 	
 }
@@ -83,7 +86,9 @@ table td.amount {
 	text-align:right;
 }
 table td.bar {
-	width:300px;
+	width:500px;
+	background-color:#333337;
+	border-color:rgba(0,0,0,0)!important;
 }
 table td.bar div {
 	background-color:beige;
@@ -97,14 +102,17 @@ table tr:hover td.bar div {
 
 table td.button {
 	width:200px;
-	background-color:yellow;
-	color:#333337;
-	padding:4px;
-	border-radius:4px;
 	cursor:pointer;
 }
 
-td.button.important {
+table td.button div {
+	background-color:yellow;
+	color:#333337;
+	padding:3px;
+	border-radius:4px;
+}
+
+td.button.important div {
 	background-color:red;
 	color:white;
 }

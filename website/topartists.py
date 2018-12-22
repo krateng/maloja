@@ -3,7 +3,7 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo
+	from utilities import getArtistInfo, artistLink
 	
 	#hand down the since and from arguments
 	extrakeys = urllib.parse.urlencode(keys,quote_via=urllib.parse.quote,safe="/")
@@ -30,9 +30,10 @@ def replacedict(keys,dbport):
 	for e in charts:
 		html += "<tr>"
 		html += "<td class='rank'>#" + str(i) + "</td><td class='artist'>"
-		html += "<a href=/artist?artist=" + urllib.parse.quote(e["artist"]) + ">" + e["artist"] + "</a>"
+		#html += "<a href=/artist?artist=" + urllib.parse.quote(e["artist"]) + ">" + e["artist"] + "</a>"
+		html += artistLink(e["artist"])
 		html += "</td><td class='amount'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'>" + str(e["scrobbles"]) + "</a></td>"
-		html += "<td class='bar'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'><div style='width:" + str(int(e["scrobbles"]/maxbar * 100)) + "%;'></div></a></td>"
+		html += "<td class='bar'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&" + extrakeys + "'><div style='width:" + str(e["scrobbles"]/maxbar * 100) + "%;'></div></a></td>"
 		html += "</tr>"
 		i += 1
 	html += "</table>"
