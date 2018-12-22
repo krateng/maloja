@@ -84,8 +84,43 @@ table td.time {
 	color:gray;
 }
 table td.artists,td.artist,td.title {
-	width:350px;
+	width:500px;
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
 }
+
+
+/*
+table td.artists div {
+	overflow:hidden;
+	z-index:1;
+	position:relative;
+}
+
+table tr td.artists div span {
+	//text-overflow:ellipsis;
+	z-index:-2;
+	position:relative;
+	white-space:nowrap;
+	
+}
+table tr:hover td.artists div span {
+	animation: bounce 3s linear infinite alternate;
+}
+@keyframes bounce {
+	0% {
+		
+	}
+	100% {
+		//transform: translateX(-60px);
+		//margin-left:-60px;
+		margin-left:-100%;
+	}
+}
+
+**/
+
 table td.amount {
 	width:50px;
 	text-align:right;

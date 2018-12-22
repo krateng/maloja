@@ -5,6 +5,9 @@ import json
 def replacedict(keys,dbport):
 	from utilities import getArtistInfo, artistLink
 	
+	# we don't use the associated key for top tracks so we don't wanna hand it down to functions we're calling
+	keys.pop("associated",None)
+	
 	#hand down the since and from arguments
 	extrakeys = urllib.parse.urlencode(keys,quote_via=urllib.parse.quote,safe="/")
 	
@@ -12,9 +15,11 @@ def replacedict(keys,dbport):
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:50]
 	limitstring = ""
+	
 	if keys.get("artist") is not None:
 		topartist = keys.get("artist")
 		limitstring += "by " + artistLink(keys.get("artist"))
+		
 	else:
 		topartist = charts[0]["track"]["artists"][0] #for now
 	

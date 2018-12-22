@@ -412,7 +412,7 @@ def issues():
 	duplicates = []
 	newartists = []
 	inconsistent = not db_rulestate
-	
+	# if the user manually edits files while the server is running this won't show, but too lazy to check the rulestate here
 	
 	import itertools
 	import difflib

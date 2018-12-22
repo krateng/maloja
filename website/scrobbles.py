@@ -9,26 +9,30 @@ def replacedict(keys,dbport):
 	#hand down the since and from arguments
 	extrakeys = urllib.parse.urlencode(keys)
 	
-	if keys.get("artist") is not None:
-		info = getArtistInfo(keys.get("artist"))
-		imgurl = info.get("image")
-	else:
-		imgurl = "" #for now
+	
 		
 	limitstring = ""
-	if keys.get("artist") is not None:
-		#limitstring += "by <a href='/artist?artist=" + urllib.parse.quote(keys.get("artist")) + "'>" + keys.get("artist") + "</a> "	
-		limitstring += "by " + artistLink(keys.get("artist"))
-		if keys.get("associated") is not None:
-			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
-			db_data = json.loads(response.read())
-			moreartists = db_data["associated"]
-			limitstring += " <span class='extra'>including " + ", ".join(moreartists) + "</span>"
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	
+	if keys.get("artist") is not None:
+		latestartist = keys.get("artist")
+		limitstring += "by " + artistLink(keys.get("artist"))
+		if keys.get("associated") is not None:
+			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
+			db_data = json.loads(response.read())
+			moreartists = [artistLink(a) for a in db_data["associated"]]
+			if moreartists != []:
+				limitstring += " <span class='extra'>including " + ", ".join(moreartists) + "</span>"
+		
+	else:
+		latestartist = scrobbles[0]["artists"][0]
+	
+	info = getArtistInfo(latestartist)
+	imgurl = info.get("image")
+
 	html = "<table class='list'>"
 	for s in scrobbles:
 		html += "<tr><td class='time'>"
