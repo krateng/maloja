@@ -137,7 +137,7 @@ def test_server():
 def get_scrobbles():
 	keys = FormsDict.decode(request.query)
 	
-	r = db_query(artist=keys.get("artist"),track=keys.get("track"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
+	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
 	r.reverse()
 
 	return {"list":r} ##json can't be a list apparently???
@@ -548,25 +548,7 @@ def build_db():
 		time = sc[0]
 		
 		readScrobble(artists,title,time)
-	
-	#for f in os.listdir("scrobbles/"):
-	#	
-	#	if not (f.endswith(".tsv")):
-	#		continue
-	#	
-	#	logfile = open("scrobbles/" + f)
-	#	for l in logfile:
-	#		
-	#		l = l.replace("\n","")
-	#		data = l.split("\t")
-	#		
-	#		## saving album in the scrobbles is supported, but for now we don't use it. It shouldn't be a defining part of the track (same song from Album or EP), but derived information
-	#		artists = data[1].split("␟")
-	#		#album = data[3]
-	#		title = data[2]
-	#		time = int(data[0])
-	#		
-	#		readScrobble(artists,title,time)
+
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
 	
@@ -599,33 +581,6 @@ def sync():
 			
 			monthcode = str(timestamp.year) + "_" + str(timestamp.month)
 			entries.setdefault(monthcode,[]).append(entry) #i feckin love the setdefault function
-			#prev = entries.get(monthcode,[])
-			#prev.append(entry)
-			#entries[monthcode] = prev
-			
-		
-	#		monthfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv","a")
-	#		monthfile.write(entry)
-	#		monthfile.write("\n")
-	#		monthfile.close()
-	#		
-	#		if os.path.exists("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate"):
-	#			checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","r")
-	#			print("Checking rulestate of " + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv")
-	#			if checkfile.read() != cla.checksums:
-	#				print("Checksum does not match, file is inconsistent")
-	#				#cla.checksums represents the rule state that all current unsaved scrobbles were created under. if this is the same than the existing one, we're all good
-	#				#if not, the file is not consistent to any single rule state
-	#				checkfile.close()
-	#				checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
-	#				checkfile.write("INVALID") # this will never match any sha256sum
-	#			checkfile.close()
-	#		else:
-	#			print(str(timestamp.year) + "_" + str(timestamp.month) + ".tsv does not yet exist, writing current rulestate")
-	#			#if the file didn't exist before, all its scrobbles come from our current server instance and are therefore under the current rule state
-	#			checkfile = open("scrobbles/" + str(timestamp.year) + "_" + str(timestamp.month) + ".tsv.rulestate","w")
-	#			checkfile.write(cla.checksums)
-	#			checkfile.close()
 			
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 			
@@ -649,25 +604,40 @@ def sync():
 
 
 # Queries the database			
-def db_query(artist=None,track=None,since=None,to=None,associated=False):
+def db_query(artists=None,title=None,track=None,since=None,to=None,associated=False):
 	(since, to) = getTimestamps(since,to)
 	
 	
-	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly (and title string simply picks the first track with that name)	
-	if isinstance(artist, str):
-		artist = ARTISTS.index(artist)
-	if isinstance(track, str):
-		track = TRACKS.index(track)
+	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
+	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
+	# if not, multiple artists are interpreted as requesting all scrobbles they were all involved in (but possibly other too)
+	# eg a track named "Awesome Song" by "TWICE", "AOA" and "f(x)" would count when we specifiy only the artists "AOA" and "f(x)", but not when we add the title (because then we'd be
+	# looking for that specific track with only those two artists - which could in fact exist)
+	
+	artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
+	#for artist in artists:
+	#	if isinstance(artist, str):
+	#	artist = ARTISTS.index(artist)
+	#if isinstance(title, str):
+	#	track = (frozenset(artists),title)
+	#	track = TRACKS.index(track)
+	
+	# if track is specified (only number works), we ignore title string
+	if title!=None and track==None:
+		track = TRACKS.index((frozenset(artists),title))
+	
+		
+	if artists == []:
+		artists = None
+		
+		
+	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now
 		
 	if associated:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist in coa.getCreditedList(TRACKS[s[0]][0]) or artist==None) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artists==None or artists.issubset(coa.getCreditedList(TRACKS[s[0]][0]))) and (since < s[1] < to)]
 	else:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist in TRACKS[s[0]][0] or artist==None) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artists==None or artists.issubset(TRACKS[s[0]][0])) and (since < s[1] < to)]
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
-
-		
-	#thingsweneed = ["artists","title","time"]
-	#return [{key:t[key] for key in thingsweneed} for t in DATABASE if (artist in t["artists"] or artist==None) and (t["title"]==title or title==None) and (since < t["time"] < to)]
 	
 
 # Queries that... well... aggregate
