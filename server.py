@@ -2,6 +2,7 @@
 
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
+from utilities import removeIdentical
 import _thread
 import waitress
 import urllib.request
@@ -89,7 +90,8 @@ def static(name):
 	
 @webserver.route("/<name>")
 def static_html(name):
-	keys = FormsDict.decode(request.query)
+
+	keys = removeIdentical(FormsDict.decode(request.query))
 	
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):

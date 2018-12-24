@@ -329,7 +329,7 @@ def artistInfo():
 	artist = keys.get("artist")
 	
 	charts = db_aggregate(by="ARTIST")
-	scrobbles = len(db_query(artist=artist)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
+	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = coa.getAllAssociated(artist)

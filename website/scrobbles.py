@@ -3,23 +3,27 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, getTimeDesc, artistLink
+	from utilities import getArtistInfo, getTimeDesc, artistLink, keysToUrl
 	
 	
 	#hand down the since and from arguments
-	extrakeys = urllib.parse.urlencode(keys)
-	
-	
-		
+	#extrakeys = urllib.parse.urlencode(keys,doseq=True)
+	extrakeys = keysToUrl(keys)
+
 	limitstring = ""
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	
-	if keys.get("artist") is not None:
+	if keys.get("title") is not None:
+		limitstring += "of " + keys.get("title") + " "
+		limitstring += "by " + ", ".join([artistLink(a) for a in keys.getall("artist")])
 		latestartist = keys.get("artist")
-		limitstring += "by " + artistLink(keys.get("artist"))
+	
+	elif keys.get("artist") is not None:
+		latestartist = keys.get("artist")
+		limitstring += "by " + artistLink(keys.get("artist")) #if we dont specifiy a title, we filter by one artist, which means only one artist is allowed
 		if keys.get("associated") is not None:
 			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 			db_data = json.loads(response.read())
