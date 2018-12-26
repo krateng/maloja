@@ -3,7 +3,8 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, artistLink
+	from utilities import getArtistInfo
+	from htmlgenerators import artistLink
 
 	
 	info = getArtistInfo(keys["artist"])

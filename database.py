@@ -610,6 +610,8 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,associated=Fa
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
 	# if not, duplicate artist arguments are ignored
 	
+	artist = None
+	
 	# artists to numbers	
 	artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
 	
@@ -622,8 +624,6 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,associated=Fa
 	# we only need one artist
 	elif track==None and len(artists) != 0:
 		artist = artists.pop()
-	else:
-		artist = None
 			
 		
 	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now

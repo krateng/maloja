@@ -4,13 +4,13 @@ import json
 		
 def replacedict(keys,dbport):
 	from utilities import getArtistInfo
-	from htmlgenerators import getTimeDesc, artistLink, keysToUrl, pickKeys
+	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, pickKeys, clean
 	
+	clean(keys)
 	timekeys = pickKeys(keys,"since","to","in")
-	limitkeys = pickKeys(keys,"artist","title")
+	limitkeys = pickKeys(keys,"artist","title","associated")
 
 	limitstring = ""
-	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
@@ -38,16 +38,10 @@ def replacedict(keys,dbport):
 
 	html = "<table class='list'>"
 	for s in scrobbles:
-		html += "<tr><td class='time'>"
-		timestring = getTimeDesc(s["time"])
-		html += timestring
-		html += "</td><td class='artists'>"
-		html += ", ".join([artistLink(a) for a in s["artists"]])
-		#artisthtml = ""
-		#for a in s["artists"]:
-		#	artisthtml += "<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
-		#html += artisthtml[:-2]
-		html += "</td><td class='title'>" + s["title"] + "</td></tr>"
+		html += "<tr>"
+		html += "<td class='time'>" + getTimeDesc(s["time"]) + "</td>"
+		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
+		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td></tr>"
 	html += "</table>"
 	
 	return {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(len(scrobbles)),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}

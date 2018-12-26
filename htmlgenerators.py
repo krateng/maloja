@@ -4,6 +4,28 @@
 def artistLink(name):
 	import urllib
 	return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"
+	
+def artistLinks(artists):
+	return ", ".join([artistLink(a) for a in artists])
+	
+#def trackLink(artists,title):
+def trackLink(track):
+	artists,title = track["artists"],track["title"]
+	import urllib
+	return "<a href='/track?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "'>" + title + "</a>"
+	
+#def scrobblesTrackLink(artists,title,timekeys,amount=None,pixels=None):
+def scrobblesTrackLink(track,timekeys,amount=None,pixels=None):
+	artists,title = track["artists"],track["title"]
+	import urllib
+	inner = str(amount) if amount is not None else "<div style='width:" + str(pixels) + "%;'></div>"
+	return "<a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "&title=" + urllib.parse.quote(title) + "&" + keysToUrl(timekeys) + "'>" + inner + "</a>"
+	
+def scrobblesArtistLink(artist,timekeys,amount=None,pixels=None,associated=False):
+	import urllib
+	inner = str(amount) if amount is not None else "<div style='width:" + str(pixels) + "%;'></div>"
+	askey = "&associated" if associated else ""
+	return "<a href='/scrobbles?artist=" + urllib.parse.quote(artist) + "&" + keysToUrl(timekeys) + askey + "'>" + inner + "</a>"
 
 # necessary because urllib.parse.urlencode doesnt handle multidicts
 def keysToUrl(*dicts):
@@ -12,7 +34,7 @@ def keysToUrl(*dicts):
 	keys = removeIdentical(*dicts)
 	for k in keys:
 		values = keys.getall(k)
-		st += "&".join([urllib.parse.urlencode({k:v}) for v in values])
+		st += "&".join([urllib.parse.urlencode({k:v},safe="/") for v in values])
 		st += "&"
 	return st
 	
@@ -46,15 +68,13 @@ def getTimeDesc(timestamp):
 	
 # limit a multidict to only the specified keys
 # would be a simple constructor expression, but multidicts apparently don't let me do that
-# hardcoding this to only allow multi values for a key in one case: artist when there is also a title specified
 def pickKeys(d,*keys):
 	from bottle import FormsDict
-	if isinstance(d,dict) or not "title" in d:
+	if isinstance(d,dict):
 		return {k:d.get(k) for k in d if k in keys}
 	else:
 		# create a normal dictionary of lists
-		newd = {k:d.getall(k) for k in d if k in keys and k=="artist"}
-		newd2 = {k:[d.get(k)] for k in d if k in keys and k!="artist"}
+		newd = {k:d.getall(k) for k in d if k in keys}
 		# one by one add the list entries to the formsdict
 		finald = FormsDict()
 		for k in newd:
@@ -62,3 +82,13 @@ def pickKeys(d,*keys):
 				finald.append(k,v)
 				
 		return finald
+
+# removes all duplicate keys, except artists when a title is specified		
+def clean(d):
+	from bottle import FormsDict
+	if isinstance(d,dict):
+		return
+	else:
+		for k in d:
+			if (k != "artist") or "title" not in d:
+				d[k] = d.pop(k)

@@ -4,8 +4,9 @@ import json
 		
 def replacedict(keys,dbport):
 	from utilities import getArtistInfo
-	from htmlgenerators import artistLink, keysToUrl, pickKeys
+	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, keysToUrl, pickKeys, clean
 	
+	clean(keys)
 	timekeys = pickKeys(keys,"since","to","in")
 	limitkeys = pickKeys(keys)
 	
@@ -30,13 +31,13 @@ def replacedict(keys,dbport):
 	html = "<table class='list'>"
 	for e in charts:
 		html += "<tr>"
-		html += "<td class='rank'>#" + str(i) + "</td><td class='artist'>"
-		#html += "<a href=/artist?artist=" + urllib.parse.quote(e["artist"]) + ">" + e["artist"] + "</a>"
-		html += artistLink(e["artist"])
+		html += "<td class='rank'>#" + str(i) + "</td>"
+		html += "<td class='artist'>" + artistLink(e["artist"])
 		if (e["counting"] != []):
 			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
-		html += "</td><td class='amount'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&associated&" + keysToUrl(timekeys) + "'>" + str(e["scrobbles"]) + "</a></td>"
-		html += "<td class='bar'><a href='/scrobbles?artist=" + urllib.parse.quote(e["artist"]) + "&associated&" + keysToUrl(timekeys) + "'><div style='width:" + str(e["scrobbles"]/maxbar * 100) + "%;'></div></a></td>"
+		html += "</td>"
+		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],timekeys,amount=e["scrobbles"],associated=True) + "</td>"
+		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],timekeys,pixels=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		i += 1
 	html += "</table>"
