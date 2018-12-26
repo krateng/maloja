@@ -228,32 +228,4 @@ def cacheImage(url,path,filename):
 	target = path + "/" + filename + "." + response.info().get_content_subtype()	
 	urllib.request.urlretrieve(url,target)
 	
-def artistLink(name):
-	import urllib
-	return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"
 
-# necessary because urllib.parse.urlencode doesnt handle multidicts
-def keysToUrl(keys):
-	import urllib
-	st = ""
-	for k in removeIdentical(keys):
-		values = keys.getall(k)
-		st += "&".join([urllib.parse.urlencode({k:v}) for v in values])
-		st += "&"
-	return st
-	
-def removeIdentical(keys):
-	from bottle import FormsDict
-	
-	new = FormsDict()
-	for k in keys:
-		values = set(keys.getall(k))
-		for v in values:
-			new.append(k,v)
-			
-	return new
-	
-def getTimeDesc(timestamp):
-	import datetime
-	tim = datetime.datetime.utcfromtimestamp(timestamp)
-	return tim.strftime("%d. %b %Y %I:%M %p")

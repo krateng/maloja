@@ -3,16 +3,15 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, getTimeDesc, artistLink, keysToUrl
+	from utilities import getArtistInfo
+	from htmlgenerators import getTimeDesc, artistLink, keysToUrl, pickKeys
 	
-	
-	#hand down the since and from arguments
-	#extrakeys = urllib.parse.urlencode(keys,doseq=True)
-	extrakeys = keysToUrl(keys)
+	timekeys = pickKeys(keys,"since","to","in")
+	limitkeys = pickKeys(keys,"artist","title")
 
 	limitstring = ""
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
+	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	

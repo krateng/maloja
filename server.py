@@ -2,7 +2,7 @@
 
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
-from utilities import removeIdentical
+from htmlgenerators import removeIdentical
 import _thread
 import waitress
 import urllib.request
@@ -120,4 +120,4 @@ except:
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
 
-run(webserver, host='0.0.0.0', port=MAIN_PORT, server='waitress')
+run(webserver, host='::', port=MAIN_PORT, server='waitress')

@@ -39,6 +39,15 @@ table.top_info td.text h1 {
 	display:inline;
 	padding-right:5px;
 }
+
+p.desc a {
+	padding-left:20px;
+	background-repeat:no-repeat;
+	background-size:contain;
+	background-position:left;
+	background-image:url("https://www.last.fm/static/images/lastfm_avatar_twitter.66cd2c48ce03.png");
+}
+
 /*
 table.top_info td.text .stats {
 	color:grey;

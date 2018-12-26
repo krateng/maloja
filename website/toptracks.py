@@ -3,18 +3,13 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, artistLink, keysToUrl
+	from utilities import getArtistInfo
+	from htmlgenerators import artistLink, keysToUrl, pickKeys
 	
-	# we don't use the associated key for top tracks so we don't wanna hand it down to functions we're calling
-	keys.pop("associated",None)
+	timekeys = pickKeys(keys,"since","to","in")
+	limitkeys = pickKeys(keys,"artist")
 	
-	#hand down the since and from arguments
-	extrakeys = urllib.parse.urlencode(keys,quote_via=urllib.parse.quote,safe="/")
-	# I should probably add a separate variable for keys that are passed to db functions and keys that are inherited to links (usually only time)
-	#extrakeys = keysToUrl(keys)
-	# top tracks should always be of one artist
-	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?" + extrakeys)
+	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:50]
 	limitstring = ""
@@ -30,7 +25,7 @@ def replacedict(keys,dbport):
 	imgurl = info.get("image")
 	
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + extrakeys)
+	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
 	scrobbles = len(scrobblelist)
@@ -45,8 +40,8 @@ def replacedict(keys,dbport):
 		html += "<td class='rank'>#" + str(i) + "</td><td class='artists'>"
 		html += ", ".join([artistLink(a) for a in e["track"]["artists"]])
 		html += "</td><td class='title'>" + e["track"]["title"]
-		html += "</td><td class='amount'><a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) + "&title=" + urllib.parse.quote(e["track"]["title"]) + "&" + extrakeys + "'>" + str(e["scrobbles"]) + "</a></td>"
-		html += "<td class='bar'><a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) + "&title=" + urllib.parse.quote(e["track"]["title"]) + "&" + extrakeys + "'><div style='width:" + str(e["scrobbles"]/maxbar * 100) + "%;'></div></a>"
+		html += "</td><td class='amount'><a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) + "&title=" + urllib.parse.quote(e["track"]["title"]) + "&" + keysToUrl(timekeys) + "'>" + str(e["scrobbles"]) + "</a></td>"
+		html += "<td class='bar'><a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) + "&title=" + urllib.parse.quote(e["track"]["title"]) + "&" + keysToUrl(timekeys) + "'><div style='width:" + str(e["scrobbles"]/maxbar * 100) + "%;'></div></a>"
 		html += "</td>"
 		html += "</tr>"
 		i += 1

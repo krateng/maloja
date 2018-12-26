@@ -525,8 +525,7 @@ def runserver(PORT):
 
 	loadAPIkeys()
 
-	run(dbserver, host='0.0.0.0', port=PORT, server='waitress')
-
+	run(dbserver, host='::', port=PORT, server='waitress')
 
 def build_db():
 	
@@ -607,36 +606,32 @@ def sync():
 def db_query(artists=None,title=None,track=None,since=None,to=None,associated=False):
 	(since, to) = getTimestamps(since,to)
 	
-	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
-	# if not, multiple artists are interpreted as requesting all scrobbles they were all involved in (but possibly other too)
-	# eg a track named "Awesome Song" by "TWICE", "AOA" and "f(x)" would count when we specifiy only the artists "AOA" and "f(x)", but not when we add the title (because then we'd be
-	# looking for that specific track with only those two artists - which could in fact exist)
+	# if not, duplicate artist arguments are ignored
 	
+	# artists to numbers	
 	artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
-	#for artist in artists:
-	#	if isinstance(artist, str):
-	#	artist = ARTISTS.index(artist)
-	#if isinstance(title, str):
-	#	track = (frozenset(artists),title)
-	#	track = TRACKS.index(track)
 	
-	# if track is specified (only number works), we ignore title string
+	#check if track is requested via title
 	if title!=None and track==None:
 		track = TRACKS.index((frozenset(artists),title))
-	
-		
-	if artists == []:
 		artists = None
 		
+	# if we're not looking for a track (either directly or per title artist arguments, which is converted to track above)
+	# we only need one artist
+	elif track==None and len(artists) != 0:
+		artist = artists.pop()
+	else:
+		artist = None
+			
 		
 	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now
 		
 	if associated:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artists==None or artists.issubset(coa.getCreditedList(TRACKS[s[0]][0]))) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0])) and (since < s[1] < to)]
 	else:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artists==None or artists.issubset(TRACKS[s[0]][0])) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in TRACKS[s[0]][0]) and (since < s[1] < to)]
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 	
 
@@ -705,10 +700,10 @@ def db_search(query,type=None):
 def getTimestamps(f,t):
 	#(f,t) = inp
 	if isinstance(f, str) and f.lower() == "today":
-		tod = datetime.date.today()
+		tod = datetime.datetime.utcnow()
 		f = [tod.year,tod.month,tod.day]
 	if isinstance(t, str) and t.lower() == "today":
-		tod = datetime.date.today()
+		tod = datetime.datetime.utcnow()
 		t = [tod.year,tod.month,tod.day]
 	
 	
