@@ -10,6 +10,7 @@ def replacedict(keys,dbport):
 	timekeys = pickKeys(keys,"since","to","in")
 	limitkeys = pickKeys(keys,"artist")
 	
+	# get chart data
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:50]
@@ -26,12 +27,14 @@ def replacedict(keys,dbport):
 	imgurl = info.get("image")
 	
 	
+	# get total amount of scrobbles
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
 	scrobbles = len(scrobblelist)
 	
 	
+	# build list
 	maxbar = charts[0]["scrobbles"]
 	
 	i = 1
@@ -42,7 +45,7 @@ def replacedict(keys,dbport):
 		html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
 		html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
 		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],timekeys,amount=e["scrobbles"]) + "</td>"
-		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],timekeys,pixels=e["scrobbles"]*100/maxbar) + "</td>"
+		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],timekeys,percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		i += 1
 	html += "</table>"

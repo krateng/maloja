@@ -10,6 +10,7 @@ def replacedict(keys,dbport):
 	timekeys = pickKeys(keys,"since","to","in")
 	limitkeys = pickKeys(keys)
 	
+	# get chart data
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/artists?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:50]
@@ -18,13 +19,14 @@ def replacedict(keys,dbport):
 	info = getArtistInfo(topartist)
 	imgurl = info.get("image")
 	
-	
+	# get total amount of scrobbles
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
 	scrobbles = len(scrobblelist)
 	
 	
+	# build list
 	maxbar = charts[0]["scrobbles"]
 	
 	i = 1
@@ -37,7 +39,7 @@ def replacedict(keys,dbport):
 			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
 		html += "</td>"
 		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],timekeys,amount=e["scrobbles"],associated=True) + "</td>"
-		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],timekeys,pixels=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],timekeys,percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		i += 1
 	html += "</table>"

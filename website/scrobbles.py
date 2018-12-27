@@ -9,39 +9,45 @@ def replacedict(keys,dbport):
 	clean(keys)
 	timekeys = pickKeys(keys,"since","to","in")
 	limitkeys = pickKeys(keys,"artist","title","associated")
-
-	limitstring = ""
+	
+	# Get scrobble data
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	
+	# describe the scope
+	limitstring = ""
 	if keys.get("title") is not None:
-		limitstring += "of " + keys.get("title") + " "
-		limitstring += "by " + ", ".join([artistLink(a) for a in keys.getall("artist")])
-		latestartist = keys.get("artist")
+		limitstring += "of " + trackLink({"title":keys.get("title"),"artists":keys.getall("artist")}) + " "
+		limitstring += "by " + artistLinks(keys.getall("artist"))
 	
 	elif keys.get("artist") is not None:
-		latestartist = keys.get("artist")
-		limitstring += "by " + artistLink(keys.get("artist")) #if we dont specifiy a title, we filter by one artist, which means only one artist is allowed
+		limitstring += "by " + artistLink(keys.get("artist"))
 		if keys.get("associated") is not None:
 			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 			db_data = json.loads(response.read())
-			moreartists = [artistLink(a) for a in db_data["associated"]]
+			moreartists = db_data["associated"]
 			if moreartists != []:
-				limitstring += " <span class='extra'>including " + ", ".join(moreartists) + "</span>"
+				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
-	else:
-		latestartist = scrobbles[0]["artists"][0]
 	
-	info = getArtistInfo(latestartist)
-	imgurl = info.get("image")
+	# get representative artist for image	
+	if keys.get("artist") is not None:
+		imgurl = getArtistInfo(keys.get("artist")).get("image")
+	elif (len(scrobbles) != 0):
+		imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
+	else:
+		imgurl = ""
+	
 
+	# build list
 	html = "<table class='list'>"
 	for s in scrobbles:
 		html += "<tr>"
 		html += "<td class='time'>" + getTimeDesc(s["time"]) + "</td>"
 		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
-		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td></tr>"
+		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
+		html += "</tr>"
 	html += "</table>"
 	
 	return {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(len(scrobbles)),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}

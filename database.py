@@ -132,6 +132,10 @@ def test_server():
 	else:
 		response.status = 205
 		return
+		
+	# 204	Database server is up and operational
+	# 205	Database server is up, but DB is not fully built or is inconsistent
+	# 403	Database server is up, but provided API key is not valid
 
 @dbserver.route("/scrobbles")
 def get_scrobbles():

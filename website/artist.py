@@ -4,9 +4,9 @@ import json
 		
 def replacedict(keys,dbport):
 	from utilities import getArtistInfo
-	from htmlgenerators import artistLink
+	from htmlgenerators import clean, artistLink, artistLinks, trackLink, scrobblesTrackLink
 
-	
+	clean(keys)
 	info = getArtistInfo(keys["artist"])
 	imgurl = info.get("image")
 	desc = info.get("info")
@@ -24,22 +24,7 @@ def replacedict(keys,dbport):
 	included = db_data.get("associated")
 	if included is not None and included != []:
 		includestr = "associated: "
-		#for a in included:
-		includestr += ", ".join([artistLink(a) for a in included]) #"<a href=/artist?artist=" + urllib.parse.quote(a) + ">" + a + "</a>, "
-		#includestr = includestr[:-2]
-	
-#	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/tracks?artist=" + urllib.parse.quote(keys["artist"]))
-#	db_data = json.loads(response.read())
-#	
-#	html = "<table class='list'>"
-#	for e in db_data["list"]:
-#		html += "<tr>"
-#		html += "<td class='artists'>"
-#		links = [artistLink(a) for a in e["artists"]]
-#		html += ", ".join(links)
-#		html += "</td><td class='title'>" + e["title"] + "</td>"
-#		html += "</tr>"
-#	html += "</table>"
+		includestr += artistLinks(included)
 	
 	
 	
@@ -51,12 +36,10 @@ def replacedict(keys,dbport):
 	html = "<table class='list'>"
 	for e in db_data["list"]:
 		html += "<tr>"
-		html += "<td class='artists'>"
-		links = [artistLink(a) for a in e["track"]["artists"]]
-		html += ", ".join(links)
-		html += "</td><td class='title'>" + e["track"]["title"] + "</td>"
-		html += "</td><td class='amount'>" + str(e["scrobbles"]) + "</td>"
-		html += "<td class='bar'><div style='width:" + str(e["scrobbles"]/maxbar * 100) + "%;'></div></td>"
+		html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
+		html += "<td>" + trackLink(e["track"]) + "</td>"
+		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{},amount=e["scrobbles"]) + "</td>"
+		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{},pixels=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 	
