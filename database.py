@@ -343,6 +343,19 @@ def artistInfo():
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
 		return {"replace":artist,"scrobbles":scrobbles,"position":charts.index(c) + 1}
+		
+@dbserver.route("/trackinfo")	
+def trackInfo():
+	keys = FormsDict.decode(request.query)
+	artists = keys.getall("artist")
+	title = keys.get("title")
+	
+	charts = db_aggregate(by="TRACK")
+	scrobbles = len(db_query(artists=artists,title=title)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
+	
+
+	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
+	return {"scrobbles":scrobbles,"position":charts.index(c) + 1}
 	
 def isPast(date,limit):
 	if not date[0] == limit[0]:

@@ -18,12 +18,12 @@ def trackLink(track):
 def scrobblesTrackLink(track,timekeys,amount=None,percent=None):
 	artists,title = track["artists"],track["title"]
 	import urllib
-	inner = str(amount) if amount is not None else "<div style='width:" + str(pixels) + "%;'></div>"
+	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
 	return "<a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "&title=" + urllib.parse.quote(title) + "&" + keysToUrl(timekeys) + "'>" + inner + "</a>"
 	
 def scrobblesArtistLink(artist,timekeys,amount=None,percent=None,associated=False):
 	import urllib
-	inner = str(amount) if amount is not None else "<div style='width:" + str(pixels) + "%;'></div>"
+	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
 	askey = "&associated" if associated else ""
 	return "<a href='/scrobbles?artist=" + urllib.parse.quote(artist) + "&" + keysToUrl(timekeys) + askey + "'>" + inner + "</a>"
 
