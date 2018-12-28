@@ -3,7 +3,7 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo
+	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesTrackLink, keysToUrl, pickKeys, clean
 	
 	clean(keys)
@@ -20,11 +20,13 @@ def replacedict(keys,dbport):
 		topartist = keys.get("artist")
 		#limitstring += "by " + ", ".join([artistLink(a) for a in keys.getall("artist")])
 		limitstring = "by " + artistLink(keys.get("artist"))
+		info = getArtistInfo(topartist)
+		imgurl = info.get("image")
 	else:
-		topartist = charts[0]["track"]["artists"][0] #for now
+		#topartist = charts[0]["track"]["artists"][0] #for now
+		info = getTrackInfo(charts[0]["track"]["artists"],charts[0]["track"]["title"])
+		imgurl = info.get("image")
 	
-	info = getArtistInfo(topartist)
-	imgurl = info.get("image")
 	
 	
 	# get total amount of scrobbles

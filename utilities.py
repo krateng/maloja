@@ -200,7 +200,7 @@ def apirequest(artists=None,artist=None,title=None):
 			except:
 				pass
 		
-		return {"image":None}
+		return {"image":""}
 
 cachedTracks = {}
 cachedArtists = {}
@@ -211,7 +211,7 @@ def getTrackInfo(artists,title):
 	
 	obj = (frozenset(artists),title)
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
-	if filename = "": filename = str(hash(obj))
+	if filename == "": filename = str(hash(obj))
 	filepath = "images/tracks/" + filename
 	
 	# check if custom image exists
@@ -265,7 +265,7 @@ def getArtistInfo(artist):
 	
 	obj = artist
 	filename = re.sub("[^a-zA-Z0-9]","",artist)
-	if filename = "": filename = str(hash(obj))
+	if filename == "": filename = str(hash(obj))
 	filepath = "images/artists/" + filename
 	#filepath_cache = "info/artists_cache/" + filename
 	

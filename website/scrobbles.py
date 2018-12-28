@@ -3,7 +3,7 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo
+	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, pickKeys, clean
 	
 	clean(keys)
@@ -31,8 +31,10 @@ def replacedict(keys,dbport):
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
 	
-	# get representative artist for image	
-	if keys.get("artist") is not None:
+	# get image	
+	if limitkeys.get("title") is not None:
+		imgurl = getTrackInfo(limitkeys.getall("artist"),limitkeys.get("title")).get("image")
+	elif keys.get("artist") is not None:
 		imgurl = getArtistInfo(keys.get("artist")).get("image")
 	elif (len(scrobbles) != 0):
 		imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
