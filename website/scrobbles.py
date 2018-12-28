@@ -45,6 +45,7 @@ def replacedict(keys,dbport):
 	for s in scrobbles:
 		html += "<tr>"
 		html += "<td class='time'>" + getTimeDesc(s["time"]) + "</td>"
+		#html += """<td class='icon' style="background-image:url('""" + getArtistInfo(s["artists"][0]).get("image") + """')" /></td>"""
 		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
 		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
 		html += "</tr>"

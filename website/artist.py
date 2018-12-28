@@ -9,7 +9,7 @@ def replacedict(keys,dbport):
 	clean(keys)
 	info = getArtistInfo(keys["artist"])
 	imgurl = info.get("image")
-	desc = info.get("info")
+	#desc = info.get("info")
 	
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
@@ -39,9 +39,9 @@ def replacedict(keys,dbport):
 		html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
 		html += "<td>" + trackLink(e["track"]) + "</td>"
 		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{},amount=e["scrobbles"]) + "</td>"
-		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{},pixels=e["scrobbles"]*100/maxbar) + "</td>"
+		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{},percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 	
 
-	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":desc,"KEY_TRACKLIST":html,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}
+	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_TRACKLIST":html,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}

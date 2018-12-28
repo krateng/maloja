@@ -72,11 +72,11 @@ def graceful_exit(sig=None,frame=None):
 	sys.exit()
 
 
-@webserver.route("/info/<pth:re:.*\\.jpeg>")
-@webserver.route("/info/<pth:re:.*\\.jpg>")
-@webserver.route("/info/<pth:re:.*\\.png>")
+@webserver.route("/images/<pth:re:.*\\.jpeg>")
+@webserver.route("/images/<pth:re:.*\\.jpg>")
+@webserver.route("/images/<pth:re:.*\\.png>")
 def static_image(pth):
-	return static_file("info/" + pth,root="")
+	return static_file("images/" + pth,root="")
 
 @webserver.route("/<name:re:.*\\.html>")
 @webserver.route("/<name:re:.*\\.js>")

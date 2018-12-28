@@ -3,12 +3,12 @@ import json
 
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo
+	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import clean, artistLink, artistLinks, trackLink, scrobblesTrackLink, keysToUrl, pickKeys, getTimeDesc
 
 	clean(keys)
 	limitkeys = pickKeys(keys,"artist","title")
-	info = getArtistInfo(keys["artist"])
+	info = getTrackInfo(keys.getall("artist"),keys.get("title"))
 	imgurl = info.get("image")
 	desc = info.get("info")
 	

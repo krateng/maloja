@@ -79,19 +79,31 @@ table.list tr td {
 	
 }
 
-table tr:nth-child(even) {
+table.list tr:nth-child(even) {
 	background-color:#37373B;
 }
 
-table tr:nth-child(5n) td {
+table.list tr:nth-child(5n) td {
 	border-color:rgba(120,120,120,0.2);
 	
 }
 
+table.list tr:hover {
+	background-color:#404044;
+}
+
 table td.time {
-	width:200px;
+	width:180px;
 	color:gray;
 }
+
+table td.icon {
+	width:20px;
+	height:20px;
+	background-size:cover;
+	background-position:center;
+}
+
 table td.artists,td.artist,td.title {
 	width:500px;
 	white-space:nowrap;
