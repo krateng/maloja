@@ -1,6 +1,6 @@
 import urllib
 import json
-from utilities import artistLink
+from htmlgenerators import artistLink
 
 def replacedict(keys,dbport):
 	

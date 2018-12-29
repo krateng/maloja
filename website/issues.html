@@ -16,7 +16,8 @@
 					<span>with your library</span>
 					<p class="stats"><a href="/scrobbles?artist=KEY_ENC_ARTISTNAME">KEY_ISSUES Issues</a></p>
 					
-					<p>Maloja can identify possible problems with consistency or redundancy in your library. After making any changes, you should <a onclick='fullrebuild()'>rebuild your library</a>.</p>
+					<p>Maloja can identify possible problems with consistency or redundancy in your library. After making any changes, you should <a onclick='fullrebuild()'>rebuild your library</a>.<br/>
+					Your API key is required to make any changes to the server: <input id='apikey' onchange='checkAPIkey()' style='width:300px;'/></p>
 				</td>
 			</tr>
 		</table>
@@ -26,26 +27,76 @@
 	</body>
 	
 	<script>
-		function newrule() {
-			keys = ""
-			for (var i = 1; i < arguments.length; i++) {
-				keys += encodeURIComponent(arguments[i]) + "&"
+		
+		cookies = decodeURIComponent(document.cookie).split(';');
+		for(var i = 0; i <cookies.length; i++) { 
+			if (cookies[i].startsWith("apikey=")) {
+				document.getElementById("apikey").value = cookies[i].replace("apikey=","")
+				checkAPIkey()
 			}
-			console.log(keys)
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/db/newrule?", true);
-			xhttp.send(keys);
-			e = arguments[0]
-			line = e.parentNode
-			line.parentNode.removeChild(line)
+		}
 	
+		apikeycorrect = false;
+		
+		function newrule() {
+			if (apikeycorrect) {
+				keys = ""
+				for (var i = 1; i < arguments.length; i++) {
+					keys += encodeURIComponent(arguments[i]) + "&"
+				}
+				apikey = document.getElementById("apikey").value
+				keys += "key=" + encodeURIComponent(apikey)
+				console.log(keys)
+			
+			
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST","/db/newrule?", true);
+				xhttp.send(keys);
+				e = arguments[0]
+				line = e.parentNode
+				line.parentNode.removeChild(line)
+			}
 		}
 		
 		function fullrebuild() {
+			if (apikeycorrect) {
+				apikey = document.getElementById("apikey").value
+			
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST","/db/rebuild", true);
+				xhttp.send("key=" + encodeURIComponent(apikey))
+				window.location = "/wait";	
+			}
+			
+		}
+		
+		function saveAPIkey() {
+			key = document.getElementById("apikey").value
+			document.cookie = "apikey=" + encodeURIComponent(key)
+		}
+		
+		function checkAPIkey() {
+			saveAPIkey()
+			url = "/db/test?key=" + document.getElementById("apikey").value
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/db/rebuild", true);
-			xhttp.send()
-			window.location = "/wait";
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && (this.status == 204 || this.status == 205)) {
+					document.getElementById("apikey").style.backgroundColor = "lawngreen"
+					apikeycorrect = true
+				}
+				else {
+					document.getElementById("apikey").style.backgroundColor = "red"
+					apikeycorrect = false
+				}
+			};
+			try {
+				xhttp.open("GET",url,true);
+				xhttp.send();
+			}
+			catch (e) {
+				document.getElementById("apikey").style.backgroundColor = "red"
+				apikeycorrect = false
+			}
 		}
 	
 	</script>

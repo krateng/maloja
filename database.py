@@ -419,9 +419,12 @@ def abouttoshutdown():
 @dbserver.post("/newrule")
 def newrule():
 	keys = FormsDict.decode(request.forms)
-	addEntry("rules/webmade.tsv",[k for k in keys])
-	global db_rulestate
-	db_rulestate = False
+	apikey = keys.pop("key",None)
+	if (checkAPIkey(apikey)):
+		addEntry("rules/webmade.tsv",[k for k in keys])
+		global db_rulestate
+		db_rulestate = False
+	
 	
 @dbserver.route("/issues")
 def issues():
@@ -516,14 +519,16 @@ def issues():
 
 @dbserver.post("/rebuild")
 def rebuild():
-	global db_rulestate
-	db_rulestate = False
-	sync()
-	os.system("python3 fixexisting.py")
-	global cla, coa
-	cla = CleanerAgent()
-	coa = CollectorAgent()
-	build_db()
+	apikey = keys.pop("key",None)
+	if (checkAPIkey(apikey)):
+		global db_rulestate
+		db_rulestate = False
+		sync()
+		os.system("python3 fixexisting.py")
+		global cla, coa
+		cla = CleanerAgent()
+		coa = CollectorAgent()
+		build_db()
 
 
 	
