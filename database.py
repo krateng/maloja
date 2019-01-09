@@ -519,6 +519,7 @@ def issues():
 
 @dbserver.post("/rebuild")
 def rebuild():
+	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
 		global db_rulestate
@@ -612,7 +613,7 @@ def sync():
 			
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	print("Database saved to disk.")
+	log("Database saved to disk.")
 			
 
 

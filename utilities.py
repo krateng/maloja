@@ -138,7 +138,10 @@ def addEntries(filename,al):
 ### Logging
 		
 def log(msg):
-	print(msg)
+	import inspect
+	module = inspect.getmodule(inspect.stack()[1][0]).__name__
+	if module == "__main__": module = "mainserver"
+	print("[" + module + "] " + msg)
 	# best function ever	
 	
 
@@ -178,16 +181,17 @@ def apirequest(artists=None,artist=None,title=None):
 			except:
 				pass
 		
-		# if nothing worked, just return the artist image
 		if len(artists) == 1:
-			return {"image":apirequest(artist=artists[0])["image"]}
-			#return {"image":None,"desc":None}
+			#return {"image":apirequest(artist=artists[0])["image"]}
+			return {"image":None}
 				
 		# try the same track with every single artist
 		for a in artists:
 			rec = apirequest(artists=[a],title=title)
 			if rec["image"] is not None:
 				return rec
+				
+		return {"image":None}
 		
 	# ARTISTS		
 	else:
@@ -202,6 +206,7 @@ def apirequest(artists=None,artist=None,title=None):
 		
 		return {"image":""}
 
+# I think I've only just understood modules
 cachedTracks = {}
 cachedArtists = {}
 
@@ -231,33 +236,13 @@ def getTrackInfo(artists,title):
 		pass
 	
 	result = apirequest(artists=artists,title=title)
-	cachedTracks[(frozenset(artists),title)] = result["image"]
-	return result
-	
-#	with open("apikey","r") as keyfile:
-#		apikey = keyfile.read().replace("\n","")
-#
-#	
-#	for a in artists:
-#		try:
-#			url = "https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track=" + urllib.parse.quote(title) + "&artist=" + urllib.parse.quote(a) + "&api_key=" + apikey + "&format=json"
-#			response = urllib.request.urlopen(url)
-#			lastfm_data = json.loads(response.read())
-#			imgurl = lastfm_data["track"]["album"]["image"][2]["#text"]
-#			break
-#		except:
-#			pass
-#			
-#	try:
-#		return {"image":imgurl}
-#	except:
-#		for a in artists:
-#			try:
-#				return {"image":getArtistInfo(a)["image"]}
-#			except:
-#				pass
-#	
-#	return {"image":""}
+	if result.get("image") is not None:
+		cachedTracks[(frozenset(artists),title)] = result["image"]
+		return result
+	else:
+		result = getArtistInfo(artist=artists[0])
+		cachedTracks[(frozenset(artists),title)] = result["image"]
+		return result
 	
 def getArtistInfo(artist):
 	import re
@@ -280,25 +265,7 @@ def getArtistInfo(artist):
 		imgurl = "/" + filepath + ".jpeg"
 		return {"image":imgurl}
 	
-	#check if cached image exists	
-#	elif os.path.exists(filepath_cache + ".png"):
-#		imgurl = "/" + filepath_cache + ".png"
-#	elif os.path.exists(filepath_cache + ".jpg"):
-#		imgurl = "/" + filepath_cache + ".jpg"
-#	elif os.path.exists(filepath_cache + ".jpeg"):
-#		imgurl = "/" + filepath_cache + ".jpeg"
-		
-		
-	# check if custom desc exists
-#	if os.path.exists(filepath + ".txt"):
-#		with open(filepath + ".txt","r") as descfile:
-#			desc = descfile.read().replace("\n","")
-#	
-#	#check if cached desc exists	
-#	elif os.path.exists(filepath_cache + ".txt"):
-#		with open(filepath_cache + ".txt","r") as descfile:
-#			desc = descfile.read().replace("\n","")
-			
+
 	try:
 		return {"image":cachedArtists[artist]}
 	except:
@@ -307,43 +274,6 @@ def getArtistInfo(artist):
 	result = apirequest(artist=artist)
 	cachedArtists[artist] = result["image"]
 	return result
-	
-#	# if we neither have a custom image nor a cached version, we return the address from lastfm, but cache that image for later use	
-#	with open("apikey","r") as keyfile:
-#		apikey = keyfile.read().replace("\n","")
-#	
-#	
-#	try:	
-#		url = "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + urllib.parse.quote(artist) + "&api_key=" + apikey + "&format=json"
-#		response = urllib.request.urlopen(url)
-#		lastfm_data = json.loads(response.read())
-#		try:
-#			imgurl
-#		except NameError:
-#			imgurl = lastfm_data["artist"]["image"][2]["#text"]
-#			if imgurl == "":
-#				imgurl = "/info/artists/default.jpg"
-#			else:
-#				_thread.start_new_thread(cacheImage,(imgurl,"info/artists_cache",filename))
-#		try:
-#			desc
-#		except NameError:
-#			desc = lastfm_data["artist"]["bio"]["summary"].split("(1) ")[-1]
-#			with open(filepath_cache + ".txt","w") as descfile:
-#				descfile.write(desc)
-#		# this feels so dirty
-#		
-#		
-#		return {"image":imgurl,"info":desc}
-#	except:
-#		return {"image":"/info/artists/default.jpg","info":"No information available"}
-		
-	
-	
-#def cacheImage(url,path,filename):
-#	import urllib.request
-#	response = urllib.request.urlopen(url)
-#	target = path + "/" + filename + "." + response.info().get_content_subtype()	
-#	urllib.request.urlretrieve(url,target)
+
 	
 

@@ -3,6 +3,7 @@
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict
 from importlib.machinery import SourceFileLoader
 from htmlgenerators import removeIdentical
+from utilities import *
 import _thread
 import waitress
 import urllib.request
@@ -68,7 +69,7 @@ def shutdown():
 	
 def graceful_exit(sig=None,frame=None):
 	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/sync")
-	print("Server shutting down...")
+	log("Server shutting down...")
 	sys.exit()
 
 

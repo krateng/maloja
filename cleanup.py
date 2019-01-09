@@ -2,6 +2,8 @@ import re
 import utilities
 
 # need to do this as a class so it can retain loaded settings from file
+# apparently this is not true
+# I'm dumb
 class CleanerAgent:
 	
 	def __init__(self):

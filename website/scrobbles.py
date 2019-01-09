@@ -37,7 +37,8 @@ def replacedict(keys,dbport):
 	elif keys.get("artist") is not None:
 		imgurl = getArtistInfo(keys.get("artist")).get("image")
 	elif (len(scrobbles) != 0):
-		imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
+		imgurl = getTrackInfo(scrobbles[0]["artists"],scrobbles[0]["title"]).get("image")
+		#imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
 	else:
 		imgurl = ""
 	
