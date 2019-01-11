@@ -369,6 +369,10 @@ def pseudo_post_scrobble():
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	artists = keys.get("artist")
 	title = keys.get("title")
+	apikey = keys.get("key")
+	if not (checkAPIkey(apikey)):
+		response.status = 403
+		return ""
 	try:
 		time = int(keys.get("time"))
 	except:

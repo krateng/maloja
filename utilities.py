@@ -107,7 +107,7 @@ def parseAllTSV(path,*args):
 	result = []
 	for f in os.listdir(path + "/"):
 		
-		if (".tsv" in f):
+		if (f.endswith(".tsv")):
 			
 			result += parseTSV(path + "/" + f,*args)
 			
