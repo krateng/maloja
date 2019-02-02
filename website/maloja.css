@@ -231,6 +231,13 @@ table.tiles_top td {
 	border:0px;
 }
 
+table.tiles_top:hover td div {
+	opacity:0.2;
+}
+table.tiles_top:hover td div:hover {
+	opacity:1;
+}
+
 table.tiles_top, table.tiles_sub {
 	border-collapse: collapse;
 }
@@ -247,12 +254,14 @@ table.tiles_sub {
 	width:100%;
 }
 
-
-table.tiles_top td div {
+table.tiles_top td {
 	background-size:cover;
 	background-position:center;
-	height:100%;
-	width:100%;
+	vertical-align:bottom;
+}
+
+table.tiles_top td span {
+	background-color:rgba(0,0,0,0.7);
 }
 
 table.tiles_2x2 td {

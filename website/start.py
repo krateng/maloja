@@ -22,7 +22,6 @@ def replacedict(keys,dbport):
 	topartist = charts[0]["artist"]
 	
 	artisttitles = [c["artist"] for c in charts]
-	#chartslistimg = [getArtistInfo(a).get("image") for a in chartslist]
 	artistimages = [info.get("image") for info in getArtistsInfo(artisttitles)]
 	artistlinks = [artistLink(a) for a in artisttitles]
 	
@@ -60,8 +59,6 @@ def replacedict(keys,dbport):
 	response = urllib.request.urlopen("http://localhost:" +str(dbport) + "/numscrobbles")
 	stats = json.loads(response.read())
 	scrobbles_total = "<a href='/scrobbles'>" + str(stats["amount"]) + "</a>"
-	#stats_tracks = "<a href='/toptracks'>" + str(stats["tracks"]) + "</a>"
-	#stats_artists = "<a href='/topartists'>" + str(stats["artists"]) + "</a>"
 	
 
 
