@@ -596,6 +596,11 @@ def build_db():
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
 	
+	# get extra artists with zero scrobbles from countas rules
+	for artist in coa.getAllArtists():
+		if artist not in ARTISTS:
+			ARTISTS.append(artist)
+	
 	coa.updateIDs(ARTISTS)
 			
 	global db_rulestate

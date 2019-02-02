@@ -32,7 +32,7 @@ def replacedict(keys,dbport):
 	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
 	
-	maxbar = db_data["list"][0]["scrobbles"]
+	if db_data["list"] != []: maxbar = db_data["list"][0]["scrobbles"]
 	html = "<table class='list'>"
 	for e in db_data["list"]:
 		html += "<tr>"

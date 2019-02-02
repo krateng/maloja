@@ -157,6 +157,11 @@ class CollectorAgent:
 	def getAllAssociated(self,artist):
 		return self.rules_include.get(artist,[])
 		
+	# this function is there to check for artists that we should include in the database even though they never have any scrobble. important to avoid bugs when
+	# countas rules are declared preemptively
+	def getAllArtists(self):
+		return list(set([a for a in self.rules_countas] + [self.rules_countas[a] for a in self.rules_countas]))
+		
 		
 		
 		
