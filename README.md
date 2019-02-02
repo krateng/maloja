@@ -22,7 +22,9 @@ I like to name my projects after regions in Grisons, Switzerland. Don't waste yo
 
 ## Current status
 
-Deep in development. I just uploaded Maloja here in case I die tomorrow. It can accept scrobbles and return a few webpages (/artist, /scrobbles, /topartists).
+You can check [my own Maloja page](https://maloja.krateng.ch) to see what it currently looks like. 
+
+The software works fairly well and has a few web views, but there is only one scrobbler (a Chrome extension for Plex).
 
 ## How to install
 

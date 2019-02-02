@@ -143,8 +143,11 @@ def get_scrobbles():
 	
 	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
 	r.reverse()
-
-	return {"list":r} ##json can't be a list apparently???
+	
+	if keys.get("max") is not None:
+		return {"list":r[:int(keys.get("max"))]}
+	else:
+		return {"list":r} ##json can't be a list apparently???
 
 @dbserver.route("/numscrobbles")
 def get_scrobbles():

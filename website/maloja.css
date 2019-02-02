@@ -231,10 +231,10 @@ table.tiles_top td {
 	border:0px;
 }
 
-table.tiles_top:hover td div {
+table.tiles_top:hover td td {
 	opacity:0.2;
 }
-table.tiles_top:hover td div:hover {
+table.tiles_top:hover td td:hover {
 	opacity:1;
 }
 
@@ -264,6 +264,11 @@ table.tiles_top td span {
 	background-color:rgba(0,0,0,0.7);
 }
 
+table.tiles_1x1 td {
+	height:100%;
+	width:100%;
+	font-size:100%
+}
 table.tiles_2x2 td {
 	height:50%;
 	width:50%;

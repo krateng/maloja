@@ -70,7 +70,7 @@ def shutdown():
 def graceful_exit(sig=None,frame=None):
 	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/sync")
 	log("Server shutting down...")
-	sys.exit()
+	os._exit(42)
 
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
