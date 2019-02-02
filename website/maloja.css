@@ -16,6 +16,13 @@ a:hover {
 	text-decoration:underline;
 }
 
+/*
+**
+**
+** TOP INFO TABLE
+**
+**
+*/
 
 table.top_info td.image {
 	padding:20px;
@@ -48,11 +55,19 @@ p.desc a {
 	background-image:url("https://www.last.fm/static/images/lastfm_avatar_twitter.66cd2c48ce03.png");
 }
 
+
+
 /*
-table.top_info td.text .stats {
-	color:grey;
-}
+**
+**
+** SPECIAL TEXT BITS
+**
+**
 */
+
+
+
+
 .stats {
 	color:grey;
 }
@@ -68,6 +83,20 @@ table.top_info td.text .stats {
 a {
 	cursor:pointer;
 }
+
+
+
+/*
+**
+**
+** LISTS
+**
+**
+*/
+
+
+
+
 
 table.list {
 	border-collapse:collapse;
@@ -176,4 +205,63 @@ table td.button div {
 td.button.important div {
 	background-color:red;
 	color:white;
+}
+
+
+
+
+
+
+/*
+**
+**
+** IMAGE TILES
+**
+**
+*/
+
+
+
+
+
+
+
+table.tiles_top td {
+	padding:0px;
+	border:0px;
+}
+
+table.tiles_top, table.tiles_sub {
+	border-collapse: collapse;
+}
+
+
+
+table.tiles_top>tbody>tr>td {
+	height:300px;
+	width:300px;
+}
+
+table.tiles_sub {
+	height:100%;
+	width:100%;
+}
+
+
+table.tiles_top td div {
+	background-size:cover;
+	background-position:center;
+	height:100%;
+	width:100%;
+}
+
+table.tiles_2x2 td {
+	height:50%;
+	width:50%;
+	font-size:90%
+}
+table.tiles_3x3 td {
+	height:33.333%;
+	width:33.333%;
+	font-size:70%
 }

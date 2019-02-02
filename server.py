@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
 from importlib.machinery import SourceFileLoader
 from htmlgenerators import removeIdentical
 from utilities import *
@@ -23,7 +23,7 @@ webserver = Bottle()
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
-	return static_file("main.html",root="")
+	return static_html("start")
 
 
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server

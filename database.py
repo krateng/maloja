@@ -410,8 +410,9 @@ def post_scrobble():
 	
 	createScrobble(artists,title,time)
 	
-	if (time - lastsync) > 3600:
-		sync()
+	#if (time - lastsync) > 3600:
+	#	sync()
+	sync() #let's just always sync, not like one filesystem access every three minutes is a problem and it avoids lost tracks when we lose power
 	
 	return ""
 	
