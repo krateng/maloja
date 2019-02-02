@@ -1,3 +1,9 @@
+import re
+import os
+import hashlib
+from threading import Thread
+
+
 ### TSV files
 
 def parseTSV(filename,*args):
@@ -37,8 +43,6 @@ def parseTSV(filename,*args):
 	return result
 	
 def checksumTSV(folder):
-	import hashlib
-	import os
 	
 	sums = ""
 	
@@ -80,7 +84,6 @@ def combineChecksums(filename,checksums):
 # checks ALL files for their rule state. if they are all the same as the current loaded one, the entire database can be assumed to be consistent with the current ruleset
 # in any other case, get out
 def consistentRulestate(folder,checksums):
-	import os
 	
 	result = []
 	for scrobblefile in os.listdir(folder + "/"):
@@ -101,8 +104,7 @@ def consistentRulestate(folder,checksums):
 	
 	
 def parseAllTSV(path,*args):
-	
-	import os
+
 	
 	result = []
 	for f in os.listdir(path + "/"):
@@ -114,8 +116,7 @@ def parseAllTSV(path,*args):
 	return result
 	
 def createTSV(filename):
-	import os
-	
+
 	if not os.path.exists(filename):
 		open(filename,"w").close()
 
@@ -211,8 +212,6 @@ cachedTracks = {}
 cachedArtists = {}
 
 def getTrackInfo(artists,title):
-	import re
-	import os
 	
 	obj = (frozenset(artists),title)
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
@@ -245,8 +244,6 @@ def getTrackInfo(artists,title):
 		return result
 	
 def getArtistInfo(artist):
-	import re
-	import os
 	
 	obj = artist
 	filename = re.sub("[^a-zA-Z0-9]","",artist)
@@ -274,6 +271,19 @@ def getArtistInfo(artist):
 	result = apirequest(artist=artist)
 	cachedArtists[artist] = result["image"]
 	return result
-
 	
-
+def getArtistsInfo(artistlist):
+	
+	threads = []
+	
+	for artist in artistlist:
+		t = Thread(target=getArtistInfo,args=(artist,))
+		t.start()
+		threads.append(t)
+	
+	for t in threads:
+		t.join()
+	
+	# async calls only cached results, now we need to get them	
+	return [getArtistInfo(a) for a in artistlist]
+		

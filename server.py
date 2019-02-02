@@ -100,7 +100,12 @@ def static_html(name):
 		with open("website/" + name + ".html") as htmlfile:
 			html = htmlfile.read()
 			for k in txt_keys:
-				html = html.replace(k,txt_keys[k])		
+				if isinstance(txt_keys[k],list):
+					# if list, we replace each occurence with the next item
+					for element in txt_keys[k]:
+						html = html.replace(k,element,1)
+				else:
+					html = html.replace(k,txt_keys[k])		
 			return html
 		
 		
