@@ -84,6 +84,7 @@ def static_image(pth):
 @webserver.route("/<name:re:.*\\.css>")
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
+@webserver.route("/<name:re:.*\\.ico>")
 def static(name):	
 	return static_file("website/" + name,root="")
 	

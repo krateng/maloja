@@ -146,6 +146,16 @@ def get_scrobbles():
 
 	return {"list":r} ##json can't be a list apparently???
 
+@dbserver.route("/numscrobbles")
+def get_scrobbles():
+	keys = FormsDict.decode(request.query)
+	
+	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
+	r.reverse()
+
+	return {"amount":len(r)}
+
+
 @dbserver.route("/tracks")
 def get_tracks():
 	keys = FormsDict.decode(request.query)
@@ -167,6 +177,10 @@ def get_tracks():
 def get_artists():
 	
 	return {"list":ARTISTS}
+	
+@dbserver.route("/amounts")
+def get_amounts():
+	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
 	
 @dbserver.route("/charts/artists")
 def get_charts_artists():
@@ -733,6 +747,22 @@ def getTimestamps(f,t):
 	if isinstance(t, str) and t.lower() == "today":
 		tod = datetime.datetime.utcnow()
 		t = [tod.year,tod.month,tod.day]
+		
+	
+	if isinstance(f, str) and f.lower() == "month":
+		tod = datetime.datetime.utcnow()
+		f = [tod.year,tod.month]
+	if isinstance(t, str) and t.lower() == "month":
+		tod = datetime.datetime.utcnow()
+		t = [tod.year,tod.month]
+		
+	
+	if isinstance(f, str) and f.lower() == "year":
+		tod = datetime.datetime.utcnow()
+		f = [tod.year]
+	if isinstance(t, str) and t.lower() == "year":
+		tod = datetime.datetime.utcnow()
+		t = [tod.year]
 	
 	
 	if isinstance(f, str):

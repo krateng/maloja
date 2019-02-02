@@ -271,6 +271,21 @@ def getArtistInfo(artist):
 	result = apirequest(artist=artist)
 	cachedArtists[artist] = result["image"]
 	return result
+
+def getTracksInfo(trackobjectlist):
+
+	threads = []
+	
+	for track in trackobjectlist:
+		t = Thread(target=getTrackInfo,args=(track["artists"],track["title"],))
+		t.start()
+		threads.append(t)
+	
+	for t in threads:
+		t.join()
+		
+		
+	return [getTrackInfo(t["artists"],t["title"]) for t in trackobjectlist]
 	
 def getArtistsInfo(artistlist):
 	
