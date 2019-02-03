@@ -64,25 +64,22 @@ def getTimeDesc(timestamp,short=False):
 	import datetime
 	tim = datetime.datetime.utcfromtimestamp(timestamp)
 	if short:
-		now = datetime.datetime.utcnow()
-		datestring = ""
-		if tim.year < now.year:
-			return str(tim.year)
-		if tim.month < now.month:
-			return tim.strftime("%B")
-		if tim.day+1 < now.day:
-			return tim.strftime("%d. %B")
-		if tim.day+1 == now.day:
-			return "yesterday"
-		if tim.hour+1 < now.hour:
-			return str(now.hour - tim.hour) + " hours ago"
-		if tim.minute+1 < now.minute:
-			return str(now.minute - tim.minute) + " minutes ago"
-		if tim.second+10 < now.second:
-			return str(now.second - tim.second) + " seconds ago"
-			
-		return "just now"
-		return tim.strftime("%d. %b %Y")
+		now = datetime.datetime.now(tz=datetime.timezone.utc)
+		difference = int(now.timestamp() - timestamp)
+		
+		if difference < 10: return "just now"
+		if difference < 60: return str(difference) + " seconds ago"
+		difference = int(difference/60)
+		if difference < 60: return str(difference) + " minutes ago"
+		difference = int(difference/60)
+		if difference < 24: return str(difference) + " hours ago"
+		difference = int(difference/24)
+		if difference < 7: return tim.strftime("%A")
+		if difference < 31: return str(difference) + " days ago"
+		#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
+		#if difference < 300: return tim.strftime("%B %Y")
+		
+		return tim.strftime("%d. %B %Y")
 	else:
 		return tim.strftime("%d. %b %Y %I:%M %p")
 	

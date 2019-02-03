@@ -133,6 +133,7 @@ table td.icon {
 	background-position:center;
 	padding-right:6px;*/
 	padding:0px;
+	padding-right:5px;
 }
 
 table td.icon div {
@@ -140,11 +141,12 @@ table td.icon div {
 	height:20px;
 	background-size:cover;
 	background-position:center;
-	margin-right:4px;
 }
 
 table td.artists,td.artist,td.title {
-	width:500px;
+	/*width:500px;*/
+	min-width:100px;
+	padding-right:15px;
 	white-space:nowrap;
 	overflow:hidden;
 	text-overflow:ellipsis;
