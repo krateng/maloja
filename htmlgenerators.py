@@ -60,10 +60,31 @@ def removeIdentical(*dicts):
 			
 	return new
 	
-def getTimeDesc(timestamp):
+def getTimeDesc(timestamp,short=False):
 	import datetime
 	tim = datetime.datetime.utcfromtimestamp(timestamp)
-	return tim.strftime("%d. %b %Y %I:%M %p")
+	if short:
+		now = datetime.datetime.utcnow()
+		datestring = ""
+		if tim.year < now.year:
+			return str(tim.year)
+		if tim.month < now.month:
+			return tim.strftime("%B")
+		if tim.day+1 < now.day:
+			return tim.strftime("%d. %B")
+		if tim.day+1 == now.day:
+			return "yesterday"
+		if tim.hour+1 < now.hour:
+			return str(now.hour - tim.hour) + " hours ago"
+		if tim.minute+1 < now.minute:
+			return str(now.minute - tim.minute) + " minutes ago"
+		if tim.second+10 < now.second:
+			return str(now.second - tim.second) + " seconds ago"
+			
+		return "just now"
+		return tim.strftime("%d. %b %Y")
+	else:
+		return tim.strftime("%d. %b %Y %I:%M %p")
 	
 	
 # limit a multidict to only the specified keys

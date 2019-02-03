@@ -127,10 +127,20 @@ table td.time {
 }
 
 table td.icon {
+	/*width:20px!important;
+	height:20px;
+	background-size:cover;
+	background-position:center;
+	padding-right:6px;*/
+	padding:0px;
+}
+
+table td.icon div {
 	width:20px;
 	height:20px;
 	background-size:cover;
 	background-position:center;
+	margin-right:4px;
 }
 
 table td.artists,td.artist,td.title {
@@ -278,4 +288,28 @@ table.tiles_3x3 td {
 	height:33.333%;
 	width:33.333%;
 	font-size:70%
+}
+
+
+
+
+
+/*
+**
+**
+** SIDE LIST ON START PAGE
+**
+**
+*/
+
+
+
+div.sidelist {
+	position:absolute;
+	right:0px;
+	top:0px;
+	width:40%;
+	height:100%;
+	background-color:#444447;
+	padding-left:30px;
 }

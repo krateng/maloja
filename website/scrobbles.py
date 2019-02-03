@@ -7,7 +7,7 @@ def replacedict(keys,dbport):
 	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, pickKeys, clean
 	
 	clean(keys)
-	timekeys = pickKeys(keys,"since","to","in")
+	timekeys = pickKeys(keys,"since","to","in","max")
 	limitkeys = pickKeys(keys,"artist","title","associated")
 	
 	# Get scrobble data

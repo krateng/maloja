@@ -301,4 +301,5 @@ def getArtistsInfo(artistlist):
 	
 	# async calls only cached results, now we need to get them	
 	return [getArtistInfo(a) for a in artistlist]
+
 		
