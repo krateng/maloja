@@ -70,12 +70,12 @@ def getTimeDesc(timestamp,short=False):
 		if difference < 10: return "just now"
 		if difference < 60: return str(difference) + " seconds ago"
 		difference = int(difference/60)
-		if difference < 60: return str(difference) + " minutes ago"
+		if difference < 60: return str(difference) + " minutes ago" if difference>1 else str(difference) + " minute ago"
 		difference = int(difference/60)
-		if difference < 24: return str(difference) + " hours ago"
+		if difference < 24: return str(difference) + " hours ago" if difference>1 else str(difference) + " hour ago"
 		difference = int(difference/24)
 		if difference < 7: return tim.strftime("%A")
-		if difference < 31: return str(difference) + " days ago"
+		if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
 		#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
 		#if difference < 300: return tim.strftime("%B %Y")
 		

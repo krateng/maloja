@@ -305,7 +305,7 @@ table.tiles_3x3 td {
 */
 
 
-
+@media (min-width: 1600px) {
 div.sidelist {
 	position:absolute;
 	right:0px;
@@ -314,4 +314,5 @@ div.sidelist {
 	height:100%;
 	background-color:#444447;
 	padding-left:30px;
+}
 }
