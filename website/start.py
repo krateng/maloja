@@ -1,9 +1,19 @@
 import urllib
 import json
+from threading import Thread
 
+
+def getpictures(ls,result,tracks=False):
+	from utilities import getArtistsInfo, getTracksInfo
+	if tracks:
+		for element in getTracksInfo(ls):
+			result.append(element.get("image"))
+	else:
+		for element in getArtistsInfo(ls):
+			result.append(element.get("image"))
 		
 def replacedict(keys,dbport):
-	from utilities import getArtistInfo, getArtistsInfo, getTracksInfo
+	from utilities import getArtistsInfo, getTracksInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, keysToUrl, pickKeys, clean, getTimeDesc
 	
 	max_show = 15
@@ -22,7 +32,10 @@ def replacedict(keys,dbport):
 	topartist = charts[0]["artist"]
 	
 	artisttitles = [c["artist"] for c in charts]
-	artistimages = [info.get("image") for info in getArtistsInfo(artisttitles)]
+	artistimages = []
+	t1 = Thread(target=getpictures,args=(artisttitles,artistimages,))
+	t1.start()
+	#artistimages = [info.get("image") for info in getArtistsInfo(artisttitles)]
 	artistlinks = [artistLink(a) for a in artisttitles]
 	
 	
@@ -34,7 +47,10 @@ def replacedict(keys,dbport):
 	trackobjects = [t["track"] for t in charts]
 	tracktitles = [t["title"] for t in trackobjects]
 	trackartists = [", ".join(t["artists"]) for t in trackobjects]
-	trackimages = [info.get("image") for info in getTracksInfo(trackobjects)]
+	trackimages = []
+	t2 = Thread(target=getpictures,args=(trackobjects,trackimages,),kwargs={"tracks":True})
+	t2.start()
+	#trackimages = [info.get("image") for info in getTracksInfo(trackobjects)]
 	tracklinks = [trackLink(t) for t in trackobjects]
 	
 	
@@ -46,7 +62,10 @@ def replacedict(keys,dbport):
 	scrobbleartists = [", ".join([artistLink(a) for a in s["artists"]]) for s in scrobblelist]
 	scrobbletitles = [s["title"] for s in scrobblelist]
 	scrobbletimes = [getTimeDesc(s["time"],short=True) for s in scrobblelist]
-	scrobbleimages = [info.get("image") for info in getTracksInfo(scrobbletrackobjects)]
+	scrobbleimages = []
+	t3 = Thread(target=getpictures,args=(scrobbletrackobjects,scrobbleimages,),kwargs={"tracks":True})
+	t3.start()
+	#scrobbleimages = [info.get("image") for info in getTracksInfo(scrobbletrackobjects)]
 	scrobbletracklinks = [trackLink(t) for t in scrobbletrackobjects]
 	
 	
@@ -67,6 +86,11 @@ def replacedict(keys,dbport):
 	stats = json.loads(response.read())
 	scrobbles_total = "<a href='/scrobbles'>" + str(stats["amount"]) + "</a>"
 	
+
+	t1.join()
+	t2.join()
+	t3.join()
+
 
 
 	return {"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
