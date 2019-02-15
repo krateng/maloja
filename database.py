@@ -154,12 +154,13 @@ def test_server():
 @dbserver.route("/scrobbles")
 def get_scrobbles_external():
 	keys = FormsDict.decode(request.query)
+	ckeys = {}
 	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
-	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["associated"] = (keys.get("associated")!=None)
 	ckeys["max"] = keys.get("max")
 	
-	result = get_scrobbles(ckeys)
+	result = get_scrobbles(**ckeys)
 	return {"list":result}
 
 def get_scrobbles(**keys):
@@ -173,15 +174,16 @@ def get_scrobbles(**keys):
 
 
 
-
+# DEPRECATED, merge with /amounts
 @dbserver.route("/numscrobbles")
 def get_scrobbles_num_external():
 	keys = FormsDict.decode(request.query)
+	ckeys = {}
 	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
-	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["associated"] = (keys.get("associated")!=None)
 	
-	result = get_scrobbles_num(ckeys)
+	result = get_scrobbles_num(**ckeys)
 	return {"amount":result}
 
 def get_scrobbles_num(**keys):
@@ -195,17 +197,19 @@ def get_scrobbles_num(**keys):
 @dbserver.route("/tracks")
 def get_tracks_external():
 	keys = FormsDict.decode(request.query)
-	ckeys["artists"] = keys.get("artist")
+	ckeys = {}
+	ckeys["artist"] = keys.get("artist")
 	
-	result = get_tracks(ckeys)
+	result = get_tracks(**ckeys)
 	return {"list":result}
 
-def get_tracks(**keys):
+def get_tracks(artist=None):
 	
-	artist = keys.get("artist")
 	
 	if artist is not None:
-		artistid = ARTISTS.index(artist)	
+		artistid = ARTISTS.index(artist)
+	else:
+		artistid = None
 
 	# Option 1
 	return [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
@@ -226,7 +230,8 @@ def get_artists():
 
 
 @dbserver.route("/amounts")
-get_amounts_external = get_amounts
+def get_amounts_external():
+	return get_amounts() #really now
 
 def get_amounts():
 	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
@@ -238,9 +243,10 @@ def get_amounts():
 @dbserver.route("/charts/artists")
 def get_charts_artists_external():
 	keys = FormsDict.decode(request.query)
-	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	
-	result = get_charts_artists(ckeys)
+	result = get_charts_artists(**ckeys)
 	return {"list":result}
 
 def get_charts_artists(**keys):
@@ -254,10 +260,11 @@ def get_charts_artists(**keys):
 @dbserver.route("/charts/tracks")
 def get_charts_tracks_external():
 	keys = FormsDict.decode(request.query)
-	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["artist"] = keys.get("artist")
 	
-	result = get_charts_tracks(ckeys)
+	result = get_charts_tracks(**ckeys)
 	return {"list":result}
 	
 def get_charts_tracks(**keys):
@@ -268,13 +275,14 @@ def get_charts_tracks(**keys):
 	
 	
 	
-	
+# DEPRECATED, merge with /amounts	
 @dbserver.route("/charts")
 def get_charts_external():
 	keys = FormsDict.decode(request.query)
-	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	
-	result = get_charts(ckeys)	
+	result = get_charts(**ckeys)	
 	return {"number":result}
 
 def get_charts(**keys):
@@ -288,20 +296,23 @@ def get_charts(**keys):
 
 	
 @dbserver.route("/pulse")
-def get_pulse():
-	since = request.query.get("since")
-	to = request.query.get("to")
-	within=request.query.get("in")
-	(ts_start,ts_end) = getTimestamps(since,to,within)
-	step = request.query.get("step","month")	
-	trail = int(request.query.get("trail",3))
+def get_pulse_external():
+	keys = FormsDict.decode(request.query)
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
+	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
 	
-	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	stepn = int(stepn)
-	
+	cleandict(ckeys)
+	results = get_pulse(**ckeys)
+	return {"list":results}
+
+def get_pulse(step="month",stepn=1,trail=3,**keys):
+
+	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
 	d_end = getStartOf(ts_end,step)
-	
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
 	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
 
@@ -310,31 +321,40 @@ def get_pulse():
 	d_current = d_start
 	while True:
 		d_current_end = getNext(d_current,step,stepn * trail)
-		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
 		res = db_aggregate(since=d_current,to=d_current_end)
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
 		d_current = getNext(d_current,step,stepn)
 		if isPast(d_current_end,d_end):
 			break
 	
-	return {"list":results}
+	return results
+
+
+
+
+
+
 		
 	
 @dbserver.route("/top/artists")
-def get_top_artists():
-	since = request.query.get("since")
-	to = request.query.get("to")
-	within=request.query.get("in")
-	(ts_start,ts_end) = getTimestamps(since,to,within)
-	step = request.query.get("step","month")	
-	trail = int(request.query.get("trail",3))
+def get_top_artists_external():
+
+	keys = FormsDict.decode(request.query)
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
+	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
 	
-	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	stepn = int(stepn)
+	cleandict(ckeys)
+	results = get_top_artists(**ckeys)
+	return {"list":results}
 	
+def get_top_artists(step="month",stepn=1,trail=3,**keys):
+	
+	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
-	d_end = getStartOf(ts_end,step)
-	
+	d_end = getStartOf(ts_end,step)	
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
 	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
 
@@ -343,7 +363,6 @@ def get_top_artists():
 	d_current = d_start
 	while True:
 		d_current_end = getNext(d_current,step,stepn * trail)
-		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
 		try:
 			res = db_aggregate(since=d_current,to=d_current_end,by="ARTIST")[0]
 			results.append({"from":d_current,"to":d_current_end,"artist":res["artist"],"scrobbles":res["scrobbles"]})
@@ -353,32 +372,44 @@ def get_top_artists():
 		if isPast(d_current_end,d_end):
 			break
 	
-	return {"list":results}
-	
+	return results
+
+
+
+
+
+
+
+
+
+
 @dbserver.route("/top/tracks")
-def get_top_tracks():
-	since = request.query.get("since")
-	to = request.query.get("to")
-	within=request.query.get("in")
-	(ts_start,ts_end) = getTimestamps(since,to,within)
-	step = request.query.get("step","month")	
-	trail = int(request.query.get("trail",3))
+def get_top_tracks_external():
+	keys = FormsDict.decode(request.query)
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
+	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
+	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
 	
-	[step,stepn] = (step.split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	stepn = int(stepn)
-	
+	cleandict(ckeys)
+	results = get_top_tracks(**ckeys)
+	return {"list":results}
+
+def get_top_tracks(step="month",stepn=1,trail=3,**keys):
+
+	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
-	d_end = getStartOf(ts_end,step)
-	
+	d_end = getStartOf(ts_end,step)	
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
 	d_start = getNext(d_start,step,stepn * trail * -1)	# go one range back to begin
-
+	
+		
 	results = []
 	
 	d_current = d_start
 	while True:
 		d_current_end = getNext(d_current,step,stepn * trail)
-		#print("Checking from " + str(d_current[0]) + "-" + str(d_current[1]) + "-" + str(d_current[2]) + " to " + str(d_current_end[0]) + "-" + str(d_current_end[1]) + "-" + str(d_current_end[2]))
 		try:
 			res = db_aggregate(since=d_current,to=d_current_end,by="TRACK")[0]
 			results.append({"from":d_current,"to":d_current_end,"track":res["track"],"scrobbles":res["scrobbles"]})
@@ -388,7 +419,18 @@ def get_top_tracks():
 		if isPast(d_current_end,d_end):
 			break
 	
-	return {"list":results}
+	return results
+
+
+
+
+
+
+
+
+
+
+
 
 
 def getStartOf(timestamp,unit):
@@ -836,7 +878,9 @@ def db_search(query,type=None):
 
 # Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.
 # to dates are interpreted differently (from 2010 and to 2010 both include all of 2010)	
-def getTimestamps(f=None,t=None,i=None):
+def getTimestamps(since=None,to=None,within=None):
+
+	f,t,i = since,to,within
 
 	if i is not None:
 		f = i

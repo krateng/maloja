@@ -134,6 +134,24 @@ def addEntries(filename,al):
 		for a in al:
 			line = "\t".join(a)
 			f.write(line + "\n")
+
+
+
+### Useful functions
+
+def int_or_none(input_):
+	try:
+		return int(input_)
+	except:
+		return None
+		
+def cleandict(d):
+	newdict = {k:d[k] for k in d if d[k] is not None}
+	d.clear()
+	d.update(newdict)
+
+
+
 		
 		
 ### Logging
