@@ -100,11 +100,16 @@ a {
 
 table.list {
 	border-collapse:collapse;
+	
 }
 
 table.list tr td {
 	border-bottom:2px solid;
-	border-color:rgba(0,0,0,0)
+	border-color:rgba(0,0,0,0);
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	padding-right:15px;
 	
 }
 
@@ -121,35 +126,29 @@ table.list tr:hover {
 	background-color:#404044;
 }
 
-table td.time {
-	width:180px;
-	color:gray;
+table.list td.time {
+	width:11%;
+	color:gray;	
 }
 
-table td.icon {
-	/*width:20px!important;
-	height:20px;
-	background-size:cover;
-	background-position:center;
-	padding-right:6px;*/
+
+table.list tr td.icon {
 	padding:0px;
 	padding-right:5px;
+	width:20px;
 }
 
-table td.icon div {
+table.list td.icon div {
 	width:20px;
 	height:20px;
 	background-size:cover;
 	background-position:center;
 }
 
-table td.artists,td.artist,td.title {
-	/*width:500px;*/
+table.list td.artists,td.artist,td.title {
 	min-width:100px;
-	padding-right:15px;
-	white-space:nowrap;
-	overflow:hidden;
-	text-overflow:ellipsis;
+	
+	
 }
 
 
@@ -183,31 +182,34 @@ table tr:hover td.artists div span {
 
 **/
 
-table td.amount {
+table.list td.amount {
 	width:50px;
 	text-align:right;
 }
-table td.bar {
+table.list td.bar {
 	width:500px;
 	background-color:#333337;
-	border-color:rgba(0,0,0,0)!important;
+	/* Remove 5er separators for bars */
+	/*border-color:rgba(0,0,0,0)!important;*/
 }
-table td.bar div {
+table.list td.bar div {
 	background-color:beige;
 	height:20px; /* can only do this absolute apparently */
 	position:relative;
 }
-table tr:hover td.bar div {
+table.list tr:hover td.bar div {
 	background-color:yellow;
 	cursor:pointer;
 }
 
-table td.button {
+table.list tr td.button {
 	width:200px;
 	cursor:pointer;
+	border-color:rgba(0,0,0,0)!important;
 }
 
-table td.button div {
+
+table.list td.button div {
 	background-color:yellow;
 	color:#333337;
 	padding:3px;
@@ -244,7 +246,7 @@ table.tiles_top td {
 }
 
 table.tiles_top:hover td td {
-	opacity:0.2;
+	opacity:0.4;
 }
 table.tiles_top:hover td td:hover {
 	opacity:1;
@@ -314,5 +316,15 @@ div.sidelist {
 	height:100%;
 	background-color:#444447;
 	padding-left:30px;
+	padding-right:30px;
 }
+}
+
+div.sidelist table {
+	width:100%;
+	table-layout:fixed;
+}
+
+div.sidelist table.list td.time {
+	width:17%;	
 }
