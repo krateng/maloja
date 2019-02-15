@@ -141,7 +141,7 @@ def test_server():
 def get_scrobbles():
 	keys = FormsDict.decode(request.query)
 	
-	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
+	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None))
 	r.reverse()
 	
 	if keys.get("max") is not None:
@@ -153,7 +153,7 @@ def get_scrobbles():
 def get_scrobbles():
 	keys = FormsDict.decode(request.query)
 	
-	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),associated=(keys.get("associated")!=None))
+	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None))
 	r.reverse()
 
 	return {"amount":len(r)}
@@ -189,30 +189,34 @@ def get_amounts():
 def get_charts_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
+	within=request.query.get("in")
 	
-	return {"list":db_aggregate(by="ARTIST",since=since,to=to)}
+	return {"list":db_aggregate(by="ARTIST",since=since,to=to,within=within)}
 	
 @dbserver.route("/charts/tracks")
 def get_charts_tracks():
 	keys = FormsDict.decode(request.query)
 	since = keys.get("since")
 	to = keys.get("to")
+	within=request.query.get("in")
 	artist = keys.get("artist")
 	
-	return {"list":db_aggregate(by="TRACK",since=since,to=to,artist=artist)}
+	return {"list":db_aggregate(by="TRACK",since=since,to=to,within=within,artist=artist)}
 	
 @dbserver.route("/charts")
 def get_charts():
 	since = request.query.get("since")
 	to = request.query.get("to")
+	within=request.query.get("in")
 	
-	return {"number":db_aggregate(since=since,to=to)}
+	return {"number":db_aggregate(since=since,to=to,within=within)}
 	
 @dbserver.route("/pulse")
 def get_pulse():
 	since = request.query.get("since")
 	to = request.query.get("to")
-	(ts_start,ts_end) = getTimestamps(since,to)
+	within=request.query.get("in")
+	(ts_start,ts_end) = getTimestamps(since,to,within)
 	step = request.query.get("step","month")	
 	trail = int(request.query.get("trail",3))
 	
@@ -244,7 +248,8 @@ def get_pulse():
 def get_top_artists():
 	since = request.query.get("since")
 	to = request.query.get("to")
-	(ts_start,ts_end) = getTimestamps(since,to)
+	within=request.query.get("in")
+	(ts_start,ts_end) = getTimestamps(since,to,within)
 	step = request.query.get("step","month")	
 	trail = int(request.query.get("trail",3))
 	
@@ -278,7 +283,8 @@ def get_top_artists():
 def get_top_tracks():
 	since = request.query.get("since")
 	to = request.query.get("to")
-	(ts_start,ts_end) = getTimestamps(since,to)
+	within=request.query.get("in")
+	(ts_start,ts_end) = getTimestamps(since,to,within)
 	step = request.query.get("step","month")	
 	trail = int(request.query.get("trail",3))
 	
@@ -323,7 +329,13 @@ def getStartOf(timestamp,unit):
 		newdate = date - d
 		return [newdate.year,newdate.month,newdate.day]
 		
-def getNext(time,unit,step=1):
+def getNext(time,unit="auto",step=1):
+	if unit == "auto":
+		# see how long the list is, increment by the last specified unit
+		unit = [None,"year","month","day"][len(time)]
+	while len(time) < 3:
+		time.append(1)
+
 	if unit == "year":
 		return [time[0] + step,time[1],time[2]]
 	elif unit == "month":
@@ -653,8 +665,8 @@ def sync():
 
 
 # Queries the database			
-def db_query(artists=None,title=None,track=None,since=None,to=None,associated=False):
-	(since, to) = getTimestamps(since,to)
+def db_query(artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
+	(since, to) = getTimestamps(since,to,within)
 	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
@@ -686,8 +698,8 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,associated=Fa
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=None,to=None,artist=None):
-	(since, to) = getTimestamps(since,to)
+def db_aggregate(by=None,since=None,to=None,withinin=None,artist=None):
+	(since, to) = getTimestamps(since,to,within)
 	
 	if isinstance(artist, str):
 		artist = ARTISTS.index(artist)
@@ -746,9 +758,14 @@ def db_search(query,type=None):
 ####
 
 
-# Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.	
-def getTimestamps(f,t):
-	#(f,t) = inp
+# Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.
+# to dates are interpreted differently (from 2010 and to 2010 both include all of 2010)	
+def getTimestamps(f=None,t=None,i=None):
+
+	if i is not None:
+		f = i
+		t = i
+
 	if isinstance(f, str) and f.lower() == "today":
 		tod = datetime.datetime.utcnow()
 		f = [tod.year,tod.month,tod.day]
@@ -782,15 +799,18 @@ def getTimestamps(f,t):
 	
 	# this step is done if either the input is a list or the first step was done (which creates a list)	
 	if isinstance(f, list):
-		date = [1970,1,1,0,0]
-		date[:len(f)] = f
-		f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-		
+		#date = [1970,1,1,0,0]
+		#date[:len(f)] = f
+		while len(f) < 3: f.append(1) # padding month and day
+		#f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		f = int(datetime.datetime(f[0],f[1],f[2],tzinfo=datetime.timezone.utc).timestamp())
+
 	if isinstance(t, list):
-		date = [1970,1,1,0,0]
-		date[:len(t)] = t
-		t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-		
+		t = getNext(t) # going on step forward automatically pads month and day
+		#date = [1970,1,1,0,0]
+		#date[:len(t)] = t
+		#t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+		t = int(datetime.datetime(t[0],t[1],t[2],tzinfo=datetime.timezone.utc).timestamp())
 		
 	if (f==None):
 		f = min(timestamps)
@@ -798,6 +818,8 @@ def getTimestamps(f,t):
 		t = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
 	
 	return (f,t)
+	
+
 	
 
 	

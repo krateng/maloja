@@ -26,7 +26,6 @@ def replacedict(keys,dbport):
 	# get chart data
 	
 	# artists
-	print("REQUESTING " + "http://[::1]:" + str(dbport) + "/charts/artists")
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/artists")
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:max_show]

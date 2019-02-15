@@ -28,15 +28,15 @@ The software works fairly well and has a few web views, but there is only one sc
 
 ## How to install
 
-I wouldn't recommend it yet. But if you want to test Maloja, it's fairly easy:
+Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue.
 
 1) Install the requirements:
 
 * [bottle.py](https://github.com/bottlepy/bottle)
 * [waitress](https://github.com/Pylons/waitress)
 
+2) Put the Maloja folder anywhere and start server.py.
 
-2) Put it anywhere and start server.py
 3) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 
 		location / {
@@ -47,5 +47,7 @@ I wouldn't recommend it yet. But if you want to test Maloja, it's fairly easy:
 			rewrite ^/db(.*)$ $1 break;
 			proxy_pass http://yoururl:42011;
 		}
-		
-If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.
+
+4) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to generate a random key and enter that key in the extension as well as the file autenticated_machines.tsv in the clients folder. 
+
+5) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.

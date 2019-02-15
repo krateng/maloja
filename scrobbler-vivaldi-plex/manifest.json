@@ -3,7 +3,7 @@
 	"version": "0.1",
 	"description": "Scrobbles tracks from Plex Web to your Maloja server",
 	"manifest_version": 2,
-	"permissions": ["activeTab", "declarativeContent","tabs","storage","http://app.plex.tv/*","https://app.plex.tv/*"],
+	"permissions": ["activeTab", "declarativeContent","tabs","storage","http://app.plex.tv/*","https://app.plex.tv/*","<all_urls>"],
 	"background":
 	{
 		"scripts":
