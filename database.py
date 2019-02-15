@@ -114,9 +114,20 @@ def getTrackID(artists,title):
 		return i
 
 
-####
-## HTTP requests
-####
+
+
+
+
+
+
+########
+########
+## HTTP requests and their associated functions
+########
+########
+
+
+
 
 @dbserver.route("/test")
 def test_server():
@@ -137,81 +148,144 @@ def test_server():
 	# 205	Database server is up, but DB is not fully built or is inconsistent
 	# 403	Database server is up, but provided API key is not valid
 
+
+## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json
+
 @dbserver.route("/scrobbles")
 def get_scrobbles_external():
 	keys = FormsDict.decode(request.query)
-	return get_scrobbles(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None),max=keys.get("max"))
+	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
+	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["associated"] = (keys.get("associated")!=None)
+	ckeys["max"] = keys.get("max")
+	
+	result = get_scrobbles(ckeys)
+	return {"list":result}
 
 def get_scrobbles(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
 	r.reverse()
 	
 	if keys.get("max") is not None:
-		return {"list":r[:int(keys.get("max"))]}
+		return r[:int(keys.get("max"))]
 	else:
-		return {"list":r} ##json can't be a list apparently???
+		return r
+
+
+
 
 @dbserver.route("/numscrobbles")
-def get_scrobbles_num():
+def get_scrobbles_num_external():
 	keys = FormsDict.decode(request.query)
+	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
+	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["associated"] = (keys.get("associated")!=None)
 	
-	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None))
-	r.reverse()
+	result = get_scrobbles_num(ckeys)
+	return {"amount":result}
 
-	return {"amount":len(r)}
+def get_scrobbles_num(**keys):
+	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
+	return len(r)
+
+
+
 
 
 @dbserver.route("/tracks")
-def get_tracks():
+def get_tracks_external():
 	keys = FormsDict.decode(request.query)
+	ckeys["artists"] = keys.get("artist")
+	
+	result = get_tracks(ckeys)
+	return {"list":result}
+
+def get_tracks(**keys):
+	
 	artist = keys.get("artist")
 	
 	if artist is not None:
-		artistid = ARTISTS.index(artist)
-	
+		artistid = ARTISTS.index(artist)	
+
 	# Option 1
-	ls = [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
+	return [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
 	
 	# Option 2 is a bit more elegant but much slower
 	#tracklist = [getTrackObject(t) for t in TRACKS]
 	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
-	
-	return {"list":ls}
-	
+
+
 @dbserver.route("/artists")
+def get_artists_external():
+	result = get_artists()
+	return {"list":result}
+
 def get_artists():
+	return ARTISTS #well
 	
-	return {"list":ARTISTS}
-	
+
+
 @dbserver.route("/amounts")
+get_amounts_external = get_amounts
+
 def get_amounts():
 	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
+
+
+
+
 	
 @dbserver.route("/charts/artists")
-def get_charts_artists():
-	since = request.query.get("since")
-	to = request.query.get("to")
-	within=request.query.get("in")
-	
-	return {"list":db_aggregate(by="ARTIST",since=since,to=to,within=within)}
-	
-@dbserver.route("/charts/tracks")
-def get_charts_tracks():
+def get_charts_artists_external():
 	keys = FormsDict.decode(request.query)
-	since = keys.get("since")
-	to = keys.get("to")
-	within=request.query.get("in")
-	artist = keys.get("artist")
+	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	
-	return {"list":db_aggregate(by="TRACK",since=since,to=to,within=within,artist=artist)}
+	result = get_charts_artists(ckeys)
+	return {"list":result}
+
+def get_charts_artists(**keys):
+	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within"]})
+
+
+
+
+
+
+@dbserver.route("/charts/tracks")
+def get_charts_tracks_external():
+	keys = FormsDict.decode(request.query)
+	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	ckeys["artist"] = keys.get("artist")
+	
+	result = get_charts_tracks(ckeys)
+	return {"list":result}
+	
+def get_charts_tracks(**keys):
+	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","artist"]})
+	
+	
+	
+	
+	
+	
 	
 @dbserver.route("/charts")
-def get_charts():
-	since = request.query.get("since")
-	to = request.query.get("to")
-	within=request.query.get("in")
+def get_charts_external():
+	keys = FormsDict.decode(request.query)
+	ckeys["since"],ckeys["to"],ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	
-	return {"number":db_aggregate(since=since,to=to,within=within)}
+	result = get_charts(ckeys)	
+	return {"number":result}
+
+def get_charts(**keys):
+	return db_aggregate(**{k:keys[k] for k in keys if k in ["since","to","within"]})
+
+
+
+
+
+
+
 	
 @dbserver.route("/pulse")
 def get_pulse():
@@ -700,7 +774,7 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,within=None,a
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=None,to=None,withinin=None,artist=None):
+def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
 	(since, to) = getTimestamps(since,to,within)
 	
 	if isinstance(artist, str):
