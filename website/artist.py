@@ -11,7 +11,7 @@ def replacedict(keys,dbport):
 	imgurl = info.get("image")
 	#desc = info.get("info")
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
 	scrobbles = str(db_data["scrobbles"])
 	pos = "#" + str(db_data["position"])
@@ -29,7 +29,7 @@ def replacedict(keys,dbport):
 	
 	
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?artist=" + urllib.parse.quote(keys["artist"]))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/tracks?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
 	
 	if db_data["list"] != []: maxbar = db_data["list"][0]["scrobbles"]

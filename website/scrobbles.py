@@ -11,7 +11,7 @@ def replacedict(keys,dbport):
 	limitkeys = pickKeys(keys,"artist","title","associated")
 	
 	# Get scrobble data
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	
@@ -24,7 +24,7 @@ def replacedict(keys,dbport):
 	elif keys.get("artist") is not None:
 		limitstring += "by " + artistLink(keys.get("artist"))
 		if keys.get("associated") is not None:
-			response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
+			response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 			db_data = json.loads(response.read())
 			moreartists = db_data["associated"]
 			if moreartists != []:

@@ -12,13 +12,13 @@ def replacedict(keys,dbport):
 	imgurl = info.get("image")
 	desc = info.get("info")
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/trackinfo?" + keysToUrl(limitkeys))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/trackinfo?" + keysToUrl(limitkeys))
 	db_data = json.loads(response.read())
 	scrobblesnum = str(db_data["scrobbles"])
 	pos = "#" + str(db_data["position"])
 	
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys))
 	db_data = json.loads(response.read())
 	scrobbles = db_data["list"]
 	

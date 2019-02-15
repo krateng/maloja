@@ -11,7 +11,7 @@ def replacedict(keys,dbport):
 	limitkeys = pickKeys(keys,"artist")
 	
 	# get chart data
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks?" + keysToUrl(timekeys,limitkeys))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/tracks?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:50]
 	limitstring = ""
@@ -30,7 +30,7 @@ def replacedict(keys,dbport):
 	
 	
 	# get total amount of scrobbles
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
 	scrobbles = len(scrobblelist)

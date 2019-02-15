@@ -4,7 +4,7 @@ from htmlgenerators import artistLink
 
 def replacedict(keys,dbport):
 	
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/issues")
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/issues")
 	db_data = json.loads(response.read())
 	i = 0
 	

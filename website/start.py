@@ -26,7 +26,8 @@ def replacedict(keys,dbport):
 	# get chart data
 	
 	# artists
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/artists")
+	print("REQUESTING " + "http://[::1]:" + str(dbport) + "/charts/artists")
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/artists")
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:max_show]
 	topartist = charts[0]["artist"]
@@ -40,7 +41,7 @@ def replacedict(keys,dbport):
 	
 	
 	# tracks
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/charts/tracks")
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/tracks")
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:max_show]
 	
@@ -55,7 +56,7 @@ def replacedict(keys,dbport):
 	
 	
 	# get scrobbles
-	response = urllib.request.urlopen("http://localhost:" + str(dbport) + "/scrobbles?max=50")
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?max=50")
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
 	scrobbletrackobjects = scrobblelist #ignore the extra time attribute, the format should still work
@@ -70,23 +71,24 @@ def replacedict(keys,dbport):
 	
 	
 	# get stats
-	response = urllib.request.urlopen("http://localhost:" +str(dbport) + "/numscrobbles?since=today")
+	response = urllib.request.urlopen("http://[::1]:" +str(dbport) + "/numscrobbles?since=today")
 	stats = json.loads(response.read())
 	scrobbles_today = "<a href='/scrobbles?since=today'>" + str(stats["amount"]) + "</a>"
 	
-	response = urllib.request.urlopen("http://localhost:" +str(dbport) + "/numscrobbles?since=month")
+	response = urllib.request.urlopen("http://[::1]:" +str(dbport) + "/numscrobbles?since=month")
 	stats = json.loads(response.read())
 	scrobbles_month = "<a href='/scrobbles?since=month'>" + str(stats["amount"]) + "</a>"
 	
-	response = urllib.request.urlopen("http://localhost:" +str(dbport) + "/numscrobbles?since=year")
+	response = urllib.request.urlopen("http://[::1]:" +str(dbport) + "/numscrobbles?since=year")
 	stats = json.loads(response.read())
 	scrobbles_year = "<a href='/scrobbles?since=year'>" + str(stats["amount"]) + "</a>"
 	
-	response = urllib.request.urlopen("http://localhost:" +str(dbport) + "/numscrobbles")
+	response = urllib.request.urlopen("http://[::1]:" +str(dbport) + "/numscrobbles")
 	stats = json.loads(response.read())
 	scrobbles_total = "<a href='/scrobbles'>" + str(stats["amount"]) + "</a>"
 	
-
+	
+	
 	t1.join()
 	t2.join()
 	t3.join()
