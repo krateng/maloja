@@ -138,10 +138,12 @@ def test_server():
 	# 403	Database server is up, but provided API key is not valid
 
 @dbserver.route("/scrobbles")
-def get_scrobbles():
+def get_scrobbles_external():
 	keys = FormsDict.decode(request.query)
-	
-	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None))
+	return get_scrobbles(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None),max=keys.get("max"))
+
+def get_scrobbles(**keys):
+	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
 	r.reverse()
 	
 	if keys.get("max") is not None:
@@ -150,7 +152,7 @@ def get_scrobbles():
 		return {"list":r} ##json can't be a list apparently???
 
 @dbserver.route("/numscrobbles")
-def get_scrobbles():
+def get_scrobbles_num():
 	keys = FormsDict.decode(request.query)
 	
 	r = db_query(artists=keys.getall("artist"),title=keys.get("title"),since=keys.get("since"),to=keys.get("to"),within=keys.get("in"),associated=(keys.get("associated")!=None))
