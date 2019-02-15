@@ -698,7 +698,7 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,within=None,a
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=None,to=None,withinin=None,artist=None):
+def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
 	(since, to) = getTimestamps(since,to,within)
 	
 	if isinstance(artist, str):
