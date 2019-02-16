@@ -12,7 +12,6 @@ from urllib.error import *
 import sys
 import signal
 import os
-import restarter
 
 
 MAIN_PORT = 42010
@@ -64,15 +63,6 @@ def database_post(pth):
 	
 	return
 
-@webserver.route("/exit")
-def shutdown():
-	graceful_exit()
-	
-@webserver.route("/restart")
-def restart():
-	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
-	restarter.restart()
-	os._exit(42)
 	
 def graceful_exit(sig=None,frame=None):
 	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
