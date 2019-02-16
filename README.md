@@ -12,10 +12,6 @@ Maloja is self-hosted. You will always be able to access your data, and not have
 
 Maloja gets rid of all the extra stuff: social networking, radios, recommendations, etc. It only keeps track of your listening history and lets you analyze it. This focus on its core allows it to potentially implement much better database features. One example: Maloja supports multiple artists per track. This means artists who are often just "featuring" in the track title get a place in your charts, and collaborations between several artists finally get credited to all participants.
 
-### Why not use the established API?
-
-Compatibility creates overhead effort. I only made this for myself, so I have no need to support lots of music players and scrobblers. Maloja has a significantly smaller API that allows it to be much simpler and implement its additional features.
-
 ### Why Maloja?
 
 I like to name my projects after regions in Grisons, Switzerland. Don't waste your time trying to find a connection, I just picked one at random. Do visit Maloja though. It's a great pass to drive.
@@ -28,7 +24,7 @@ The software works fairly well and has a few web views, but there is only one sc
 
 ## How to install
 
-Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue.
+Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue. Don't ask me to add any lines to make it work on Windows either, the code is already shitty enough.
 
 1) Install the requirements:
 

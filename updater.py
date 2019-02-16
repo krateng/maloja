@@ -4,11 +4,10 @@ import tempfile
 import zipfile
 import distutils.dir_util
 #import os
+import sys
 
 SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
 
-
-update()
 
 def update():
 	print("Updating Maloja...")
@@ -27,3 +26,11 @@ def update():
 	distutils.dir_util.copy_tree("./maloja-master/","./",verbose=2)
 	shutil.rmtree("./maloja-master")
 	print("Done!")
+	
+	
+
+	
+	
+	
+if __name__ == "__main__":
+	update()
