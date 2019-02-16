@@ -618,6 +618,9 @@ def build_db():
 	global db_rulestate
 	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
 	
+	# load cached images
+	loadCache()
+	
 		
 
 
@@ -653,6 +656,9 @@ def sync():
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	log("Database saved to disk.")
+	
+	# save cached images
+	saveCache()
 			
 
 

@@ -68,7 +68,7 @@ def shutdown():
 	graceful_exit()
 	
 def graceful_exit(sig=None,frame=None):
-	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/sync")
+	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
 	log("Server shutting down...")
 	os._exit(42)
 
