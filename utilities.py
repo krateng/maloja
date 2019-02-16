@@ -213,14 +213,14 @@ cachedTracks = {}
 cachedArtists = {}
 
 def saveCache():
-	fl = open("mediacache","wb")
+	fl = open("images/cache","wb")
 	stream = pickle.dumps((cachedTracks,cachedArtists))
 	fl.write(stream)
 	fl.close()
 	
 def loadCache():
 	try:
-		fl = open("mediacache","rb")
+		fl = open("images/cache","rb")
 	except:
 		return
 		
