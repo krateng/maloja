@@ -31,7 +31,9 @@ Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it o
 * [bottle.py](https://github.com/bottlepy/bottle)
 * [waitress](https://github.com/Pylons/waitress)
 
-2) Put the Maloja folder anywhere and start server.py.
+2) Put the Maloja folder anywhere and make sure the file "maloja" is executable. Start the server with
+
+		./maloja start
 
 3) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 
@@ -47,3 +49,10 @@ Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it o
 4) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to generate a random key and enter that key in the extension as well as the file autenticated_machines.tsv in the clients folder. 
 
 5) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.
+
+6) You can interact with the server at any time with the commands
+
+		./maloja stop
+		./maloja restart
+		./maloja start
+		./maloja update
