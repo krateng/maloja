@@ -2,6 +2,7 @@ import re
 import os
 import hashlib
 from threading import Thread
+import pickle
 
 
 ### TSV files
@@ -228,6 +229,25 @@ def apirequest(artists=None,artist=None,title=None):
 # I think I've only just understood modules
 cachedTracks = {}
 cachedArtists = {}
+
+def saveCache():
+	fl = open("images/cache","wb")
+	stream = pickle.dumps((cachedTracks,cachedArtists))
+	fl.write(stream)
+	fl.close()
+	
+def loadCache():
+	try:
+		fl = open("images/cache","rb")
+	except:
+		return
+		
+	try:
+		ob = pickle.loads(fl.read())
+		global cachedTracks, cachedArtists
+		(cachedTracks, cachedArtists) = ob
+	finally:
+		fl.close()
 
 def getTrackInfo(artists,title):
 	

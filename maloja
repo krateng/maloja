@@ -1,22 +1,115 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import signal
+import os
+import stat
+
 
 neededmodules = [
 	"bottle",
-	"waitress"
+	"waitress",
+	"setproctitle"
 ]
-toinstall = []
 
-for m in neededmodules:
+SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
+
+
+
+def install():
+	toinstall = []
+	for m in neededmodules:
+		try:
+			exec("import " + m) #I'm sorry
+		except:
+			toinstall.append(m)
+			
+	if toinstall != []:
+		print("The following python modules need to be installed:")
+		for m in toinstall:
+			print("\t" + m)
+	else:
+		return
+	
+def getInstance():
 	try:
-		exec("import " + m) #I'm sorry
+		output = subprocess.check_output(["pidof","Maloja"])
+		pid = int(output)
+		return pid
 	except:
-		toinstall.append(m)
+		return None
+	
+	
+
+
+def start():
+	install()
+	
+	try:
+		p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+		print("Maloja started! PID: " + str(p.pid))
+		return True
+	except:
+		print("Error while starting Maloja. Are you sure it's not already running?")
+		return False
 		
-if toinstall != []:
-	print("The following python modules need to be installed:")
-	for m in toinstall:
-		print("\t" + m)
-else:
-	import subprocess
-	subprocess.Popen(["python","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-	print("Maloja started!")
+
+def restart():
+	#pid = getInstance()
+	#if pid == None:
+	#	print("Server is not running.")
+	#else:
+	#	stop()
+	#start()
+	
+	wasrunning = stop()
+	start()
+	return wasrunning
+	
+def stop():
+	pid = getInstance()
+	if pid == None:
+		print("Server is not running")
+		return False
+	else:
+		print("Stopping " + str(pid))
+		os.kill(pid,signal.SIGTERM)
+		return True
+
+def update():
+
+	import urllib.request
+	import shutil
+	import tempfile
+	import zipfile
+	import distutils.dir_util
+
+	print("Updating Maloja...")
+	with urllib.request.urlopen(SOURCE_URL) as response:
+		with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
+			shutil.copyfileobj(response,tmpfile)
+			
+			with zipfile.ZipFile(tmpfile.name,"r") as z:
+				
+				for f in z.namelist():
+					print("extracting " + f)
+					z.extract(f)
+			
+			
+	
+	distutils.dir_util.copy_tree("./maloja-master/","./",verbose=2)
+	shutil.rmtree("./maloja-master")
+	print("Done!")
+	
+	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
+	
+	if stop(): start() #stop returns whether it was running before, in which case we restart it
+
+
+if __name__ == "__main__":
+	if sys.argv[1] == "start": start()
+	elif sys.argv[1] == "restart": restart()
+	elif sys.argv[1] == "stop": stop()
+	elif sys.argv[1] == "update": update()
+

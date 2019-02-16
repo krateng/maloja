@@ -12,6 +12,7 @@ from urllib.error import *
 import sys
 import signal
 import os
+import setproctitle
 
 
 MAIN_PORT = 42010
@@ -63,12 +64,9 @@ def database_post(pth):
 	
 	return
 
-@webserver.route("/exit")
-def shutdown():
-	graceful_exit()
 	
 def graceful_exit(sig=None,frame=None):
-	urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/sync")
+	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
 	log("Server shutting down...")
 	os._exit(42)
 
@@ -117,12 +115,8 @@ def static_html(name):
 signal.signal(signal.SIGINT, graceful_exit)
 signal.signal(signal.SIGTERM, graceful_exit)
 
-#rename process, not important
-try:
-	import setproctitle
-	setproctitle.setproctitle("Maloja")
-except:
-	pass
+#rename process, this is now required for the daemon manager to work
+setproctitle.setproctitle("Maloja")
 	
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
