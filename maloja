@@ -9,7 +9,8 @@ import stat
 
 neededmodules = [
 	"bottle",
-	"waitress"
+	"waitress",
+	"setproctitle"
 ]
 
 SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
