@@ -174,7 +174,18 @@ def get_scrobbles(**keys):
 
 
 
-# DEPRECATED, merge with /amounts
+
+
+# DEPRECATED
+# UNUSED
+@dbserver.route("/amounts")
+def get_amounts_external():
+	return get_amounts() #really now
+
+def get_amounts():
+	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
+	
+
 @dbserver.route("/numscrobbles")
 def get_scrobbles_num_external():
 	keys = FormsDict.decode(request.query)
@@ -190,6 +201,22 @@ def get_scrobbles_num(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
 	return len(r)
 
+# DEPRECATED
+# UNUSED
+@dbserver.route("/charts")
+def get_charts_external():
+	keys = FormsDict.decode(request.query)
+	ckeys = {}
+	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	
+	result = get_scrobbles_num(**ckeys)	
+	return {"number":result}
+
+#def get_charts(**keys):
+#	return db_aggregate(**{k:keys[k] for k in keys if k in ["since","to","within"]})
+
+
+
 
 
 
@@ -199,7 +226,7 @@ def get_tracks_external():
 	keys = FormsDict.decode(request.query)
 	ckeys = {}
 	ckeys["artist"] = keys.get("artist")
-	
+
 	result = get_tracks(**ckeys)
 	return {"list":result}
 
@@ -228,13 +255,6 @@ def get_artists():
 	return ARTISTS #well
 	
 
-
-@dbserver.route("/amounts")
-def get_amounts_external():
-	return get_amounts() #really now
-
-def get_amounts():
-	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
 
 
 
@@ -272,23 +292,6 @@ def get_charts_tracks(**keys):
 	
 	
 	
-	
-	
-	
-# DEPRECATED, merge with /amounts	
-@dbserver.route("/charts")
-def get_charts_external():
-	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	
-	result = get_charts(**ckeys)	
-	return {"number":result}
-
-def get_charts(**keys):
-	return db_aggregate(**{k:keys[k] for k in keys if k in ["since","to","within"]})
-
-
 
 
 
