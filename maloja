@@ -4,6 +4,7 @@ import subprocess
 import sys
 import signal
 import os
+import stat
 
 
 neededmodules = [
@@ -100,7 +101,7 @@ def update():
 	shutil.rmtree("./maloja-master")
 	print("Done!")
 	
-	os.chmod("maloja",stat.S_IXUSR)
+	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
 	
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 
