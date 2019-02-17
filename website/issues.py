@@ -2,7 +2,7 @@ import urllib
 import json
 from htmlgenerators import artistLink
 
-def replacedict(keys,dbport):
+def instructions(keys,dbport):
 	
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/issues")
 	db_data = json.loads(response.read())
@@ -42,4 +42,4 @@ def replacedict(keys,dbport):
 	
 	html += "</table>"
 
-	return {"KEY_ISSUESLIST":html,"KEY_ISSUES":str(i)}
+	return ({"KEY_ISSUESLIST":html,"KEY_ISSUES":str(i)},[])

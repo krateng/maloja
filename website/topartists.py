@@ -2,7 +2,7 @@ import urllib
 import json
 
 		
-def replacedict(keys,dbport):
+def instructions(keys,dbport):
 	from utilities import getArtistInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, keysToUrl, pickKeys, clean
 	
@@ -18,6 +18,7 @@ def replacedict(keys,dbport):
 	
 	info = getArtistInfo(topartist)
 	imgurl = info.get("image")
+	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	# get total amount of scrobbles
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?" + keysToUrl(timekeys,limitkeys))
@@ -44,5 +45,6 @@ def replacedict(keys,dbport):
 		i += 1
 	html += "</table>"
 
-	return {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_SCROBBLES":str(scrobbles),"KEY_ARTISTLIST":html}
+	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_SCROBBLES":str(scrobbles),"KEY_ARTISTLIST":html}
 
+	return (replace,pushresources)

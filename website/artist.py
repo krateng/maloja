@@ -2,7 +2,7 @@ import urllib
 import json
 
 		
-def replacedict(keys,dbport):
+def instructions(keys,dbport):
 	from utilities import getArtistInfo
 	from htmlgenerators import clean, artistLink, artistLinks, trackLink, scrobblesTrackLink
 
@@ -10,6 +10,7 @@ def replacedict(keys,dbport):
 	info = getArtistInfo(keys["artist"])
 	imgurl = info.get("image")
 	#desc = info.get("info")
+	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
 	db_data = json.loads(response.read())
@@ -43,5 +44,8 @@ def replacedict(keys,dbport):
 		html += "</tr>"
 	html += "</table>"
 	
+	
 
-	return {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_TRACKLIST":html,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}
+	replace = {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_TRACKLIST":html,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr}
+	
+	return (replace,pushresources)

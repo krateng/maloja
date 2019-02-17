@@ -25,7 +25,8 @@ webserver = Bottle()
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
-	return static_html("start")
+	response = static_html("start")
+	return response
 
 
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
@@ -114,12 +115,19 @@ def static(name):
 	
 @webserver.route("/<name>")
 def static_html(name):
-
+	linkheaders = ["</maloja.css>; rel=preload; as=style"]
 	keys = removeIdentical(FormsDict.decode(request.query))
 	
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
-		txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+		txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys,DATABASE_PORT)
+		
+		# add headers for server push
+		for resource in resources:
+			linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])	
+		
+		# apply key substitutions
 		with open("website/" + name + ".html") as htmlfile:
 			html = htmlfile.read()
 			for k in txt_keys:
@@ -128,11 +136,14 @@ def static_html(name):
 					for element in txt_keys[k]:
 						html = html.replace(k,element,1)
 				else:
-					html = html.replace(k,txt_keys[k])		
+					html = html.replace(k,txt_keys[k])
+			
+			response.set_header("Link",",".join(linkheaders))
 			return html
 		
 		
 	# Otherwise, we just serve the html file
+	response.set_header("Link",",".join(linkheaders))
 	return static_file("website/" + name + ".html",root="")
 
 #set graceful shutdown

@@ -2,7 +2,7 @@ import urllib
 import json
 
 		
-def replacedict(keys,dbport):
+def instructions(keys,dbport):
 	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import clean, artistLink, artistLinks, trackLink, scrobblesTrackLink, keysToUrl, pickKeys, getTimeDesc
 
@@ -10,7 +10,7 @@ def replacedict(keys,dbport):
 	limitkeys = pickKeys(keys,"artist","title")
 	info = getTrackInfo(keys.getall("artist"),keys.get("title"))
 	imgurl = info.get("image")
-	desc = info.get("info")
+	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/trackinfo?" + keysToUrl(limitkeys))
 	db_data = json.loads(response.read())
@@ -34,4 +34,7 @@ def replacedict(keys,dbport):
 	html += "</table>"
 	
 
-	return {"KEY_TRACKTITLE":limitkeys.get("title"),"KEY_ARTISTS":artistLinks(limitkeys.getall("artist")),"KEY_SCROBBLES":scrobblesnum,"KEY_IMAGEURL":imgurl,"KEY_SCROBBLELINK":keysToUrl(limitkeys),"KEY_SCROBBLELIST":html,"KEY_POSITION":pos}
+	replace = {"KEY_TRACKTITLE":limitkeys.get("title"),"KEY_ARTISTS":artistLinks(limitkeys.getall("artist")),"KEY_SCROBBLES":scrobblesnum,"KEY_IMAGEURL":imgurl,
+		"KEY_SCROBBLELINK":keysToUrl(limitkeys),"KEY_SCROBBLELIST":html,"KEY_POSITION":pos}
+	
+	return (replace,pushresources)

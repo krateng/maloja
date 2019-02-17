@@ -12,12 +12,14 @@ def getpictures(ls,result,tracks=False):
 		for element in getArtistsInfo(ls):
 			result.append(element.get("image"))
 		
-def replacedict(keys,dbport):
+def instructions(keys,dbport):
 	from utilities import getArtistsInfo, getTracksInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, keysToUrl, pickKeys, clean, getTimeDesc
 	
 	max_show = 15
 	posrange = ["#" + str(i) for i in range(1,max_show)]
+	
+	
 	
 	#clean(keys)
 	#timekeys = pickKeys(keys,"since","to","in")
@@ -91,11 +93,14 @@ def replacedict(keys,dbport):
 	t1.join()
 	t2.join()
 	t3.join()
+	
+	pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages + scrobbleimages if img.startswith("/")]
 
 
-
-	return {"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
+	replace = {"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
 	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
 	"KEY_SCROBBLES_TODAY":scrobbles_today,"KEY_SCROBBLES_MONTH":scrobbles_month,"KEY_SCROBBLES_YEAR":scrobbles_year,"KEY_SCROBBLES_TOTAL":scrobbles_total,
 	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages}
+	
+	return (replace,pushresources)
 
