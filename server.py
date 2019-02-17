@@ -15,6 +15,7 @@ import os
 import setproctitle
 
 
+
 MAIN_PORT = 42010
 DATABASE_PORT = 42011
 
@@ -75,18 +76,41 @@ def graceful_exit(sig=None,frame=None):
 @webserver.route("/images/<pth:re:.*\\.jpg>")
 @webserver.route("/images/<pth:re:.*\\.png>")
 def static_image(pth):
-	return static_file("images/" + pth,root="")
+	small_pth = pth.split(".")
+	small_pth.insert(-1,"small")
+	small_pth = ".".join(small_pth)
+	if os.path.exists("images/" + small_pth):
+		response = static_file("images/" + small_pth,root="")
+	else:
+		try:
+			from wand.image import Image
+			img = Image(filename="images/" + pth)
+			x,y = img.size[0], img.size[1]
+			smaller = min(x,y)
+			if smaller > 300:
+				ratio = 300/smaller
+				img.resize(int(ratio*x),int(ratio*y))
+				img.save(filename="images/" + small_pth)
+				response = static_file("images/" + small_pth,root="")
+			else:
+				response = static_file("images/" + pth,root="")
+		except:
+			response = static_file("images/" + pth,root="")
+			
+	#response = static_file("images/" + pth,root="")
+	response.set_header("Cache-Control", "public, max-age=604800")
+	return response
 
-@webserver.route("/<name:re:.*\\.html>")
+#@webserver.route("/<name:re:.*\\.html>")
 @webserver.route("/<name:re:.*\\.js>")
 @webserver.route("/<name:re:.*\\.css>")
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")
 def static(name):	
-	return static_file("website/" + name,root="")
-	
-
+	response = static_file("website/" + name,root="")
+	response.set_header("Cache-Control", "public, max-age=604800")
+	return response
 	
 @webserver.route("/<name>")
 def static_html(name):
