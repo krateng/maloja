@@ -477,10 +477,16 @@ def getNext(time,unit="auto",step=1):
 	elif unit == "week":
 		return getNext(time,"day",step * 7)
 		
-@dbserver.route("/artistinfo")	
-def artistInfo():
+@dbserver.route("/artistinfo")
+def artistInfo_external():
 	keys = FormsDict.decode(request.query)
-	artist = keys.get("artist")
+	ckeys = {}
+	ckeys["artist"] = keys.get("artist")
+	
+	results = artistInfo(**ckeys)
+	return results
+	
+def artistInfo(artist):
 	
 	charts = db_aggregate(by="ARTIST")
 	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -493,19 +499,28 @@ def artistInfo():
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
 		return {"replace":artist,"scrobbles":scrobbles,"position":charts.index(c) + 1}
+	
+	
+	
+	
 		
 @dbserver.route("/trackinfo")	
-def trackInfo():
+def trackInfo_external():
 	keys = FormsDict.decode(request.query)
-	artists = keys.getall("artist")
-	title = keys.get("title")
+	ckeys = {}
+	ckeys["artists"],ckeys["title"] = keys.getall("artist"), keys.get("title")
 	
+	results = trackInfo(**ckeys)
+	return results
+
+def trackInfo(artists,title):
 	charts = db_aggregate(by="TRACK")
 	scrobbles = len(db_query(artists=artists,title=title)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
 	
-
 	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
 	return {"scrobbles":scrobbles,"position":charts.index(c) + 1}
+
+
 	
 def isPast(date,limit):
 	if not date[0] == limit[0]:
@@ -513,6 +528,12 @@ def isPast(date,limit):
 	if not date[1] == limit[1]:
 		return date[1] > limit[1]
 	return (date[2] > limit[2])
+
+
+
+
+
+
 
 @dbserver.get("/newscrobble")
 def pseudo_post_scrobble():
