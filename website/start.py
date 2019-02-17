@@ -1,6 +1,7 @@
 import urllib
 import json
 from threading import Thread
+#import database
 
 
 def getpictures(ls,result,tracks=False):
@@ -20,7 +21,6 @@ def instructions(keys,dbport):
 	posrange = ["#" + str(i) for i in range(1,max_show)]
 	
 	
-	
 	#clean(keys)
 	#timekeys = pickKeys(keys,"since","to","in")
 	#limitkeys = pickKeys(keys)
@@ -31,6 +31,7 @@ def instructions(keys,dbport):
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/artists")
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:max_show]
+	#charts = database.get_charts_artists()[:max_show]
 	topartist = charts[0]["artist"]
 	
 	artisttitles = [c["artist"] for c in charts]
@@ -45,6 +46,7 @@ def instructions(keys,dbport):
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/charts/tracks")
 	db_data = json.loads(response.read())
 	charts = db_data["list"][:max_show]
+	#charts = database.get_charts_trackss()[:max_show]
 	
 	trackobjects = [t["track"] for t in charts]
 	tracktitles = [t["title"] for t in trackobjects]
@@ -60,6 +62,7 @@ def instructions(keys,dbport):
 	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?max=50")
 	db_data = json.loads(response.read())
 	scrobblelist = db_data["list"]
+	#scrobblelist = database.get_scrobbles(max=50)
 	scrobbletrackobjects = scrobblelist #ignore the extra time attribute, the format should still work
 	scrobbleartists = [", ".join([artistLink(a) for a in s["artists"]]) for s in scrobblelist]
 	scrobbletitles = [s["title"] for s in scrobblelist]

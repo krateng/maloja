@@ -22,20 +22,22 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it cur
 
 The software works fairly well and has a few web views, but there is only one scrobbler (a Chrome extension for Plex).
 
-## How to install
-
-Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue. Don't ask me to add any lines to make it work on Windows either, the code is already shitty enough.
-
-1) Install the requirements:
+## Requirements
 
 * [bottle.py](https://github.com/bottlepy/bottle)
 * [waitress](https://github.com/Pylons/waitress)
 
-2) Put the Maloja folder anywhere and make sure the file "maloja" is executable. Start the server with
+## How to install
+
+Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue. Don't ask me to add any lines to make it work on Windows either, the code is already shitty enough.
+
+1) Put the Maloja folder anywhere and make sure the file "maloja" is executable. Start the server with
 
 		./maloja start
+		
+If you're missing packages, the console output will tell you so. Install them.
 
-3) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
+2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 
 		location / {
 			proxy_pass http://yoururl:42010;
@@ -46,11 +48,13 @@ Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it o
 			proxy_pass http://yoururl:42011;
 		}
 
-4) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to generate a random key and enter that key in the extension as well as the file autenticated_machines.tsv in the clients folder. 
+## How to use
 
-5) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.
+1) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to generate a random key and enter that key in the extension as well as the file autenticated_machines.tsv in the clients folder. 
 
-6) You can interact with the server at any time with the commands
+2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.
+
+3) You can interact with the server at any time with the commands
 
 		./maloja stop
 		./maloja restart

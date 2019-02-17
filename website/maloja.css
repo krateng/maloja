@@ -16,6 +16,29 @@ a:hover {
 	text-decoration:underline;
 }
 
+
+/**
+Github link
+**/
+
+div.footer {
+	position:fixed;
+	height:20px;
+	width:100%;
+	background-color:rgba(0.5,0.5,0.5,0.3);
+	bottom:0px;
+	left:0px;
+	padding:10px;
+	opacity:0.8;
+}
+div.footer span a {
+	padding-left:20px;
+	background-repeat:no-repeat;
+	background-size:contain;
+	background-position:left;
+	background-image:url("https://github.com/favicon.ico");
+}
+
 /*
 **
 **
