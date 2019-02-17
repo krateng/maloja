@@ -232,7 +232,6 @@ def get_tracks_external():
 
 def get_tracks(artist=None):
 	
-	
 	if artist is not None:
 		artistid = ARTISTS.index(artist)
 	else:

@@ -24,8 +24,9 @@ The software works fairly well and has a few web views, but there is only one sc
 
 ## Requirements
 
-* [bottle.py](https://github.com/bottlepy/bottle)
-* [waitress](https://github.com/Pylons/waitress)
+* [python3](https://www.python.org/) - [GitHub](https://github.com/python/cpython)
+* [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
+* [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
 
 ## How to install
 
@@ -35,7 +36,13 @@ Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it o
 
 		./maloja start
 		
-If you're missing packages, the console output will tell you so. Install them.
+	If you're missing packages, the console output will tell you so. Install them.
+	
+	You can also only download the maloja file itself and run
+	
+		./maloja update
+		
+	to download the rest of the repository, then start it as described above.
 
 2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 

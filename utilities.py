@@ -162,7 +162,8 @@ def log(msg):
 	module = inspect.getmodule(inspect.stack()[1][0]).__name__
 	if module == "__main__": module = "mainserver"
 	print("[" + module + "] " + msg)
-	# best function ever	
+	with open("logs/" + module + ".log","a") as logfile:
+		logfile.write(msg + "\n")
 	
 
 ### Media info
