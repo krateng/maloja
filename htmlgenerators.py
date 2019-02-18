@@ -24,6 +24,12 @@ def scrobblesArtistLink(artist,timekeys,amount=None,percent=None,associated=Fals
 	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
 	askey = "&associated" if associated else ""
 	return "<a href='/scrobbles?artist=" + urllib.parse.quote(artist) + "&" + keysToUrl(timekeys) + askey + "'>" + inner + "</a>"
+	
+def scrobblesLink(timekeys,amount=None,percent=None,artist=None,track=None,associated=False):
+	if track is not None: return scrobblesTrackLink(track,timekeys,amount,percent)
+	if artist is not None: return scrobblesArtistLink(artist,timekeys,amount,percent,associated)
+	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
+	return "<a href='/scrobbles?" + keysToUrl(timekeys) + "'>" + inner + "</a>"
 
 # necessary because urllib.parse.urlencode doesnt handle multidicts
 def keysToUrl(*dicts):

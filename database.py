@@ -303,6 +303,8 @@ def get_pulse_external():
 	ckeys = {}
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
+	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
+	ckeys["associated"] = (keys.get("associated")!=None)
 	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
 	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
 	
@@ -323,7 +325,8 @@ def get_pulse(step="month",stepn=1,trail=3,**keys):
 	d_current = d_start
 	while True:
 		d_current_end = getNext(d_current,step,stepn * trail)
-		res = db_aggregate(since=d_current,to=d_current_end)
+		#res = db_aggregate(since=d_current,to=d_current_end)
+		res = len(db_query(since=d_current,to=d_current_end,**{k:keys[k] for k in keys if k in ["artists","title","associated"]}))
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
 		d_current = getNext(d_current,step,stepn)
 		if isPast(d_current_end,d_end):
