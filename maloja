@@ -157,21 +157,28 @@ def update():
 
 	import urllib.request
 	import shutil
-	import tempfile
+	#import tempfile
 	import zipfile
 	import distutils.dir_util
 
 	print("Updating Maloja...")
-	with urllib.request.urlopen(SOURCE_URL) as response:
-		with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
-			shutil.copyfileobj(response,tmpfile)
-			
-			with zipfile.ZipFile(tmpfile.name,"r") as z:
+	#with urllib.request.urlopen(SOURCE_URL) as response:
+	#	with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
+	#		shutil.copyfileobj(response,tmpfile)
+	#		
+	#		with zipfile.ZipFile(tmpfile.name,"r") as z:
+	#			
+	#			for f in z.namelist():
+	#				#print("extracting " + f)
+	#				z.extract(f)
+	
+	
+	os.system("wget " + SOURCE_URL)
+	with zipfile.ZipFile("master.zip","r") as z:
 				
-				for f in z.namelist():
-					#print("extracting " + f)
-					z.extract(f)
-			
+		for f in z.namelist():
+			#print("extracting " + f)
+			z.extract(f)		
 			
 	
 	distutils.dir_util.copy_tree("./maloja-master/","./",verbose=2)
