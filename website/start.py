@@ -1,6 +1,7 @@
 import urllib
 import json
 from threading import Thread
+from datetime import datetime
 #import database
 
 
@@ -15,7 +16,7 @@ def getpictures(ls,result,tracks=False):
 		
 def instructions(keys,dbport):
 	from utilities import getArtistsInfo, getTracksInfo
-	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, keysToUrl, pickKeys, clean, getTimeDesc
+	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, scrobblesLink, keysToUrl, pickKeys, clean, getTimeDesc
 	
 	max_show = 15
 	posrange = ["#" + str(i) for i in range(1,max_show)]
@@ -92,6 +93,27 @@ def instructions(keys,dbport):
 	scrobbles_total = "<a href='/scrobbles'>" + str(stats["amount"]) + "</a>"
 	
 	
+	# get pulse
+	dt = datetime.utcnow()
+	dtl = [dt.year-1,dt.month+1]
+	if dtl[1] > 12: dtl = [dtl[0]+1,dtl[1]-12]
+	dts = "/".join([str(e) for e in dtl])
+	# this is literally the ugliest piece of code i have written in my entire feckin life
+	# good lord
+	
+	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/pulse?step=month&trail=1&since=" + dts)
+	db_data = json.loads(response.read())
+	terms = db_data["list"]
+
+	maxbar = max([t["scrobbles"] for t in terms])
+	pulse_fromdates = ["/".join([str(e) for e in t["from"]]) for t in terms]
+	pulse_todates = ["/".join([str(e) for e in t["to"]]) for t in terms]
+	pulse_amounts = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},amount=t["scrobbles"]) for t in terms]
+	pulse_bars = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},percent=t["scrobbles"]*100/maxbar) for t in terms]
+	
+	
+	
+	
 	
 	t1.join()
 	t2.join()
@@ -103,7 +125,8 @@ def instructions(keys,dbport):
 	replace = {"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
 	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
 	"KEY_SCROBBLES_TODAY":scrobbles_today,"KEY_SCROBBLES_MONTH":scrobbles_month,"KEY_SCROBBLES_YEAR":scrobbles_year,"KEY_SCROBBLES_TOTAL":scrobbles_total,
-	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages}
+	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
+	"KEY_PULSE_TERM_FROM":pulse_fromdates,"KEY_PULSE_TERM_TO":pulse_todates,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars}
 	
 	return (replace,pushresources)
 

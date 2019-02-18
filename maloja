@@ -174,11 +174,13 @@ def update():
 	
 	
 	os.system("wget " + SOURCE_URL)
-	with zipfile.ZipFile("master.zip","r") as z:
+	with zipfile.ZipFile("./master.zip","r") as z:
 				
 		for f in z.namelist():
 			#print("extracting " + f)
-			z.extract(f)		
+			z.extract(f)	
+			
+	os.remove("./master.zip")
 			
 	
 	distutils.dir_util.copy_tree("./maloja-master/","./",verbose=2)
