@@ -82,6 +82,31 @@ def getTimeDesc(timestamp,short=False):
 		return tim.strftime("%d. %B %Y")
 	else:
 		return tim.strftime("%d. %b %Y %I:%M %p")
+		
+def getRangeDesc(timeA,timeB,inclusiveB=True):
+	# string to list
+	if isinstance(timeA,str): timeA = timeA.split("/")
+	if isinstance(timeB,str): timeB = timeB.split("/")
+	
+	# if lists, we have it potentially much easier:
+	if isinstance(timeA,list) and isinstance(timeB,list):
+		if timeA == timeB:
+			date = [1970,1,1]
+			date[:len(timeA)] = timeA
+			dto = datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc)
+			if len(timeA) == 3:
+				return dto.strftime("%d. %b %Y")
+			if len(timeA) == 2:
+				return dto.strftime("%B %Y")
+			if len(timeA) == 1:
+				return dto.strftime("%Y")
+	
+		from database import getTimestamps
+		
+		(timeA, timeB) = getTimestamps(since=timeA, to=timeB)
+					
+					
+	return getTimeDesc(timeA) + " to " + getTimeDesc(timeB)
 	
 	
 # limit a multidict to only the specified keys

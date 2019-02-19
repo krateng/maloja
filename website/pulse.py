@@ -4,7 +4,7 @@ import json
 		
 def instructions(keys,dbport):
 	from utilities import getArtistInfo, getTrackInfo
-	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, pickKeys, clean
+	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, pickKeys, clean, getRangeDesc
 	
 	clean(keys)
 	timekeys = pickKeys(keys,"since","to","in","step","trail")
@@ -58,8 +58,9 @@ def instructions(keys,dbport):
 		fromstr = "/".join([str(e) for e in t["from"]])
 		tostr = "/".join([str(e) for e in t["to"]])
 		html += "<tr>"
-		html += "<td>" + fromstr + "</td>"
-		html += "<td>" + tostr + "</td>"
+		#html += "<td>" + fromstr + "</td>"
+		#html += "<td>" + tostr + "</td>"
+		html += "<td>" + getRangeDesc(t["from"],t["to"]) + "</td>"
 		html += "<td class='amount'>" + scrobblesLink({"since":fromstr,"to":tostr},amount=t["scrobbles"],**limitkey) + "</td>"
 		html += "<td class='bar'>" + scrobblesLink({"since":fromstr,"to":tostr},percent=t["scrobbles"]*100/maxbar,**limitkey) + "</td>"
 		html += "</tr>"

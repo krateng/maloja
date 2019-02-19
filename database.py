@@ -324,7 +324,8 @@ def get_pulse(step="month",stepn=1,trail=3,**keys):
 	
 	d_current = d_start
 	while True:
-		d_current_end = getNext(d_current,step,stepn * trail)
+		#d_current_end = getNext(d_current,step,stepn * trail)
+		d_current_end = getEnd(d_current,step,stepn * trail)
 		#res = db_aggregate(since=d_current,to=d_current_end)
 		res = len(db_query(since=d_current,to=d_current_end,**{k:keys[k] for k in keys if k in ["artists","title","associated"]}))
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
@@ -441,9 +442,11 @@ def get_top_tracks(step="month",stepn=1,trail=3,**keys):
 def getStartOf(timestamp,unit):
 	date = datetime.datetime.utcfromtimestamp(timestamp)
 	if unit == "year":
-		return [date.year,1,1]
+		#return [date.year,1,1]
+		return [date.year]
 	elif unit == "month":
-		return [date.year,date.month,1]
+		#return [date.year,date.month,1]
+		return [date.year,date.month]
 	elif unit == "day":
 		return [date.year,date.month,date.day]
 	elif unit == "week":
@@ -453,16 +456,20 @@ def getStartOf(timestamp,unit):
 		return [newdate.year,newdate.month,newdate.day]
 		
 def getNext(time,unit="auto",step=1):
+	result = time[:]
 	if unit == "auto":
 		# see how long the list is, increment by the last specified unit
 		unit = [None,"year","month","day"][len(time)]
-	while len(time) < 3:
-		time.append(1)
+	#while len(time) < 3:
+	#	time.append(1)
 
 	if unit == "year":
-		return [time[0] + step,time[1],time[2]]
+		#return [time[0] + step,time[1],time[2]]
+		result[0] += step
+		return result
 	elif unit == "month":
-		result = [time[0],time[1] + step,time[2]]
+		#result = [time[0],time[1] + step,time[2]]
+		result[1] += step
 		while result[1] > 12:
 			result[1] -= 12
 			result[0] += 1
@@ -478,6 +485,22 @@ def getNext(time,unit="auto",step=1):
 		#eugh
 	elif unit == "week":
 		return getNext(time,"day",step * 7)
+		
+# like getNext(), but gets the last INCLUDED day / month whatever
+def getEnd(time,unit="auto",step=1):
+	if step == 1:
+		if unit == "auto": return time[:]
+		if unit == "year" and len(time) == 1: return time[:]
+		if unit == "month" and len(time) == 2: return time[:]
+		if unit == "day" and len(time) == 3: return time[:]
+	exc = getNext(time,unit,step)
+	inc = getNext(exc,"auto",-1)
+	return inc
+	
+	
+	
+	
+	
 		
 @dbserver.route("/artistinfo")
 def artistInfo_external():
@@ -525,11 +548,14 @@ def trackInfo(artists,title):
 
 	
 def isPast(date,limit):
-	if not date[0] == limit[0]:
-		return date[0] > limit[0]
-	if not date[1] == limit[1]:
-		return date[1] > limit[1]
-	return (date[2] > limit[2])
+	date_, limit_ = date[:], limit[:]
+	while len(date_) != 3: date_.append(1)
+	while len(limit_) != 3: limit_.append(1)
+	if not date_[0] == limit_[0]:
+		return date_[0] > limit_[0]
+	if not date_[1] == limit_[1]:
+		return date_[1] > limit_[1]
+	return (date_[2] > limit_[2])
 
 
 
@@ -951,16 +977,19 @@ def getTimestamps(since=None,to=None,within=None):
 	
 	# this step is done if either the input is a list or the first step was done (which creates a list)	
 	if isinstance(f, list):
-		#date = [1970,1,1,0,0]
-		#date[:len(f)] = f
-		while len(f) < 3: f.append(1) # padding month and day
+		date = [1970,1,1]
+		date[:len(f)] = f
+		#while len(f) < 3: f.append(1) # padding month and day
+		f = date
 		#f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
 		f = int(datetime.datetime(f[0],f[1],f[2],tzinfo=datetime.timezone.utc).timestamp())
 
 	if isinstance(t, list):
-		t = getNext(t) # going on step forward automatically pads month and day
-		#date = [1970,1,1,0,0]
-		#date[:len(t)] = t
+		t = getNext(t)
+		#while len(t) < 3: t.append(1)
+		date = [1970,1,1]
+		date[:len(t)] = t
+		t = date
 		#t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
 		t = int(datetime.datetime(t[0],t[1],t[2],tzinfo=datetime.timezone.utc).timestamp())
 		

@@ -16,7 +16,7 @@ def getpictures(ls,result,tracks=False):
 		
 def instructions(keys,dbport):
 	from utilities import getArtistsInfo, getTracksInfo
-	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, scrobblesLink, keysToUrl, pickKeys, clean, getTimeDesc
+	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, scrobblesLink, keysToUrl, pickKeys, clean, getTimeDesc, getRangeDesc
 	
 	max_show = 15
 	posrange = ["#" + str(i) for i in range(1,max_show)]
@@ -106,8 +106,9 @@ def instructions(keys,dbport):
 	terms = db_data["list"]
 
 	maxbar = max([t["scrobbles"] for t in terms])
-	pulse_fromdates = ["/".join([str(e) for e in t["from"]]) for t in terms]
-	pulse_todates = ["/".join([str(e) for e in t["to"]]) for t in terms]
+	#pulse_fromdates = ["/".join([str(e) for e in t["from"]]) for t in terms]
+	#pulse_todates = ["/".join([str(e) for e in t["to"]]) for t in terms]
+	pulse_rangedescs = [getRangeDesc(t["from"],t["to"]) for t in terms]
 	pulse_amounts = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},amount=t["scrobbles"]) for t in terms]
 	pulse_bars = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},percent=t["scrobbles"]*100/maxbar) for t in terms]
 	
@@ -126,7 +127,7 @@ def instructions(keys,dbport):
 	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
 	"KEY_SCROBBLES_TODAY":scrobbles_today,"KEY_SCROBBLES_MONTH":scrobbles_month,"KEY_SCROBBLES_YEAR":scrobbles_year,"KEY_SCROBBLES_TOTAL":scrobbles_total,
 	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
-	"KEY_PULSE_TERM_FROM":pulse_fromdates,"KEY_PULSE_TERM_TO":pulse_todates,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars}
+	"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars}
 	
 	return (replace,pushresources)
 

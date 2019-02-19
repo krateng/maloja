@@ -166,6 +166,7 @@ def log(msg):
 		logfile.write(msg + "\n")
 	
 
+
 ### Media info
 
 def apirequest(artists=None,artist=None,title=None):
@@ -173,8 +174,14 @@ def apirequest(artists=None,artist=None,title=None):
 	import urllib.parse, urllib.request
 	import json
 	
-	with open("apikey","r") as keyfile:
-		apikey = keyfile.read().replace("\n","")
+	try:
+		with open("apikey","r") as keyfile:
+			apikey = keyfile.read().replace("\n","")
+			
+		if apikey == "NONE": return {"image":None}
+	except:
+		return {"image":None}
+	
 	
 	sites = [
 		{
