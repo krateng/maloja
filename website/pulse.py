@@ -52,7 +52,6 @@ def instructions(keys,dbport):
 	# build list
 	maxbar = max([t["scrobbles"] for t in terms])
 	
-	i = 1
 	html = "<table class='list'>"
 	for t in terms:
 		fromstr = "/".join([str(e) for e in t["from"]])
@@ -64,7 +63,6 @@ def instructions(keys,dbport):
 		html += "<td class='amount'>" + scrobblesLink({"since":fromstr,"to":tostr},amount=t["scrobbles"],**limitkey) + "</td>"
 		html += "<td class='bar'>" + scrobblesLink({"since":fromstr,"to":tostr},percent=t["scrobbles"]*100/maxbar,**limitkey) + "</td>"
 		html += "</tr>"
-		i += 1
 	html += "</table>"
 	
 	replace = {"KEY_PULSE_TABLE":html,"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}
