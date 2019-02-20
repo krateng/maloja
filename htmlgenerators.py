@@ -108,6 +108,71 @@ def getRangeDesc(timeA,timeB,inclusiveB=True):
 					
 	return getTimeDesc(timeA) + " to " + getTimeDesc(timeB)
 	
+
+
+# finds out if we want an artist or a track
+#def interpretURLKeys(keys):
+#	if "title" in keys:
+#		return {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
+#	if "artist" in keys:
+#		return {"artist":keys.get("artist")}
+#	
+#	return {}
+	
+# alright this is the last one
+# one ultimate method to rule them all
+# one method to take html keys and convert them into internal keys
+# it renames them, interprets what's being asked, removes duplicates
+# it gets rid of multidicts
+# it does fecking everything
+# it's the best
+# fantastic
+def KeySplit(keys):
+
+	# output:
+	# 1	keys that define the filtered object like artist or track
+	# 2	keys that define time limits of the whole thing
+	# 3	keys that define interal time ranges
+	# 4	keys that define amount limits
+
+	# 1
+	if "title" in keys:
+		resultkeys1 = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
+	elif "artist" in keys:
+		resultkeys1 = {"artist":keys.get("artist")}
+		if "associated" in keys: resultkeys1["associated"] = True
+	else:
+		resultkeys1 = {}
+		
+	# 2
+	resultkeys2 = {}
+	if "since" in keys: resultkeys2["since"] = keys.get("since")
+	elif "from" in keys: resultkeys2["since"] = keys.get("from")
+	elif "start" in keys: resultkeys2["since"] = keys.get("start")
+	#
+	if "to" in keys: resultkeys2["to"] = keys.get("to")
+	elif "until" in keys: resultkeys2["to"] = keys.get("until")
+	elif "end" in keys: resultkeys2["to"] = keys.get("end")
+	#
+	if "in" in keys: resultkeys2["within"] = keys.get("in")
+	elif "within" in keys: resultkeys2["within"] = keys.get("within")
+	elif "during" in keys: resultkeys2["within"] = keys.get("during")
+	
+	
+	#3
+	resultkeys3 = {}
+	if "step" in keys: [resultkeys3["step"],resultkeys3["stepn"]] = (keys["step"].split("-") + [1])[:2]
+	if "stepn" in keys: resultkeys3["stepn"] = keys["stepn"] #overwrite if explicitly given
+	if "stepn" in resultkeys3: resultkeys3["stepn"] = int(resultkeys3["stepn"]) #in both cases, convert it here
+	if "trail" in keys: resultkeys3["trail"] = int(keys["trail"])
+	
+	
+	#4
+	resultkeys4 = {}
+	if "max" in keys: resultkeys4["max_"] = int(keys["max"])
+	
+	return resultkeys1, resultkeys2, resultkeys3, resultkeys4
+
 	
 # limit a multidict to only the specified keys
 # would be a simple constructor expression, but multidicts apparently don't let me do that

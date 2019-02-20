@@ -4,16 +4,11 @@ import json
 		
 def instructions(keys,dbport):
 	from utilities import getArtistInfo, getTrackInfo
-	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, pickKeys, clean
+	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, KeySplit
+	from htmlmodules import module_scrobblelist
 	
-	clean(keys)
-	timekeys = pickKeys(keys,"since","to","in","max")
-	limitkeys = pickKeys(keys,"artist","title","associated")
 	
-	# Get scrobble data
-	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?" + keysToUrl(limitkeys,timekeys))
-	db_data = json.loads(response.read())
-	scrobbles = db_data["list"]
+	filterkeys, timekeys, _, amountkeys = KeySplit(keys)
 	
 	# describe the scope
 	limitstring = ""
@@ -30,33 +25,25 @@ def instructions(keys,dbport):
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
+
+	
+	html, amount, rep = module_scrobblelist(**filterkeys,**timekeys,**amountkeys)
 	
 	# get image	
-	if limitkeys.get("title") is not None:
-		imgurl = getTrackInfo(limitkeys.getall("artist"),limitkeys.get("title")).get("image")
-	elif keys.get("artist") is not None:
+	if filterkeys.get("track") is not None:
+		imgurl = getTrackInfo(filterkeys.get("track")["artists"],filterkeys.get("track")["title"]).get("image")
+	elif filterkeys.get("artist") is not None:
 		imgurl = getArtistInfo(keys.get("artist")).get("image")
-	elif (len(scrobbles) != 0):
-		imgurl = getTrackInfo(scrobbles[0]["artists"],scrobbles[0]["title"]).get("image")
-		#imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
+	elif rep is not None:
+		imgurl = getTrackInfo(rep["artists"],rep["title"]).get("image")
 	else:
 		imgurl = ""
+	
 		
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
-	
 
-	# build list
-	html = "<table class='list'>"
-	for s in scrobbles:
-		html += "<tr>"
-		html += "<td class='time'>" + getTimeDesc(s["time"]) + "</td>"
-		#html += """<td class='icon' style="background-image:url('""" + getArtistInfo(s["artists"][0]).get("image") + """')" /></td>"""
-		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
-		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
-		html += "</tr>"
-	html += "</table>"
 	
-	replace = {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(len(scrobbles)),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}
+	replace = {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(amount),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}
 	
 	return (replace,pushresources)
 		

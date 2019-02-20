@@ -158,17 +158,17 @@ def get_scrobbles_external():
 	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["associated"] = (keys.get("associated")!=None)
-	ckeys["max"] = keys.get("max")
+	ckeys["max_"] = keys.get("max")
 	
 	result = get_scrobbles(**ckeys)
 	return {"list":result}
 
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","associated","track"]})
 	r.reverse()
 	
-	if keys.get("max") is not None:
-		return r[:int(keys.get("max"))]
+	if keys.get("max_") is not None:
+		return r[:int(keys.get("max_"))]
 	else:
 		return r
 
@@ -327,7 +327,7 @@ def get_pulse(step="month",stepn=1,trail=3,**keys):
 		#d_current_end = getNext(d_current,step,stepn * trail)
 		d_current_end = getEnd(d_current,step,stepn * trail)
 		#res = db_aggregate(since=d_current,to=d_current_end)
-		res = len(db_query(since=d_current,to=d_current_end,**{k:keys[k] for k in keys if k in ["artists","title","associated"]}))
+		res = len(db_query(since=d_current,to=d_current_end,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
 		d_current = getNext(d_current,step,stepn)
 		if isPast(d_current_end,d_end):
@@ -841,17 +841,35 @@ def sync():
 
 
 # Queries the database			
-def db_query(artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
+def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
+#	print(artists)
+#	print(title)
+#	print(track)
+#	print(since)
+#	print(to)
+#	print(within)
+#	print(associated)
+
 	(since, to) = getTimestamps(since,to,within)
 	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
 	# if not, duplicate artist arguments are ignored
 	
-	artist = None
+	#artist = None
 	
-	# artists to numbers	
-	artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
+	if artist is not None and isinstance(artist,str):
+		artist = ARTISTS.index(artist)
+	
+	# artists to numbers
+	if artists is not None:	
+		artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
+	
+	# track to number
+	if track is not None and isinstance(track,dict):
+		trackartists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in track["artists"]])
+		track = TRACKS.index((frozenset(trackartists),track["title"]))
+		artists = None
 	
 	#check if track is requested via title
 	if title!=None and track==None:
@@ -860,8 +878,9 @@ def db_query(artists=None,title=None,track=None,since=None,to=None,within=None,a
 		
 	# if we're not looking for a track (either directly or per title artist arguments, which is converted to track above)
 	# we only need one artist
-	elif track==None and len(artists) != 0:
+	elif artist is None and track is None and artists is not None and len(artists) != 0:
 		artist = artists.pop()
+		
 			
 		
 	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now

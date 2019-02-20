@@ -4,6 +4,8 @@ from threading import Thread
 from datetime import datetime
 #import database
 
+from htmlmodules import module_scrobblelist, module_pulse
+
 
 def getpictures(ls,result,tracks=False):
 	from utilities import getArtistsInfo, getTracksInfo
@@ -60,19 +62,21 @@ def instructions(keys,dbport):
 	
 	
 	# get scrobbles
-	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?max=50")
-	db_data = json.loads(response.read())
-	scrobblelist = db_data["list"]
-	#scrobblelist = database.get_scrobbles(max=50)
-	scrobbletrackobjects = scrobblelist #ignore the extra time attribute, the format should still work
-	scrobbleartists = [", ".join([artistLink(a) for a in s["artists"]]) for s in scrobblelist]
-	scrobbletitles = [s["title"] for s in scrobblelist]
-	scrobbletimes = [getTimeDesc(s["time"],short=True) for s in scrobblelist]
-	scrobbleimages = []
-	t3 = Thread(target=getpictures,args=(scrobbletrackobjects,scrobbleimages,),kwargs={"tracks":True})
-	t3.start()
-	#scrobbleimages = [info.get("image") for info in getTracksInfo(scrobbletrackobjects)]
-	scrobbletracklinks = [trackLink(t) for t in scrobbletrackobjects]
+#	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/scrobbles?max=50")
+#	db_data = json.loads(response.read())
+#	scrobblelist = db_data["list"]
+#	#scrobblelist = database.get_scrobbles(max=50)
+#	scrobbletrackobjects = scrobblelist #ignore the extra time attribute, the format should still work
+#	scrobbleartists = [", ".join([artistLink(a) for a in s["artists"]]) for s in scrobblelist]
+#	scrobbletitles = [s["title"] for s in scrobblelist]
+#	scrobbletimes = [getTimeDesc(s["time"],short=True) for s in scrobblelist]
+#	scrobbleimages = []
+#	t3 = Thread(target=getpictures,args=(scrobbletrackobjects,scrobbleimages,),kwargs={"tracks":True})
+#	t3.start()
+#	#scrobbleimages = [info.get("image") for info in getTracksInfo(scrobbletrackobjects)]
+#	scrobbletracklinks = [trackLink(t) for t in scrobbletrackobjects]
+	
+	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True)
 	
 	
 	# get stats
@@ -101,33 +105,36 @@ def instructions(keys,dbport):
 	# this is literally the ugliest piece of code i have written in my entire feckin life
 	# good lord
 	
-	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/pulse?step=month&trail=1&since=" + dts)
-	db_data = json.loads(response.read())
-	terms = db_data["list"]
+#	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/pulse?step=month&trail=1&since=" + dts)
+#	db_data = json.loads(response.read())
+#	terms = db_data["list"]
 
-	maxbar = max([t["scrobbles"] for t in terms])
-	#pulse_fromdates = ["/".join([str(e) for e in t["from"]]) for t in terms]
-	#pulse_todates = ["/".join([str(e) for e in t["to"]]) for t in terms]
-	pulse_rangedescs = [getRangeDesc(t["from"],t["to"]) for t in terms]
-	pulse_amounts = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},amount=t["scrobbles"]) for t in terms]
-	pulse_bars = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},percent=t["scrobbles"]*100/maxbar) for t in terms]
+#	maxbar = max([t["scrobbles"] for t in terms])
+#	#pulse_fromdates = ["/".join([str(e) for e in t["from"]]) for t in terms]
+#	#pulse_todates = ["/".join([str(e) for e in t["to"]]) for t in terms]
+#	pulse_rangedescs = [getRangeDesc(t["from"],t["to"]) for t in terms]
+#	pulse_amounts = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},amount=t["scrobbles"]) for t in terms]
+#	pulse_bars = [scrobblesLink({"since":"/".join([str(e) for e in t["from"]]),"to":"/".join([str(e) for e in t["to"]])},percent=t["scrobbles"]*100/maxbar) for t in terms]
 	
-	
+	html_pulse = module_pulse(max_=12,since=dts,step="month",trail=1)	
 	
 	
 	
 	t1.join()
 	t2.join()
-	t3.join()
+	#t3.join()
 	
-	pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages + scrobbleimages if img.startswith("/")]
-
+	#pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages + scrobbleimages if img.startswith("/")]
+	pushresources = []
 
 	replace = {"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
 	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
 	"KEY_SCROBBLES_TODAY":scrobbles_today,"KEY_SCROBBLES_MONTH":scrobbles_month,"KEY_SCROBBLES_YEAR":scrobbles_year,"KEY_SCROBBLES_TOTAL":scrobbles_total,
-	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
-	"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars}
+	#"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
+	"KEY_SCROBBLES":html_scrobbles,
+	#"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars
+	"KEY_PULSE":html_pulse
+	}
 	
 	return (replace,pushresources)
 
