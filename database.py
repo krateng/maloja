@@ -312,7 +312,7 @@ def get_pulse_external():
 	results = get_pulse(**ckeys)
 	return {"list":results}
 
-def get_pulse(step="month",stepn=1,trail=3,**keys):
+def get_pulse(step="month",stepn=1,trail=1,**keys):
 
 	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)

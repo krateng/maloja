@@ -127,7 +127,7 @@ def getRangeDesc(timeA,timeB,inclusiveB=True):
 # it does fecking everything
 # it's the best
 # fantastic
-def KeySplit(keys):
+def KeySplit(keys,forceTrack=False,forceArtist=False):
 
 	# output:
 	# 1	keys that define the filtered object like artist or track
@@ -136,9 +136,9 @@ def KeySplit(keys):
 	# 4	keys that define amount limits
 
 	# 1
-	if "title" in keys:
+	if "title" in keys and not forceArtist:
 		resultkeys1 = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
-	elif "artist" in keys:
+	elif "artist" in keys and not forceTrack:
 		resultkeys1 = {"artist":keys.get("artist")}
 		if "associated" in keys: resultkeys1["associated"] = True
 	else:

@@ -9,7 +9,7 @@ def instructions(keys,dbport):
 	from htmlmodules import module_scrobblelist, module_pulse
 
 	
-	filterkeys, _, _, _ = KeySplit(keys)	
+	filterkeys, _, _, _ = KeySplit(keys,forceTrack=True)	
 	
 	track = filterkeys.get("track")
 	imgurl = getTrackInfo(track["artists"],track["title"]).get("image")
@@ -61,7 +61,8 @@ def instructions(keys,dbport):
 	html_pulse = module_pulse(track=track,step="year",stepn=1,trail=1)
 
 
-	replace = {"KEY_TRACKTITLE":track.get("title"),"KEY_ARTISTS":artistLinks(track.get("artists")),"KEY_SCROBBLES":scrobblesnum,"KEY_IMAGEURL":imgurl,
-		"KEY_SCROBBLELINK":keysToUrl(keys),"KEY_SCROBBLELIST":html_scrobbles,"KEY_POSITION":pos,"KEY_PULSE":html_pulse}
+	replace = {"KEY_TRACKTITLE":track.get("title"),"KEY_ARTISTS":artistLinks(track.get("artists")),"KEY_SCROBBLES":scrobblesnum,"KEY_POSITION":pos,"KEY_IMAGEURL":imgurl,
+		"KEY_SCROBBLELINK":keysToUrl(keys),
+		"KEY_SCROBBLELIST":html_scrobbles,"KEY_PULSE":html_pulse}
 	
 	return (replace,pushresources)

@@ -1,40 +1,42 @@
 import urllib
 import json
+import database
 
 		
 def instructions(keys,dbport):
 	from utilities import getArtistInfo
-	from htmlgenerators import clean, artistLink, artistLinks, trackLink, scrobblesTrackLink, getRangeDesc, scrobblesLink
+	from htmlgenerators import clean, artistLink, artistLinks, KeySplit
 	from htmlmodules import module_pulse, module_trackcharts
 
-	allowedkeys = {"artist":keys.get("artist")}
-#	clean(keys)
-	info = getArtistInfo(keys["artist"])
+	filterkeys, _, _, _ = KeySplit(keys,forceArtist=True)
+	info = getArtistInfo(filterkeys["artist"])
 	imgurl = info.get("image")
-	#desc = info.get("info")
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
-	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
-	db_data = json.loads(response.read())
-	scrobbles = str(db_data["scrobbles"])
-	pos = "#" + str(db_data["position"])
+	data = database.artistInfo(filterkeys["artist"])
+	scrobbles = str(data["scrobbles"])
+	pos = "#" + str(data["position"])
 	
-	credited = db_data.get("replace")
+	credited = data.get("replace")
 	includestr = " "
 	if credited is not None:
 		includestr = "Competing under " + artistLink(credited) + " (" + pos + ")"
 		pos = ""
-	included = db_data.get("associated")
+	included = data.get("associated")
 	if included is not None and included != []:
 		includestr = "associated: "
 		includestr += artistLinks(included)
 	
 
-	html_tracks, _ = module_trackcharts(**allowedkeys)	
+	html_tracks, _ = module_trackcharts(**filterkeys,max_=15)	
 	
 	
-	html_pulse = module_pulse(**allowedkeys,step="year",stepn=1,trail=1)
+	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
 
-	replace = {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_TRACKLIST":html_tracks,"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,"KEY_ASSOCIATED":includestr,"KEY_PULSE":html_pulse}
+	replace = {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
+	"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"",
+	"KEY_TRACKLIST":html_tracks,"KEY_PULSE":html_pulse,
+	"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,
+	"KEY_ASSOCIATED":includestr}
 	
 	return (replace,pushresources)

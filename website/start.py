@@ -38,9 +38,10 @@ def instructions(keys,dbport):
 	topartist = charts[0]["artist"]
 	
 	artisttitles = [c["artist"] for c in charts]
-	artistimages = []
-	t1 = Thread(target=getpictures,args=(artisttitles,artistimages,))
-	t1.start()
+	#artistimages = []
+	#t1 = Thread(target=getpictures,args=(artisttitles,artistimages,))
+	#t1.start()
+	artistimages = ["/image?artist=" + urllib.parse.quote(a) for a in artisttitles]
 	#artistimages = [info.get("image") for info in getArtistsInfo(artisttitles)]
 	artistlinks = [artistLink(a) for a in artisttitles]
 	
@@ -54,9 +55,10 @@ def instructions(keys,dbport):
 	trackobjects = [t["track"] for t in charts]
 	tracktitles = [t["title"] for t in trackobjects]
 	trackartists = [", ".join(t["artists"]) for t in trackobjects]
-	trackimages = []
-	t2 = Thread(target=getpictures,args=(trackobjects,trackimages,),kwargs={"tracks":True})
-	t2.start()
+	#trackimages = []
+	#t2 = Thread(target=getpictures,args=(trackobjects,trackimages,),kwargs={"tracks":True})
+	#t2.start()
+	trackimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in trackobjects]
 	#trackimages = [info.get("image") for info in getTracksInfo(trackobjects)]
 	tracklinks = [trackLink(t) for t in trackobjects]
 	
@@ -120,8 +122,8 @@ def instructions(keys,dbport):
 	
 	
 	
-	t1.join()
-	t2.join()
+	#t1.join()
+	#t2.join()
 	#t3.join()
 	
 	#pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages + scrobbleimages if img.startswith("/")]

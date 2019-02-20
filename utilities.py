@@ -348,4 +348,15 @@ def getArtistsInfo(artistlist):
 	# async calls only cached results, now we need to get them	
 	return [getArtistInfo(a) for a in artistlist]
 
+
+
+# new way of serving images
+# instead always generate a link locally, but redirect that on the fly
+# this way the page can load faster and images will trickle in without having to resort to XHTTP requests
+
+def resolveImage(artist=None,track=None):
+	if track is not None:
+		return getTrackInfo(track["artists"],track["title"])["image"]
+	elif artist is not None:
+		return getArtistInfo(artist)["image"]
 		

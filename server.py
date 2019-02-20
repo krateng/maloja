@@ -1,18 +1,23 @@
 #!/usr/bin/env python
 
+# server stuff
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
-from importlib.machinery import SourceFileLoader
+import waitress
+# rest of the project
 from htmlgenerators import removeIdentical
 from utilities import *
+from htmlgenerators import KeySplit
+# technical
+from importlib.machinery import SourceFileLoader
 import _thread
-import waitress
-import urllib.request
-import urllib.parse
-from urllib.error import *
 import sys
 import signal
 import os
 import setproctitle
+# url handling
+import urllib.request
+import urllib.parse
+from urllib.error import *
 
 
 
@@ -72,6 +77,13 @@ def graceful_exit(sig=None,frame=None):
 	log("Server shutting down...")
 	os._exit(42)
 
+
+@webserver.route("/image")
+def dynamic_image():
+	keys = FormsDict.decode(request.query)
+	relevant, _, _, _ = KeySplit(keys)
+	result = resolveImage(**relevant)
+	redirect(result)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")

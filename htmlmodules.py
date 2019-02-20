@@ -1,6 +1,7 @@
 from htmlgenerators import *
 import database
 from utilities import getArtistsInfo, getTracksInfo
+import urllib
 
 
 def getpictures(ls,result,tracks=False):
@@ -22,7 +23,8 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 	scrobbles = database.get_scrobbles(**kwargs_time,**kwargs_filter) #we're getting all scrobbles for the number and only filtering them on site
 	if pictures:
 		scrobbleswithpictures = scrobbles if max_ is None else scrobbles[:max_]
-		scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
+		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
+		scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
 	
 	representative = scrobbles[0] if scrobbles is not [] else None
 	

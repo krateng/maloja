@@ -1,10 +1,11 @@
 import urllib
 import json
+import database
 
 		
 def instructions(keys,dbport):
 	from utilities import getArtistInfo, getTrackInfo
-	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, keysToUrl, KeySplit
+	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
 	from htmlmodules import module_scrobblelist
 	
 	
@@ -12,16 +13,15 @@ def instructions(keys,dbport):
 	
 	# describe the scope
 	limitstring = ""
-	if keys.get("title") is not None:
-		limitstring += "of " + trackLink({"title":keys.get("title"),"artists":keys.getall("artist")}) + " "
-		limitstring += "by " + artistLinks(keys.getall("artist"))
+	if filterkeys.get("track") is not None:
+		limitstring += "of " + trackLink(filterkeys["track"]) + " "
+		limitstring += "by " + artistLinks(filterkeys["track"]["artists"])
 	
-	elif keys.get("artist") is not None:
-		limitstring += "by " + artistLink(keys.get("artist"))
-		if keys.get("associated") is not None:
-			response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
-			db_data = json.loads(response.read())
-			moreartists = db_data["associated"]
+	elif filterkeys.get("artist") is not None:
+		limitstring += "by " + artistLink(filterkeys.get("artist"))
+		if filterkeys.get("associated"):
+			data = database.artistInfo(filterkeys["artist"])
+			moreartists = data.get("associated")
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
