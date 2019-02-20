@@ -188,8 +188,8 @@ def apirequest(artists=None,artist=None,title=None):
 			"name":"lastfm",
 			"artisturl":"https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist={artist}&api_key=" + apikey + "&format=json",
 			"trackurl":"https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track={title}&artist={artist}&api_key=" + apikey + "&format=json",
-			"result_artist_imgurl":lambda data:data["artist"]["image"][2]["#text"],
-			"result_track_imgurl":lambda data:data["track"]["album"]["image"][2]["#text"]
+			"result_artist_imgurl":lambda data:data["artist"]["image"][3]["#text"],
+			"result_track_imgurl":lambda data:data["track"]["album"]["image"][3]["#text"]
 			#"result_artist_desc":lambda data:data["artist"]["bio"]["summary"],
 			#"result_track_desc":lambda data:None
 		}

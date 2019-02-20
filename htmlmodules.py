@@ -32,9 +32,6 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 	i = 0
 	html = "<table class='list'>"
 	for s in scrobbles:
-		i += 1
-		if max_ is not None and i>=max_:
-			break
 			
 		html += "<tr>"
 		html += "<td class='time'>" + getTimeDesc(s["time"],short=shortTimeDesc) + "</td>"
@@ -43,6 +40,10 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
 		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
 		html += "</tr>"
+		
+		i += 1
+		if max_ is not None and i>=max_:
+			break
 		
 		
 	html += "</table>"

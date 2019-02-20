@@ -198,7 +198,7 @@ def get_scrobbles_num_external():
 	return {"amount":result}
 
 def get_scrobbles_num(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artists","title","since","to","within","associated"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","associated"]})
 	return len(r)
 
 # DEPRECATED
