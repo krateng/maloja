@@ -1,8 +1,8 @@
 import urllib
-import json
+import database
 
 		
-def instructions(keys,dbport):
+def instructions(keys):
 	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, getRangeDesc, KeySplit
 	from htmlmodules import module_pulse
@@ -22,9 +22,8 @@ def instructions(keys,dbport):
 		#limitkey["artist"], limitkey["associated"] = keys.get("artist"), (keys.get("associated")!=None)
 		limitstring += "of " + artistLink(filterkeys.get("artist"))
 		if filterkeys.get("associated"):
-			response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/artistinfo?artist=" + urllib.parse.quote(keys["artist"]))
-			db_data = json.loads(response.read())
-			moreartists = db_data["associated"]
+			data = database.artistInfo(filterkeys["artist"])
+			moreartists = data["associated"]
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
@@ -34,9 +33,6 @@ def instructions(keys,dbport):
 		imgurl = getTrackInfo(filterkeys.get("track")["artists"],filterkeys.get("track")["title"]).get("image")
 	elif filterkeys.get("artist") is not None:
 		imgurl = getArtistInfo(keys.get("artist")).get("image")
-	#elif (len(scrobbles) != 0):
-	#	imgurl = getTrackInfo(scrobbles[0]["artists"],scrobbles[0]["title"]).get("image")
-	#	#imgurl = getArtistInfo(scrobbles[0]["artists"][0]).get("image")
 	else:
 		imgurl = ""
 		

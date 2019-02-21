@@ -631,6 +631,10 @@ def newrule():
 	
 	
 @dbserver.route("/issues")
+def issues_external(): #probably not even needed
+	return issues()
+	
+	
 def issues():
 	combined = []
 	duplicates = []

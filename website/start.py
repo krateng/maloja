@@ -5,7 +5,7 @@ import database
 from htmlmodules import module_scrobblelist, module_pulse
 
 		
-def instructions(keys,dbport):
+def instructions(keys):
 	from utilities import getArtistsInfo, getTracksInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, scrobblesLink, keysToUrl, pickKeys, clean, getTimeDesc, getRangeDesc
 	

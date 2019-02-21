@@ -133,7 +133,7 @@ def static_html(name):
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
 		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
-		txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys,DATABASE_PORT)
+		txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
 		
 		# add headers for server push
 		for resource in resources:

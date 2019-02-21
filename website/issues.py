@@ -1,11 +1,10 @@
 import urllib
-import json
+import database
 from htmlgenerators import artistLink
 
-def instructions(keys,dbport):
+def instructions(keys):
 	
-	response = urllib.request.urlopen("http://[::1]:" + str(dbport) + "/issues")
-	db_data = json.loads(response.read())
+	db_data = database.issues()
 	i = 0
 	
 	html = "<table class='list'>"

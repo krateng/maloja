@@ -2,7 +2,7 @@ import urllib
 import database
 
 		
-def instructions(keys,dbport):
+def instructions(keys):
 	from utilities import getArtistInfo
 	from htmlgenerators import clean, artistLink, artistLinks, KeySplit
 	from htmlmodules import module_pulse, module_trackcharts

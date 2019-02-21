@@ -1,9 +1,8 @@
 import urllib
-import json
 import database
 
 		
-def instructions(keys,dbport):
+def instructions(keys):
 	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
 	from htmlmodules import module_scrobblelist
