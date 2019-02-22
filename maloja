@@ -20,6 +20,21 @@ recommendedmodules = [
 SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
 
 
+def gotodir():
+	if os.path.exists("./server.py"):
+		return True
+	elif os.path.exists("/opt/maloja/server.py"):
+		os.chdir("/opt/maloja/")
+		return True
+		
+	print("Maloja installation could not be found.")
+	return False
+		
+
+def setup():
+	print("Make sure to add your Last.FM api key in a file called 'apikey' to your main directory if you want to see images.")
+	print("Visit http://localhost:42010 to see your web interface. If you get an error, you probably don't have any scrobbles yet. This will be fixed later.")
+
 
 def install():
 	toinstall = []
@@ -99,10 +114,12 @@ def install():
 					
 			if fail: return False
 			print("All modules successfully installed!")
+			setup()
 			return True
 			
 	else:
 		print("All necessary modules seem to be installed.")
+		setup()
 		return True
 
 
@@ -121,13 +138,18 @@ def getInstance():
 def start():
 	if install():
 	
-		try:
+		if gotodir():
 			p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print("Maloja started! PID: " + str(p.pid))
 			return True
-		except:
-			print("Error while starting Maloja. Are you sure it's not already running?")
-			return False
+		#else:
+		#	os.chdir("/opt/maloja/")
+		#	p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+		#	print("Maloja started! PID: " + str(p.pid))
+		#	return True
+			
+		print("Error while starting Maloja.")
+		return False
 			
 		
 
@@ -160,6 +182,8 @@ def update():
 	#import tempfile
 	import zipfile
 	import distutils.dir_util
+
+	if not gotodir(): return False
 
 	print("Updating Maloja...")
 	#with urllib.request.urlopen(SOURCE_URL) as response:

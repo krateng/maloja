@@ -83,7 +83,7 @@ def dynamic_image():
 	keys = FormsDict.decode(request.query)
 	relevant, _, _, _ = KeySplit(keys)
 	result = resolveImage(**relevant)
-	redirect(result)
+	redirect(result,301)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
