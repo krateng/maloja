@@ -61,52 +61,52 @@ def removeIdentical(*dicts):
 			
 	return new
 	
-def getTimeDesc(timestamp,short=False):
-	tim = datetime.datetime.utcfromtimestamp(timestamp)
-	if short:
-		now = datetime.datetime.now(tz=datetime.timezone.utc)
-		difference = int(now.timestamp() - timestamp)
+#def getTimeDesc(timestamp,short=False):
+#	tim = datetime.datetime.utcfromtimestamp(timestamp)
+#	if short:
+#		now = datetime.datetime.now(tz=datetime.timezone.utc)
+#		difference = int(now.timestamp() - timestamp)
+#		
+#		if difference < 10: return "just now"
+#		if difference < 60: return str(difference) + " seconds ago"
+#		difference = int(difference/60)
+#		if difference < 60: return str(difference) + " minutes ago" if difference>1 else str(difference) + " minute ago"
+#		difference = int(difference/60)
+#		if difference < 24: return str(difference) + " hours ago" if difference>1 else str(difference) + " hour ago"
+#		difference = int(difference/24)
+#		if difference < 5: return tim.strftime("%A")
+#		if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
+#		#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
+#		#if difference < 300: return tim.strftime("%B %Y")
+#		
+#		return tim.strftime("%d. %B %Y")
+#	else:
+#		return tim.strftime("%d. %b %Y %I:%M %p")
 		
-		if difference < 10: return "just now"
-		if difference < 60: return str(difference) + " seconds ago"
-		difference = int(difference/60)
-		if difference < 60: return str(difference) + " minutes ago" if difference>1 else str(difference) + " minute ago"
-		difference = int(difference/60)
-		if difference < 24: return str(difference) + " hours ago" if difference>1 else str(difference) + " hour ago"
-		difference = int(difference/24)
-		if difference < 5: return tim.strftime("%A")
-		if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
-		#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
-		#if difference < 300: return tim.strftime("%B %Y")
-		
-		return tim.strftime("%d. %B %Y")
-	else:
-		return tim.strftime("%d. %b %Y %I:%M %p")
-		
-def getRangeDesc(timeA,timeB,inclusiveB=True):
-	# string to list
-	if isinstance(timeA,str): timeA = timeA.split("/")
-	if isinstance(timeB,str): timeB = timeB.split("/")
-	
-	# if lists, we have it potentially much easier:
-	if isinstance(timeA,list) and isinstance(timeB,list):
-		if timeA == timeB:
-			date = [1970,1,1]
-			date[:len(timeA)] = timeA
-			dto = datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc)
-			if len(timeA) == 3:
-				return dto.strftime("%d. %b %Y")
-			if len(timeA) == 2:
-				return dto.strftime("%B %Y")
-			if len(timeA) == 1:
-				return dto.strftime("%Y")
-	
-		from database import getTimestamps
-		
-		(timeA, timeB) = getTimestamps(since=timeA, to=timeB)
-					
-					
-	return getTimeDesc(timeA) + " to " + getTimeDesc(timeB)
+#def getRangeDesc(since=None,to=None,inclusiveB=True):
+#	# string to list
+#	if isinstance(timeA,str): timeA = timeA.split("/")
+#	if isinstance(timeB,str): timeB = timeB.split("/")
+#	
+#	# if lists, we have it potentially much easier:
+#	if isinstance(timeA,list) and isinstance(timeB,list):
+#		if timeA == timeB:
+#			date = [1970,1,1]
+#			date[:len(timeA)] = timeA
+#			dto = datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc)
+#			if len(timeA) == 3:
+#				return dto.strftime("%d. %b %Y")
+#			if len(timeA) == 2:
+#				return dto.strftime("%B %Y")
+#			if len(timeA) == 1:
+#				return dto.strftime("%Y")
+#	
+#		
+#		
+#		(timeA, timeB) = getTimestamps(since=timeA, to=timeB)
+#					
+#					
+#	return getTimeDesc(timeA) + " to " + getTimeDesc(timeB)
 	
 
 
@@ -191,10 +191,10 @@ def pickKeys(d,*keys):
 		return finald
 
 # removes all duplicate keys, except artists when a title is specified		
-def clean(d):
-	if isinstance(d,dict):
-		return
-	else:
-		for k in d:
-			if (k != "artist") or "title" not in d:
-				d[k] = d.pop(k)
+#def clean(d):
+#	if isinstance(d,dict):
+#		return
+#	else:
+#		for k in d:
+#			if (k != "artist") or "title" not in d:
+#				d[k] = d.pop(k)

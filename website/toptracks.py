@@ -4,7 +4,8 @@ import urllib
 def instructions(keys):
 	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import artistLink, KeySplit
-	from htmlmodules import module_trackcharts
+	from htmlmodules import module_trackcharts	
+	from malojatime import range_desc
 	
 	filterkeys, timekeys, _, amountkeys = KeySplit(keys)
 	
@@ -22,6 +23,8 @@ def instructions(keys):
 		imgurl = getTrackInfo(rep["artists"],rep["title"]).get("image")		
 	else:
 		imgurl = ""
+		
+	limitstring += " " + range_desc(**timekeys)
 	
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	

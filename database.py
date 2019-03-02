@@ -6,6 +6,7 @@ import os
 import datetime
 from cleanup import *
 from utilities import *
+from malojatime import *
 import sys
 
 dbserver = Bottle()
@@ -67,6 +68,7 @@ def createScrobble(artists,title,time):
 	i = getTrackID(artists,title)
 	obj = (i,time,False)
 	SCROBBLES.append(obj)
+	register_scrobbletime(time)
 
 
 def readScrobble(artists,title,time):
@@ -76,6 +78,7 @@ def readScrobble(artists,title,time):
 	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
+	register_scrobbletime(time)
 	
 
 def getArtistID(name):
@@ -314,7 +317,7 @@ def get_pulse_external():
 
 def get_pulse(step="month",stepn=1,trail=1,**keys):
 
-	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
+	(ts_start,ts_end) = time_stamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
 	d_end = getStartOf(ts_end,step)
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
@@ -330,7 +333,7 @@ def get_pulse(step="month",stepn=1,trail=1,**keys):
 		res = len(db_query(since=d_current,to=d_current_end,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
 		results.append({"from":d_current,"to":d_current_end,"scrobbles":res})
 		d_current = getNext(d_current,step,stepn)
-		if isPast(d_current_end,d_end):
+		if isPast(d_current,d_end):
 			break
 	
 	return results
@@ -358,7 +361,7 @@ def get_top_artists_external():
 	
 def get_top_artists(step="month",stepn=1,trail=3,**keys):
 	
-	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
+	(ts_start,ts_end) = time_stamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
 	d_end = getStartOf(ts_end,step)	
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
@@ -375,7 +378,7 @@ def get_top_artists(step="month",stepn=1,trail=3,**keys):
 		except:
 			results.append({"from":d_current,"to":d_current_end,"artist":None,"scrobbles":0})
 		d_current = getNext(d_current,step,stepn)
-		if isPast(d_current_end,d_end):
+		if isPast(d_current,d_end):
 			break
 	
 	return results
@@ -404,7 +407,7 @@ def get_top_tracks_external():
 
 def get_top_tracks(step="month",stepn=1,trail=3,**keys):
 
-	(ts_start,ts_end) = getTimestamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
+	(ts_start,ts_end) = time_stamps(**{k:keys[k] for k in keys if k in ["since","to","within"]})
 	d_start = getStartOf(ts_start,step)
 	d_end = getStartOf(ts_end,step)	
 	d_start = getNext(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
@@ -422,7 +425,7 @@ def get_top_tracks(step="month",stepn=1,trail=3,**keys):
 		except:
 			results.append({"from":d_current,"to":d_current_end,"track":None,"scrobbles":0})
 		d_current = getNext(d_current,step,stepn)
-		if isPast(d_current_end,d_end):
+		if isPast(d_current,d_end):
 			break
 	
 	return results
@@ -854,7 +857,7 @@ def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,w
 #	print(within)
 #	print(associated)
 
-	(since, to) = getTimestamps(since,to,within)
+	(since, to) = time_stamps(since,to,within)
 	
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
@@ -898,7 +901,7 @@ def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,w
 
 # Queries that... well... aggregate
 def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
-	(since, to) = getTimestamps(since,to,within)
+	(since, to) = time_stamps(since,to,within)
 	
 	if isinstance(artist, str):
 		artist = ARTISTS.index(artist)
@@ -959,71 +962,72 @@ def db_search(query,type=None):
 
 # Takes user inputs like YYYY/MM and returns the timestamps. Returns timestamp if timestamp was already given.
 # to dates are interpreted differently (from 2010 and to 2010 both include all of 2010)	
-def getTimestamps(since=None,to=None,within=None):
-
-	f,t,i = since,to,within
-
-	if i is not None:
-		f = i
-		t = i
-
-	if isinstance(f, str) and f.lower() == "today":
-		tod = datetime.datetime.utcnow()
-		f = [tod.year,tod.month,tod.day]
-	if isinstance(t, str) and t.lower() == "today":
-		tod = datetime.datetime.utcnow()
-		t = [tod.year,tod.month,tod.day]
-		
-	
-	if isinstance(f, str) and f.lower() == "month":
-		tod = datetime.datetime.utcnow()
-		f = [tod.year,tod.month]
-	if isinstance(t, str) and t.lower() == "month":
-		tod = datetime.datetime.utcnow()
-		t = [tod.year,tod.month]
-		
-	
-	if isinstance(f, str) and f.lower() == "year":
-		tod = datetime.datetime.utcnow()
-		f = [tod.year]
-	if isinstance(t, str) and t.lower() == "year":
-		tod = datetime.datetime.utcnow()
-		t = [tod.year]
-	
-	
-	if isinstance(f, str):
-		f = [int(x) for x in f.split("/")]
-		
-	if isinstance(t, str):
-		t = [int(x) for x in t.split("/")]
-		
-	
-	# this step is done if either the input is a list or the first step was done (which creates a list)	
-	if isinstance(f, list):
-		date = [1970,1,1]
-		date[:len(f)] = f
-		#while len(f) < 3: f.append(1) # padding month and day
-		f = date
-		#f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-		f = int(datetime.datetime(f[0],f[1],f[2],tzinfo=datetime.timezone.utc).timestamp())
-
-	if isinstance(t, list):
-		t = getNext(t)
-		#while len(t) < 3: t.append(1)
-		date = [1970,1,1]
-		date[:len(t)] = t
-		t = date
-		#t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
-		t = int(datetime.datetime(t[0],t[1],t[2],tzinfo=datetime.timezone.utc).timestamp())
-		
-	if (f==None):
-		f = min(timestamps)
-	if (t==None):
-		t = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
-	
-	return (f,t)
-	
-
+# NOW DONE IN THE MALOJATIME MODULE
+#def getTimestamps(since=None,to=None,within=None):
+#
+#	f,t,i = since,to,within
+#
+#	if i is not None:
+#		f = i
+#		t = i
+#
+#	if isinstance(f, str) and f.lower() == "today":
+#		tod = datetime.datetime.utcnow()
+#		f = [tod.year,tod.month,tod.day]
+#	if isinstance(t, str) and t.lower() == "today":
+#		tod = datetime.datetime.utcnow()
+#		t = [tod.year,tod.month,tod.day]
+#		
+#	
+#	if isinstance(f, str) and f.lower() == "month":
+#		tod = datetime.datetime.utcnow()
+#		f = [tod.year,tod.month]
+#	if isinstance(t, str) and t.lower() == "month":
+#		tod = datetime.datetime.utcnow()
+#		t = [tod.year,tod.month]
+#		
+#	
+#	if isinstance(f, str) and f.lower() == "year":
+#		tod = datetime.datetime.utcnow()
+#		f = [tod.year]
+#	if isinstance(t, str) and t.lower() == "year":
+#		tod = datetime.datetime.utcnow()
+#		t = [tod.year]
+#	
+#	
+#	if isinstance(f, str):
+#		f = [int(x) for x in f.split("/")]
+#		
+#	if isinstance(t, str):
+#		t = [int(x) for x in t.split("/")]
+#		
+#	
+#	# this step is done if either the input is a list or the first step was done (which creates a list)	
+#	if isinstance(f, list):
+#		date = [1970,1,1]
+#		date[:len(f)] = f
+#		#while len(f) < 3: f.append(1) # padding month and day
+#		f = date
+#		#f = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+#		f = int(datetime.datetime(f[0],f[1],f[2],tzinfo=datetime.timezone.utc).timestamp())
+#
+#	if isinstance(t, list):
+#		t = getNext(t)
+#		#while len(t) < 3: t.append(1)
+#		date = [1970,1,1]
+#		date[:len(t)] = t
+#		t = date
+#		#t = int(datetime.datetime(date[0],date[1],date[2],date[3],date[4],tzinfo=datetime.timezone.utc).timestamp())
+#		t = int(datetime.datetime(t[0],t[1],t[2],tzinfo=datetime.timezone.utc).timestamp())
+#		
+#	if (f==None):
+#		f = min(timestamps)
+#	if (t==None):
+#		t = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp()
+#	
+#	return (f,t)
+#	
+#
 	
 
 	

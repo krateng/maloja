@@ -1,6 +1,7 @@
 from htmlgenerators import *
 import database
 from utilities import getArtistsInfo, getTracksInfo
+from malojatime import *
 import urllib
 
 
@@ -26,7 +27,7 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
 		scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
 	
-	representative = scrobbles[0] if scrobbles is not [] else None
+	representative = scrobbles[0] if len(scrobbles) is not 0 else None
 	
 	# build list
 	i = 0
@@ -34,7 +35,7 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 	for s in scrobbles:
 			
 		html += "<tr>"
-		html += "<td class='time'>" + getTimeDesc(s["time"],short=shortTimeDesc) + "</td>"
+		html += "<td class='time'>" + time_desc(s["time"],short=shortTimeDesc) + "</td>"
 		if pictures:
 			html += """<td class='icon'><div style="background-image:url('""" + scrobbleimages[i] + """')"></div></td>"""
 		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
@@ -58,6 +59,13 @@ def module_pulse(max_=None,**kwargs):
 	
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
 	
+	if max_ is not None: ranges = ranges[:max_]
+	
+	# if time range not explicitly specified, only show from first appearance
+#	if "since" not in kwargs:
+#		while ranges[0]["scrobbles"] == 0:
+#			del ranges[0]
+	
 	maxbar = max([t["scrobbles"] for t in ranges])
 	maxbar = max(maxbar,1)
 	
@@ -67,7 +75,7 @@ def module_pulse(max_=None,**kwargs):
 		fromstr = "/".join([str(e) for e in t["from"]])
 		tostr = "/".join([str(e) for e in t["to"]])
 		html += "<tr>"
-		html += "<td>" + getRangeDesc(t["from"],t["to"]) + "</td>"
+		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
 		html += "<td class='amount'>" + scrobblesLink({"since":fromstr,"to":tostr},amount=t["scrobbles"],**kwargs_filter) + "</td>"
 		html += "<td class='bar'>" + scrobblesLink({"since":fromstr,"to":tostr},percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
 		html += "</tr>"

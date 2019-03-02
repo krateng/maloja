@@ -4,8 +4,9 @@ import database
 		
 def instructions(keys):
 	from utilities import getArtistInfo, getTrackInfo
-	from htmlgenerators import getTimeDesc, artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, getRangeDesc, KeySplit
-	from htmlmodules import module_pulse
+	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, KeySplit
+	from htmlmodules import module_pulse	
+	from malojatime import range_desc, delimit_desc
 	
 	filterkeys, timekeys, delimitkeys, _ = KeySplit(keys)
 	
@@ -26,6 +27,10 @@ def instructions(keys):
 			moreartists = data["associated"]
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
+				
+	limitstring += " " + range_desc(**timekeys)
+	
+	delimitstring = delimit_desc(**delimitkeys)
 		
 	
 	# get image	
@@ -42,7 +47,7 @@ def instructions(keys):
 	
 	html_pulse = module_pulse(**filterkeys,**timekeys,**delimitkeys)
 	
-	replace = {"KEY_PULSE_TABLE":html_pulse,"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}
+	replace = {"KEY_PULSE_TABLE":html_pulse,"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring,"KEY_PULSEDETAILS":delimitstring}
 	
 	return (replace,pushresources)
 		

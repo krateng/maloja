@@ -5,7 +5,8 @@ import database
 def instructions(keys):
 	from utilities import getArtistInfo, getTrackInfo
 	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
-	from htmlmodules import module_scrobblelist
+	from htmlmodules import module_scrobblelist	
+	from malojatime import range_desc
 	
 	
 	filterkeys, timekeys, _, amountkeys = KeySplit(keys)
@@ -24,6 +25,7 @@ def instructions(keys):
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 		
+	limitstring += " " + range_desc(**timekeys)
 
 	
 	html, amount, rep = module_scrobblelist(**filterkeys,**timekeys,**amountkeys)

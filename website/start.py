@@ -7,7 +7,7 @@ from htmlmodules import module_scrobblelist, module_pulse
 		
 def instructions(keys):
 	from utilities import getArtistsInfo, getTracksInfo
-	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesArtistLink, scrobblesLink, keysToUrl, pickKeys, clean, getTimeDesc, getRangeDesc
+	from htmlgenerators import artistLink, trackLink
 	
 	max_show = 14
 	posrange = ["#" + str(i) for i in range(1,max_show+1)]

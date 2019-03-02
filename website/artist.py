@@ -4,7 +4,7 @@ import database
 		
 def instructions(keys):
 	from utilities import getArtistInfo
-	from htmlgenerators import clean, artistLink, artistLinks, KeySplit
+	from htmlgenerators import artistLink, artistLinks, KeySplit
 	from htmlmodules import module_pulse, module_trackcharts
 
 	filterkeys, _, _, _ = KeySplit(keys,forceArtist=True)
