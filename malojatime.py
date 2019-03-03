@@ -294,7 +294,6 @@ def range_desc(since=None,to=None,within=None,short=False):
 	
 def time_stamps(since=None,to=None,within=None):
 
-	from database import getNext
 		
 	if within is not None:
 		since = within
@@ -313,7 +312,7 @@ def time_stamps(since=None,to=None,within=None):
 	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
 	else:
 		to = time_fix(to)
-		to = getNext(to)
+		to = _get_next(to)
 		date = [1970,1,1]
 		date[:len(to)] = to
 		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
@@ -324,7 +323,7 @@ def time_stamps(since=None,to=None,within=None):
 		
 		
 		
-def delimit_desc(step,stepn,trail):
+def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
 	if stepn is not 1: txt += _num(stepn) + "-"
 	txt += {"year":"Yearly","month":"Monthly","day":"Daily"}[step.lower()]
@@ -339,31 +338,98 @@ def _num(i):
 	if i < len(names): return names[i]
 	else: return str(i)
 	
+	
+	
+	
+	
+	
+def ranges(since=None,to=None,within=None,step="month",stepn=1,trail=1,max_=None):
+
+	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within)
+
+	d_start = _get_start_of(firstincluded,step)
+	d_end = _get_start_of(lastincluded,step)
+	d_start = _get_next(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
+	d_start = _get_next(d_start,step,stepn * trail * -1)	# go one range back to begin
+
+	
+	i = 0
+	d_current = d_start
+	while not _is_past(d_current,d_end) and (max_ is None or i < max_):
+		d_current_end = _get_end(d_current,step,stepn * trail)
+		yield (d_current,d_current_end)
+		d_current = _get_next(d_current,step,stepn)
+		i += 1
+
+
+
+def _get_start_of(timestamp,unit):
+	date = datetime.datetime.utcfromtimestamp(timestamp)
+	if unit == "year":
+		#return [date.year,1,1]
+		return [date.year]
+	elif unit == "month":
+		#return [date.year,date.month,1]
+		return [date.year,date.month]
+	elif unit == "day":
+		return [date.year,date.month,date.day]
+	elif unit == "week":
+		change = (date.weekday() + 1) % 7
+		d = datetime.timedelta(days=change)
+		newdate = date - d
+		return [newdate.year,newdate.month,newdate.day]
 		
-#def _getNext(time,unit="auto",step=1):
-#	result = time[:]
-#	if unit == "auto":
-#		# see how long the list is, increment by the last specified unit
-#		unit = [None,"year","month","day"][len(time)]
-#
-#	if unit == "year":
-#		result[0] += step
-#		return result
-#	elif unit == "month":
-#		result[1] += step
-#		while result[1] > 12:
-#			result[1] -= 12
-#			result[0] += 1
-#		while result[1] < 1:
-#			result[1] += 12
-#			result[0] -= 1
-#		return result
-#	elif unit == "day":
-#		dt = datetime.datetime(time[0],time[1],time[2])
-#		d = datetime.timedelta(days=step)
-#		newdate = dt + d
-#		return [newdate.year,newdate.month,newdate.day]
-#		#eugh
-#	elif unit == "week":
-#		return getNext(time,"day",step * 7)
-#
+def _get_next(time,unit="auto",step=1):
+	result = time[:]
+	if unit == "auto":
+		# see how long the list is, increment by the last specified unit
+		unit = [None,"year","month","day"][len(time)]
+	#while len(time) < 3:
+	#	time.append(1)
+
+	if unit == "year":
+		#return [time[0] + step,time[1],time[2]]
+		result[0] += step
+		return result
+	elif unit == "month":
+		#result = [time[0],time[1] + step,time[2]]
+		result[1] += step
+		while result[1] > 12:
+			result[1] -= 12
+			result[0] += 1
+		while result[1] < 1:
+			result[1] += 12
+			result[0] -= 1
+		return result
+	elif unit == "day":
+		dt = datetime.datetime(time[0],time[1],time[2])
+		d = datetime.timedelta(days=step)
+		newdate = dt + d
+		return [newdate.year,newdate.month,newdate.day]
+		#eugh
+	elif unit == "week":
+		return _get_next(time,"day",step * 7)
+		
+# like _get_next(), but gets the last INCLUDED day / month whatever
+def _get_end(time,unit="auto",step=1):
+	if step == 1:
+		if unit == "auto": return time[:]
+		if unit == "year" and len(time) == 1: return time[:]
+		if unit == "month" and len(time) == 2: return time[:]
+		if unit == "day" and len(time) == 3: return time[:]
+	exc = _get_next(time,unit,step)
+	inc = _get_next(exc,"auto",-1)
+	return inc
+	
+	
+	
+def _is_past(date,limit):
+	date_, limit_ = date[:], limit[:]
+	while len(date_) != 3: date_.append(1)
+	while len(limit_) != 3: limit_.append(1)
+	if not date_[0] == limit_[0]:
+		return date_[0] > limit_[0]
+	if not date_[1] == limit_[1]:
+		return date_[1] > limit_[1]
+	return (date_[2] > limit_[2])
+
