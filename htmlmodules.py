@@ -163,7 +163,7 @@ def module_artistcharts_tiles(**kwargs)	:
 	
 	bigpart = [0,1,2,6,15]
 	smallpart = [0,1,2,4,6,9,12,15]
-	
+	rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
 	
 	html = """<table class="tiles_top"><tr>"""
 		
@@ -177,9 +177,18 @@ def module_artistcharts_tiles(**kwargs)	:
 		if i in smallpart:
 			html += "<tr>"
 		
-		rank = "#" + str(i) if e is not None else ""
-		image = "/image?artist=" + urllib.parse.quote(e["artist"]) if e is not None else ""
-		link = artistLink(e["artist"]) if e is not None else ""
+		
+		if e is not None:
+			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
+			rnk = (rank,e["scrobbles"])
+			rank = "#" + str(rank)
+			image = "/image?artist=" + urllib.parse.quote(e["artist"])
+			link = artistLink(e["artist"])
+		else:
+			rank = ""
+			image = ""
+			link = ""
+		
 		
 		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
 		
@@ -208,6 +217,7 @@ def module_trackcharts_tiles(**kwargs)	:
 	
 	bigpart = [0,1,2,6,15]
 	smallpart = [0,1,2,4,6,9,12,15]
+	rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
 	
 	
 	html = """<table class="tiles_top"><tr>"""
@@ -222,9 +232,17 @@ def module_trackcharts_tiles(**kwargs)	:
 		if i in smallpart:
 			html += "<tr>"
 		
-		rank = "#" + str(i) if e is not None else ""
-		image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) if e is not None else ""
-		link = trackLink(e["track"]) if e is not None else ""
+		
+		if e is not None:
+			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
+			rnk = (rank,e["scrobbles"])
+			rank = "#" + str(rank)
+			image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]])
+			link = trackLink(e["track"])
+		else:
+			rank = ""
+			image = ""
+			link = ""
 		
 		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
 		

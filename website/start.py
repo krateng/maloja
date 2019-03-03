@@ -9,8 +9,8 @@ def instructions(keys):
 	from utilities import getArtistsInfo, getTracksInfo
 	from htmlgenerators import artistLink, trackLink
 	
-	max_show = 14
-	posrange = ["#" + str(i) for i in range(1,max_show+1)]
+#	max_show = 14
+#	posrange = ["#" + str(i) for i in range(1,max_show+1)]
 
 	# get chart data
 	

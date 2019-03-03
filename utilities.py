@@ -3,6 +3,7 @@ import os
 import hashlib
 from threading import Thread
 import pickle
+import urllib
 
 
 ### TSV files
@@ -257,7 +258,7 @@ def loadCache():
 	finally:
 		fl.close()
 
-def getTrackInfo(artists,title):
+def getTrackInfo(artists,title,fast=False):
 	
 	obj = (frozenset(artists),title)
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
@@ -279,6 +280,10 @@ def getTrackInfo(artists,title):
 		return {"image":cachedTracks[(frozenset(artists),title)]}
 	except:
 		pass
+		
+	# fast request only retuns cached and local results, generates redirect link for rest
+	if fast:
+		return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
 	
 	result = apirequest(artists=artists,title=title)
 	if result.get("image") is not None:
@@ -289,7 +294,7 @@ def getTrackInfo(artists,title):
 		#cachedTracks[(frozenset(artists),title)] = result["image"]
 		return result
 	
-def getArtistInfo(artist):
+def getArtistInfo(artist,fast=False):
 	
 	obj = artist
 	filename = re.sub("[^a-zA-Z0-9]","",artist)
@@ -314,6 +319,11 @@ def getArtistInfo(artist):
 	except:
 		pass
 		
+		
+	# fast request only retuns cached and local results, generates redirect link for rest
+	if fast:
+		return "/image?artist=" + urllib.parse.quote(artist)
+		
 	result = apirequest(artist=artist)
 	if result.get("image") is not None:
 		cachedArtists[artist] = result["image"]
@@ -321,12 +331,12 @@ def getArtistInfo(artist):
 	else:
 		return {"image":""}
 
-def getTracksInfo(trackobjectlist):
+def getTracksInfo(trackobjectlist,fast=False):
 
 	threads = []
 	
 	for track in trackobjectlist:
-		t = Thread(target=getTrackInfo,args=(track["artists"],track["title"],))
+		t = Thread(target=getTrackInfo,args=(track["artists"],track["title"],),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
 	
@@ -336,12 +346,12 @@ def getTracksInfo(trackobjectlist):
 		
 	return [getTrackInfo(t["artists"],t["title"]) for t in trackobjectlist]
 	
-def getArtistsInfo(artistlist):
+def getArtistsInfo(artistlist,fast=False):
 	
 	threads = []
 	
 	for artist in artistlist:
-		t = Thread(target=getArtistInfo,args=(artist,))
+		t = Thread(target=getArtistInfo,args=(artist,),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
 	
