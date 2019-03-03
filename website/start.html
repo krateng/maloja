@@ -5,7 +5,26 @@
 		<meta charset="UTF-8" />
 		<title>Maloja</title>
 		<link rel="stylesheet" href="maloja.css" />
+		
+		
+		<script>
+			function showPulse(unit) {
+				modules = document.getElementsByClassName("stat_module_pulse")
+				for (var i=0;i<modules.length;i++) {
+					modules[i].setAttribute("style","display:none;")
+				}
+				document.getElementById("pulse_" + unit).setAttribute("style","")
+				
+				selectors = document.getElementsByClassName("stat_selector_pulse")
+				for (var i=0;i<selectors.length;i++) {
+					selectors[i].setAttribute("style","")
+				}
+				document.getElementById("selector_pulse_" + unit).setAttribute("style","opacity:0.5;")
+			}
+		</script>
 	</head>
+	
+	
 	
 	<body>
 		<h1><a href="/topartists?max=50">Top Artists</a></h1>
@@ -117,7 +136,7 @@
       			<span class="stats">All Time</span> KEY_SCROBBLES_TOTAL
       			<br/><br/>
       			
-      			KEY_SCROBBLES
+      			<span class="stat_module">KEY_SCROBBLES</span>
       			
       			
       			<br/>
@@ -130,10 +149,18 @@
       			<a href="/pulse?step=month&trail=1">Months</a> 
       			<a href="/pulse?step=year&trail=1">Years</a> 
       			-->
+      			
+      			<span onclick="showPulse('days')" class="stat_selector_pulse" id="selector_pulse_days">7 days</span>
+      			| <span onclick="showPulse('weeks')" class="stat_selector_pulse" id="selector_pulse_weeks">12 weeks</span>
+      			| <span onclick="showPulse('months')" class="stat_selector_pulse" id="selector_pulse_months" style="opacity:0.5;">12 months</span> 
+      			| <span onclick="showPulse('years')" class="stat_selector_pulse" id="selector_pulse_years">10 years</span>
+      			
       			<br/><br/>
       			
-      			KEY_PULSE
-      			
+      			<span class="stat_module_pulse" id="pulse_months">KEY_PULSE_MONTHS</span>
+      			<span class="stat_module_pulse" id="pulse_days" style="display:none;">KEY_PULSE_DAYS</span>
+      			<span class="stat_module_pulse" id="pulse_years" style="display:none;">KEY_PULSE_YEARS</span>
+      			<span class="stat_module_pulse" id="pulse_weeks" style="display:none;">KEY_PULSE_WEEKS</span>
    		</div>
    		
    		
@@ -142,4 +169,6 @@
    		</div>
 		
 	</body>
+	
+	
 </html>

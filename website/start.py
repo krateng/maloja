@@ -1,5 +1,5 @@
 import urllib
-from datetime import datetime
+from datetime import datetime, timedelta
 import database
 
 from htmlmodules import module_scrobblelist, module_pulse
@@ -49,14 +49,25 @@ def instructions(keys):
 	
 	# get pulse
 	dt = datetime.utcnow()
-	dtl = [dt.year-1,dt.month+1]
-	if dtl[1] > 12: dtl = [dtl[0]+1,dtl[1]-12]
-	dts = "/".join([str(e) for e in dtl])
+	first_month = [dt.year-1,dt.month+1]
+	dt_firstweek = dt - timedelta(11*7) - timedelta((6-dt.weekday()))
+	first_week = [dt_firstweek.year,dt_firstweek.month,dt_firstweek.day]
+	dt_firstday = dt - timedelta(6)
+	first_day = [dt_firstday.year,dt_firstday.month,dt_firstday.day]
+	first_year = [dt.year - 9]
+	
+	if first_month[1] > 12: first_month = [first_month[0]+1,first_month[1]-12]
+	#while first_week[2]
+	
+	
+	#first_month = "/".join([str(e) for e in first_month])
 	# this is literally the ugliest piece of code i have written in my entire feckin life
 	# good lord
 	
-	html_pulse = module_pulse(max_=12,since=dts,step="month",trail=1)	
-
+	html_pulse_days = module_pulse(max_=7,since=first_day,step="day",trail=1)
+	html_pulse_weeks = module_pulse(max_=12,since=first_week,step="week",trail=1)
+	html_pulse_months = module_pulse(max_=12,since=first_month,step="month",trail=1)	
+	html_pulse_years = module_pulse(max_=10,since=first_year,step="year",trail=1)
 
 	pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages] #can't push scrobble images as we don't get them from the module function, need to think about that
 
@@ -66,7 +77,7 @@ def instructions(keys):
 	#"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
 	"KEY_SCROBBLES":html_scrobbles,
 	#"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars
-	"KEY_PULSE":html_pulse
+	"KEY_PULSE_MONTHS":html_pulse_months,"KEY_PULSE_YEARS":html_pulse_years,"KEY_PULSE_DAYS":html_pulse_days,"KEY_PULSE_WEEKS":html_pulse_weeks
 	}
 	
 	return (replace,pushresources)
