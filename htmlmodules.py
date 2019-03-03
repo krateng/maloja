@@ -149,3 +149,94 @@ def module_artistcharts(max_=None,**kwargs):
 	html += "</table>"
 	
 	return (html, representative)
+	
+	
+def module_artistcharts_tiles(**kwargs)	:
+
+	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
+	kwargs_time = pickKeys(kwargs,"since","to","within")
+	
+	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)[:14]
+	while len(artists)<14: artists.append(None)
+	
+	i = 1
+	
+	bigpart = [0,1,2,6,15]
+	smallpart = [0,1,2,4,6,9,12,15]
+	
+	
+	html = """<table class="tiles_top"><tr>"""
+		
+	for e in artists:
+		
+		
+		if i in bigpart:
+			n = bigpart.index(i)
+			html += """<td><table class="tiles_""" + str(n) + """x""" + str(n) + """ tiles_sub">"""
+			
+		if i in smallpart:
+			html += "<tr>"
+		
+		rank = "#" + str(i) if e is not None else ""
+		image = "/image?artist=" + urllib.parse.quote(e["artist"]) if e is not None else ""
+		link = artistLink(e["artist"]) if e is not None else ""
+		
+		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
+		
+		i += 1
+		
+		if i in smallpart:
+			html += "</tr>"
+		
+		if i in bigpart:
+			html += "</table></td>"
+			
+	html += """</tr></table>"""
+	
+	return html
+	
+	
+def module_trackcharts_tiles(**kwargs)	:
+
+	kwargs_filter = pickKeys(kwargs,"artist","associated")
+	kwargs_time = pickKeys(kwargs,"since","to","within")
+	
+	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)[:14]
+	while len(tracks)<14: tracks.append(None) #{"track":{"title":"","artists":[]}}
+	
+	i = 1
+	
+	bigpart = [0,1,2,6,15]
+	smallpart = [0,1,2,4,6,9,12,15]
+	
+	
+	html = """<table class="tiles_top"><tr>"""
+		
+	for e in tracks:
+		
+		
+		if i in bigpart:
+			n = bigpart.index(i)
+			html += """<td><table class="tiles_""" + str(n) + """x""" + str(n) + """ tiles_sub">"""
+			
+		if i in smallpart:
+			html += "<tr>"
+		
+		rank = "#" + str(i) if e is not None else ""
+		image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]]) if e is not None else ""
+		link = trackLink(e["track"]) if e is not None else ""
+		
+		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
+		
+		i += 1
+		
+		if i in smallpart:
+			html += "</tr>"
+		
+		if i in bigpart:
+			html += "</table></td>"
+			
+	html += """</tr></table>"""
+	
+	return html
+

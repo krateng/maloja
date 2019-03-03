@@ -232,7 +232,7 @@ def apirequest(artists=None,artist=None,title=None):
 			except:
 				pass
 		
-		return {"image":""}
+		return {"image":None}
 
 # I think I've only just understood modules
 cachedTracks = {}
@@ -286,7 +286,7 @@ def getTrackInfo(artists,title):
 		return result
 	else:
 		result = getArtistInfo(artist=artists[0])
-		cachedTracks[(frozenset(artists),title)] = result["image"]
+		#cachedTracks[(frozenset(artists),title)] = result["image"]
 		return result
 	
 def getArtistInfo(artist):
@@ -315,8 +315,11 @@ def getArtistInfo(artist):
 		pass
 		
 	result = apirequest(artist=artist)
-	cachedArtists[artist] = result["image"]
-	return result
+	if result.get("image") is not None:
+		cachedArtists[artist] = result["image"]
+		return result
+	else:
+		return {"image":""}
 
 def getTracksInfo(trackobjectlist):
 

@@ -101,6 +101,7 @@ def range_desc(since=None,to=None,within=None,short=False):
 	# the 'short' var we pass down to some of the time_desc calls is a different one than the one here
 	# the function-wide one indicates whether we want the 'in' 'from' etc at the start
 	# the other one is if we want exact dates or weekdays etc
+	# but we still hand it down because it makes sense
 
 
 	if within is not None:
@@ -133,9 +134,9 @@ def range_desc(since=None,to=None,within=None,short=False):
 			since,to = time_pad(since,to)
 			if since == to:
 				if len(since) == 3:
-					sincestr = "on " + time_desc(since,short=True)
+					sincestr = "on " + time_desc(since)
 				else:
-					sincestr = "in " + time_desc(since,short=True)
+					sincestr = "in " + time_desc(since)
 				shortsincestr = time_desc(since,short=True)
 				tostr = ""
 			elif _week(since,to):

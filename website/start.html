@@ -21,6 +21,34 @@
 				}
 				document.getElementById("selector_pulse_" + unit).setAttribute("style","opacity:0.5;")
 			}
+			
+			function showTopartists(unit) {
+				modules = document.getElementsByClassName("stat_module_topartists")
+				for (var i=0;i<modules.length;i++) {
+					modules[i].setAttribute("style","display:none;")
+				}
+				document.getElementById("topartists_" + unit).setAttribute("style","")
+				
+				selectors = document.getElementsByClassName("stat_selector_topartists")
+				for (var i=0;i<selectors.length;i++) {
+					selectors[i].setAttribute("style","")
+				}
+				document.getElementById("selector_topartists_" + unit).setAttribute("style","opacity:0.5;")
+			}
+			
+			function showToptracks(unit) {
+				modules = document.getElementsByClassName("stat_module_toptracks")
+				for (var i=0;i<modules.length;i++) {
+					modules[i].setAttribute("style","display:none;")
+				}
+				document.getElementById("toptracks_" + unit).setAttribute("style","")
+				
+				selectors = document.getElementsByClassName("stat_selector_toptracks")
+				for (var i=0;i<selectors.length;i++) {
+					selectors[i].setAttribute("style","")
+				}
+				document.getElementById("selector_toptracks_" + unit).setAttribute("style","opacity:0.5;")
+			}
 		</script>
 	</head>
 	
@@ -28,100 +56,39 @@
 	
 	<body>
 		<h1><a href="/topartists?max=50">Top Artists</a></h1>
-		<table class="tiles_top">
-			<tr>
-				<td>
-					<table class="tiles_1x1 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-					</table>
-				</td>
-				<td>
-					<table class="tiles_2x2 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-					</table>
-				</td>
-				<td>
-					<table class="tiles_3x3 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-							<td style="background-image:url('KEY_ARTISTIMAGE')"><span class="stats">KEY_POSITION_ARTIST</span> <span>KEY_ARTISTLINK</span></td>
-						</tr>
-					</table>
-				
-				</td>
-			</tr>
-		</table>
+		<!--All Time | This Year | This Month | This Week-->
 		
 		
+		
+		<span onclick="showTopartists('week')" class="stat_selector_topartists" id="selector_topartists_week">This Week</span>
+      			| <span onclick="showTopartists('month')" class="stat_selector_topartists" id="selector_topartists_month">This Month</span>
+      			| <span onclick="showTopartists('year')" class="stat_selector_topartists" id="selector_topartists_year">This Year</span> 
+      			| <span onclick="showTopartists('alltime')" class="stat_selector_topartists" id="selector_topartists_alltime" style="opacity:0.5;">All Time</span>
+		
+		<br/><br/>
+		
+		<span class="stat_module_topartists" id="topartists_week" style="display:none;">KEY_TOPARTISTS_WEEK</span>
+      		<span class="stat_module_topartists" id="topartists_month" style="display:none;">KEY_TOPARTISTS_MONTH</span>
+      		<span class="stat_module_topartists" id="topartists_year" style="display:none;">KEY_TOPARTISTS_YEAR</span>
+      		<span class="stat_module_topartists" id="topartists_alltime">KEY_TOPARTISTS_TOTAL</span>
 		
 		
 		
 		
 		<h1><a href="/toptracks?max=50">Top Tracks</a></h1>
-		<table class="tiles_top">
-			<tr>
-				<td>
-					<table class="tiles_1x1 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-					</table>
-				</td>
-				<td>
-					<table class="tiles_2x2 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-					</table>
-				</td>
-				<td>
-					<table class="tiles_3x3 tiles_sub">
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-						<tr>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-							<td style="background-image:url('KEY_TRACKIMAGE')"><span class="stats">KEY_POSITION_TRACK</span> <span>KEY_TRACKLINK</span></td>
-						</tr>
-					</table>
-				
-				</td>
-			</tr>
-		</table>
 		
+		
+		<span onclick="showToptracks('week')" class="stat_selector_toptracks" id="selector_toptracks_week">This Week</span>
+      			| <span onclick="showToptracks('month')" class="stat_selector_toptracks" id="selector_toptracks_month">This Month</span>
+      			| <span onclick="showToptracks('year')" class="stat_selector_toptracks" id="selector_toptracks_year">This Year</span> 
+      			| <span onclick="showToptracks('alltime')" class="stat_selector_toptracks" id="selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
+		
+		<br/><br/>
+		
+		<span class="stat_module_toptracks" id="toptracks_week" style="display:none;">KEY_TOPTRACKS_WEEK</span>
+      		<span class="stat_module_toptracks" id="toptracks_month" style="display:none;">KEY_TOPTRACKS_MONTH</span>
+      		<span class="stat_module_toptracks" id="toptracks_year" style="display:none;">KEY_TOPTRACKS_YEAR</span>
+      		<span class="stat_module_toptracks" id="toptracks_alltime">KEY_TOPTRACKS_TOTAL</span>
 		
 		
 		

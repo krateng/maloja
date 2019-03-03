@@ -109,9 +109,11 @@ a {
 
 
 
-span.stat_selector_pulse {
+span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptracks {
 	cursor:pointer;
 }
+
+
 
 
 /*
