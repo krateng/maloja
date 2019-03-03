@@ -23,7 +23,7 @@ def instructions(keys):
 	topartists_total = module_artistcharts_tiles()
 	topartists_year = module_artistcharts_tiles(since="year")
 	topartists_month = module_artistcharts_tiles(since="month")
-	#topartists_week = module_artistcharts_tiles(since="week")
+	topartists_week = module_artistcharts_tiles(since="week")
 	
 	
 	# tracks
@@ -36,7 +36,7 @@ def instructions(keys):
 	toptracks_total = module_trackcharts_tiles()
 	toptracks_year = module_trackcharts_tiles(since="year")
 	toptracks_month = module_trackcharts_tiles(since="month")
-	#toptracks_week = module_trackcharts_tiles(since="week")
+	toptracks_week = module_trackcharts_tiles(since="week")
 	
 	# get scrobbles
 	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True)
@@ -84,8 +84,8 @@ def instructions(keys):
 	replace = {
 #	"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
 #	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
-	"KEY_TOPARTISTS_TOTAL":topartists_total,"KEY_TOPARTISTS_YEAR":topartists_year,"KEY_TOPARTISTS_MONTH":topartists_month,#"KEY_TOPARTISTS_WEEK":topartists_week,
-	"KEY_TOPTRACKS_TOTAL":toptracks_total,"KEY_TOPTRACKS_YEAR":toptracks_year,"KEY_TOPTRACKS_MONTH":toptracks_month,#"KEY_TOPTRACKS_WEEK":toptracks_week,
+	"KEY_TOPARTISTS_TOTAL":topartists_total,"KEY_TOPARTISTS_YEAR":topartists_year,"KEY_TOPARTISTS_MONTH":topartists_month,"KEY_TOPARTISTS_WEEK":topartists_week,
+	"KEY_TOPTRACKS_TOTAL":toptracks_total,"KEY_TOPTRACKS_YEAR":toptracks_year,"KEY_TOPTRACKS_MONTH":toptracks_month,"KEY_TOPTRACKS_WEEK":toptracks_week,
 	"KEY_SCROBBLES_TODAY":scrobbles_today,"KEY_SCROBBLES_MONTH":scrobbles_month,"KEY_SCROBBLES_YEAR":scrobbles_year,"KEY_SCROBBLES_TOTAL":scrobbles_total,
 	#"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
 	"KEY_SCROBBLES":html_scrobbles,

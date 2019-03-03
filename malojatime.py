@@ -27,6 +27,15 @@ def time_fix(t):
 	if isinstance(t, str) and t.lower() == "year":
 		tod = datetime.datetime.utcnow()
 		t = [tod.year]
+	
+	# SPECIAL CASE: Weeks only work for SINCE, but let's hope nobody finds out
+	if isinstance(t, str) and t.lower() == "week":
+		tod = datetime.datetime.utcnow()
+		change = (tod.weekday() + 1) % 7
+		d = datetime.timedelta(days=change)
+		newdate = tod - d
+		
+		t = [newdate.year,newdate.month,newdate.day]
 		
 
 	if isinstance(t,str): t = t.split("/")
