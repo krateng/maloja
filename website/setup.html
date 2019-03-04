@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Setup</title>
+		<link rel="stylesheet" href="maloja.css" />
+		
+		<script>
+			function replaceurls() {
+				url = window.location.origin
+				s = document.getElementsByName("serverurl")
+				for (var i=0;i<s.length;i++) {
+					s[i].innerHTML = url
+				}
+			}
+			
+			
+			function replace() {
+				replaceurls();
+			}
+		</script>
+		
+		<style>
+			
+			
+			td {
+				padding-right:20px;
+			}
+		</style>
+		
+	</head>
+	
+	<body onload="replace()">
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Maloja</h1><br/>
+					
+					<p class="desc">Welcome to your own Maloja server!</p>
+				</td>
+			</tr>
+		</table>
+		
+		<h2>Start Scrobbling</h2>
+		
+		If you use Vivaldi, Brave, Iridium or any other Chromium-based browser and listen to music on Plex, download the extension and simply enter the server URL as well as your API key in the relevant fields. They will turn green if the server is accessible.
+		<br/><br/>
+		If you use another browser or another music player, you could try to code your own extension. The API is super simple! Just send a POST HTTP request to
+	
+		<span class="stats"><span name="serverurl">yourserver.tld</span>/db/newscrobble</span>
+
+		(make sure to use the public URL) with the key-value-pairs
+		<br/>
+		<br/>
+		<span class="stats">
+		<table>
+			<tr>	<td>artist</td>		<td><i>Artist String</i></td>	</tr>
+			<tr>	<td>title</td>		<td><i>Title String</i></td>	</tr>
+			<tr>	<td>key</td>		<td><i>API Key</i></td>	</tr>
+			<tr>	<td>seconds</td>	<td><i>Duration of Scrobble - optional and currently not used</i></td>	</tr>
+		</table>
+		</span>
+		
+		<br/><br/>
+		
+		<h2>Import your Last.FM data</h2>
+		
+		Switching from Last.fm? <a class="textlink" href="https://benjaminbenben.com/lastfm-to-csv/">Download all your data</a> and place the resulting file in your Maloja main folder. Run the command <span class="stats">./lastfmconverter.py <i>(the file you just downloaded)</i> lastfmimport.tsv</span>.
+		<br/><br/>
+			
+		<h2>Set up some rules</h2>
+		
+		After you've scrobbled for a bit, you might want to check the <a class="textlink" href="/issues">Issues page</a> to see if you need to set up some rules. You can also manually add rules in your server's "rules" directory - just add your own .tsv file and read the instructions on how to declare a rule.
+		<br/><br/>
+		
+		<h2>Say thanks</h2>
+		
+		Coding open source projects is fun, but not really monetizable. If you like Maloja, I would appreciate a small donation via	
+		<a class="textlink" target="_blank" rel="noopener noreferrer" href="https://paypal.me/krateng">PayPal</a> or <a class="textlink" href="bitcoin:1krat8JMniJBTiHftMfR1LtF3Y1w5DAxx">Bitcoin</a>.
+		
+		<br/><br/>
+		
+		<h2>View your stats</h2>
+		
+		Done! Visit <a class="textlink" href="/"><span name="serverurl">yourserver.tld</span></a> (or your public / proxy URL) to look at your overview page. Almost everything is clickable!
+		
+	</body>
+</html>

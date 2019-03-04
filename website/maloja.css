@@ -12,6 +12,10 @@ a {
 	text-decoration:none;
 }
 
+a.textlink {
+	color:gold;
+}
+
 a:hover {
 	text-decoration:underline;
 }
