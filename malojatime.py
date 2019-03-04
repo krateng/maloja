@@ -18,25 +18,29 @@ def register_scrobbletime(timestamp):
 def time_fix(t):
 
 
-	if isinstance(t, str) and t.lower() == "today":
+	if isinstance(t, str):
 		tod = datetime.datetime.utcnow()
-		t = [tod.year,tod.month,tod.day]
-	if isinstance(t, str) and t.lower() == "month":
-		tod = datetime.datetime.utcnow()
-		t = [tod.year,tod.month]
-	if isinstance(t, str) and t.lower() == "year":
-		tod = datetime.datetime.utcnow()
-		t = [tod.year]
-	
-	# SPECIAL CASE: Weeks only work for SINCE, but let's hope nobody finds out
-	if isinstance(t, str) and t.lower() == "week":
-		tod = datetime.datetime.utcnow()
-		change = (tod.weekday() + 1) % 7
-		d = datetime.timedelta(days=change)
-		newdate = tod - d
+		months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
+		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
 		
-		t = [newdate.year,newdate.month,newdate.day]
+		if t.lower() in ["today","day"]:
+			t = [tod.year,tod.month,tod.day]
+		elif t.lower() == "month":
+			t = [tod.year,tod.month]
+		elif t.lower() == "year":
+			t = [tod.year]
 		
+		
+		elif t.lower() in months:
+			#diff = (tod.month - months.index(t.lower()) - 1)
+			month = months.index(t.lower()) + 1
+			t = [tod.year,month]
+			if month > tod.month: t[0] -= 1
+		elif t.lower() in weekdays:
+			weekday = weekdays.index(t.lower())
+			diff = (tod.isoweekday() - weekday) % 7
+			dt = tod - datetime.timedelta(diff)
+			t = [dt.year,dt.month,dt.day]
 
 	if isinstance(t,str): t = t.split("/")
 	#if isinstance(t,tuple): t = list(t)
