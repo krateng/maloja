@@ -5,6 +5,10 @@ body {
 	color:beige;
 	font-family:"Ubuntu";
 	padding:15px;
+	/**
+	padding-top:45px;
+	padding-bottom:25px;
+	**/
 }
 
 a {
@@ -22,25 +26,139 @@ a:hover {
 
 
 /**
-Github link
+Header
+**/
+
+
+div.header {
+	position:fixed;
+	height:45px;
+	width:100%;
+	background-color:rgba(255,215,0,1);
+	top:0px;
+	left:0px;
+	padding:10px;
+	opacity:1;
+	
+	color:black;
+	
+	z-index:5;
+}
+
+div.header h1 {
+	margin:5px;
+}
+
+
+
+/**
+Footer
 **/
 
 div.footer {
 	position:fixed;
 	height:20px;
-	width:100%;
-	background-color:rgba(0.5,0.5,0.5,0.3);
+	/**width:100%;**/
+	background-color:rgba(10,10,10,0.3);
 	bottom:0px;
 	left:0px;
+	right:0px;
 	padding:10px;
 	opacity:0.8;
 }
+
+div.footer div:nth-child(1) {
+	display:inline-block;
+	width:40%;
+	text-align:left;
+}
+div.footer div:nth-child(2) {
+	display:inline-block;
+	width:19%;
+	text-align:center;
+	color:gold;
+	font-size:17px;
+}
+div.footer div:nth-child(3) {
+	display:inline-block;
+	width:40%;
+	text-align:right;
+}
+
 div.footer span a {
 	padding-left:20px;
 	background-repeat:no-repeat;
 	background-size:contain;
 	background-position:left;
 	background-image:url("https://github.com/favicon.ico");
+}
+
+div.footer input {
+	background-color:inherit;
+	border:0px;
+	border-bottom:1px solid beige;
+	color:beige;
+	font-size:15px;
+	width:70%;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:2px;
+	padding-bottom:2px;
+	font-family:"Ubuntu";
+}
+
+div.footer input:focus {
+	outline:none;
+	/**background-color:rgba(245,245,220,0.05);**/
+	
+}
+
+div.searchresults {
+	position:fixed;
+	bottom:50px;
+	right:20px;
+	width:500px;
+	background-color:rgba(10,10,10,0.99);
+	padding:15px;
+}
+
+div.searchresults>span {
+	font-size:20px;
+	font-weight:bold;
+}
+
+div.searchresults table {
+	width:100%;
+}
+
+div.searchresults tr {
+	background-color:rgba(5,5,5,1);
+	margin-top:5px;
+	margin-bottom:5px;
+	height:50px;
+	cursor:pointer;
+	
+}
+div.searchresults tr:hover {
+	background-color:rgba(35,35,35,1);
+}
+
+div.searchresults tr td.image {
+	height:50px;
+	width:50px;
+	background-size:cover;
+	background-position:center;
+}
+
+div.searchresults tr td.info {
+	height:50px;
+	width:350px;
+}
+
+div.searchresults table.searchresults_tracks td span:nth-child(1) {
+	font-size:12px;
+	color:grey;
+
 }
 
 /*
@@ -351,6 +469,9 @@ div.sidelist {
 	background-color:#444447;
 	padding-left:30px;
 	padding-right:30px;
+	/**
+	padding-top:60px;
+	**/
 }
 }
 

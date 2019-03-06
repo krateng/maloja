@@ -633,6 +633,16 @@ def rebuild():
 		build_db()
 
 
+
+
+@dbserver.get("/search")
+def search():
+	keys = FormsDict.decode(request.query)
+	query = keys.get("query")
+	
+	artists = db_search(query,type="ARTIST")
+	tracks = db_search(query,type="TRACK")
+	return {"artists":artists,"tracks":tracks}
 	
 ####
 ## Server operation
@@ -833,7 +843,7 @@ def db_search(query,type=None):
 		results = []
 		for t in TRACKS:
 			if query.lower() in t[1].lower():
-				results.append(t)
+				results.append(getTrackObject(t))
 	
 	return results
 

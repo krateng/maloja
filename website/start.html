@@ -49,12 +49,89 @@
 				}
 				document.getElementById("selector_toptracks_" + unit).setAttribute("style","opacity:0.5;")
 			}
+			
+			function search(searchfield) {
+				txt = searchfield.value;
+				xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = searchresult
+				xhttp.open("GET","/db/search?query=" + txt, true);
+				xhttp.send();
+			}
+			function searchresult() {
+				if (this.readyState == 4 && this.status == 200) {
+     
+      					result = JSON.parse(this.responseText);
+      					artists = result["artists"].slice(0,5)
+      					tracks = result["tracks"].slice(0,5)
+      					
+      					html = `<div class="searchresults">
+			   			<span>Artists</span>
+			   			<table class="searchresults_artists">`
+			   			
+			   			for (var i=0;i<artists.length;i++) {
+			   				name = artists[i];
+			   				uristr = "artist=" + encodeURIComponent(name);
+			   				uristr = uristr.replace("'","\\'");
+			   				image = "/image?" + uristr;
+			   				link = "/artist?" + uristr;
+			   				
+			   				html += `<tr onclick="goto('` + link + `')">
+				   				<td class="image" style="background-image:url('` + image + `');"></td>
+				   				<td>
+				   					<span>` + name + `</span><br/>
+				   				</td>
+				   			</tr>`
+				   		}
+				   		
+			   			html += `</table>
+			   			<br/><br/>
+			   			<span>Tracks</span>
+			   			<table class="searchresults_tracks">`
+			   			
+			   			for (var i=0;i<tracks.length;i++) {
+			   				
+			   				artists = tracks[i]["artists"].join(", ");
+			   				title = tracks[i]["title"];
+			   				uristr = "title=" + encodeURIComponent(title) + "&" + tracks[i]["artists"].map(x => "artist=" + encodeURIComponent(x)).join("&");
+			   				uristr = uristr.replace("'","\\'");
+			   				image = "/image?" + uristr;
+			   				link = "/track?" + uristr;
+			   				
+			   				html += `<tr onclick="goto('` + link + `')">
+				   				<td class="image" style="background-image:url('` + image + `');"></td>
+				   				<td>
+				   					<span>` + artists + `</span><br/>
+				   					<span>` + title + `</span>
+				   				</td>
+				   			</tr>`
+				   			
+				   		}
+			   			html += `</table>
+			   		</div>`
+			   		
+			   		
+			   		document.getElementById("resultwrap").innerHTML = html;
+      				}
+			}
+			
+			function clearresults() {
+				document.getElementById("resultwrap").innerHTML = "";
+			}
+			
+			function goto(link) {
+				window.location = link
+			}
 		</script>
 	</head>
 	
 	
 	
 	<body>
+	
+		<!--<div class="header"><h1>Maloja</h1>
+   		</div>-->
+   		
+   		
 		<h1><a href="/topartists?max=50">Top Artists</a></h1>
 		<!--All Time | This Year | This Month | This Week-->
 		
@@ -132,8 +209,20 @@
    		
    		
    		<div class="footer">
-   			<span>Get your own Maloja scrobble server on <a target="_blank" rel="noopener noreferrer" href="https://github.com/krateng/maloja">GitHub</a></span>
+   			<div>
+   				<span>Get your own Maloja scrobble server on <a target="_blank" rel="noopener noreferrer" href="https://github.com/krateng/maloja">GitHub</a></span>
+   			</div>
+   			<div>
+   				<a href="/"><span style="font-weight:bold;">Maloja</span></a>
+   			</div>
+   			<div>
+   				<span><input placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
+   			</div>
    		</div>
+   		
+   		<span id="resultwrap"></span>
+   	
+   		
 		
 	</body>
 	

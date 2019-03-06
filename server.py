@@ -45,7 +45,7 @@ def database_get(pth):
 		keystring += urllib.parse.quote(k) + "=" + urllib.parse.quote(keys[k]) + "&"
 	response.set_header("Access-Control-Allow-Origin","*")
 	try:
-		proxyresponse = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth + keystring)
+		proxyresponse = urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/" + pth + keystring)
 		contents = proxyresponse.read()
 		response.status = proxyresponse.getcode()
 		response.content_type = "application/json"
@@ -58,7 +58,7 @@ def database_get(pth):
 def database_post(pth):
 	response.set_header("Access-Control-Allow-Origin","*")
 	try:
-		proxyresponse = urllib.request.urlopen("http://localhost:" + str(DATABASE_PORT) + "/" + pth,request.body)
+		proxyresponse = urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/" + pth,request.body)
 		contents = proxyresponse.read()
 		response.status = proxyresponse.getcode()
 		response.content_type = "application/json"
