@@ -52,14 +52,19 @@
 			
 			function search(searchfield) {
 				txt = searchfield.value;
-				xhttp = new XMLHttpRequest();
-				xhttp.onreadystatechange = searchresult
-				xhttp.open("GET","/db/search?query=" + txt, true);
-				xhttp.send();
+				if (txt == "") {
+					reallyclear()
+				}
+				else {
+					xhttp = new XMLHttpRequest();
+					xhttp.onreadystatechange = searchresult
+					xhttp.open("GET","/db/search?query=" + txt, true);
+					xhttp.send();
+				}
 			}
 			function searchresult() {
-				if (this.readyState == 4 && this.status == 200) {
-     
+				if (this.readyState == 4 && this.status == 200 && document.getElementById("searchinput").value != "") {
+     				// checking if field is empty in case we get an old result coming in that would overwrite our cleared result window
       					result = JSON.parse(this.responseText);
       					artists = result["artists"].slice(0,5)
       					tracks = result["tracks"].slice(0,5)
@@ -219,11 +224,15 @@
    				<a href="/"><span style="font-weight:bold;">Maloja</span></a>
    			</div>
    			<div>
-   				<span><input placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
+   				<span><input id="searchinput" placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
    			</div>
+   			
+   			<span id="resultwrap"></span>
+   			
+   			
    		</div>
    		
-   		<span id="resultwrap"></span>
+   		
    	
    		
 		

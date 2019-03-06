@@ -64,7 +64,7 @@ div.footer {
 	left:0px;
 	right:0px;
 	padding:10px;
-	opacity:0.8;
+	opacity:1;
 }
 
 div.footer div:nth-child(1) {
@@ -129,6 +129,7 @@ div.searchresults>span {
 
 div.searchresults table {
 	width:100%;
+	border-spacing:0px 4px;
 }
 
 div.searchresults tr {
@@ -150,9 +151,8 @@ div.searchresults tr td.image {
 	background-position:center;
 }
 
-div.searchresults tr td.info {
-	height:50px;
-	width:350px;
+div.searchresults tr td:nth-child(2) {
+	padding-left:10px;
 }
 
 div.searchresults table.searchresults_tracks td span:nth-child(1) {
