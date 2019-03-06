@@ -259,7 +259,7 @@ def loadCache():
 		fl.close()
 
 def getTrackInfo(artists,title,fast=False):
-	
+
 	obj = (frozenset(artists),title)
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
 	if filename == "": filename = str(hash(obj))
@@ -319,11 +319,13 @@ def getArtistInfo(artist,fast=False):
 	except:
 		pass
 		
+	
 		
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast:
 		return "/image?artist=" + urllib.parse.quote(artist)
 		
+	
 	result = apirequest(artist=artist)
 	if result.get("image") is not None:
 		cachedArtists[artist] = result["image"]

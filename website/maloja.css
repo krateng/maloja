@@ -26,10 +26,10 @@ a:hover {
 
 
 /**
-Header
+Header (unused)
 **/
 
-
+/**
 div.header {
 	position:fixed;
 	height:45px;
@@ -48,7 +48,7 @@ div.header {
 div.header h1 {
 	margin:5px;
 }
-
+**/
 
 
 /**
@@ -469,9 +469,6 @@ div.sidelist {
 	background-color:#444447;
 	padding-left:30px;
 	padding-right:30px;
-	/**
-	padding-top:60px;
-	**/
 }
 }
 

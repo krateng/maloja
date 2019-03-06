@@ -115,6 +115,9 @@
 			}
 			
 			function clearresults() {
+				window.setTimeout(reallyclear,500)
+			}
+			function reallyclear() {
 				document.getElementById("resultwrap").innerHTML = "";
 			}
 			
