@@ -250,6 +250,28 @@ def update():
 	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
 	
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
+	
+	
+def loadlastfm():
+
+	try:
+		filename = sys.argv[2]
+		filename = os.path.abspath(filename)
+	except:
+		print("Please specify a file!")
+		return
+	
+	if gotodir():	
+		if os.path.exists("./scrobbles/lastfmimport.tsv"):
+			print("Already imported Last.FM data. Overwrite? [y/N]")
+			if input().lower() in ["y","yes","yea","1","positive","true"]:
+				pass
+			else:
+				return
+		print("Please wait...")
+		os.system("python3 ./lastfmconverter.py " + filename + " ./scrobbles/lastfmimport.tsv")
+		print("Successfully imported your Last.FM scrobbles!")
+		
 
 
 if __name__ == "__main__":
@@ -257,5 +279,6 @@ if __name__ == "__main__":
 	elif sys.argv[1] == "restart": restart()
 	elif sys.argv[1] == "stop": stop()
 	elif sys.argv[1] == "update": update()
+	elif sys.argv[1] == "import": loadlastfm()
 	else: print("Valid commands: start restart stop update")
 

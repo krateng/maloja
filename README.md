@@ -20,7 +20,7 @@ I like to name my projects after regions in Grisons, Switzerland. Don't waste yo
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it currently looks like. 
 
-The software works fairly well and has a few web views, but there is only one scrobbler (a Chrome extension for Plex).
+There is only one scrobbler (a Chrome extension for Plex), but a very simple API to create your own scrobbler.
 
 ## Requirements
 
@@ -30,19 +30,15 @@ The software works fairly well and has a few web views, but there is only one sc
 
 ## How to install
 
-Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it on Windows, I have no clue. Don't ask me to add any lines to make it work on Windows either, the code is already shitty enough.
+1) Either install Maloja with a package, or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with ('./'). You can also only download the file maloja instead of the whole repository and fetch the rest with
 
-1) Put the Maloja folder anywhere and make sure the file "maloja" is executable. Start the server with
+		./maloja update
 
-		./maloja start
+2) Start the server with
+
+		maloja start
 		
 	If you're missing packages, the console output will tell you so. Install them.
-	
-	You can also only download the maloja file itself and run
-	
-		./maloja update
-		
-	to download the rest of the repository, then start it as described above.
 
 2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /db/ requests to the database port. In nginx this would look as follows:
 
@@ -57,13 +53,19 @@ Installing Maloja is fairly easy on a Linux machine. Don't ask me how to do it o
 
 ## How to use
 
-1) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to generate a random key and enter that key in the extension as well as the file autenticated_machines.tsv in the clients folder. 
+If you didn't install Maloja from the package (and therefore don't have it in /opt/maloja), every command needs to be executed from the Maloja directory and led with ('./'). Otherwise, all commands work in any location and without the prefix.
 
-2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the python script lastfmconverter.py with two arguments - the downloaded csv file and your new tsv file - to convert your data. Place the tsv file in scrobbles/ and the server will recognize it on startup.
+1) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to enter the random key Maloja generates on first startup in the extension. 
+
+2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
+
+		maloja import *filename*
+		
+	to import the downloaded file into Maloja.
 
 3) You can interact with the server at any time with the commands
-
-		./maloja stop
-		./maloja restart
-		./maloja start
-		./maloja update
+	
+		maloja stop
+		maloja restart
+		maloja start
+		maloja update
