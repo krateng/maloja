@@ -639,9 +639,13 @@ def rebuild():
 def search():
 	keys = FormsDict.decode(request.query)
 	query = keys.get("query")
+	query = query.lower()
 	
 	artists = db_search(query,type="ARTIST")
 	tracks = db_search(query,type="TRACK")
+	# if the string begins with the query it's a better match, if a word in it begins with it, still good
+	artists.sort(key=lambda x: 2 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 0,reverse=True)
+	tracks.sort(key=lambda x: 2 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 0,reverse=True)
 	return {"artists":artists,"tracks":tracks}
 	
 ####
