@@ -30,7 +30,7 @@ There is only one scrobbler (a Chrome extension for Plex), but a very simple API
 
 ## How to install
 
-1) Either install Maloja with a package, or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with ('./'). You can also only download the file maloja instead of the whole repository and fetch the rest with
+1) Either install Maloja with a package, or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with (`./`). You can also only download the file maloja instead of the whole repository and fetch the rest with
 
 		./maloja update
 
@@ -53,7 +53,7 @@ There is only one scrobbler (a Chrome extension for Plex), but a very simple API
 
 ## How to use
 
-If you didn't install Maloja from the package (and therefore don't have it in /opt/maloja), every command needs to be executed from the Maloja directory and led with ('./'). Otherwise, all commands work in any location and without the prefix.
+If you didn't install Maloja from the package (and therefore don't have it in /opt/maloja), every command needs to be executed from the Maloja directory and led with (`./`). Otherwise, all commands work in any location and without the prefix.
 
 1) In order to scrobble your music from Plex Web, install the included Chrome extension. Make sure to enter the random key Maloja generates on first startup in the extension. 
 
