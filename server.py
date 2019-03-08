@@ -131,6 +131,16 @@ def static_html(name):
 	linkheaders = ["</maloja.css>; rel=preload; as=style"]
 	keys = removeIdentical(FormsDict.decode(request.query))
 	
+	with open("website/" + name + ".html") as htmlfile:
+		html = htmlfile.read()
+		
+	# apply global substitutions
+	with open("website/common/footer.html") as footerfile:
+		footerhtml = footerfile.read()
+	with open("website/common/header.html") as headerfile:
+		headerhtml = headerfile.read()
+	html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
+	
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
 		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
@@ -141,23 +151,20 @@ def static_html(name):
 			linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])	
 		
 		# apply key substitutions
-		with open("website/" + name + ".html") as htmlfile:
-			html = htmlfile.read()
-			for k in txt_keys:
-				if isinstance(txt_keys[k],list):
-					# if list, we replace each occurence with the next item
-					for element in txt_keys[k]:
-						html = html.replace(k,element,1)
-				else:
-					html = html.replace(k,txt_keys[k])
-			
-			response.set_header("Link",",".join(linkheaders))
-			return html
+		for k in txt_keys:
+			if isinstance(txt_keys[k],list):
+				# if list, we replace each occurence with the next item
+				for element in txt_keys[k]:
+					html = html.replace(k,element,1)
+			else:
+				html = html.replace(k,txt_keys[k])
 		
-		
-	# Otherwise, we just serve the html file
+
+	
 	response.set_header("Link",",".join(linkheaders))
-	return static_file("website/" + name + ".html",root="")
+	
+	return html
+	#return static_file("website/" + name + ".html",root="")
 
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
