@@ -58,7 +58,7 @@
 				else {
 					xhttp = new XMLHttpRequest();
 					xhttp.onreadystatechange = searchresult
-					xhttp.open("GET","/db/search?max=5&query=" + txt, true);
+					xhttp.open("GET","/db/search?max=5&query=" + encodeURIComponent(txt), true);
 					xhttp.send();
 				}
 			}
