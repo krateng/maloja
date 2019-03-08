@@ -8,46 +8,18 @@
 		
 		
 		<script>
-			function showPulse(unit) {
-				modules = document.getElementsByClassName("stat_module_pulse")
+			function showRange(identifier,unit) {
+				modules = document.getElementsByClassName("stat_module_" + identifier)
 				for (var i=0;i<modules.length;i++) {
 					modules[i].setAttribute("style","display:none;")
 				}
-				document.getElementById("pulse_" + unit).setAttribute("style","")
+				document.getElementById(identifier + "_" + unit).setAttribute("style","")
 				
-				selectors = document.getElementsByClassName("stat_selector_pulse")
+				selectors = document.getElementsByClassName("stat_selector_" + identifier)
 				for (var i=0;i<selectors.length;i++) {
 					selectors[i].setAttribute("style","")
 				}
-				document.getElementById("selector_pulse_" + unit).setAttribute("style","opacity:0.5;")
-			}
-			
-			function showTopartists(unit) {
-				modules = document.getElementsByClassName("stat_module_topartists")
-				for (var i=0;i<modules.length;i++) {
-					modules[i].setAttribute("style","display:none;")
-				}
-				document.getElementById("topartists_" + unit).setAttribute("style","")
-				
-				selectors = document.getElementsByClassName("stat_selector_topartists")
-				for (var i=0;i<selectors.length;i++) {
-					selectors[i].setAttribute("style","")
-				}
-				document.getElementById("selector_topartists_" + unit).setAttribute("style","opacity:0.5;")
-			}
-			
-			function showToptracks(unit) {
-				modules = document.getElementsByClassName("stat_module_toptracks")
-				for (var i=0;i<modules.length;i++) {
-					modules[i].setAttribute("style","display:none;")
-				}
-				document.getElementById("toptracks_" + unit).setAttribute("style","")
-				
-				selectors = document.getElementsByClassName("stat_selector_toptracks")
-				for (var i=0;i<selectors.length;i++) {
-					selectors[i].setAttribute("style","")
-				}
-				document.getElementById("selector_toptracks_" + unit).setAttribute("style","opacity:0.5;")
+				document.getElementById("selector_" + identifier + "_" + unit).setAttribute("style","opacity:0.5;")
 			}
 		</script>
 	</head>
@@ -65,10 +37,10 @@
 		
 		
 		
-		<span onclick="showTopartists('week')" class="stat_selector_topartists" id="selector_topartists_week">This Week</span>
-      			| <span onclick="showTopartists('month')" class="stat_selector_topartists" id="selector_topartists_month">This Month</span>
-      			| <span onclick="showTopartists('year')" class="stat_selector_topartists" id="selector_topartists_year">This Year</span> 
-      			| <span onclick="showTopartists('alltime')" class="stat_selector_topartists" id="selector_topartists_alltime" style="opacity:0.5;">All Time</span>
+		<span onclick="showRange('topartists','week')" class="stat_selector_topartists" id="selector_topartists_week">This Week</span>
+      			| <span onclick="showRange('topartists','month')" class="stat_selector_topartists" id="selector_topartists_month">This Month</span>
+      			| <span onclick="showRange('topartists','year')" class="stat_selector_topartists" id="selector_topartists_year">This Year</span> 
+      			| <span onclick="showRange('topartists','alltime')" class="stat_selector_topartists" id="selector_topartists_alltime" style="opacity:0.5;">All Time</span>
 		
 		<br/><br/>
 		
@@ -83,10 +55,10 @@
 		<h1><a href="/toptracks?max=50">Top Tracks</a></h1>
 		
 		
-		<span onclick="showToptracks('week')" class="stat_selector_toptracks" id="selector_toptracks_week">This Week</span>
-      			| <span onclick="showToptracks('month')" class="stat_selector_toptracks" id="selector_toptracks_month">This Month</span>
-      			| <span onclick="showToptracks('year')" class="stat_selector_toptracks" id="selector_toptracks_year">This Year</span> 
-      			| <span onclick="showToptracks('alltime')" class="stat_selector_toptracks" id="selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
+		<span onclick="showRange('toptracks','week')" class="stat_selector_toptracks" id="selector_toptracks_week">This Week</span>
+      			| <span onclick="showRange('toptracks','month')" class="stat_selector_toptracks" id="selector_toptracks_month">This Month</span>
+      			| <span onclick="showRange('toptracks','year')" class="stat_selector_toptracks" id="selector_toptracks_year">This Year</span> 
+      			| <span onclick="showRange('toptracks','alltime')" class="stat_selector_toptracks" id="selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
 		
 		<br/><br/>
 		
@@ -122,10 +94,10 @@
       			<a href="/pulse?step=year&trail=1">Years</a> 
       			-->
       			
-      			<span onclick="showPulse('days')" class="stat_selector_pulse" id="selector_pulse_days">7 days</span>
-      			| <span onclick="showPulse('weeks')" class="stat_selector_pulse" id="selector_pulse_weeks">12 weeks</span>
-      			| <span onclick="showPulse('months')" class="stat_selector_pulse" id="selector_pulse_months" style="opacity:0.5;">12 months</span> 
-      			| <span onclick="showPulse('years')" class="stat_selector_pulse" id="selector_pulse_years">10 years</span>
+      			<span onclick="showRange('pulse','days')" class="stat_selector_pulse" id="selector_pulse_days">7 days</span>
+      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse" id="selector_pulse_weeks">12 weeks</span>
+      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse" id="selector_pulse_months" style="opacity:0.5;">12 months</span> 
+      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse" id="selector_pulse_years">10 years</span>
       			
       			<br/><br/>
       			
