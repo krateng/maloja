@@ -8,6 +8,7 @@ from cleanup import *
 from utilities import *
 from malojatime import *
 import sys
+import unicodedata
 
 dbserver = Bottle()
 
@@ -843,13 +844,15 @@ def db_search(query,type=None):
 	if type=="ARTIST":
 		results = []
 		for a in ARTISTS:
-			if query.lower() in a.lower():
+			#if query.lower() in a.lower():
+			if simplestr(query) in simplestr(a):
 				results.append(a)
 	
 	if type=="TRACK":
 		results = []
 		for t in TRACKS:
-			if query.lower() in t[1].lower():
+			#if query.lower() in t[1].lower():
+			if simplestr(query) in simplestr(t[1]):
 				results.append(getTrackObject(t))
 	
 	return results
@@ -859,6 +862,14 @@ def db_search(query,type=None):
 ## Useful functions
 ####
 
+# makes a string usable for searching (special characters are blanks, accents and stuff replaced with their real part)
+def simplestr(input,ignorecapitalization=True):
+	norm = unicodedata.normalize("NFKD",input)
+	norm = [c for c in norm if not unicodedata.combining(c)]
+	norm = [c if len(c.encode())==1 else " " for c in norm]
+	clear = ''.join(c for c in norm)
+	if ignorecapitalization: clear = clear.lower()
+	return clear
 
 
 	

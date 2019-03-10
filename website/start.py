@@ -62,6 +62,11 @@ def instructions(keys):
 	html_pulse_weeks = module_pulse(max_=12,since=first_week,step="week",trail=1)
 	html_pulse_months = module_pulse(max_=12,since=first_month,step="month",trail=1)	
 	html_pulse_years = module_pulse(max_=10,since=first_year,step="year",trail=1)
+	
+	
+	#html_pulse_week = module_pulse(max_=7,since=weekstart,step="day",trail=1)
+	#html_pulse_month = module_pulse(max_=30,since=[dt.year,dt.month],step="day",trail=1)
+	#html_pulse_year = module_pulse(max_=12,since=[dt.year],step="month",trail=1)
 
 
 
@@ -77,7 +82,8 @@ def instructions(keys):
 	#"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
 	"KEY_SCROBBLES":html_scrobbles,
 	#"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars
-	"KEY_PULSE_MONTHS":html_pulse_months,"KEY_PULSE_YEARS":html_pulse_years,"KEY_PULSE_DAYS":html_pulse_days,"KEY_PULSE_WEEKS":html_pulse_weeks
+	"KEY_PULSE_MONTHS":html_pulse_months,"KEY_PULSE_YEARS":html_pulse_years,"KEY_PULSE_DAYS":html_pulse_days,"KEY_PULSE_WEEKS":html_pulse_weeks,
+	#"KEY_PULSE_YEAR":html_pulse_year,"KEY_PULSE_MONTH":html_pulse_month,"KEY_PULSE_WEEK":html_pulse_week
 	}
 	
 	return (replace,pushresources)

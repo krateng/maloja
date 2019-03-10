@@ -40,6 +40,8 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 			html += """<td class='icon'><div style="background-image:url('""" + scrobbleimages[i] + """')"></div></td>"""
 		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
 		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
+		# Alternative way: Do it in one cell
+		#html += "<td class='title'><span>" + artistLinks(s["artists"]) + "</span> — " + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
 		html += "</tr>"
 		
 		i += 1
