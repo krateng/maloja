@@ -69,3 +69,5 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 		maloja restart
 		maloja start
 		maloja update
+		
+	The `update` command will always fetch the latest version, while packages are only offered for release versions.

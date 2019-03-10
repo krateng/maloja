@@ -4,6 +4,7 @@ import hashlib
 from threading import Thread
 import pickle
 import urllib
+import datetime
 
 
 ### TSV files
@@ -160,11 +161,12 @@ def cleandict(d):
 		
 def log(msg):
 	import inspect
+	now = datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S")
 	module = inspect.getmodule(inspect.stack()[1][0]).__name__
 	if module == "__main__": module = "mainserver"
 	print("[" + module + "] " + msg)
 	with open("logs/" + module + ".log","a") as logfile:
-		logfile.write(msg + "\n")
+		logfile.write(now + "  " + msg + "\n")
 	
 
 
