@@ -35,6 +35,7 @@ def loadAPIkeys():
 	global clients
 	createTSV("clients/authenticated_machines.tsv")
 	clients = parseTSV("clients/authenticated_machines.tsv","string","string")
+	log(str(len(clients)) + " Authenticated Machines " + ", ".join([m[1] for m in clients]))
 
 def checkAPIkey(k):
 	return (k in [k for [k,d] in clients])
@@ -621,9 +622,11 @@ def issues():
 
 @dbserver.post("/rebuild")
 def rebuild():
+	
 	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
+		log("Database rebuild initiated!")
 		global db_rulestate
 		db_rulestate = False
 		sync()
@@ -660,6 +663,7 @@ def search():
 
 # Starts the server
 def runserver(PORT):
+	log("Starting database server...")
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	build_db()
@@ -668,11 +672,12 @@ def runserver(PORT):
 	loadAPIkeys()
 
 	run(dbserver, host='::', port=PORT, server='waitress')
+	log("Database server reachable!")
 
 def build_db():
 	
 	
-	
+	log("Building database...")
 	
 	global SCROBBLES, ARTISTS, TRACKS
 	
@@ -705,6 +710,8 @@ def build_db():
 	
 	# load cached images
 	loadCache()
+	
+	log("Database fully built!")
 	
 		
 

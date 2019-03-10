@@ -159,11 +159,12 @@ def cleandict(d):
 		
 ### Logging
 		
-def log(msg):
-	import inspect
+def log(msg,module=None):
 	now = datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S")
-	module = inspect.getmodule(inspect.stack()[1][0]).__name__
-	if module == "__main__": module = "mainserver"
+	if module is None:
+		import inspect
+		module = inspect.getmodule(inspect.stack()[1][0]).__name__
+		if module == "__main__": module = "mainserver"
 	print("[" + module + "] " + msg)
 	with open("logs/" + module + ".log","a") as logfile:
 		logfile.write(now + "  " + msg + "\n")

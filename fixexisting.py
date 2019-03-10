@@ -1,6 +1,8 @@
 import os
 import re
 from cleanup import CleanerAgent
+from utilities import log
+import difflib
 
 wendigo = CleanerAgent()
 
@@ -20,6 +22,7 @@ for fn in os.listdir("scrobbles/"):
 			(al,t) = wendigo.fullclean(a,t)
 			a = "␟".join(al)
 			fnew.write(r1 + a + r2 + t + r3 + "\n")
+			
 			#print("Artists: " + a)
 			#print("Title: " + t)
 			#print("1: " + r1)
@@ -29,7 +32,12 @@ for fn in os.listdir("scrobbles/"):
 		f.close()
 		fnew.close()
 		
-		os.system("diff " + "scrobbles/" + fn + "_new" + " " + "scrobbles/" + fn)
+		#os.system("diff " + "scrobbles/" + fn + "_new" + " " + "scrobbles/" + fn)
+		with open("scrobbles/" + fn + "_new","r") as newfile:
+			with open("scrobbles/" + fn,"r") as oldfile:
+				diff = difflib.unified_diff(oldfile.read().split("\n"),newfile.read().split("\n"),lineterm="")
+				diff = list(diff)[2:]
+				log("Diff for scrobbles/" + fn + "".join("\n\t" + d for d in diff),module="fixer")
 		
 		os.rename("scrobbles/" + fn + "_new","scrobbles/" + fn)
 		
