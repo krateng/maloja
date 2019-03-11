@@ -9,6 +9,7 @@ from utilities import *
 from malojatime import *
 import sys
 import unicodedata
+import json
 
 dbserver = Bottle()
 
@@ -78,6 +79,7 @@ def createScrobble(artists,title,time,volatile=False):
 	SCROBBLESDICT[time] = obj
 	STAMPS.insert(index,time) #should be same index as scrobblelist
 	register_scrobbletime(time)
+	invalidate_caches()
 
 
 def readScrobble(artists,title,time):
@@ -771,6 +773,50 @@ def sync():
 			
 
 
+###
+## Caches in front of DB
+## these are intended mainly for excessive site navigation during one session (e.g. constantly going back to the main page to click the next link)
+###
+
+
+import copy
+
+cache_query = {}
+cacheday = (0,0,0)
+def db_query(**kwargs):
+	check_cache_age()
+	global cache_query
+	key = json.dumps(kwargs)
+	if key in cache_query: return copy.copy(cache_query[key])
+	
+	result = db_query_full(**kwargs)
+	cache_query[key] = copy.copy(result)
+	return result
+
+cache_aggregate = {}
+def db_aggregate(**kwargs):
+	check_cache_age()
+	global cache_aggregate
+	key = json.dumps(kwargs)
+	if key in cache_aggregate: return copy.copy(cache_aggregate[key])
+	
+	result = db_aggregate_full(**kwargs)
+	cache_aggregate[key] = copy.copy(result)
+	return result
+	
+def invalidate_caches():
+	global cache_query, cache_aggregate
+	cache_query = {}
+	cache_aggregate = {}
+	
+	now = datetime.datetime.now()
+	global cacheday
+	cacheday = (now.year,now.month,now.day)
+
+def check_cache_age():
+	now = datetime.datetime.now()
+	global cacheday
+	if cacheday != (now.year,now.month,now.day): invalidate_caches()
 
 
 ####
@@ -780,7 +826,7 @@ def sync():
 
 
 # Queries the database			
-def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
+def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
 
 	(since, to) = time_stamps(since,to,within)
 	
@@ -826,7 +872,7 @@ def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,w
 	
 
 # Queries that... well... aggregate
-def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
+def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 	(since, to) = time_stamps(since,to,within)
 	
 	if isinstance(artist, str):
