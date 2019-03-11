@@ -18,6 +18,7 @@ The first column defines the type of the rule:
 			Third column the replacement artist / grouping label
 
 Rules in non-tsv files are ignored. '#' is used for comments. Additional columns are ignored. To have a '#' in a name, use '\num'
+Comments are not supported in scrobble lists, but you probably never edit these manually anyway.
 
 An example file could look like this:
 

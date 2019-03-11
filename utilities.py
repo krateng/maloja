@@ -9,14 +9,16 @@ import datetime
 
 ### TSV files
 
-def parseTSV(filename,*args):
+def parseTSV(filename,*args,escape=True):
 	f = open(filename)
 	
 	result = []
 	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
 		
-		l = l.replace("\n","").split("#")[0]
-		l = l.replace(r"\num","#")
+		l = l.replace("\n","")
+		if escape:
+			l = l.split("#")[0]
+		l = l.replace(r"\num","#") # translate escape sequences even if we don't support comments in the file and they are not actually necessary (they might still be used for some reason)
 		data = list(filter(None,l.split("\t"))) # Multiple tabs are okay, we don't accept empty fields unless trailing
 		entry = [] * len(args)
 		for i in range(len(args)):
@@ -107,7 +109,7 @@ def consistentRulestate(folder,checksums):
 	return True
 	
 	
-def parseAllTSV(path,*args):
+def parseAllTSV(path,*args,escape=True):
 
 	
 	result = []
@@ -115,7 +117,7 @@ def parseAllTSV(path,*args):
 		
 		if (f.endswith(".tsv")):
 			
-			result += parseTSV(path + "/" + f,*args)
+			result += parseTSV(path + "/" + f,*args,escape=escape)
 			
 	return result
 	
@@ -124,21 +126,21 @@ def createTSV(filename):
 	if not os.path.exists(filename):
 		open(filename,"w").close()
 
-def addEntry(filename,a):
+def addEntry(filename,a,escape=True):
 
 	createTSV(filename)
 	
 	line = "\t".join(a)
-	line = line.replace("#",r"\num")
+	if escape: line = line.replace("#",r"\num")
 	with open(filename,"a") as f:
 		f.write(line + "\n")
 
-def addEntries(filename,al):
+def addEntries(filename,al,escape=True):
 	
 	with open(filename,"a") as f:
 		for a in al:
 			line = "\t".join(a)
-			line = line.replace("#",r"\num")
+			if escape: line = line.replace("#",r"\num")
 			f.write(line + "\n")
 
 

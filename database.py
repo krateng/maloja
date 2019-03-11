@@ -687,7 +687,7 @@ def build_db():
 	
 	
 	
-	db = parseAllTSV("scrobbles","int","string","string")
+	db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
 		title = sc[2]
@@ -742,7 +742,7 @@ def sync():
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 			
 	for e in entries:
-		addEntries("scrobbles/" + e + ".tsv",entries[e])
+		addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 		
 			

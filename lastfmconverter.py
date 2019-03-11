@@ -51,7 +51,7 @@ for l in log:
 	
 	
 	entry = "\t".join([str(timestamp),artistsstr,title,album])
-	
+	entry = entry.replace("#",r"\num")
 	
 	outputlog.write(entry)
 	outputlog.write("\n")
