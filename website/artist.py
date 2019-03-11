@@ -8,7 +8,7 @@ def instructions(keys):
 	from htmlmodules import module_pulse, module_trackcharts
 
 	filterkeys, _, _, _ = KeySplit(keys,forceArtist=True)
-	info = getArtistInfo(filterkeys["artist"])
+	info = getArtistInfo(filterkeys["artist"],fast=True)
 	imgurl = info.get("image")
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	

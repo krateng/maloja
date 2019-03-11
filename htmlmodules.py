@@ -1,18 +1,18 @@
 from htmlgenerators import *
 import database
-from utilities import getArtistsInfo, getTracksInfo
+from utilities import getArtistsInfo, getTracksInfo, getArtistInfo, getTrackInfo
 from malojatime import *
 import urllib
 
 
-def getpictures(ls,result,tracks=False):
-	from utilities import getArtistsInfo, getTracksInfo
-	if tracks:
-		for element in getTracksInfo(ls):
-			result.append(element.get("image"))
-	else:
-		for element in getArtistsInfo(ls):
-			result.append(element.get("image"))
+#def getpictures(ls,result,tracks=False):
+#	from utilities import getArtistsInfo, getTracksInfo
+#	if tracks:
+#		for element in getTracksInfo(ls):
+#			result.append(element.get("image"))
+#	else:
+#		for element in getArtistsInfo(ls):
+#			result.append(element.get("image"))
 
 
 # artist=None,track=None,since=None,to=None,within=None,associated=False,max_=None,pictures=False
@@ -25,7 +25,8 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
 	if pictures:
 		scrobbleswithpictures = scrobbles if max_ is None else scrobbles[:max_]
 		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
-		scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
+		#scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
+		scrobbleimages = [getTrackInfo(t["artists"],t["title"],fast=True).get("image") for t in scrobbleswithpictures]
 	
 	representative = scrobbles[0] if len(scrobbles) is not 0 else None
 	
@@ -153,7 +154,7 @@ def module_artistcharts(max_=None,**kwargs):
 	return (html, representative)
 	
 	
-def module_artistcharts_tiles(**kwargs)	:
+def module_artistcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
 	kwargs_time = pickKeys(kwargs,"since","to","within")
@@ -184,7 +185,8 @@ def module_artistcharts_tiles(**kwargs)	:
 			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
 			rnk = (rank,e["scrobbles"])
 			rank = "#" + str(rank)
-			image = "/image?artist=" + urllib.parse.quote(e["artist"])
+			#image = "/image?artist=" + urllib.parse.quote(e["artist"])
+			image = getArtistInfo(e["artist"],fast=True).get("image")
 			link = artistLink(e["artist"])
 		else:
 			rank = ""
@@ -207,7 +209,7 @@ def module_artistcharts_tiles(**kwargs)	:
 	return html
 	
 	
-def module_trackcharts_tiles(**kwargs)	:
+def module_trackcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
 	kwargs_time = pickKeys(kwargs,"since","to","within")
@@ -239,7 +241,8 @@ def module_trackcharts_tiles(**kwargs)	:
 			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
 			rnk = (rank,e["scrobbles"])
 			rank = "#" + str(rank)
-			image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]])
+			#image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]])
+			image = getTrackInfo(e["track"]["artists"],e["track"]["title"],fast=True).get("image")
 			link = trackLink(e["track"])
 		else:
 			rank = ""

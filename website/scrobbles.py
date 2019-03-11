@@ -32,11 +32,11 @@ def instructions(keys):
 	
 	# get image	
 	if filterkeys.get("track") is not None:
-		imgurl = getTrackInfo(filterkeys.get("track")["artists"],filterkeys.get("track")["title"]).get("image")
+		imgurl = getTrackInfo(filterkeys.get("track")["artists"],filterkeys.get("track")["title"],fast=True).get("image")
 	elif filterkeys.get("artist") is not None:
-		imgurl = getArtistInfo(keys.get("artist")).get("image")
+		imgurl = getArtistInfo(keys.get("artist"),fast=True).get("image")
 	elif rep is not None:
-		imgurl = getTrackInfo(rep["artists"],rep["title"]).get("image")
+		imgurl = getTrackInfo(rep["artists"],rep["title"],fast=True).get("image")
 	else:
 		imgurl = ""
 	

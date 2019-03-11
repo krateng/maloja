@@ -11,7 +11,7 @@ def instructions(keys):
 	filterkeys, _, _, _ = KeySplit(keys,forceTrack=True)	
 	
 	track = filterkeys.get("track")
-	imgurl = getTrackInfo(track["artists"],track["title"]).get("image")
+	imgurl = getTrackInfo(track["artists"],track["title"],fast=True).get("image")
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	data = database.trackInfo(track["artists"],track["title"])

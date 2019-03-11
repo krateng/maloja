@@ -300,7 +300,7 @@ def getTrackInfo(artists,title,fast=False):
 		
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast:
-		return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
+		return {"image":"/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])}
 	
 	result = apirequest(artists=artists,title=title)
 	if result.get("image") is not None:
@@ -340,7 +340,7 @@ def getArtistInfo(artist,fast=False):
 		
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast:
-		return "/image?artist=" + urllib.parse.quote(artist)
+		return {"image":"/image?artist=" + urllib.parse.quote(artist)}
 		
 	
 	result = apirequest(artist=artist)
