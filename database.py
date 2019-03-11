@@ -66,12 +66,12 @@ def getTrackObject(o):
 
 
 	
-def createScrobble(artists,title,time):
+def createScrobble(artists,title,time,volatile=False):
 	while (time in STAMPS_SET):
 		time += 1
 	STAMPS_SET.add(time)
 	i = getTrackID(artists,title)
-	obj = (i,time,False)
+	obj = (i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
 	# immediately insert scrobble correctly so we can guarantee sorted list
 	index = insert(SCROBBLES,obj,key=lambda x:x[1])
@@ -731,7 +731,6 @@ def build_db():
 	
 	log("Database fully built!")
 	
-		
 
 
 # Saves all cached entries to disk			
@@ -815,15 +814,14 @@ def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,w
 		artist = artists.pop()
 		
 			
-		
-	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now
+	
 		
 	if associated:
 		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0])) and (since < s[1] < to)]
-		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0]))]
+		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (track is None or s[0] == track) and (artist is None or artist in coa.getCreditedList(TRACKS[s[0]][0]))]
 	else:
 		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in TRACKS[s[0]][0]) and (since < s[1] < to)]
-		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (s[0] == track or track==None) and (artist==None or artist in  TRACKS[s[0]][0])]
+		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (track is None or s[0] == track) and (artist is None or artist in  TRACKS[s[0]][0])]
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 	
 
@@ -924,14 +922,42 @@ def insert(list_,item,key=lambda x:x):
 	return i
 	
 	
-def scrobbles_in_range(start,end):
-	for stamp in STAMPS:
-		#print("Checking " + str(stamp))
-		if stamp < start: continue
-		if stamp > end: return
-		yield SCROBBLESDICT[stamp]
+def scrobbles_in_range(start,end,reverse=False):
+	if reverse:
+		for stamp in reversed(STAMPS):
+			#print("Checking " + str(stamp))
+			if stamp < start: return
+			if stamp > end: continue
+			yield SCROBBLESDICT[stamp]	
+	else:
+		for stamp in STAMPS:
+			#print("Checking " + str(stamp))
+			if stamp < start: continue
+			if stamp > end: return
+			yield SCROBBLESDICT[stamp]
 
 	#for stamp in range(start,end+1):
 	#	if stamp%1000 == 0: print("testing " + str(stamp))
 	#	if stamp in SCROBBLESDICT:
 	#		yield SCROBBLESDICT[stamp]
+	
+
+# for performance testing
+def generateStuff(num=0,pertrack=0,mult=0):
+	import random
+	for i in range(num):
+		track = random.choice(TRACKS)
+		t = getTrackObject(track)
+		time = random.randint(STAMPS[0],STAMPS[-1])
+		createScrobble(t["artists"],t["title"],time,volatile=True)
+		
+	for track in TRACKS:
+		t = getTrackObject(track)
+		for i in range(pertrack):
+			time = random.randint(STAMPS[0],STAMPS[-1])
+			createScrobble(t["artists"],t["title"],time,volatile=True)
+	
+	for scrobble in SCROBBLES:
+		s = getScrobbleObject(scrobble)	
+		for i in range(mult):
+			createScrobble(s["artists"],s["title"],s["time"] - i*500,volatile=True)

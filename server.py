@@ -140,6 +140,7 @@ def static_html(name):
 	with open("website/common/header.html") as headerfile:
 		headerhtml = headerfile.read()
 	html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
+
 	
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
@@ -158,7 +159,6 @@ def static_html(name):
 					html = html.replace(k,element,1)
 			else:
 				html = html.replace(k,txt_keys[k])
-		
 
 	
 	response.set_header("Link",",".join(linkheaders))

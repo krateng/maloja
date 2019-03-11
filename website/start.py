@@ -1,6 +1,7 @@
 import urllib
 from datetime import datetime, timedelta
 import database
+from utilities import clock
 
 from htmlmodules import module_scrobblelist, module_pulse, module_artistcharts_tiles, module_trackcharts_tiles
 
@@ -14,6 +15,8 @@ def instructions(keys):
 	newdate = tod - d
 	weekstart = [newdate.year,newdate.month,newdate.day]
 
+	clock()
+
 	# artists
 	
 	topartists_total = module_artistcharts_tiles()
@@ -21,7 +24,8 @@ def instructions(keys):
 	topartists_month = module_artistcharts_tiles(since="month")
 	topartists_week = module_artistcharts_tiles(since=weekstart)
 	
-	
+	clock("Artists")
+
 	# tracks
 	
 	toptracks_total = module_trackcharts_tiles()
@@ -30,9 +34,13 @@ def instructions(keys):
 	toptracks_week = module_trackcharts_tiles(since=weekstart)
 	
 	
+	clock("Tracks")
+
+
 	# scrobbles
 	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True)
 	
+	clock("Scrobbles")
 	
 	# stats
 	amount = database.get_scrobbles_num(since="today")
@@ -47,6 +55,8 @@ def instructions(keys):
 	amount = database.get_scrobbles_num()
 	scrobbles_total = "<a href='/scrobbles'>" + str(amount) + "</a>"
 	
+	
+	clock("Amounts")
 	
 	# pulse
 	dt = datetime.utcnow()
@@ -68,7 +78,7 @@ def instructions(keys):
 	#html_pulse_month = module_pulse(max_=30,since=[dt.year,dt.month],step="day",trail=1)
 	#html_pulse_year = module_pulse(max_=12,since=[dt.year],step="month",trail=1)
 
-
+	clock("Pulse")
 
 	#pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages] #can't push scrobble images as we don't get them from the module function, need to think about that
 	pushresources = []

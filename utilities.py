@@ -174,7 +174,16 @@ def log(msg,module=None):
 	with open("logs/" + module + ".log","a") as logfile:
 		logfile.write(now + "  " + msg + "\n")
 	
-
+	
+### not meant to be precise, just for a rough idea
+measurement = 0
+def clock(*args):
+	import time
+	global measurement
+	now = time.time()
+	if len(args) > 0:
+		print(args[0] + ": " + str(now - measurement))
+	measurement = now
 
 ### Media info
 
