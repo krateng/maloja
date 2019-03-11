@@ -17,7 +17,10 @@ SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 
-timestamps = set()
+### OPTIMIZATION
+SCROBBLESDICT = {}	# timestamps to scrobble mapping
+STAMPS = []		# sorted
+STAMPS_SET = set()	# as set for easier check if exists
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -64,23 +67,28 @@ def getTrackObject(o):
 
 	
 def createScrobble(artists,title,time):
-	while (time in timestamps):
+	while (time in STAMPS_SET):
 		time += 1
-	timestamps.add(time)
+	STAMPS_SET.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,False)
-	SCROBBLES.append(obj)
+	#SCROBBLES.append(obj)
+	# immediately insert scrobble correctly so we can guarantee sorted list
+	index = insert(SCROBBLES,obj,key=lambda x:x[1])
+	SCROBBLESDICT[time] = obj
+	STAMPS.insert(index,time) #should be same index as scrobblelist
 	register_scrobbletime(time)
 
 
 def readScrobble(artists,title,time):
-	while (time in timestamps):
+	while (time in STAMPS_SET):
 		time += 1
-	timestamps.add(time)
+	STAMPS_SET.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
-	register_scrobbletime(time)
+	#STAMPS.append(time)
+	
 	
 
 def getArtistID(name):
@@ -680,6 +688,7 @@ def build_db():
 	log("Building database...")
 	
 	global SCROBBLES, ARTISTS, TRACKS
+	global SCROBBLESDICT, STAMPS
 	
 	SCROBBLES = []
 	ARTISTS = []
@@ -697,6 +706,14 @@ def build_db():
 
 			
 	SCROBBLES.sort(key = lambda tup: tup[1])
+	
+	SCROBBLESDICT = {obj[1]:obj for obj in SCROBBLES}
+	STAMPS = [t for t in SCROBBLESDICT]
+	STAMPS.sort()
+	register_scrobbletime(STAMPS[0])
+	
+	#print(SCROBBLESDICT)
+	#print(STAMPS)
 	
 	# get extra artists with zero scrobbles from countas rules
 	for artist in coa.getAllArtists():
@@ -802,9 +819,11 @@ def db_query(artist=None,artists=None,title=None,track=None,since=None,to=None,w
 	# right now we always request everything by name, maybe we don't actually need the request by number, but i'll leave it in for now
 		
 	if associated:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0])) and (since < s[1] < to)]
+		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0])) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0]))]
 	else:
-		return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in TRACKS[s[0]][0]) and (since < s[1] < to)]
+		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in TRACKS[s[0]][0]) and (since < s[1] < to)]
+		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (s[0] == track or track==None) and (artist==None or artist in  TRACKS[s[0]][0])]
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 	
 
@@ -823,7 +842,8 @@ def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
 				
 		# alright let's try for real
 		charts = {}
-		for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+		#for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+		for s in scrobbles_in_range(since,to):
 			artists = TRACKS[s[0]][0]
 			for a in coa.getCreditedList(artists):
 				# this either creates the new entry or increments the existing one
@@ -834,7 +854,8 @@ def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
 		
 	elif (by=="TRACK"):
 		charts = {}
-		for s in [scr for scr in SCROBBLES if since < scr[1] < to and (artist==None or (artist in TRACKS[scr[0]][0]))]:
+		#for s in [scr for scr in SCROBBLES if since < scr[1] < to and (artist==None or (artist in TRACKS[scr[0]][0]))]:
+		for s in [scr for scr in scrobbles_in_range(since,to) if (artist is None or (artist in TRACKS[scr[0]][0]))]:
 			track = s[0]
 			# this either creates the new entry or increments the existing one
 			charts[track] = charts.setdefault(track,0) + 1
@@ -843,8 +864,8 @@ def db_aggregate(by=None,since=None,to=None,within=None,artist=None):
 		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
 		
 	else:
-		return len([scr for scr in SCROBBLES if since < scr[1] < to])
-	
+		#return len([scr for scr in SCROBBLES if since < scr[1] < to])
+		return len(list(scrobbles_in_range(since,to)))
 
 
 # Search for strings
@@ -891,3 +912,26 @@ def getArtistId(nameorid):
 			return -1
 			
 			
+def insert(list_,item,key=lambda x:x):
+	i = 0
+	while len(list_) > i:
+		if key(list_[i]) > key(item):
+			list_.insert(i,item)
+			return i
+		i += 1
+		
+	list_.append(item)
+	return i
+	
+	
+def scrobbles_in_range(start,end):
+	for stamp in STAMPS:
+		#print("Checking " + str(stamp))
+		if stamp < start: continue
+		if stamp > end: return
+		yield SCROBBLESDICT[stamp]
+
+	#for stamp in range(start,end+1):
+	#	if stamp%1000 == 0: print("testing " + str(stamp))
+	#	if stamp in SCROBBLESDICT:
+	#		yield SCROBBLESDICT[stamp]
