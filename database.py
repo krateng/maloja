@@ -35,7 +35,7 @@ def loadAPIkeys():
 	global clients
 	createTSV("clients/authenticated_machines.tsv")
 	clients = parseTSV("clients/authenticated_machines.tsv","string","string")
-	log(str(len(clients)) + " Authenticated Machines " + ", ".join([m[1] for m in clients]))
+	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
 def checkAPIkey(k):
 	return (k in [k for [k,d] in clients])
@@ -704,6 +704,7 @@ def build_db():
 			ARTISTS.append(artist)
 	
 	coa.updateIDs(ARTISTS)
+	
 			
 	global db_rulestate
 	db_rulestate = consistentRulestate("scrobbles",cla.checksums)

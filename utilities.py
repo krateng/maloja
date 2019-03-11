@@ -16,6 +16,7 @@ def parseTSV(filename,*args):
 	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
 		
 		l = l.replace("\n","").split("#")[0]
+		l = l.replace(r"\num","#")
 		data = list(filter(None,l.split("\t"))) # Multiple tabs are okay, we don't accept empty fields unless trailing
 		entry = [] * len(args)
 		for i in range(len(args)):
@@ -128,6 +129,7 @@ def addEntry(filename,a):
 	createTSV(filename)
 	
 	line = "\t".join(a)
+	line = line.replace("#",r"\num")
 	with open(filename,"a") as f:
 		f.write(line + "\n")
 
@@ -136,6 +138,7 @@ def addEntries(filename,al):
 	with open(filename,"a") as f:
 		for a in al:
 			line = "\t".join(a)
+			line = line.replace("#",r"\num")
 			f.write(line + "\n")
 
 
