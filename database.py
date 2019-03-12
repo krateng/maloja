@@ -21,7 +21,7 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 ### OPTIMIZATION
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
-STAMPS_SET = set()	# as set for easier check if exists
+#STAMPS_SET = set()	# as set for easier check if exists
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -68,9 +68,8 @@ def getTrackObject(o):
 
 	
 def createScrobble(artists,title,time,volatile=False):
-	while (time in STAMPS_SET):
+	while (time in SCROBBLESDICT):
 		time += 1
-	STAMPS_SET.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
@@ -83,12 +82,12 @@ def createScrobble(artists,title,time,volatile=False):
 
 
 def readScrobble(artists,title,time):
-	while (time in STAMPS_SET):
+	while (time in SCROBBLESDICT):
 		time += 1
-	STAMPS_SET.add(time)
 	i = getTrackID(artists,title)
 	obj = (i,time,True)
 	SCROBBLES.append(obj)
+	SCROBBLESDICT[time] = obj
 	#STAMPS.append(time)
 	
 	
@@ -695,7 +694,7 @@ def build_db():
 	TRACKS = []
 	
 	
-	
+	# parse files
 	db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
@@ -704,16 +703,15 @@ def build_db():
 		
 		readScrobble(artists,title,time)
 
-			
-	SCROBBLES.sort(key = lambda tup: tup[1])
 	
-	SCROBBLESDICT = {obj[1]:obj for obj in SCROBBLES}
+	# optimize database	
+	SCROBBLES.sort(key = lambda tup: tup[1])
+	#SCROBBLESDICT = {obj[1]:obj for obj in SCROBBLES}
 	STAMPS = [t for t in SCROBBLESDICT]
 	STAMPS.sort()
-	register_scrobbletime(STAMPS[0])
 	
-	#print(SCROBBLESDICT)
-	#print(STAMPS)
+	# inform malojatime module about earliest scrobble
+	register_scrobbletime(STAMPS[0])
 	
 	# get extra artists with zero scrobbles from countas rules
 	for artist in coa.getAllArtists():
