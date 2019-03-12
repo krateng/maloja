@@ -3,7 +3,7 @@ import database
 
 		
 def instructions(keys):
-	from utilities import getArtistInfo, getTrackInfo
+	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
 	from htmlmodules import module_scrobblelist	
 	from malojatime import range_desc
@@ -32,11 +32,11 @@ def instructions(keys):
 	
 	# get image	
 	if filterkeys.get("track") is not None:
-		imgurl = getTrackInfo(filterkeys.get("track")["artists"],filterkeys.get("track")["title"],fast=True).get("image")
+		imgurl = getTrackImage(filterkeys.get("track")["artists"],filterkeys.get("track")["title"],fast=True)
 	elif filterkeys.get("artist") is not None:
-		imgurl = getArtistInfo(keys.get("artist"),fast=True).get("image")
+		imgurl = getArtistImage(keys.get("artist"),fast=True)
 	elif rep is not None:
-		imgurl = getTrackInfo(rep["artists"],rep["title"],fast=True).get("image")
+		imgurl = getTrackImage(rep["artists"],rep["title"],fast=True)
 	else:
 		imgurl = ""
 	

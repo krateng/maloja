@@ -2,7 +2,7 @@ import urllib
 
 		
 def instructions(keys):
-	from utilities import getArtistInfo
+	from utilities import getArtistImage
 	from htmlgenerators import KeySplit
 	from htmlmodules import module_artistcharts
 	from malojatime import range_desc
@@ -17,7 +17,7 @@ def instructions(keys):
 	html_charts, rep = module_artistcharts(**amountkeys,**timekeys)
 	
 	if rep is not None:
-		imgurl = getArtistInfo(rep).get("image")
+		imgurl = getArtistImage(rep)
 	else:
 		imgurl = ""
 		

@@ -3,13 +3,12 @@ import database
 
 		
 def instructions(keys):
-	from utilities import getArtistInfo
+	from utilities import getArtistImage
 	from htmlgenerators import artistLink, artistLinks, KeySplit
 	from htmlmodules import module_pulse, module_trackcharts
 
 	filterkeys, _, _, _ = KeySplit(keys,forceArtist=True)
-	info = getArtistInfo(filterkeys["artist"],fast=True)
-	imgurl = info.get("image")
+	imgurl = getArtistImage(filterkeys["artist"],fast=True)
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	data = database.artistInfo(filterkeys["artist"])

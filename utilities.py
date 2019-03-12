@@ -196,9 +196,9 @@ def apirequest(artists=None,artist=None,title=None):
 		with open("apikey","r") as keyfile:
 			apikey = keyfile.read().replace("\n","")
 			
-		if apikey == "NONE": return {"image":None}
+		if apikey == "NONE": return None
 	except:
-		return {"image":None}
+		return None
 	
 	
 	sites = [
@@ -221,36 +221,38 @@ def apirequest(artists=None,artist=None,title=None):
 				artiststr = urllib.parse.quote(", ".join(artists))
 				titlestr = urllib.parse.quote(title)
 				response = urllib.request.urlopen(s["trackurl"].format(artist=artiststr,title=titlestr))
+				log("API: " + s["name"] + "; Image request: " + "/".join(artists) + " - " + title,module="external")
 				data = json.loads(response.read())
 				if s["result_track_imgurl"](data) != "":
-					return {"image":s["result_track_imgurl"](data)}
+					return s["result_track_imgurl"](data)
 			except:
 				pass
 		
 		if len(artists) == 1:
 			#return {"image":apirequest(artist=artists[0])["image"]}
-			return {"image":None}
+			return None
 				
 		# try the same track with every single artist
 		for a in artists:
 			rec = apirequest(artists=[a],title=title)
-			if rec["image"] is not None:
+			if rec is not None:
 				return rec
 				
-		return {"image":None}
+		return None
 		
 	# ARTISTS		
 	else:
 		for s in sites:
 			try:
 				response = urllib.request.urlopen(s["artisturl"].format(artist=urllib.parse.quote(artist)))
+				log("API: " + s["name"] + "; Image request: " + artist,module="external")
 				data = json.loads(response.read())
 				if s["result_artist_imgurl"](data) != "":
-					return {"image":s["result_artist_imgurl"](data)}
+					return s["result_artist_imgurl"](data)
 			except:
 				pass
 		
-		return {"image":None}
+		return None
 
 # I think I've only just understood modules
 cachedTracks = {}
@@ -275,7 +277,7 @@ def loadCache():
 	finally:
 		fl.close()
 
-def getTrackInfo(artists,title,fast=False):
+def getTrackImage(artists,title,fast=False):
 
 	obj = (frozenset(artists),title)
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
@@ -285,34 +287,50 @@ def getTrackInfo(artists,title,fast=False):
 	# check if custom image exists
 	if os.path.exists(filepath + ".png"):
 		imgurl = "/" + filepath + ".png"
-		return {"image":imgurl}
+		return imgurl
 	elif os.path.exists(filepath + ".jpg"):
 		imgurl = "/" + filepath + ".jpg"
-		return {"image":imgurl}
+		return imgurl
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
-		return {"image":imgurl}
+		return imgurl
 		
 	try:
-		return {"image":cachedTracks[(frozenset(artists),title)]}
+		# check our cache
+		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
+		# (even if we're not in a fast lookup right now)
+		result = cachedTracks[(frozenset(artists),title)]
+		if result is not None: return result
+		else:
+			for a in artists:
+				res = getArtistImage(artist=a,fast=True)
+				if res != "": return res
+			return ""
 	except:
 		pass
-		
+	
+	
 	# fast request only retuns cached and local results, generates redirect link for rest
-	if fast:
-		return {"image":"/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])}
+	if fast: return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
 	
+	# non-fast lookup (esentially only the resolver lookup)
 	result = apirequest(artists=artists,title=title)
-	if result.get("image") is not None:
-		cachedTracks[(frozenset(artists),title)] = result["image"]
-		return result
+	
+	# cache results (even negative ones)
+	cachedTracks[(frozenset(artists),title)] = result
+	
+	# return either result or redirect to artist
+	if result is not None: return result
 	else:
-		result = getArtistInfo(artist=artists[0])
-		#cachedTracks[(frozenset(artists),title)] = result["image"]
-		return result
+		for a in artists:
+			res = getArtistImage(artist=a,fast=False)
+			if res != "": return res
+		return ""
+
 	
-def getArtistInfo(artist,fast=False):
 	
+def getArtistImage(artist,fast=False):	
+		
 	obj = artist
 	filename = re.sub("[^a-zA-Z0-9]","",artist)
 	if filename == "": filename = str(hash(obj))
@@ -322,40 +340,42 @@ def getArtistInfo(artist,fast=False):
 	# check if custom image exists
 	if os.path.exists(filepath + ".png"):
 		imgurl = "/" + filepath + ".png"
-		return {"image":imgurl}
+		return imgurl
 	elif os.path.exists(filepath + ".jpg"):
 		imgurl = "/" + filepath + ".jpg"
-		return {"image":imgurl}
+		return imgurl
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
-		return {"image":imgurl}
+		return imgurl
 	
 
 	try:
-		return {"image":cachedArtists[artist]}
+		result = cachedArtists[artist]
+		if result is not None: return result
+		else: return ""
 	except:
 		pass
 		
 	
 		
 	# fast request only retuns cached and local results, generates redirect link for rest
-	if fast:
-		return {"image":"/image?artist=" + urllib.parse.quote(artist)}
-		
+	if fast: return "/image?artist=" + urllib.parse.quote(artist)
 	
+	# non-fast lookup (esentially only the resolver lookup)	
 	result = apirequest(artist=artist)
-	if result.get("image") is not None:
-		cachedArtists[artist] = result["image"]
-		return result
-	else:
-		return {"image":""}
+	
+	# cache results (even negative ones)
+	cachedArtists[artist] = result
+	
+	if result is not None: return result
+	else: return ""
 
-def getTracksInfo(trackobjectlist,fast=False):
+def getTrackImages(trackobjectlist,fast=False):
 
 	threads = []
 	
 	for track in trackobjectlist:
-		t = Thread(target=getTrackInfo,args=(track["artists"],track["title"],),kwargs={"fast":fast})
+		t = Thread(target=getTrackImage,args=(track["artists"],track["title"],),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
 	
@@ -363,14 +383,14 @@ def getTracksInfo(trackobjectlist,fast=False):
 		t.join()
 		
 		
-	return [getTrackInfo(t["artists"],t["title"]) for t in trackobjectlist]
+	return [getTrackImage(t["artists"],t["title"]) for t in trackobjectlist]
 	
-def getArtistsInfo(artistlist,fast=False):
+def getArtistImages(artistlist,fast=False):
 	
 	threads = []
 	
 	for artist in artistlist:
-		t = Thread(target=getArtistInfo,args=(artist,),kwargs={"fast":fast})
+		t = Thread(target=getArtistImage,args=(artist,),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
 	
@@ -378,7 +398,7 @@ def getArtistsInfo(artistlist,fast=False):
 		t.join()
 	
 	# async calls only cached results, now we need to get them	
-	return [getArtistInfo(a) for a in artistlist]
+	return [getArtistImage(a) for a in artistlist]
 
 
 
@@ -388,7 +408,7 @@ def getArtistsInfo(artistlist,fast=False):
 
 def resolveImage(artist=None,track=None):
 	if track is not None:
-		return getTrackInfo(track["artists"],track["title"])["image"]
+		return getTrackImage(track["artists"],track["title"])
 	elif artist is not None:
-		return getArtistInfo(artist)["image"]
+		return getArtistImage(artist)
 		

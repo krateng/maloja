@@ -2,7 +2,7 @@ import urllib
 
 		
 def instructions(keys):
-	from utilities import getArtistInfo, getTrackInfo
+	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, KeySplit
 	from htmlmodules import module_trackcharts	
 	from malojatime import range_desc
@@ -17,10 +17,10 @@ def instructions(keys):
 	
 	
 	if filterkeys.get("artist") is not None:
-		imgurl = getArtistInfo(filterkeys.get("artist")).get("image")
+		imgurl = getArtistImage(filterkeys.get("artist"))
 		limitstring = "by " + artistLink(filterkeys.get("artist"))
 	elif rep is not None:
-		imgurl = getTrackInfo(rep["artists"],rep["title"]).get("image")		
+		imgurl = getTrackImage(rep["artists"],rep["title"])	
 	else:
 		imgurl = ""
 		

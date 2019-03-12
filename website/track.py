@@ -3,7 +3,7 @@ import database
 
 		
 def instructions(keys):
-	from utilities import getArtistInfo, getTrackInfo
+	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLinks, keysToUrl, KeySplit
 	from htmlmodules import module_scrobblelist, module_pulse
 
@@ -11,7 +11,7 @@ def instructions(keys):
 	filterkeys, _, _, _ = KeySplit(keys,forceTrack=True)	
 	
 	track = filterkeys.get("track")
-	imgurl = getTrackInfo(track["artists"],track["title"],fast=True).get("image")
+	imgurl = getTrackImage(track["artists"],track["title"],fast=True)
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	data = database.trackInfo(track["artists"],track["title"])
