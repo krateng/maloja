@@ -281,14 +281,21 @@ def loadCache():
 		fl.close()
 		
 	# remove corrupt caching from previous versions
+	toremove = []
 	for k in cachedTracks:
 		if cachedTracks[k] == "":
-			del cachedTracks[k]
-			log("Removed invalid cache key: " + str(k))
+			toremove.append(k)
+	for k in toremove:
+		del cachedTracks[k]
+		log("Removed invalid cache key: " + str(k))
+	
+	toremove = []
 	for k in cachedArtists:
 		if cachedArtists[k] == "":
-			del cachedArtists[k]
-			log("Removed invalid cache key: " + str(k))
+			toremove.append(k)
+	for k in toremove:
+		del cachedArtists[k]
+		log("Removed invalid cache key: " + str(k))
 
 def getTrackImage(artists,title,fast=False):
 
