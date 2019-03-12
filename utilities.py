@@ -185,6 +185,9 @@ def clock(*args):
 		print(args[0] + ": " + str(now - measurement))
 	measurement = now
 
+
+
+
 ### Media info
 
 def apirequest(artists=None,artist=None,title=None):

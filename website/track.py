@@ -15,12 +15,12 @@ def instructions(keys):
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 	
 	data = database.trackInfo(track["artists"],track["title"])
+	
 	scrobblesnum = str(data["scrobbles"])
 	pos = "#" + str(data["position"])
 	
-	
 
-	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=100)	
+	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=100,earlystop=True)	 # we have the number already from the trackinfo
 	
 	html_pulse = module_pulse(track=track,step="year",stepn=1,trail=1)
 

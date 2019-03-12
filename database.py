@@ -179,14 +179,12 @@ def get_scrobbles_external():
 	return {"list":result}
 
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","associated","track"]})
-	r.reverse()
-	
-	if keys.get("max_") is not None:
-		return r[:int(keys.get("max_"))]
-	else:
-		return r
-
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","associated","track","max_"]})
+	#if keys.get("max_") is not None:
+	#	return r[:int(keys.get("max_"))]
+	#else:
+	#	return r
+	return r
 
 
 
@@ -826,7 +824,7 @@ def check_cache_age():
 
 
 # Queries the database			
-def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False):
+def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False,max_=None):
 
 	(since, to) = time_stamps(since,to,within)
 	
@@ -859,15 +857,20 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 	elif artist is None and track is None and artists is not None and len(artists) != 0:
 		artist = artists.pop()
 		
-			
 	
-		
-	if associated:
-		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in coa.getCreditedList(TRACKS[s[0]][0])) and (since < s[1] < to)]
-		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (track is None or s[0] == track) and (artist is None or artist in coa.getCreditedList(TRACKS[s[0]][0]))]
-	else:
-		#return [getScrobbleObject(s) for s in SCROBBLES if (s[0] == track or track==None) and (artist==None or artist in TRACKS[s[0]][0]) and (since < s[1] < to)]
-		return [getScrobbleObject(s) for s in scrobbles_in_range(since,to) if (track is None or s[0] == track) and (artist is None or artist in  TRACKS[s[0]][0])]
+	# db query always reverse by default	
+	
+	result = []
+	
+	i = 0
+	for s in scrobbles_in_range(since,to,reverse=True):
+		if i == max_: break
+		if (track is None or s[0] == track) and (artist is None or artist in TRACKS[s[0]][0] or associated and artist in coa.getCreditedList(TRACKS[s[0]][0])):
+			result.append(getScrobbleObject(s))
+			i += 1
+				
+	return result
+	
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 	
 
@@ -967,25 +970,20 @@ def insert(list_,item,key=lambda x:x):
 	list_.append(item)
 	return i
 	
-	
+
 def scrobbles_in_range(start,end,reverse=False):
 	if reverse:
 		for stamp in reversed(STAMPS):
 			#print("Checking " + str(stamp))
 			if stamp < start: return
 			if stamp > end: continue
-			yield SCROBBLESDICT[stamp]	
+			yield SCROBBLESDICT[stamp]
 	else:
 		for stamp in STAMPS:
 			#print("Checking " + str(stamp))
 			if stamp < start: continue
 			if stamp > end: return
 			yield SCROBBLESDICT[stamp]
-
-	#for stamp in range(start,end+1):
-	#	if stamp%1000 == 0: print("testing " + str(stamp))
-	#	if stamp in SCROBBLESDICT:
-	#		yield SCROBBLESDICT[stamp]
 	
 
 # for performance testing

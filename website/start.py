@@ -38,7 +38,7 @@ def instructions(keys):
 
 
 	# scrobbles
-	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True)
+	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True,earlystop=True)
 	
 	clock("Scrobbles")
 	

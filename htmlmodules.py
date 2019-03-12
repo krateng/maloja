@@ -16,12 +16,16 @@ import urllib
 
 
 # artist=None,track=None,since=None,to=None,within=None,associated=False,max_=None,pictures=False
-def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,**kwargs):
+def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
 	
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
 	kwargs_time = pickKeys(kwargs,"since","to","within")
 	
-	scrobbles = database.get_scrobbles(**kwargs_time,**kwargs_filter) #we're getting all scrobbles for the number and only filtering them on site
+	
+	# if earlystop, we don't care about the actual amount and only request as many from the db
+	# without, we request everything and filter on site
+	maxkey = {"max_":max_} if earlystop else {}
+	scrobbles = database.get_scrobbles(**kwargs_time,**kwargs_filter,**maxkey)
 	if pictures:
 		scrobbleswithpictures = scrobbles if max_ is None else scrobbles[:max_]
 		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
