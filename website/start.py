@@ -43,18 +43,23 @@ def instructions(keys):
 	clock("Scrobbles")
 	
 	# stats
-	amount = database.get_scrobbles_num(since="today")
-	scrobbles_today = "<a href='/scrobbles?since=today'>" + str(amount) + "</a>"
 	
-	amount = database.get_scrobbles_num(since="month")
-	scrobbles_month = "<a href='/scrobbles?since=month'>" + str(amount) + "</a>"
-
-	amount = database.get_scrobbles_num(since="year")
-	scrobbles_year = "<a href='/scrobbles?since=year'>" + str(amount) + "</a>"
-
-	amount = database.get_scrobbles_num()
-	scrobbles_total = "<a href='/scrobbles'>" + str(amount) + "</a>"
+	#(amount_day,amount_month,amount_year,amount_total) = database.get_scrobbles_num_multiple(("today","month","year",None))
+	#amount_month += amount_day
+	#amount_year += amount_month
+	#amount_total += amount_year
 	
+	amount_day = database.get_scrobbles_num(since="today")
+	scrobbles_today = "<a href='/scrobbles?since=today'>" + str(amount_day) + "</a>"
+	
+	amount_month = database.get_scrobbles_num(since="month")
+	scrobbles_month = "<a href='/scrobbles?since=month'>" + str(amount_month) + "</a>"
+
+	amount_year = database.get_scrobbles_num(since="year")
+	scrobbles_year = "<a href='/scrobbles?since=year'>" + str(amount_year) + "</a>"
+
+	amount_total = database.get_scrobbles_num()
+	scrobbles_total = "<a href='/scrobbles'>" + str(amount_total) + "</a>"
 	
 	clock("Amounts")
 	

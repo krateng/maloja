@@ -214,6 +214,38 @@ def get_scrobbles_num(**keys):
 	return len(r)
 
 
+#for multiple since values (must be ordered)
+# DOESN'T SEEM TO ACTUALLY BE FASTER
+# REEVALUATE
+
+#def get_scrobbles_num_multiple(sinces=[],to=None,**keys):
+#	
+#	sinces_stamps = [time_stamps(since,to,None)[0] for since in sinces]
+#	#print(sinces)
+#	#print(sinces_stamps)
+#	minsince = sinces[-1]
+#	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","associated","to"]},since=minsince)
+#	
+#	#print(r)
+#	
+#	validtracks = [0 for s in sinces]
+#	
+#	i = 0
+#	si = 0
+#	while True:
+#		if si == len(sinces): break
+#		if i == len(r): break
+#		if r[i]["time"] >= sinces_stamps[si]:
+#			validtracks[si] += 1
+#		else:
+#			si += 1
+#			continue
+#		i += 1
+#	
+#				
+#	return validtracks
+		
+
 # UNUSED
 #@dbserver.route("/charts")
 #def get_charts_external():
@@ -871,7 +903,7 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 	
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 	
-
+	
 # Queries that... well... aggregate
 def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 	(since, to) = time_stamps(since,to,within)
