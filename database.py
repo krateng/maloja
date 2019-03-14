@@ -676,12 +676,12 @@ def rebuild():
 		global db_rulestate
 		db_rulestate = False
 		sync()
-		invalidate_caches()
 		os.system("python3 fixexisting.py")
 		global cla, coa
 		cla = CleanerAgent()
 		coa = CollectorAgent()
 		build_db()
+		invalidate_caches()
 
 
 
@@ -732,6 +732,8 @@ def build_db():
 	SCROBBLES = []
 	ARTISTS = []
 	TRACKS = []
+	STAMPS = []
+	SCROBBLESDICT = {}
 
 
 	# parse files
