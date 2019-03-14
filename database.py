@@ -52,10 +52,10 @@ def checkAPIkey(k):
 def getScrobbleObject(o):
 	track = getTrackObject(TRACKS[o[0]])
 	return {"artists":track["artists"],"title":track["title"],"time":o[1]}
-	
+
 def getArtistObject(o):
 	return o
-	
+
 def getTrackObject(o):
 	artists = [getArtistObject(ARTISTS[a]) for a in o[0]]
 	return {"artists":artists,"title":o[1]}
@@ -66,7 +66,7 @@ def getTrackObject(o):
 ####
 
 
-	
+
 def createScrobble(artists,title,time,volatile=False):
 	while (time in SCROBBLESDICT):
 		time += 1
@@ -89,14 +89,14 @@ def readScrobble(artists,title,time):
 	SCROBBLES.append(obj)
 	SCROBBLESDICT[time] = obj
 	#STAMPS.append(time)
-	
-	
+
+
 
 def getArtistID(name):
 
 	obj = name
 	objlower = name.lower()
-	
+
 	try:
 		return ARTISTS.index(obj)
 	except:
@@ -107,14 +107,14 @@ def getArtistID(name):
 		i = len(ARTISTS)
 		ARTISTS.append(obj)
 		return i
-			
+
 def getTrackID(artists,title):
 	artistset = set()
 	for a in artists:
 		artistset.add(getArtistID(name=a))
 	obj = (frozenset(artistset),title)
 	objlower = (frozenset(artistset),title.lower())
-	
+
 	try:
 		return TRACKS.index(obj)
 	except:
@@ -150,14 +150,14 @@ def test_server():
 	if apikey is not None and not (checkAPIkey(apikey)):
 		response.status = 403
 		return "Wrong API key"
-	
+
 	elif db_rulestate:
 		response.status = 204
 		return
 	else:
 		response.status = 205
 		return
-		
+
 	# 204	Database server is up and operational
 	# 205	Database server is up, but DB is not fully built or is inconsistent
 	# 403	Database server is up, but provided API key is not valid
@@ -173,7 +173,7 @@ def get_scrobbles_external():
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["associated"] = (keys.get("associated")!=None)
 	ckeys["max_"] = keys.get("max")
-	
+
 	result = get_scrobbles(**ckeys)
 	return {"list":result}
 
@@ -196,7 +196,7 @@ def get_scrobbles(**keys):
 #
 #def get_amounts():
 #	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
-	
+
 
 @dbserver.route("/numscrobbles")
 def get_scrobbles_num_external():
@@ -205,7 +205,7 @@ def get_scrobbles_num_external():
 	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["associated"] = (keys.get("associated")!=None)
-	
+
 	result = get_scrobbles_num(**ckeys)
 	return {"amount":result}
 
@@ -219,17 +219,17 @@ def get_scrobbles_num(**keys):
 # REEVALUATE
 
 #def get_scrobbles_num_multiple(sinces=[],to=None,**keys):
-#	
+#
 #	sinces_stamps = [time_stamps(since,to,None)[0] for since in sinces]
 #	#print(sinces)
 #	#print(sinces_stamps)
 #	minsince = sinces[-1]
 #	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","associated","to"]},since=minsince)
-#	
+#
 #	#print(r)
-#	
+#
 #	validtracks = [0 for s in sinces]
-#	
+#
 #	i = 0
 #	si = 0
 #	while True:
@@ -241,10 +241,10 @@ def get_scrobbles_num(**keys):
 #			si += 1
 #			continue
 #		i += 1
-#	
-#				
+#
+#
 #	return validtracks
-		
+
 
 # UNUSED
 #@dbserver.route("/charts")
@@ -252,8 +252,8 @@ def get_scrobbles_num(**keys):
 #	keys = FormsDict.decode(request.query)
 #	ckeys = {}
 #	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-#	
-#	result = get_scrobbles_num(**ckeys)	
+#
+#	result = get_scrobbles_num(**ckeys)
 #	return {"number":result}
 
 #def get_charts(**keys):
@@ -275,7 +275,7 @@ def get_tracks_external():
 	return {"list":result}
 
 def get_tracks(artist=None):
-	
+
 	if artist is not None:
 		artistid = ARTISTS.index(artist)
 	else:
@@ -283,7 +283,7 @@ def get_tracks(artist=None):
 
 	# Option 1
 	return [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
-	
+
 	# Option 2 is a bit more elegant but much slower
 	#tracklist = [getTrackObject(t) for t in TRACKS]
 	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
@@ -296,19 +296,19 @@ def get_artists_external():
 
 def get_artists():
 	return ARTISTS #well
-	
 
 
 
 
 
-	
+
+
 @dbserver.route("/charts/artists")
 def get_charts_artists_external():
 	keys = FormsDict.decode(request.query)
 	ckeys = {}
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	
+
 	result = get_charts_artists(**ckeys)
 	return {"list":result}
 
@@ -326,21 +326,21 @@ def get_charts_tracks_external():
 	ckeys = {}
 	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
 	ckeys["artist"] = keys.get("artist")
-	
+
 	result = get_charts_tracks(**ckeys)
 	return {"list":result}
-	
+
 def get_charts_tracks(**keys):
 	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","artist"]})
-	
-	
-	
 
 
 
 
 
-	
+
+
+
+
 @dbserver.route("/pulse")
 def get_pulse_external():
 	keys = FormsDict.decode(request.query)
@@ -351,20 +351,20 @@ def get_pulse_external():
 	ckeys["associated"] = (keys.get("associated")!=None)
 	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
 	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
-	
+
 	cleandict(ckeys)
 	results = get_pulse(**ckeys)
 	return {"list":results}
 
 def get_pulse(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})	
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
 	results = []
-	
+
 	for (a,b) in rngs:
 		res = len(db_query(since=a,to=b,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
 		results.append({"from":a,"to":b,"scrobbles":res})
-		
+
 	return results
 
 
@@ -372,8 +372,8 @@ def get_pulse(**keys):
 
 
 
-		
-	
+
+
 @dbserver.route("/top/artists")
 def get_top_artists_external():
 
@@ -383,23 +383,23 @@ def get_top_artists_external():
 	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
 	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
 	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
-	
+
 	cleandict(ckeys)
 	results = get_top_artists(**ckeys)
 	return {"list":results}
-	
+
 def get_top_artists(**keys):
-	
+
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
 	results = []
-		
+
 	for (a,b) in rngs:
 		try:
 			res = db_aggregate(since=a,to=b,by="ARTIST")[0]
 			results.append({"from":a,"to":b,"artist":res["artist"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"from":a,"to":b,"artist":None,"scrobbles":0})
-	
+
 	return results
 
 
@@ -419,7 +419,7 @@ def get_top_tracks_external():
 	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
 	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
 	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
-	
+
 	cleandict(ckeys)
 	results = get_top_tracks(**ckeys)
 	return {"list":results}
@@ -428,14 +428,14 @@ def get_top_tracks(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
 	results = []
-		
+
 	for (a,b) in rngs:
 		try:
 			res = db_aggregate(since=a,to=b,by="TRACK")[0]
 			results.append({"from":a,"to":b,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"from":a,"to":b,"track":None,"scrobbles":0})
-	
+
 	return results
 
 
@@ -444,52 +444,59 @@ def get_top_tracks(**keys):
 
 
 
-	
-	
-	
-		
+
+
+
+
 @dbserver.route("/artistinfo")
 def artistInfo_external():
 	keys = FormsDict.decode(request.query)
 	ckeys = {}
 	ckeys["artist"] = keys.get("artist")
-	
+
 	results = artistInfo(**ckeys)
 	return results
-	
+
 def artistInfo(artist):
-	
+
 	charts = db_aggregate(by="ARTIST")
 	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = coa.getAllAssociated(artist)
-		return {"scrobbles":scrobbles,"position":charts.index(c) + 1,"associated":others}
+		position = charts.index(c)
+		while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
+		return {"scrobbles":scrobbles,"position":position + 1,"associated":others}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
-		return {"replace":artist,"scrobbles":scrobbles,"position":charts.index(c) + 1}
-	
-	
-	
-	
-		
-@dbserver.route("/trackinfo")	
+		position = charts.index(c)
+		while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
+		return {"replace":artist,"scrobbles":scrobbles,"position":position + 1}
+
+
+
+
+
+@dbserver.route("/trackinfo")
 def trackInfo_external():
 	keys = FormsDict.decode(request.query)
 	ckeys = {}
 	ckeys["artists"],ckeys["title"] = keys.getall("artist"), keys.get("title")
-	
+
 	results = trackInfo(**ckeys)
 	return results
 
 def trackInfo(artists,title):
 	charts = db_aggregate(by="TRACK")
-	scrobbles = len(db_query(artists=artists,title=title)) #we cant take the scrobble number from the charts because that includes all countas scrobbles
-	
+	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
 	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
-	return {"scrobbles":scrobbles,"position":charts.index(c) + 1}
+	scrobbles = c["scrobbles"]
+	position = charts.index(c)
+	while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
+
+	return {"scrobbles":scrobbles,"position":position + 1}
 
 
 
@@ -514,14 +521,14 @@ def pseudo_post_scrobble():
 
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
-	
+
 	createScrobble(artists,title,time)
-	
+
 	if (time - lastsync) > 3600:
 		sync()
-	
+
 	return ""
-	
+
 @dbserver.post("/newscrobble")
 def post_scrobble():
 	keys = FormsDict.decode(request.forms) # The Dal★Shabet handler
@@ -531,7 +538,7 @@ def post_scrobble():
 	if not (checkAPIkey(apikey)):
 		response.status = 403
 		return ""
-	
+
 	try:
 		time = int(keys.get("time"))
 	except:
@@ -540,15 +547,15 @@ def post_scrobble():
 
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
-	
+
 	createScrobble(artists,title,time)
-	
+
 	#if (time - lastsync) > 3600:
 	#	sync()
 	sync() #let's just always sync, not like one filesystem access every three minutes is a problem and it avoids lost tracks when we lose power
-	
+
 	return ""
-	
+
 @dbserver.route("/sync")
 def abouttoshutdown():
 	sync()
@@ -562,31 +569,31 @@ def newrule():
 		addEntry("rules/webmade.tsv",[k for k in keys])
 		global db_rulestate
 		db_rulestate = False
-	
-	
+
+
 @dbserver.route("/issues")
 def issues_external(): #probably not even needed
 	return issues()
-	
-	
+
+
 def issues():
 	combined = []
 	duplicates = []
 	newartists = []
 	inconsistent = not db_rulestate
 	# if the user manually edits files while the server is running this won't show, but too lazy to check the rulestate here
-	
+
 	import itertools
 	import difflib
-	
+
 	sortedartists = ARTISTS.copy()
 	sortedartists.sort(key=len,reverse=True)
 	reversesortedartists = sortedartists.copy()
 	reversesortedartists.reverse()
 	for a in reversesortedartists:
-		
+
 		nochange = cla.confirmedReal(a)
-		
+
 		st = a
 		lis = []
 		reachedmyself = False
@@ -596,11 +603,11 @@ def issues():
 			elif not reachedmyself:
 				reachedmyself = True
 				continue
-			
+
 			if (ar.lower() == a.lower()) or ("the " + ar.lower() == a.lower()) or ("a " + ar.lower() == a.lower()):
 				duplicates.append((ar,a))
 				break
-		
+
 			if (ar + " " in st) or (" " + ar in st):
 				lis.append(ar)
 				st = st.replace(ar,"").strip()
@@ -610,10 +617,10 @@ def issues():
 				if not nochange:
 					combined.append((a,lis))
 				break
-				
+
 			elif (ar in st) and len(ar)*2 > len(st):
 				duplicates.append((a,ar))
-		
+
 		st = st.replace("&","").replace("and","").replace("with","").strip()
 		if st != "" and st != a:
 			if len(st) < 5 and len(lis) == 1:
@@ -626,7 +633,7 @@ def issues():
 				#check if we havent just randomly found the string in another word
 				if (" " + st + " ") in a or (a.endswith(" " + st)) or (a.startswith(st + " ")):
 					newartists.append((st,a,lis))
-	
+
 	#for c in itertools.combinations(ARTISTS,3):
 	#	l = list(c)
 	#	print(l)
@@ -641,8 +648,8 @@ def issues():
 	#
 	#	if (c[0].lower == c[1].lower):
 	#		duplicates.append((c[0],c[1]))
-			
-			
+
+
 	#	elif (c[0] + " " in c[1]) or (" " + c[0] in c[1]) or (c[1] + " " in c[0]) or (" " + c[1] in c[0]):
 	#		if (c[0] in c[1]):
 	#			full, part = c[1],c[0]
@@ -652,16 +659,16 @@ def issues():
 	#			rest = c[0].replace(c[1],"").strip()
 	#		if rest in ARTISTS and full not in [c[0] for c in combined]:
 	#			combined.append((full,part,rest))
-	
+
 	#	elif (c[0] in c[1]) or (c[1] in c[0]):
 	#		duplicates.append((c[0],c[1]))
-			
-	
+
+
 	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
 
 @dbserver.post("/rebuild")
 def rebuild():
-	
+
 	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
@@ -669,6 +676,7 @@ def rebuild():
 		global db_rulestate
 		db_rulestate = False
 		sync()
+		invalidate_caches()
 		os.system("python3 fixexisting.py")
 		global cla, coa
 		cla = CleanerAgent()
@@ -685,7 +693,7 @@ def search():
 	max_ = keys.get("max")
 	if max_ is not None: max_ = int(max_)
 	query = query.lower()
-	
+
 	artists = db_search(query,type="ARTIST")
 	tracks = db_search(query,type="TRACK")
 	# if the string begins with the query it's a better match, if a word in it begins with it, still good
@@ -693,7 +701,7 @@ def search():
 	artists.sort(key=lambda x: ((0 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 2),len(x)))
 	tracks.sort(key=lambda x: ((0 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 2),len(x["title"])))
 	return {"artists":artists[:max_],"tracks":tracks[:max_]}
-	
+
 ####
 ## Server operation
 ####
@@ -706,7 +714,7 @@ def runserver(PORT):
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	build_db()
-	
+
 
 	loadAPIkeys()
 
@@ -714,91 +722,91 @@ def runserver(PORT):
 	log("Database server reachable!")
 
 def build_db():
-	
-	
+
+
 	log("Building database...")
-	
+
 	global SCROBBLES, ARTISTS, TRACKS
 	global SCROBBLESDICT, STAMPS
-	
+
 	SCROBBLES = []
 	ARTISTS = []
 	TRACKS = []
-	
-	
+
+
 	# parse files
 	db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
 		title = sc[2]
 		time = sc[0]
-		
+
 		readScrobble(artists,title,time)
 
-	
-	# optimize database	
+
+	# optimize database
 	SCROBBLES.sort(key = lambda tup: tup[1])
 	#SCROBBLESDICT = {obj[1]:obj for obj in SCROBBLES}
 	STAMPS = [t for t in SCROBBLESDICT]
 	STAMPS.sort()
-	
+
 	# inform malojatime module about earliest scrobble
 	register_scrobbletime(STAMPS[0])
-	
+
 	# get extra artists with zero scrobbles from countas rules
 	for artist in coa.getAllArtists():
 		if artist not in ARTISTS:
 			ARTISTS.append(artist)
-	
+
 	coa.updateIDs(ARTISTS)
-	
-			
+
+
 	global db_rulestate
 	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
-	
+
 	# load cached images
 	loadCache()
-	
+
 	log("Database fully built!")
-	
 
 
-# Saves all cached entries to disk			
+
+# Saves all cached entries to disk
 def sync():
 
 	# all entries by file collected
 	# so we don't open the same file for every entry
 	entries = {}
-	
+
 	for idx in range(len(SCROBBLES)):
 		if not SCROBBLES[idx][2]:
-			
+
 			t = getScrobbleObject(SCROBBLES[idx])
-			
+
 			artistlist = list(t["artists"])
 			artistlist.sort() #we want the order of artists to be deterministic so when we update files with new rules a diff can see what has actually been changed
 			artistss = "␟".join(artistlist)
 			timestamp = datetime.date.fromtimestamp(t["time"])
-			
+
 			entry = [str(t["time"]),artistss,t["title"]]
-			
+
 			monthcode = str(timestamp.year) + "_" + str(timestamp.month)
 			entries.setdefault(monthcode,[]).append(entry) #i feckin love the setdefault function
-			
+
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
-			
+
 	for e in entries:
 		addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
-		
-			
+
+
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	log("Database saved to disk.")
-	
+
 	# save cached images
 	saveCache()
-			
+
 
 
 ###
@@ -816,7 +824,7 @@ def db_query(**kwargs):
 	global cache_query
 	key = json.dumps(kwargs)
 	if key in cache_query: return copy.copy(cache_query[key])
-	
+
 	result = db_query_full(**kwargs)
 	cache_query[key] = copy.copy(result)
 	return result
@@ -827,22 +835,24 @@ def db_aggregate(**kwargs):
 	global cache_aggregate
 	key = json.dumps(kwargs)
 	if key in cache_aggregate: return copy.copy(cache_aggregate[key])
-	
+
 	result = db_aggregate_full(**kwargs)
 	cache_aggregate[key] = copy.copy(result)
 	return result
-	
+
 def invalidate_caches():
 	global cache_query, cache_aggregate
 	cache_query = {}
 	cache_aggregate = {}
-	
+
 	now = datetime.datetime.now()
 	global cacheday
 	cacheday = (now.year,now.month,now.day)
 
+	log("Database caches invalidated.")
+
 def check_cache_age():
-	now = datetime.datetime.now()
+	now = datetime.datetime.utcnow()
 	global cacheday
 	if cacheday != (now.year,now.month,now.day): invalidate_caches()
 
@@ -853,70 +863,70 @@ def check_cache_age():
 
 
 
-# Queries the database			
+# Queries the database
 def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False,max_=None):
 
 	(since, to) = time_stamps(since,to,within)
-	
-	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly	
+
+	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
 	# if not, duplicate artist arguments are ignored
-	
+
 	#artist = None
-	
+
 	if artist is not None and isinstance(artist,str):
 		artist = ARTISTS.index(artist)
-	
+
 	# artists to numbers
-	if artists is not None:	
+	if artists is not None:
 		artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
-	
+
 	# track to number
 	if track is not None and isinstance(track,dict):
 		trackartists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in track["artists"]])
 		track = TRACKS.index((frozenset(trackartists),track["title"]))
 		artists = None
-	
+
 	#check if track is requested via title
 	if title!=None and track==None:
 		track = TRACKS.index((frozenset(artists),title))
 		artists = None
-		
+
 	# if we're not looking for a track (either directly or per title artist arguments, which is converted to track above)
 	# we only need one artist
 	elif artist is None and track is None and artists is not None and len(artists) != 0:
 		artist = artists.pop()
-		
-	
-	# db query always reverse by default	
-	
+
+
+	# db query always reverse by default
+
 	result = []
-	
+
 	i = 0
 	for s in scrobbles_in_range(since,to,reverse=True):
 		if i == max_: break
 		if (track is None or s[0] == track) and (artist is None or artist in TRACKS[s[0]][0] or associated and artist in coa.getCreditedList(TRACKS[s[0]][0])):
 			result.append(getScrobbleObject(s))
 			i += 1
-				
+
 	return result
-	
+
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
-	
-	
+
+
 # Queries that... well... aggregate
 def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 	(since, to) = time_stamps(since,to,within)
-	
+
 	if isinstance(artist, str):
 		artist = ARTISTS.index(artist)
-	
+
 	if (by=="ARTIST"):
 		#this is probably a really bad idea
 		#for a in ARTISTS:
 		#	num = len(db_query(artist=a,since=since,to=to))
-		#	
-				
+		#
+
 		# alright let's try for real
 		charts = {}
 		#for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
@@ -925,10 +935,10 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 			for a in coa.getCreditedList(artists):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
-				
+
 		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
 		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
-		
+
 	elif (by=="TRACK"):
 		charts = {}
 		#for s in [scr for scr in SCROBBLES if since < scr[1] < to and (artist==None or (artist in TRACKS[scr[0]][0]))]:
@@ -936,10 +946,10 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 			track = s[0]
 			# this either creates the new entry or increments the existing one
 			charts[track] = charts.setdefault(track,0) + 1
-				
+
 		ls = [{"track":getTrackObject(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
 		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
-		
+
 	else:
 		#return len([scr for scr in SCROBBLES if since < scr[1] < to])
 		return len(list(scrobbles_in_range(since,to)))
@@ -953,14 +963,14 @@ def db_search(query,type=None):
 			#if query.lower() in a.lower():
 			if simplestr(query) in simplestr(a):
 				results.append(a)
-	
+
 	if type=="TRACK":
 		results = []
 		for t in TRACKS:
 			#if query.lower() in t[1].lower():
 			if simplestr(query) in simplestr(t[1]):
 				results.append(getTrackObject(t))
-	
+
 	return results
 
 
@@ -978,7 +988,7 @@ def simplestr(input,ignorecapitalization=True):
 	return clear
 
 
-	
+
 def getArtistId(nameorid):
 	if isinstance(nameorid,int):
 		return nameorid
@@ -987,8 +997,8 @@ def getArtistId(nameorid):
 			return ARTISTS.index(nameorid)
 		except:
 			return -1
-			
-			
+
+
 def insert(list_,item,key=lambda x:x):
 	i = 0
 	while len(list_) > i:
@@ -996,10 +1006,10 @@ def insert(list_,item,key=lambda x:x):
 			list_.insert(i,item)
 			return i
 		i += 1
-		
+
 	list_.append(item)
 	return i
-	
+
 
 def scrobbles_in_range(start,end,reverse=False):
 	if reverse:
@@ -1014,7 +1024,7 @@ def scrobbles_in_range(start,end,reverse=False):
 			if stamp < start: continue
 			if stamp > end: return
 			yield SCROBBLESDICT[stamp]
-	
+
 
 # for performance testing
 def generateStuff(num=0,pertrack=0,mult=0):
@@ -1024,14 +1034,14 @@ def generateStuff(num=0,pertrack=0,mult=0):
 		t = getTrackObject(track)
 		time = random.randint(STAMPS[0],STAMPS[-1])
 		createScrobble(t["artists"],t["title"],time,volatile=True)
-		
+
 	for track in TRACKS:
 		t = getTrackObject(track)
 		for i in range(pertrack):
 			time = random.randint(STAMPS[0],STAMPS[-1])
 			createScrobble(t["artists"],t["title"],time,volatile=True)
-	
+
 	for scrobble in SCROBBLES:
-		s = getScrobbleObject(scrobble)	
+		s = getScrobbleObject(scrobble)
 		for i in range(mult):
 			createScrobble(s["artists"],s["title"],s["time"] - i*500,volatile=True)

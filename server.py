@@ -53,7 +53,7 @@ def database_get(pth):
 	except HTTPError as e:
 		response.status = e.code
 		return
-	
+
 @webserver.post("/db/<pth:path>")
 def database_post(pth):
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -66,12 +66,10 @@ def database_post(pth):
 	except HTTPError as e:
 		response.status = e.code
 		return
-		
-	
-	
+
 	return
 
-	
+
 def graceful_exit(sig=None,frame=None):
 	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
 	log("Server shutting down...")
@@ -110,7 +108,7 @@ def static_image(pth):
 				response = static_file("images/" + pth,root="")
 		except:
 			response = static_file("images/" + pth,root="")
-			
+
 	#response = static_file("images/" + pth,root="")
 	response.set_header("Cache-Control", "public, max-age=604800")
 	return response
@@ -121,19 +119,19 @@ def static_image(pth):
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")
-def static(name):	
+def static(name):
 	response = static_file("website/" + name,root="")
 	response.set_header("Cache-Control", "public, max-age=604800")
 	return response
-	
+
 @webserver.route("/<name>")
 def static_html(name):
 	linkheaders = ["</maloja.css>; rel=preload; as=style"]
 	keys = removeIdentical(FormsDict.decode(request.query))
-	
+
 	with open("website/" + name + ".html") as htmlfile:
 		html = htmlfile.read()
-		
+
 	# apply global substitutions
 	with open("website/common/footer.html") as footerfile:
 		footerhtml = footerfile.read()
@@ -141,16 +139,16 @@ def static_html(name):
 		headerhtml = headerfile.read()
 	html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
 
-	
+
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
 		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
 		txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
-		
+
 		# add headers for server push
 		for resource in resources:
-			linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])	
-		
+			linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
+
 		# apply key substitutions
 		for k in txt_keys:
 			if isinstance(txt_keys[k],list):
@@ -160,9 +158,9 @@ def static_html(name):
 			else:
 				html = html.replace(k,txt_keys[k])
 
-	
+
 	response.set_header("Link",",".join(linkheaders))
-	
+
 	return html
 	#return static_file("website/" + name + ".html",root="")
 
@@ -172,8 +170,9 @@ signal.signal(signal.SIGTERM, graceful_exit)
 
 #rename process, this is now required for the daemon manager to work
 setproctitle.setproctitle("Maloja")
-	
+
 ## start database server
 _thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
 
+log("Starting up Maloja server...")
 run(webserver, host='::', port=MAIN_PORT, server='waitress')
