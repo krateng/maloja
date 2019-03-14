@@ -35,9 +35,10 @@ function party(tab) {
 	}
 	
 	if (importantPage) {
-		chrome.tabs.executeScript(tab.id,{"file":"contentScript.js"})
+		window.setTimeout(function(){chrome.tabs.executeScript(tab.id,{"file":"contentScript.js"})},1000); // youtube for some reason decides to not update the artist immediately
 	}
 }
+
 
 function onPlaybackUpdate(request,sender) {
 	//console.log("Got update from Plex Web!")
