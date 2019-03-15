@@ -847,7 +847,7 @@ def invalidate_caches():
 	cache_query = {}
 	cache_aggregate = {}
 
-	now = datetime.datetime.now()
+	now = datetime.datetime.utcnow()
 	global cacheday
 	cacheday = (now.year,now.month,now.day)
 
