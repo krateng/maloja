@@ -1,0 +1,15 @@
+# NAME: Artists and Groups
+# DESC: Combines artists that also performed as part of a group
+
+# single artist more famous than group
+countas		Selena Gomez & The Scene		Selena Gomez
+countas		The Police									Sting
+countas		Trouble Maker								HyunA
+# Group more famous than single artist
+countas		RenoakRhythm								Approaching Nirvana
+countas		Shirley Manson							Garbage
+countas		Lewis Brindley							The Yogscast
+countas		Sips												The Yogscast
+countas		Jennie											BLACKPINK
+countas		Junghwa											EXID
+countas		Hwasa												Mamamoo

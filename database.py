@@ -666,6 +666,24 @@ def issues():
 
 	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
 
+
+@dbserver.post("/importrules")
+def import_rulemodule():
+	keys = FormsDict.decode(request.forms)
+	filename = keys.get("filename")
+	remove = keys.get("remove") is not None
+	validchars = "'-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	filename = "".join(c for c in filename if c in validchars)
+
+	if remove:
+		log("Deactivating predefined rulefile " + filename)
+		os.remove("rules/" + filename + ".tsv")
+	else:
+		log("Importing predefined rulefile " + filename)
+		os.symlink("predefined/" + filename + ".tsv","rules/" + filename + ".tsv")
+
+
+
 @dbserver.post("/rebuild")
 def rebuild():
 

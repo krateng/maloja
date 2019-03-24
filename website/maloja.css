@@ -40,9 +40,9 @@ div.header {
 	left:0px;
 	padding:10px;
 	opacity:1;
-	
+
 	color:black;
-	
+
 	z-index:5;
 }
 
@@ -111,7 +111,7 @@ div.footer input {
 div.footer input:focus {
 	outline:none;
 	/**background-color:rgba(245,245,220,0.05);**/
-	
+
 }
 
 div.searchresults {
@@ -139,7 +139,7 @@ div.searchresults tr {
 	margin-bottom:5px;
 	height:50px;
 	cursor:pointer;
-	
+
 }
 div.searchresults tr:hover {
 	background-color:rgba(35,35,35,1);
@@ -253,7 +253,7 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 
 table.list {
 	border-collapse:collapse;
-	
+
 }
 
 table.list tr td {
@@ -263,7 +263,7 @@ table.list tr td {
 	overflow:hidden;
 	text-overflow:ellipsis;
 	padding-right:15px;
-	
+
 }
 
 table.list tr:nth-child(even) {
@@ -272,7 +272,7 @@ table.list tr:nth-child(even) {
 
 table.list tr:nth-child(5n) td {
 	border-color:rgba(120,120,120,0.2);
-	
+
 }
 
 table.list tr:hover {
@@ -281,7 +281,7 @@ table.list tr:hover {
 
 table.list td.time {
 	width:11%;
-	color:gray;	
+	color:gray;
 }
 
 
@@ -300,8 +300,16 @@ table.list td.icon div {
 
 table.list td.artists,td.artist,td.title {
 	min-width:100px;
-	
-	
+
+
+}
+
+
+table th {
+	text-align: left;
+}
+table td.interaction {
+	width:65px;
 }
 
 
@@ -317,14 +325,14 @@ table tr td.artists div span {
 	z-index:-2;
 	position:relative;
 	white-space:nowrap;
-	
+
 }
 table tr:hover td.artists div span {
 	animation: bounce 3s linear infinite alternate;
 }
 @keyframes bounce {
 	0% {
-		
+
 	}
 	100% {
 		//transform: translateX(-60px);
@@ -479,5 +487,5 @@ div.sidelist table {
 }
 
 div.sidelist table.list td.time {
-	width:17%;	
+	width:17%;
 }

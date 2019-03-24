@@ -1,0 +1,19 @@
+# NAME: Lord of the Rings Soundtrack
+# DESC: Fixes tracks and artists from Howard Shore's soundtrack on different releases
+
+replaceartist		Howard Shore/Mabel Faletolu				Howard Shore␟Mabel Faletolu
+replaceartist		Sir James Galway Viggo Mortensen And Renee Fleming	Sir James Galway␟Viggo Mortensen␟Renée Fleming
+replaceartist		Sir James Galway Viggo Mortensen And Renée Fleming	Sir James Galway␟Viggo Mortensen␟Renée Fleming
+replaceartist		Billy Boyd And Dominic Monaghan				Billy Boyd␟Dominic Monaghan
+replaceartist		Billy Boyd and Dominic Monaghan				Billy Boyd␟Dominic Monaghan
+replaceartist		Billy Boyd And Dominic Monaghan Album Version		Billy Boyd␟Dominic Monaghan
+replaceartist		Sissel Performing Asëa Aranion				Sissel
+replaceartist		Annie Lennox Performing Into The West			Annie Lennox
+replaceartist		Billy Boyd Performing The Edge Of Night			Billy Boyd
+replaceartist		Liv Tyler Album Version					Liv Tyler
+replaceartist		Renée Fleming Album Version				Renée Fleming
+replaceartist		Ben del Maestro Album Version				Ben Del Maestro
+replaceartist		Sir James Galway Album Version				Sir James Galway
+replaceartist		Sir James Galway Viggo Mortensen And Renée Fleming Album Version	Sir James Galway␟Viggo Mortensen␟Renée Fleming
+notanartist			In Dreams
+notanartist			Aniron Theme For Aragorn And Arwen
