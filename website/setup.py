@@ -2,7 +2,7 @@ import os
 
 def instructions(keys):
 
-    html = "<table>"
+    html = "<table class='misc'>"
 
     html += "<tr><th></th><th>Module</th><th>Author</th><th>Description</th></tr>"
 

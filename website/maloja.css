@@ -305,12 +305,7 @@ table.list td.artists,td.artist,td.title {
 }
 
 
-table th {
-	text-align: left;
-}
-table td.interaction {
-	width:65px;
-}
+
 
 
 /*
@@ -383,7 +378,21 @@ td.button.important div {
 }
 
 
+table.misc {
+	margin-left:20px;
+}
 
+table.misc td {
+		padding-right:20px;
+		color:#bbbbaa;
+	}
+
+	table.misc th {
+		text-align: left;
+	}
+	table.misc td.interaction {
+		width:65px;
+	}
 
 
 
