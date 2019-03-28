@@ -2,3 +2,5 @@ __pycache__
 *.sh
 apikey
 *.txt
+nohup.out
+screenshot*.png

@@ -82,8 +82,29 @@ replacetitle	I'll be yours				I'll Be Yours
 replacetitle	FEMALE PRESIDENT(여자 대통령)		Female President
 
 # Mamamoo
-replaceartist	Hwa Sa					 Hwasa
+replaceartist	Hwa Sa					Hwasa
 replaceartist	MAMAMOO					Mamamoo
 
 # Hello Venus
 replaceartist	Hello/Venus				Hello Venus
+
+# BESTie
+replaceartist	BESTie(베스티)				BESTie
+replaceartist	BESTie(베스티 (BESTie))			BESTie
+
+# LABOUM
+replacetitle	PYONG PYONG (Shooting Love)		PYONG PYONG
+replacetitle	PYONG PYONG (Shooting Love) (inst)	PYONG PYONG (instrumental)
+
+# Bambino
+replaceartist	밤비노 (Bambino)				Bambino
+
+# Laysha
+replaceartist	LAYSHA					Laysha
+replacetitle	chocolate cream				Chocolate Cream
+
+# GFriend
+replaceartist	여자친구 GFriend			GFriend
+
+# Girl's Generation
+replaceartist	소녀시대				Girls' Generation

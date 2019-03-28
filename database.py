@@ -10,6 +10,7 @@ from malojatime import *
 import sys
 import unicodedata
 import json
+from htmlgenerators import KeySplit
 
 dbserver = Bottle()
 
@@ -168,11 +169,8 @@ def test_server():
 @dbserver.route("/scrobbles")
 def get_scrobbles_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["associated"] = (keys.get("associated")!=None)
-	ckeys["max_"] = keys.get("max")
+	k_filter, k_time, _, k_amount = KeySplit(keys)
+	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles(**ckeys)
 	return {"list":result}
@@ -201,10 +199,8 @@ def get_scrobbles(**keys):
 @dbserver.route("/numscrobbles")
 def get_scrobbles_num_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["associated"] = (keys.get("associated")!=None)
+	k_filter, k_time, _, k_amount = KeySplit(keys)
+	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles_num(**ckeys)
 	return {"amount":result}
@@ -268,8 +264,8 @@ def get_scrobbles_num(**keys):
 @dbserver.route("/tracks")
 def get_tracks_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["artist"] = keys.get("artist")
+	k_filter, _, _, _ = KeySplit(keys,forceArtist=True)
+	ckeys = {**k_filter}
 
 	result = get_tracks(**ckeys)
 	return {"list":result}
@@ -306,8 +302,8 @@ def get_artists():
 @dbserver.route("/charts/artists")
 def get_charts_artists_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
+	_, k_time, _, _ = KeySplit(keys)
+	ckeys = {**k_time}
 
 	result = get_charts_artists(**ckeys)
 	return {"list":result}
@@ -323,9 +319,8 @@ def get_charts_artists(**keys):
 @dbserver.route("/charts/tracks")
 def get_charts_tracks_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["artist"] = keys.get("artist")
+	k_filter, k_time, _, _ = KeySplit(keys,forceArtist=True)
+	ckeys = {**k_filter, **k_time}
 
 	result = get_charts_tracks(**ckeys)
 	return {"list":result}
@@ -344,15 +339,9 @@ def get_charts_tracks(**keys):
 @dbserver.route("/pulse")
 def get_pulse_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
-	ckeys["artists"], ckeys["title"] = keys.getall("artist"), keys.get("title")
-	ckeys["associated"] = (keys.get("associated")!=None)
-	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
+	k_filter, k_time, k_internal, k_amount = KeySplit(keys)
+	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
-	cleandict(ckeys)
 	results = get_pulse(**ckeys)
 	return {"list":results}
 
@@ -378,13 +367,9 @@ def get_pulse(**keys):
 def get_top_artists_external():
 
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
-	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
+	_, k_time, k_internal, _ = KeySplit(keys)
+	ckeys = {**k_time, **k_internal}
 
-	cleandict(ckeys)
 	results = get_top_artists(**ckeys)
 	return {"list":results}
 
@@ -414,13 +399,11 @@ def get_top_artists(**keys):
 @dbserver.route("/top/tracks")
 def get_top_tracks_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-	ckeys["step"], ckeys["trail"] = keys.get("step"), int_or_none(keys.get("trail"))
-	if ckeys["step"] is not None: [ckeys["step"],ckeys["stepn"]] = (ckeys["step"].split("-") + [1])[:2]	# makes the multiplier 1 if not assigned
-	if "stepn" in ckeys: ckeys["stepn"] = int(ckeys["stepn"])
+	_, k_time, k_internal, _ = KeySplit(keys)
+	ckeys = {**k_time, **k_internal}
 
-	cleandict(ckeys)
+	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
+
 	results = get_top_tracks(**ckeys)
 	return {"list":results}
 
@@ -451,8 +434,8 @@ def get_top_tracks(**keys):
 @dbserver.route("/artistinfo")
 def artistInfo_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["artist"] = keys.get("artist")
+	k_filter, _, _, _ = KeySplit(keys,forceArtist=True)
+	ckeys = {**k_filter}
 
 	results = artistInfo(**ckeys)
 	return results
@@ -482,8 +465,8 @@ def artistInfo(artist):
 @dbserver.route("/trackinfo")
 def trackInfo_external():
 	keys = FormsDict.decode(request.query)
-	ckeys = {}
-	ckeys["artists"],ckeys["title"] = keys.getall("artist"), keys.get("title")
+	k_filter, _, _, _ = KeySplit(keys,forceTrack=True)
+	ckeys = {**k_filter}
 
 	results = trackInfo(**ckeys)
 	return results
@@ -546,7 +529,7 @@ def post_scrobble():
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
-	response.set_header("Access-Control-Allow-Origin","*")
+	#response.set_header("Access-Control-Allow-Origin","*")
 
 	createScrobble(artists,title,time)
 
