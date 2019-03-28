@@ -273,7 +273,7 @@ def cache_track(artists,title,result):
 def cache_artist(artist,result):
 	cachedArtists[artist] = result
 	day = datetime.date.today().toordinal()
-	cachedArtists[artist] = day
+	cachedArtistsDays[artist] = day
 
 def track_from_cache(artists,title):
 	try:
@@ -455,9 +455,11 @@ def getArtistImage(artist,fast=False):
 		pass
 
 
+
 	# do we have an api key?
 	apikey = settings.get_settings("LASTFM_API_KEY")
 	if apikey is None: return "" # DO NOT CACHE THAT
+
 
 
 	# fast request only retuns cached and local results, generates redirect link for rest

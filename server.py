@@ -132,7 +132,7 @@ def static(name):
 
 @webserver.route("/<name>")
 def static_html(name):
-	linkheaders = ["</maloja.css>; rel=preload; as=style"]
+	linkheaders = ["</css/maloja.css>; rel=preload; as=style"]
 	keys = removeIdentical(FormsDict.decode(request.query))
 
 	with open("website/" + name + ".html") as htmlfile:
