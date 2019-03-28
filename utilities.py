@@ -294,7 +294,7 @@ def track_from_cache(artists,title):
 	nowday = datetime.date.today().toordinal()
 	cacheday = cachedTracksDays[(frozenset(artists),title)]
 
-	if nowday - cacheday > retain:
+	if (nowday - cacheday) > retain:
 		# fetch the new image in the background, but still return the old one for one last time
 		log("Expired cache for " + "/".join(artists) + " - " + title)
 		del cachedTracks[(frozenset(artists),title)]
@@ -321,7 +321,7 @@ def artist_from_cache(artist):
 	nowday = datetime.date.today().toordinal()
 	cacheday = cachedArtistsDays[artist]
 
-	if nowday - cacheday > retain:
+	if (nowday - cacheday) > retain:
 		# fetch the new image in the background, but still return the old one for one last time
 		log("Expired cache for " + artist)
 		del cachedArtists[artist]
@@ -344,7 +344,7 @@ def loadCache():
 
 	try:
 		ob = pickle.loads(fl.read())
-		global cachedTracks, cachedArtists
+		global cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays
 		cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays = ob["tracks"],ob["artists"],ob["tracks_days"],ob["artists_days"]
 		#(cachedTracks, cachedArtists) = ob
 	finally:
