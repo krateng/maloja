@@ -17,7 +17,7 @@ def config(defaultextension=".ini",files=["settings.ini","settings.conf","config
 	_onlytext = onlytext
 
 
-	global Settings, get_settings, set_settings, update
+	global Settings, get_settings, update_settings, update
 
 
 	# manager object so we can read settings once and retain them
@@ -116,11 +116,11 @@ def config(defaultextension=".ini",files=["settings.ini","settings.conf","config
 
 		# specific keys requested
 		else:
-			if len(keys) == 1: return allsettings[keys[0]]
-			else: return [allsettings[k] for k in keys]
+			if len(keys) == 1: return allsettings.get(keys[0])
+			else: return [allsettings.get(k) for k in keys]
 
 
-	def set_settings(file,settings):
+	def update_settings(file,settings):
 
 		if not os.path.exists(file): return
 
@@ -180,7 +180,7 @@ def config(defaultextension=".ini",files=["settings.ini","settings.conf","config
 		else:
 			usersettings = get_settings(files=[target],raw=True)
 			shutil.copyfile(source,target)
-			set_settings(target,usersettings)
+			update_settings(target,usersettings)
 
 
 # initial config on import, set everything to default

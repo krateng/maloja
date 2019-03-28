@@ -387,7 +387,7 @@ def getArtistImage(artist,fast=False):
 	# do we have an api key?
 	apikey = settings.get_settings("LASTFM_API_KEY")
 	if apikey is None: return "" # DO NOT CACHE THAT
-	
+
 
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)
