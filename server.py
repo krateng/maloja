@@ -8,6 +8,8 @@ import database
 from htmlgenerators import removeIdentical
 from utilities import *
 from htmlgenerators import KeySplit
+# doreah toolkit
+from doreah import settings
 # technical
 from importlib.machinery import SourceFileLoader
 import _thread
@@ -22,8 +24,9 @@ from urllib.error import *
 
 
 
-MAIN_PORT = 42010
-DATABASE_PORT = 42011
+settings.config(files=["settings/default.ini","settings/settings.ini"])
+MAIN_PORT, DATABASE_PORT = settings.get_settings("WEB_PORT","API_PORT")
+
 
 webserver = Bottle()
 

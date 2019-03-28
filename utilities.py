@@ -5,6 +5,7 @@ from threading import Thread
 import pickle
 import urllib
 import datetime
+from doreah import settings
 
 
 ### TSV files
@@ -195,13 +196,14 @@ def apirequest(artists=None,artist=None,title=None):
 	import urllib.parse, urllib.request
 	import json
 
-	try:
-		with open("apikey","r") as keyfile:
-			apikey = keyfile.read().replace("\n","")
+	#try:
+		#with open("apikey","r") as keyfile:
+		#	apikey = keyfile.read().replace("\n","")
 
-		if apikey == "NONE": return None
-	except:
-		return None
+	apikey = settings.get_settings("LASTFM_API_KEY")
+	if apikey is None: return None
+	#except:
+	#	return None
 
 
 	sites = [
@@ -315,6 +317,7 @@ def getTrackImage(artists,title,fast=False):
 		imgurl = "/" + filepath + ".jpeg"
 		return imgurl
 
+
 	try:
 		# check our cache
 		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
@@ -328,6 +331,10 @@ def getTrackImage(artists,title,fast=False):
 			return ""
 	except:
 		pass
+
+	# do we have an api key?
+	apikey = settings.get_settings("LASTFM_API_KEY")
+	if apikey is None: return "" # DO NOT CACHE THAT
 
 
 	# fast request only retuns cached and local results, generates redirect link for rest
@@ -377,6 +384,10 @@ def getArtistImage(artist,fast=False):
 		pass
 
 
+	# do we have an api key?
+	apikey = settings.get_settings("LASTFM_API_KEY")
+	if apikey is None: return "" # DO NOT CACHE THAT
+	
 
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)

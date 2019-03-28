@@ -4,3 +4,4 @@ apikey
 *.txt
 nohup.out
 screenshot*.png
+/settings/settings.ini
