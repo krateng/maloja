@@ -263,9 +263,76 @@ def apirequest(artists=None,artist=None,title=None):
 cachedTracks = {}
 cachedArtists = {}
 
+cachedTracksDays = {}
+cachedArtistsDays = {}
+
+def cache_track(artists,title,result):
+	cachedTracks[(frozenset(artists),title)] = result
+	day = datetime.date.today().toordinal()
+	cachedTracksDays[(frozenset(artists),title)] = day
+def cache_artist(artist,result):
+	cachedArtists[artist] = result
+	day = datetime.date.today().toordinal()
+	cachedArtists[artist] = day
+
+def track_from_cache(artists,title):
+	try:
+		res = cachedTracks[(frozenset(artists),title)]
+	except:
+		# no entry there, let the calling function know
+		raise KeyError()
+
+	if res is None:
+		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
+	else:
+		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
+
+	# if the settings say caches never expire, just return
+	if retain is None: return res
+
+	# look if entry is too old
+	nowday = datetime.date.today().toordinal()
+	cacheday = cachedTracksDays[(frozenset(artists),title)]
+
+	if nowday - cacheday > retain:
+		# fetch the new image in the background, but still return the old one for one last time
+		log("Expired cache for " + "/".join(artists) + " - " + title)
+		del cachedTracks[(frozenset(artists),title)]
+		t = Thread(target=getTrackImage,args=(artists,title,))
+		t.start()
+	return res
+
+def artist_from_cache(artist):
+	try:
+		res = cachedArtists[artist]
+	except:
+		# no entry there, let the calling function know
+		raise KeyError()
+
+	if res is None:
+		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
+	else:
+		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
+
+	# if the settings say caches never expire, just return
+	if retain is None: return res
+
+	# look if entry is too old
+	nowday = datetime.date.today().toordinal()
+	cacheday = cachedArtistsDays[artist]
+
+	if nowday - cacheday > retain:
+		# fetch the new image in the background, but still return the old one for one last time
+		log("Expired cache for " + artist)
+		del cachedArtists[artist]
+		t = Thread(target=getArtistImage,args=(artist,))
+		t.start()
+	return res
+
+
 def saveCache():
 	fl = open("images/cache","wb")
-	stream = pickle.dumps((cachedTracks,cachedArtists))
+	stream = pickle.dumps({"tracks":cachedTracks,"artists":cachedArtists,"tracks_days":cachedTracksDays,"artists_days":cachedArtistsDays})
 	fl.write(stream)
 	fl.close()
 
@@ -278,7 +345,8 @@ def loadCache():
 	try:
 		ob = pickle.loads(fl.read())
 		global cachedTracks, cachedArtists
-		(cachedTracks, cachedArtists) = ob
+		cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays = ob["tracks"],ob["artists"],ob["tracks_days"],ob["artists_days"]
+		#(cachedTracks, cachedArtists) = ob
 	finally:
 		fl.close()
 
@@ -322,7 +390,8 @@ def getTrackImage(artists,title,fast=False):
 		# check our cache
 		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
 		# (even if we're not in a fast lookup right now)
-		result = cachedTracks[(frozenset(artists),title)]
+		#result = cachedTracks[(frozenset(artists),title)]
+		result = track_from_cache(artists,title)
 		if result is not None: return result
 		else:
 			for a in artists:
@@ -344,7 +413,8 @@ def getTrackImage(artists,title,fast=False):
 	result = apirequest(artists=artists,title=title)
 
 	# cache results (even negative ones)
-	cachedTracks[(frozenset(artists),title)] = result
+	#cachedTracks[(frozenset(artists),title)] = result
+	cache_track(artists,title,result)
 
 	# return either result or redirect to artist
 	if result is not None: return result
@@ -377,7 +447,8 @@ def getArtistImage(artist,fast=False):
 
 
 	try:
-		result = cachedArtists[artist]
+		#result = cachedArtists[artist]
+		result = artist_from_cache(artist)
 		if result is not None: return result
 		else: return ""
 	except:
@@ -396,7 +467,8 @@ def getArtistImage(artist,fast=False):
 	result = apirequest(artist=artist)
 
 	# cache results (even negative ones)
-	cachedArtists[artist] = result
+	#cachedArtists[artist] = result
+	cache_artist(artist,result)
 
 	if result is not None: return result
 	else: return ""

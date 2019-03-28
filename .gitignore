@@ -5,3 +5,4 @@ apikey
 nohup.out
 screenshot*.png
 /settings/settings.ini
+proxyscrobble.py
