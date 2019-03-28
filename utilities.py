@@ -11,10 +11,10 @@ import datetime
 
 def parseTSV(filename,*args,escape=True):
 	f = open(filename)
-	
+
 	result = []
 	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
-		
+
 		l = l.replace("\n","")
 		if escape:
 			l = l.split("#")[0]
@@ -42,28 +42,28 @@ def parseTSV(filename,*args,escape=True):
 					entry.append((data[i].lower() in ["true","yes","1","y"]))
 				except:
 					entry.append(False)
-				
+
 		result.append(entry)
-		
+
 	f.close()
 	return result
-	
+
 def checksumTSV(folder):
-	
+
 	sums = ""
-	
+
 	for f in os.listdir(folder + "/"):
 		if (f.endswith(".tsv")):
 			f = open(folder + "/" + f,"rb")
 			sums += hashlib.md5(f.read()).hexdigest() + "\n"
 			f.close()
-			
+
 	return sums
-	
+
 # returns whether checksums match and sets the checksum to invalid if they don't (or sets the new one if no previous one exists)
 def combineChecksums(filename,checksums):
 	import os
-	
+
 	if os.path.exists(filename + ".rulestate"):
 		f = open(filename + ".rulestate","r")
 		oldchecksums = f.read()
@@ -86,41 +86,41 @@ def combineChecksums(filename,checksums):
 		f.write(checksums)
 		f.close()
 		return True
-	
+
 # checks ALL files for their rule state. if they are all the same as the current loaded one, the entire database can be assumed to be consistent with the current ruleset
 # in any other case, get out
 def consistentRulestate(folder,checksums):
-	
+
 	result = []
 	for scrobblefile in os.listdir(folder + "/"):
-		
+
 		if (scrobblefile.endswith(".tsv")):
-		
+
 			try:
 				f = open(folder + "/" + scrobblefile + ".rulestate","r")
 				if f.read() != checksums:
 					return False
-			
+
 			except:
 				return False
 			finally:
 				f.close()
-	
+
 	return True
-	
-	
+
+
 def parseAllTSV(path,*args,escape=True):
 
-	
+
 	result = []
 	for f in os.listdir(path + "/"):
-		
+
 		if (f.endswith(".tsv")):
-			
+
 			result += parseTSV(path + "/" + f,*args,escape=escape)
-			
+
 	return result
-	
+
 def createTSV(filename):
 
 	if not os.path.exists(filename):
@@ -129,14 +129,14 @@ def createTSV(filename):
 def addEntry(filename,a,escape=True):
 
 	createTSV(filename)
-	
+
 	line = "\t".join(a)
 	if escape: line = line.replace("#",r"\num")
 	with open(filename,"a") as f:
 		f.write(line + "\n")
 
 def addEntries(filename,al,escape=True):
-	
+
 	with open(filename,"a") as f:
 		for a in al:
 			line = "\t".join(a)
@@ -147,23 +147,23 @@ def addEntries(filename,al,escape=True):
 
 ### Useful functions
 
-def int_or_none(input_):
-	try:
-		return int(input_)
-	except:
-		return None
-		
-def cleandict(d):
-	newdict = {k:d[k] for k in d if d[k] is not None}
-	d.clear()
-	d.update(newdict)
+#def int_or_none(input_):
+#	try:
+#		return int(input_)
+#	except:
+#		return None
+
+#def cleandict(d):
+#	newdict = {k:d[k] for k in d if d[k] is not None}
+#	d.clear()
+#	d.update(newdict)
 
 
 
-		
-		
+
+
 ### Logging
-		
+
 def log(msg,module=None):
 	now = datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S")
 	if module is None:
@@ -173,8 +173,8 @@ def log(msg,module=None):
 	print("[" + module + "] " + msg)
 	with open("logs/" + module + ".log","a") as logfile:
 		logfile.write(now + "  " + msg + "\n")
-	
-	
+
+
 ### not meant to be precise, just for a rough idea
 measurement = 0
 def clock(*args):
@@ -191,19 +191,19 @@ def clock(*args):
 ### Media info
 
 def apirequest(artists=None,artist=None,title=None):
-	
+
 	import urllib.parse, urllib.request
 	import json
-	
+
 	try:
 		with open("apikey","r") as keyfile:
 			apikey = keyfile.read().replace("\n","")
-			
+
 		if apikey == "NONE": return None
 	except:
 		return None
-	
-	
+
+
 	sites = [
 		{
 			"name":"lastfm",
@@ -215,8 +215,8 @@ def apirequest(artists=None,artist=None,title=None):
 			#"result_track_desc":lambda data:None
 		}
 	]
-	
-	
+
+
 	# TRACKS
 	if title is not None:
 		for s in sites:
@@ -230,20 +230,20 @@ def apirequest(artists=None,artist=None,title=None):
 					return s["result_track_imgurl"](data)
 			except:
 				pass
-		
+
 		if len(artists) == 1:
 			#return {"image":apirequest(artist=artists[0])["image"]}
 			return None
-				
+
 		# try the same track with every single artist
 		for a in artists:
 			rec = apirequest(artists=[a],title=title)
 			if rec is not None:
 				return rec
-				
+
 		return None
-		
-	# ARTISTS		
+
+	# ARTISTS
 	else:
 		for s in sites:
 			try:
@@ -254,7 +254,7 @@ def apirequest(artists=None,artist=None,title=None):
 					return s["result_artist_imgurl"](data)
 			except:
 				pass
-		
+
 		return None
 
 # I think I've only just understood modules
@@ -266,20 +266,20 @@ def saveCache():
 	stream = pickle.dumps((cachedTracks,cachedArtists))
 	fl.write(stream)
 	fl.close()
-	
+
 def loadCache():
 	try:
 		fl = open("images/cache","rb")
 	except:
 		return
-		
+
 	try:
 		ob = pickle.loads(fl.read())
 		global cachedTracks, cachedArtists
 		(cachedTracks, cachedArtists) = ob
 	finally:
 		fl.close()
-		
+
 	# remove corrupt caching from previous versions
 	toremove = []
 	for k in cachedTracks:
@@ -288,7 +288,7 @@ def loadCache():
 	for k in toremove:
 		del cachedTracks[k]
 		log("Removed invalid cache key: " + str(k))
-	
+
 	toremove = []
 	for k in cachedArtists:
 		if cachedArtists[k] == "":
@@ -303,7 +303,7 @@ def getTrackImage(artists,title,fast=False):
 	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
 	if filename == "": filename = str(hash(obj))
 	filepath = "images/tracks/" + filename
-	
+
 	# check if custom image exists
 	if os.path.exists(filepath + ".png"):
 		imgurl = "/" + filepath + ".png"
@@ -314,7 +314,7 @@ def getTrackImage(artists,title,fast=False):
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
 		return imgurl
-		
+
 	try:
 		# check our cache
 		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
@@ -328,17 +328,17 @@ def getTrackImage(artists,title,fast=False):
 			return ""
 	except:
 		pass
-	
-	
+
+
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast: return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
-	
+
 	# non-fast lookup (esentially only the resolver lookup)
 	result = apirequest(artists=artists,title=title)
-	
+
 	# cache results (even negative ones)
 	cachedTracks[(frozenset(artists),title)] = result
-	
+
 	# return either result or redirect to artist
 	if result is not None: return result
 	else:
@@ -347,16 +347,16 @@ def getTrackImage(artists,title,fast=False):
 			if res != "": return res
 		return ""
 
-	
-	
-def getArtistImage(artist,fast=False):	
-		
+
+
+def getArtistImage(artist,fast=False):
+
 	obj = artist
 	filename = re.sub("[^a-zA-Z0-9]","",artist)
 	if filename == "": filename = str(hash(obj))
 	filepath = "images/artists/" + filename
 	#filepath_cache = "info/artists_cache/" + filename
-	
+
 	# check if custom image exists
 	if os.path.exists(filepath + ".png"):
 		imgurl = "/" + filepath + ".png"
@@ -367,7 +367,7 @@ def getArtistImage(artist,fast=False):
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
 		return imgurl
-	
+
 
 	try:
 		result = cachedArtists[artist]
@@ -375,49 +375,49 @@ def getArtistImage(artist,fast=False):
 		else: return ""
 	except:
 		pass
-		
-	
-		
+
+
+
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)
-	
-	# non-fast lookup (esentially only the resolver lookup)	
+
+	# non-fast lookup (esentially only the resolver lookup)
 	result = apirequest(artist=artist)
-	
+
 	# cache results (even negative ones)
 	cachedArtists[artist] = result
-	
+
 	if result is not None: return result
 	else: return ""
 
 def getTrackImages(trackobjectlist,fast=False):
 
 	threads = []
-	
+
 	for track in trackobjectlist:
 		t = Thread(target=getTrackImage,args=(track["artists"],track["title"],),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
-	
+
 	for t in threads:
 		t.join()
-		
-		
+
+
 	return [getTrackImage(t["artists"],t["title"]) for t in trackobjectlist]
-	
+
 def getArtistImages(artistlist,fast=False):
-	
+
 	threads = []
-	
+
 	for artist in artistlist:
 		t = Thread(target=getArtistImage,args=(artist,),kwargs={"fast":fast})
 		t.start()
 		threads.append(t)
-	
+
 	for t in threads:
 		t.join()
-	
-	# async calls only cached results, now we need to get them	
+
+	# async calls only cached results, now we need to get them
 	return [getArtistImage(a) for a in artistlist]
 
 
@@ -431,4 +431,3 @@ def resolveImage(artist=None,track=None):
 		return getTrackImage(track["artists"],track["title"])
 	elif artist is not None:
 		return getArtistImage(artist)
-		

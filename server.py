@@ -4,6 +4,7 @@
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
 import waitress
 # rest of the project
+import database
 from htmlgenerators import removeIdentical
 from utilities import *
 from htmlgenerators import KeySplit
@@ -71,7 +72,8 @@ def database_post(pth):
 
 
 def graceful_exit(sig=None,frame=None):
-	urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
+	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
+	database.sync()
 	log("Server shutting down...")
 	os._exit(42)
 
@@ -172,7 +174,8 @@ signal.signal(signal.SIGTERM, graceful_exit)
 setproctitle.setproctitle("Maloja")
 
 ## start database server
-_thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
+#_thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
+_thread.start_new_thread(database.runserver,(DATABASE_PORT,))
 
 log("Starting up Maloja server...")
 run(webserver, host='::', port=MAIN_PORT, server='waitress')
