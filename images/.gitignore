@@ -1,1 +1,6 @@
 cache
+*.jpg
+*.jpeg
+*.png
+*.gif
+!default.jpg

@@ -384,6 +384,9 @@ def getTrackImage(artists,title,fast=False):
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
 		return imgurl
+	elif os.path.exists(filepath + ".gif"):
+		imgurl = "/" + filepath + ".gif"
+		return imgurl
 
 
 	try:
@@ -443,6 +446,9 @@ def getArtistImage(artist,fast=False):
 		return imgurl
 	elif os.path.exists(filepath + ".jpeg"):
 		imgurl = "/" + filepath + ".jpeg"
+		return imgurl
+	elif os.path.exists(filepath + ".gif"):
+		imgurl = "/" + filepath + ".gif"
 		return imgurl
 
 

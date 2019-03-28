@@ -93,6 +93,7 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
 @webserver.route("/images/<pth:re:.*\\.png>")
+@webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
 	small_pth = pth.split(".")
 	small_pth.insert(-1,"small")
