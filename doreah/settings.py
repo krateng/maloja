@@ -120,9 +120,9 @@ def config(defaultextension=".ini",files=["settings.ini","settings.conf","config
 			else: return [allsettings.get(k) for k in keys]
 
 
-	def update_settings(file,settings):
+	def update_settings(file,settings,create_new=False):
 
-		if not os.path.exists(file): return
+		if not os.path.exists(file): open(file,"w").close()
 
 		with open(file,"r") as origfile:
 			lines = origfile.readlines()
@@ -162,9 +162,16 @@ def config(defaultextension=".ini",files=["settings.ini","settings.conf","config
 				#print("Found key")
 				newline = origline.split("=",1)
 				#print({"linepart":newline[1],"keytoreplace":val,"new":settings[key]})
-				newline[1] = newline[1].replace(val,str(settings[key]))
+				newline[1] = newline[1].replace(val,str(settings[key]),1)
 				newline = "=".join(newline)
 				newlines.append(newline)
+
+				del settings[key]
+
+		if create_new:
+			# settings that were not present in the file
+			for key in settings:
+				newlines.append(key + " = " + settings[key] + "\n")
 
 		with open(file,"w") as newfile:
 			newfile.write("".join(newlines))

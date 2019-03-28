@@ -25,6 +25,7 @@ from urllib.error import *
 
 
 settings.config(files=["settings/default.ini","settings/settings.ini"])
+#settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT, DATABASE_PORT = settings.get_settings("WEB_PORT","API_PORT")
 
 

@@ -22,6 +22,7 @@ SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
 
 
 settings.config(files=["settings/default.ini","settings/settings.ini"])
+#settings.update("settings/default.ini","settings/settings.ini")
 
 
 def blue(txt): return "\033[94m" + txt + "\033[0m"
@@ -51,8 +52,7 @@ def setup():
 		print("Please enter your Last.FM API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
 		key = input()
 		if key == "": key = None
-		settings.update_settings("settings/settings.ini",{"LASTFM_API_KEY":key})
-		# TODO: Make sure we set the setting even if file doesnt exist
+		settings.update_settings("settings/settings.ini",{"LASTFM_API_KEY":key},create_new=True)
 
 	else:
 		print("Last.FM API key found.")
