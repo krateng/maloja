@@ -7,6 +7,7 @@ import datetime
 from cleanup import *
 from utilities import *
 from doreah.logging import log
+from doreah import tsv
 from malojatime import *
 import sys
 import unicodedata
@@ -39,8 +40,10 @@ db_rulestate = False
 ### symmetric keys are fine for now since we hopefully use HTTPS
 def loadAPIkeys():
 	global clients
-	createTSV("clients/authenticated_machines.tsv")
-	clients = parseTSV("clients/authenticated_machines.tsv","string","string")
+	tsv.create("clients/authenticated_machines.tsv")
+	#createTSV("clients/authenticated_machines.tsv")
+	clients = tsv.parse("clients/authenticated_machines.tsv","string","string")
+	#clients = parseTSV("clients/authenticated_machines.tsv","string","string")
 	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
 def checkAPIkey(k):
@@ -550,7 +553,8 @@ def newrule():
 	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
-		addEntry("rules/webmade.tsv",[k for k in keys])
+		tsv.add_entry("rules/webmade.tsv",[k for k in keys])
+		#addEntry("rules/webmade.tsv",[k for k in keys])
 		global db_rulestate
 		db_rulestate = False
 
@@ -742,7 +746,8 @@ def build_db():
 
 
 	# parse files
-	db = parseAllTSV("scrobbles","int","string","string",escape=False)
+	db = tsv.parse_all("scrobbles","int","string","string",comments=False)
+	#db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
 		title = sc[2]
@@ -803,7 +808,8 @@ def sync():
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 
 	for e in entries:
-		addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
+		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
+		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 
 

@@ -6,48 +6,49 @@ import pickle
 import urllib
 import datetime
 from doreah import settings
+from doreah.logging import log
 
 
 ### TSV files
 
-def parseTSV(filename,*args,escape=True):
-	f = open(filename)
+#def parseTSV(filename,*args,escape=True):
+#	f = open(filename)
+#
+#	result = []
+#	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
+#
+#		l = l.replace("\n","")
+#		if escape:
+#			l = l.split("#")[0]
+#		l = l.replace(r"\num","#") # translate escape sequences even if we don't support comments in the file and they are not actually necessary (they might still be used for some reason)
+#		data = list(filter(None,l.split("\t"))) # Multiple tabs are okay, we don't accept empty fields unless trailing
+#		entry = [] * len(args)
+#		for i in range(len(args)):
+#			if args[i]=="list":
+#				try:
+#					entry.append(data[i].split("␟"))
+#				except:
+#					entry.append([])
+#			elif args[i]=="string":
+#				try:
+#					entry.append(data[i])
+#				except:
+#					entry.append("")
+#			elif args[i]=="int":
+#				try:
+#					entry.append(int(data[i]))
+#				except:
+#					entry.append(0)
+#			elif args[i]=="bool":
+#				try:
+#					entry.append((data[i].lower() in ["true","yes","1","y"]))
+#				except:
+#					entry.append(False)
+#
+#		result.append(entry)
 
-	result = []
-	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
-
-		l = l.replace("\n","")
-		if escape:
-			l = l.split("#")[0]
-		l = l.replace(r"\num","#") # translate escape sequences even if we don't support comments in the file and they are not actually necessary (they might still be used for some reason)
-		data = list(filter(None,l.split("\t"))) # Multiple tabs are okay, we don't accept empty fields unless trailing
-		entry = [] * len(args)
-		for i in range(len(args)):
-			if args[i]=="list":
-				try:
-					entry.append(data[i].split("␟"))
-				except:
-					entry.append([])
-			elif args[i]=="string":
-				try:
-					entry.append(data[i])
-				except:
-					entry.append("")
-			elif args[i]=="int":
-				try:
-					entry.append(int(data[i]))
-				except:
-					entry.append(0)
-			elif args[i]=="bool":
-				try:
-					entry.append((data[i].lower() in ["true","yes","1","y"]))
-				except:
-					entry.append(False)
-
-		result.append(entry)
-
-	f.close()
-	return result
+#	f.close()
+#	return result
 
 def checksumTSV(folder):
 
@@ -110,40 +111,40 @@ def consistentRulestate(folder,checksums):
 	return True
 
 
-def parseAllTSV(path,*args,escape=True):
+#def parseAllTSV(path,*args,escape=True):
+#
+#
+#	result = []
+#	for f in os.listdir(path + "/"):
+#
+#		if (f.endswith(".tsv")):
+#
+#			result += parseTSV(path + "/" + f,*args,escape=escape)
+#
+#	return result
 
+#def createTSV(filename):
+#
+#	if not os.path.exists(filename):
+#		open(filename,"w").close()
 
-	result = []
-	for f in os.listdir(path + "/"):
+#def addEntry(filename,a,escape=True):
+#
+#	createTSV(filename)
+#
+#	line = "\t".join(a)
+#	if escape: line = line.replace("#",r"\num")
+#	with open(filename,"a") as f:
+#		f.write(line + "\n")
 
-		if (f.endswith(".tsv")):
-
-			result += parseTSV(path + "/" + f,*args,escape=escape)
-
-	return result
-
-def createTSV(filename):
-
-	if not os.path.exists(filename):
-		open(filename,"w").close()
-
-def addEntry(filename,a,escape=True):
-
-	createTSV(filename)
-
-	line = "\t".join(a)
-	if escape: line = line.replace("#",r"\num")
-	with open(filename,"a") as f:
-		f.write(line + "\n")
-
-def addEntries(filename,al,escape=True):
-
-	with open(filename,"a") as f:
-		for a in al:
-			line = "\t".join(a)
-			if escape: line = line.replace("#",r"\num")
-			f.write(line + "\n")
-
+#def addEntries(filename,al,escape=True):
+#
+#	with open(filename,"a") as f:
+#		for a in al:
+#			line = "\t".join(a)
+#			if escape: line = line.replace("#",r"\num")
+#			f.write(line + "\n")
+#
 
 
 ### Useful functions
@@ -273,6 +274,7 @@ def cache_track(artists,title,result):
 	day = datetime.date.today().toordinal()
 	cachedTracksDays[(frozenset(artists),title)] = day
 def cache_artist(artist,result):
+	if result is None: log("Caching None for " + artist,module="debug")
 	cachedArtists[artist] = result
 	day = datetime.date.today().toordinal()
 	cachedArtistsDays[artist] = day
