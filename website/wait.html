@@ -5,27 +5,27 @@
 		<meta charset="UTF-8" />
 		<title>Maloja - Please wait</title>
 	</head>
-	
+
 	<body>
 		<table class="top_info">
 			<tr>
-				
+
 				<td class="text">
 					<h1>Maloja</h1><br/>
 					<span>Redbuilding the database</span>
-					
+
 					<p>Please wait...</p>
 				</td>
 			</tr>
 		</table>
-		
-		
+
+
 	</body>
-	
+
 	<script>
 		var pending = false;
 		setInterval(probeServer,1500);
-	
+
 		function probeServer() {
 			if (!pending) {
 				console.log("Probing...");
@@ -34,11 +34,11 @@
 				xhttp.open("GET","/db/test", true);
 				xhttp.onreadystatechange = goback;
 				xhttp.send();
-				
+
 			}
-			
+
 		}
-		
+
 		function goback() {
 			if ((this.readyState == 4) && (this.status == 205)) {
 				console.log("Not ready yet!")
@@ -50,6 +50,6 @@
 				window.location = "/issues";
 			}
 		}
-	
+
 	</script>
 </html>

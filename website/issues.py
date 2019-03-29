@@ -3,10 +3,10 @@ import database
 from htmlgenerators import artistLink
 
 def instructions(keys):
-	
+
 	db_data = database.issues()
 	i = 0
-	
+
 	html = "<table class='list'>"
 	if db_data["inconsistent"]:
 		html += "<tr>"
@@ -38,7 +38,7 @@ def instructions(keys):
 		html += """<td class='button' onclick="newrule(this,'replaceartist','""" + n[1] + """','""" + "␟".join(n[2] + [n[0]]) + """')"><div>Yes</div></td>"""
 		html += "</tr>"
 		i += 1
-	
+
 	html += "</table>"
 
 	return ({"KEY_ISSUESLIST":html,"KEY_ISSUES":str(i)},[])

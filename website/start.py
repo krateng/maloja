@@ -1,7 +1,7 @@
 import urllib
 from datetime import datetime, timedelta
 import database
-from utilities import clock
+from doreah.timing import clock, clockp
 
 from htmlmodules import module_scrobblelist, module_pulse, module_artistcharts_tiles, module_trackcharts_tiles
 
@@ -24,7 +24,7 @@ def instructions(keys):
 	topartists_month = module_artistcharts_tiles(since="month")
 	topartists_week = module_artistcharts_tiles(since=weekstart)
 
-	clock("Artists")
+	clockp("Artists")
 
 	# tracks
 
@@ -34,13 +34,13 @@ def instructions(keys):
 	toptracks_week = module_trackcharts_tiles(since=weekstart)
 
 
-	clock("Tracks")
+	clockp("Tracks")
 
 
 	# scrobbles
 	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True,earlystop=True)
 
-	clock("Scrobbles")
+	clockp("Scrobbles")
 
 	# stats
 
@@ -61,7 +61,7 @@ def instructions(keys):
 	amount_total = database.get_scrobbles_num()
 	scrobbles_total = "<a href='/scrobbles'>" + str(amount_total) + "</a>"
 
-	clock("Amounts")
+	clockp("Amounts")
 
 	# pulse
 	dt = datetime.utcnow()
@@ -83,7 +83,7 @@ def instructions(keys):
 	#html_pulse_month = module_pulse(max_=30,since=[dt.year,dt.month],step="day",trail=1)
 	#html_pulse_year = module_pulse(max_=12,since=[dt.year],step="month",trail=1)
 
-	clock("Pulse")
+	clockp("Pulse")
 
 	#pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages] #can't push scrobble images as we don't get them from the module function, need to think about that
 	pushresources = []

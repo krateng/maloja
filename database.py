@@ -6,6 +6,7 @@ import os
 import datetime
 from cleanup import *
 from utilities import *
+from doreah.logging import log
 from malojatime import *
 import sys
 import unicodedata

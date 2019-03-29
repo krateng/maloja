@@ -10,6 +10,7 @@ from utilities import *
 from htmlgenerators import KeySplit
 # doreah toolkit
 from doreah import settings
+from doreah.logging import log
 # technical
 from importlib.machinery import SourceFileLoader
 import _thread
