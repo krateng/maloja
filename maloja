@@ -11,7 +11,8 @@ from doreah import settings
 neededmodules = [
 	"bottle",
 	"waitress",
-	"setproctitle"
+	"setproctitle",
+	"doreah"
 ]
 
 recommendedmodules = [
