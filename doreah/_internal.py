@@ -1,5 +1,6 @@
 import os
 
+
 ## decorator to set default arguments that are only evaluated at runtime
 def defaultarguments(defaultdict,**defaultargs):
 	def decorator(func):	#actual decorator function
@@ -27,3 +28,11 @@ def gopen(filepath,mode):
 	os.makedirs(directory, exist_ok=True)
 
 	return open(filepath,mode)
+
+
+
+# reads module configuration from file
+def doreahconfig(module):
+	from .settings import get_settings
+	s = get_settings(files=[".doreah"],prefix=module + ".",cut_prefix=True)
+	return s

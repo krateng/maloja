@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from ._internal import defaultarguments
+from ._internal import defaultarguments, doreahconfig
 
 
 _config = {}
@@ -28,12 +28,43 @@ config()
 
 
 
+
 def _interpret(text):
 	if _config["onlytext"]: return text
 
 	if text.lower() in ["true","yes"]: return True
 	if text.lower() in ["false","no"]: return False
 	if text.lower() in ["none","nan","n/a",""]: return None
+	if text.startswith("[") and text.endswith("]"):
+		list = []
+		buffer = ""
+		string = None
+		stringended = False
+		for c in text[1:-1]:
+			if stringended and c != ",": pass	#after a string is done, skip to the next delimiter
+			elif c == '"' and string is None:
+				string = '"'		# start new string
+				buffer = '"'
+			elif c == "'" and string is None:
+				string = "'"		# start new string
+				buffer = "'"
+			elif c == '"' and string is '"':
+				string = None		# terminate string
+				stringended = True
+				buffer += '"'
+			elif c == "'" and string is "'":
+				string = None		# terminate string
+				stringended = True
+				buffer += "'"
+			elif c == "," and string is None:
+				list.append(buffer)
+				buffer = ""
+				stringended = False
+			else: buffer += c
+
+		list.append(buffer.strip())
+		return [_interpret(entry) for entry in list]
+
 	if text.startswith("'") and text.endswith("'"): return text[1:-1]
 	if text.startswith('"') and text.endswith('"'): return text[1:-1]
 	try:
@@ -184,3 +215,11 @@ def update(source="default_settings.ini",target="settings.ini"):
 		usersettings = get_settings(files=[target],raw=True)
 		shutil.copyfile(source,target)
 		update_settings(target,usersettings)
+
+
+
+
+
+
+# now check local configuration file
+_config.update(doreahconfig("settings"))

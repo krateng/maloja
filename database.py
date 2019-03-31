@@ -1,18 +1,26 @@
+# server
 from bottle import Bottle, route, get, post, run, template, static_file, request, response, FormsDict
-from importlib.machinery import SourceFileLoader
-import urllib
 import waitress
-import os
-import datetime
+# rest of the project
 from cleanup import *
 from utilities import *
+from malojatime import *
+from htmlgenerators import KeySplit
+# doreah toolkit
 from doreah.logging import log
 from doreah import tsv
-from malojatime import *
+# technical
+import os
+import datetime
 import sys
 import unicodedata
 import json
-from htmlgenerators import KeySplit
+# url handling
+from importlib.machinery import SourceFileLoader
+import urllib
+
+
+
 
 dbserver = Bottle()
 

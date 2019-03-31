@@ -1,7 +1,7 @@
 import pickle
 import os
 
-from ._internal import defaultarguments, gopen
+from ._internal import defaultarguments, gopen, doreahconfig
 
 _config = {}
 
@@ -14,6 +14,7 @@ def config(folder="storage"):
 
 # initial config on import, set everything to default
 config()
+
 
 @defaultarguments(_config,folder="folder")
 def save(data,name,folder):
@@ -38,3 +39,8 @@ def load(name,folder):
 		fl.close()
 
 	return ob
+
+
+
+# now check local configuration file
+_config.update(doreahconfig("persistence"))

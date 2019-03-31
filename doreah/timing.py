@@ -1,6 +1,6 @@
 import time
 
-from ._internal import defaultarguments
+from ._internal import defaultarguments, doreahconfig
 
 _config = {}
 
@@ -42,3 +42,11 @@ def clock(*identifiers,lastcalls={None:None}):
 def clockp(name,*identifiers):
 	time = clock(*identifiers)
 	print(name + ": " + str(time))
+
+
+
+
+
+
+# now check local configuration file
+_config.update(doreahconfig("timing"))

@@ -1,6 +1,6 @@
 import os
 
-from ._internal import defaultarguments
+from ._internal import defaultarguments, doreahconfig
 
 _config = {}
 
@@ -113,3 +113,8 @@ def add_entries(filename,al,comments):
 			line = "\t".join([str(e).replace("\t"," ") for e in a])
 			if comments: line = line.replace("#",r"\num")
 			f.write(line + "\n")
+
+
+
+# now check local configuration file
+_config.update(doreahconfig("tsv"))

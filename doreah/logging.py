@@ -2,7 +2,7 @@ import datetime
 import inspect
 import os
 
-from ._internal import defaultarguments, gopen
+from ._internal import defaultarguments, gopen, doreahconfig
 
 _config = {}
 
@@ -24,6 +24,7 @@ def config(logfolder="logs",timeformat="%Y/%m/%d %H:%M:%S",defaultmodule="main",
 
 # initial config on import, set everything to default
 config()
+
 
 
 
@@ -100,3 +101,9 @@ def logh1(*args,**kwargs):
 	return log(*args,**kwargs,header=1)
 def logh2(*args,**kwargs):
 	return log(*args,**kwargs,header=2)
+
+
+
+
+# now check local configuration file
+_config.update(doreahconfig("logging"))
