@@ -4,7 +4,7 @@ import urllib
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, KeySplit
-	from htmlmodules import module_trackcharts
+	from htmlmodules import module_trackcharts, module_filterselection
 	from malojatime import range_desc
 
 	filterkeys, timekeys, _, amountkeys = KeySplit(keys)
@@ -12,6 +12,7 @@ def instructions(keys):
 
 	limitstring = ""
 
+	html_filterselector = module_filterselection(**keys)
 
 	html_charts, rep = module_trackcharts(**amountkeys,**timekeys,**filterkeys)
 
@@ -30,6 +31,6 @@ def instructions(keys):
 
 
 
-	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_TRACKLIST":html_charts,"KEY_LIMITS":limitstring}
+	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_TRACKLIST":html_charts,"KEY_LIMITS":limitstring,"KEY_FILTERSELECTOR":html_filterselector}
 
 	return (replace,pushresources)

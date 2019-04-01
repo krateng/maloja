@@ -274,3 +274,43 @@ def module_trackcharts_tiles(**kwargs):
 	html += """</tr></table>"""
 
 	return html
+
+
+
+def module_filterselection(**keys):
+	# all other keys that will not be changed by clicking another filter
+	retainkeys = {k:keys[k] for k in keys if k not in ["since","to","in"]}
+	keystr = "?" + urllib.parse.urlencode(retainkeys)
+	html = "<div>"
+	if keys.get("since") == "today" or keys.get("in") == "today":
+		html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
+	else:
+		html += "<a href='" + keystr + "&since=today'><span class='stat_selector'>Today</span></a>"
+	html += " | "
+
+	if keys.get("since") == "sunday":
+		html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
+	else:
+		html += "<a href='" + keystr + "&since=sunday'><span class='stat_selector'>This Week</span></a>"
+	html += " | "
+
+	if keys.get("since") == "month" or keys.get("in") == "month":
+		html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
+	else:
+		html += "<a href='" + keystr + "&since=month'><span class='stat_selector'>This Month</span></a>"
+	html += " | "
+
+	if keys.get("since") == "year" or keys.get("in") == "year":
+		html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
+	else:
+		html += "<a href='" + keystr + "&since=year'><span class='stat_selector'>This Year</span></a>"
+	html += " | "
+
+	if keys.get("since") is None and keys.get("in") is None:
+		html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
+	else:
+		html += "<a href='" + keystr + "'><span class='stat_selector'>All Time</span></a>"
+
+	html += "</div>"
+
+	return html

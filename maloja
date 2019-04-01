@@ -161,7 +161,8 @@ def install():
 
 			if fail: return False
 			print("All modules successfully installed!")
-			return True
+			print("Run the script again (without root) to start Maloja.")
+			return False
 
 	else:
 		print("All necessary modules seem to be installed.")
