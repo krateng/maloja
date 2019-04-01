@@ -5,7 +5,7 @@ import sys
 import signal
 import os
 import stat
-from doreah import settings
+
 
 
 neededmodules = [
@@ -21,9 +21,6 @@ recommendedmodules = [
 
 SOURCE_URL = "https://github.com/krateng/maloja/archive/master.zip"
 
-
-settings.config(files=["settings/default.ini","settings/settings.ini"])
-#settings.update("settings/default.ini","settings/settings.ini")
 
 
 def blue(txt): return "\033[94m" + txt + "\033[0m"
@@ -43,7 +40,7 @@ def gotodir():
 
 def setup():
 
-
+	from doreah import settings
 
 	# LASTFM API KEY
 	key = settings.get_settings("LASTFM_API_KEY")
@@ -106,32 +103,30 @@ def install():
 	if toinstall != []:
 		print("The following python modules need to be installed:")
 		for m in toinstall:
-			print("\t" + m)
+			print("\t" + yellow(m))
 	if toinstallr != []:
 		print("The following python modules are highly recommended, some features will not work without them:")
 		for m in toinstallr:
-			print("\t" + m)
+			print("\t" + yellow(m))
 
 	if toinstall != [] or toinstallr != []:
 		if os.geteuid() != 0:
-			print("Installing python modules should be fairly straight-forward, but Maloja can try to install \
-			them automatically. For this, you need to run this script as a root user.")
+			print("Installing python modules should be fairly straight-forward, but Maloja can try to install them automatically. For this, you need to run this script as a root user.")
 			return False
 		else:
-			print("Installing python modules should be fairly straight-forward, but Maloja can try to install \
-			them automatically, This might or might not work / bloat your system / cause a nuclear war.")
+			print("Installing python modules should be fairly straight-forward, but Maloja can try to install them automatically, This might or might not work / bloat your system / cause a nuclear war.")
 			fail = False
 			if toinstall != []:
 				print("Attempt to install required modules? [Y/n]")
 				answer = input()
 
 				if answer.lower() in ["y","yes","yea","1","positive","true",""]:
-					for m in neededmodules:
+					for m in toinstall:
 						try:
 							print("Installing " + m + " with pip...")
-							import pip
+							from pip._internal import main as pipmain
 							#os.system("pip3 install " + m)
-							pip.main(["install",m])
+							pipmain(["install",m])
 							print("Success!")
 						except:
 							print("Failure!")
@@ -147,12 +142,12 @@ def install():
 				answer = input()
 
 				if answer.lower() in ["y","yes","yea","1","positive","true",""]:
-					for m in recommendedmodules:
+					for m in toinstallr:
 						try:
 							print("Installing " + m + " with pip...")
-							import pip
+							from pip._internal import main as pipmain
 							#os.system("pip3 install " + m)
-							pip.main(["install",m])
+							pipmain(["install",m])
 							print("Success!")
 						except:
 							print("Failure!")
@@ -193,6 +188,7 @@ def start():
 			p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(green("Maloja started!") + " PID: " + str(p.pid))
 
+			from doreah import settings
 			port = settings.get_settings("WEB_PORT")
 
 			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /setup to get started.")
