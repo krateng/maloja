@@ -277,40 +277,74 @@ def module_trackcharts_tiles(**kwargs):
 
 
 
-def module_filterselection(**keys):
+def module_filterselection(keys,time=True,delimit=False):
 	# all other keys that will not be changed by clicking another filter
-	retainkeys = {k:keys[k] for k in keys if k not in ["since","to","in"]}
-	keystr = "?" + urllib.parse.urlencode(retainkeys)
-	html = "<div>"
-	if keys.get("since") == "today" or keys.get("in") == "today":
-		html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
-	else:
-		html += "<a href='" + keystr + "&since=today'><span class='stat_selector'>Today</span></a>"
-	html += " | "
 
-	if keys.get("since") == "sunday":
-		html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
-	else:
-		html += "<a href='" + keystr + "&since=sunday'><span class='stat_selector'>This Week</span></a>"
-	html += " | "
 
-	if keys.get("since") == "month" or keys.get("in") == "month":
-		html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
-	else:
-		html += "<a href='" + keystr + "&since=month'><span class='stat_selector'>This Month</span></a>"
-	html += " | "
+	html = ""
 
-	if keys.get("since") == "year" or keys.get("in") == "year":
-		html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
-	else:
-		html += "<a href='" + keystr + "&since=year'><span class='stat_selector'>This Year</span></a>"
-	html += " | "
+	if time:
 
-	if keys.get("since") is None and keys.get("in") is None:
-		html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
-	else:
-		html += "<a href='" + keystr + "'><span class='stat_selector'>All Time</span></a>"
+		retainkeys = {k:keys[k] for k in keys if k not in ["since","to","in"]}
+		keystr = "?" + urllib.parse.urlencode(retainkeys)
 
-	html += "</div>"
+
+		html += "<div>"
+		if keys.get("since") == "today" or keys.get("in") == "today":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
+		else:
+			html += "<a href='" + keystr + "&since=today'><span class='stat_selector'>Today</span></a>"
+		html += " | "
+
+		if keys.get("since") == "sunday":
+			html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
+		else:
+			html += "<a href='" + keystr + "&since=sunday'><span class='stat_selector'>This Week</span></a>"
+		html += " | "
+
+		if keys.get("since") == "month" or keys.get("in") == "month":
+			html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
+		else:
+			html += "<a href='" + keystr + "&since=month'><span class='stat_selector'>This Month</span></a>"
+		html += " | "
+
+		if keys.get("since") == "year" or keys.get("in") == "year":
+			html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
+		else:
+			html += "<a href='" + keystr + "&since=year'><span class='stat_selector'>This Year</span></a>"
+		html += " | "
+
+		if keys.get("since") is None and keys.get("in") is None:
+			html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
+		else:
+			html += "<a href='" + keystr + "'><span class='stat_selector'>All Time</span></a>"
+
+		html += "</div>"
+
+	if delimit:
+
+		retainkeys = {k:keys[k] for k in keys if k not in ["step","stepn","trail"]}
+		keystr = "?" + urllib.parse.urlencode(retainkeys)
+
+		html += "<div>"
+		if keys.get("step") == "day":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Daily</span>"
+		else:
+			html += "<a href='" + keystr + "&step=day'><span class='stat_selector'>Daily</span></a>"
+		html += " | "
+
+		if keys.get("step") == "month":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Monthly</span>"
+		else:
+			html += "<a href='" + keystr + "&step=month'><span class='stat_selector'>Monthly</span></a>"
+		html += " | "
+
+		if keys.get("step") == "year":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Yearly</span>"
+		else:
+			html += "<a href='" + keystr + "&step=year'><span class='stat_selector'>Yearly</span></a>"
+		html += " | "
+
+		html += "</div>"
 
 	return html

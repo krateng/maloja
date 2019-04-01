@@ -12,7 +12,7 @@ def instructions(keys):
 
 	limitstring = ""
 
-	html_filterselector = module_filterselection(**keys)
+	html_filterselector = module_filterselection(keys)
 
 	html_charts, rep = module_trackcharts(**amountkeys,**timekeys,**filterkeys)
 

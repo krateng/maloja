@@ -12,7 +12,7 @@ def instructions(keys):
 
 	limitstring = range_desc(**timekeys)
 
-	html_filterselector = module_filterselection(**keys)
+	html_filterselector = module_filterselection(keys)
 
 
 

@@ -5,7 +5,7 @@ import database
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, KeySplit
-	from htmlmodules import module_pulse
+	from htmlmodules import module_pulse, module_filterselection
 	from malojatime import range_desc, delimit_desc
 
 	filterkeys, timekeys, delimitkeys, _ = KeySplit(keys)
@@ -32,6 +32,8 @@ def instructions(keys):
 
 	delimitstring = delimit_desc(**delimitkeys)
 
+	html_filterselector = module_filterselection(keys,delimit=True)
+
 
 	# get image
 	if filterkeys.get("track") is not None:
@@ -47,6 +49,6 @@ def instructions(keys):
 
 	html_pulse = module_pulse(**filterkeys,**timekeys,**delimitkeys)
 
-	replace = {"KEY_PULSE_TABLE":html_pulse,"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring,"KEY_PULSEDETAILS":delimitstring}
+	replace = {"KEY_PULSE_TABLE":html_pulse,"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring,"KEY_PULSEDETAILS":delimitstring,"KEY_FILTERSELECTOR":html_filterselector}
 
 	return (replace,pushresources)
