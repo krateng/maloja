@@ -785,7 +785,7 @@ def build_db():
 	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
 
 	# load cached images
-	loadCache()
+	#loadCache()
 
 	log("Database fully built!")
 
@@ -826,7 +826,7 @@ def sync():
 	log("Database saved to disk.")
 
 	# save cached images
-	saveCache()
+	#saveCache()
 
 
 

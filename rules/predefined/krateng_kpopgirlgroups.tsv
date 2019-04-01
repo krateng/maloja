@@ -29,13 +29,13 @@ replaceartist	BLΛƆKPIИK				BLACKPINK
 replaceartist	Dal Shabet				Dal★Shabet
 replaceartist	Dal shabet				Dal★Shabet
 replaceartist	Dalshabet				Dal★Shabet
-replaceartist	Dalshabet(달샤벳)				Dal★Shabet
+replaceartist	Dalshabet(달샤벳)			Dal★Shabet
 replaceartist	달샤벳(Dal★shabet) (Dalshabet)		Dal★Shabet
 replacetitle	JOKER (Inst.)				Joker (Instrumental)
 replacetitle	JOKER (Instrumental)			Joker (Instrumental)
 replacetitle	Joker (inst.)				Joker (Instrumental)
 replacetitle	Someone like U				Someone Like U
-replacetitle	Be Ambitious(내 다리를 봐)			Be Ambitious
+replacetitle	Be Ambitious(내 다리를 봐)		Be Ambitious
 
 # f(x)
 replacetitle	When I’m Alone				When I'm Alone
@@ -97,7 +97,7 @@ replacetitle	PYONG PYONG (Shooting Love)		PYONG PYONG
 replacetitle	PYONG PYONG (Shooting Love) (inst)	PYONG PYONG (instrumental)
 
 # Bambino
-replaceartist	밤비노 (Bambino)				Bambino
+replaceartist	밤비노 (Bambino)			Bambino
 
 # Laysha
 replaceartist	LAYSHA					Laysha
@@ -108,3 +108,7 @@ replaceartist	여자친구 GFriend			GFriend
 
 # Girl's Generation
 replaceartist	소녀시대				Girls' Generation
+
+# Apink
+replaceartist	A Pink					Apink
+replaceartist	A pink					Apink

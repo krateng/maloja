@@ -6,6 +6,7 @@ import pickle
 import urllib
 import datetime
 from doreah import settings
+from doreah import caching
 from doreah.logging import log
 
 
@@ -262,114 +263,138 @@ def apirequest(artists=None,artist=None,title=None):
 
 		return None
 
+
+
+
+### Caches
+
+cacheage = settings.get_settings("CACHE_EXPIRE_POSITIVE") * 24 * 3600
+cacheage_neg = settings.get_settings("CACHE_EXPIRE_NEGATIVE") * 24 * 3600
+
+artist_cache = caching.Cache.create(name="artist_cache",maxage=cacheage,maxage_negative=cacheage_neg)
+track_cache = caching.Cache.create(name="track_cache",maxage=cacheage,maxage_negative=cacheage_neg)
+
+
+
 # I think I've only just understood modules
-cachedTracks = {}
-cachedArtists = {}
+#cachedTracks = {}
+#cachedArtists = {}
+#
+#cachedTracksDays = {}
+#cachedArtistsDays = {}
+#
+#def cache_track(artists,title,result):
+#	cachedTracks[(frozenset(artists),title)] = result
+#	day = datetime.date.today().toordinal()
+#	cachedTracksDays[(frozenset(artists),title)] = day
+#def cache_artist(artist,result):
+#	if result is None: log("Caching None for " + artist,module="debug")
+#	cachedArtists[artist] = result
+#	day = datetime.date.today().toordinal()
+#	cachedArtistsDays[artist] = day
 
-cachedTracksDays = {}
-cachedArtistsDays = {}
+#def track_from_cache(artists,title):
+#	try:
+#		res = cachedTracks[(frozenset(artists),title)]
+#	except:
+#		# no entry there, let the calling function know
+#		raise KeyError()
+#
+#	if res is None:
+#		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
+#	else:
+#		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
+#
+#	# if the settings say caches never expire, just return
+#	if retain is None: return res
+#
+#	# look if entry is too old
+#	nowday = datetime.date.today().toordinal()
+#	cacheday = cachedTracksDays[(frozenset(artists),title)]
+#
+#	if (nowday - cacheday) > retain:
+#		# fetch the new image in the background, but still return the old one for one last time
+#		log("Expired cache for " + "/".join(artists) + " - " + title)
+#		del cachedTracks[(frozenset(artists),title)]
+#		t = Thread(target=getTrackImage,args=(artists,title,))
+#		t.start()
+#	return res
 
-def cache_track(artists,title,result):
-	cachedTracks[(frozenset(artists),title)] = result
-	day = datetime.date.today().toordinal()
-	cachedTracksDays[(frozenset(artists),title)] = day
-def cache_artist(artist,result):
-	if result is None: log("Caching None for " + artist,module="debug")
-	cachedArtists[artist] = result
-	day = datetime.date.today().toordinal()
-	cachedArtistsDays[artist] = day
+#def artist_from_cache(artist):
+#	try:
+#		res = cachedArtists[artist]
+#	except:
+#		# no entry there, let the calling function know
+#		raise KeyError()
+#
+#	if res is None:
+#		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
+#	else:
+#		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
+#
+#	# if the settings say caches never expire, just return
+#	if retain is None: return res
+#
+#	# look if entry is too old
+#	nowday = datetime.date.today().toordinal()
+#	cacheday = cachedArtistsDays[artist]
+#
+#	if (nowday - cacheday) > retain:
+#		# fetch the new image in the background, but still return the old one for one last time
+#		log("Expired cache for " + artist)
+#		del cachedArtists[artist]
+#		t = Thread(target=getArtistImage,args=(artist,))
+#		t.start()
+#	return res
+#
 
-def track_from_cache(artists,title):
-	try:
-		res = cachedTracks[(frozenset(artists),title)]
-	except:
-		# no entry there, let the calling function know
-		raise KeyError()
+#def saveCache():
+#	fl = open("images/cache","wb")
+#	stream = pickle.dumps({"tracks":cachedTracks,"artists":cachedArtists,"tracks_days":cachedTracksDays,"artists_days":cachedArtistsDays})
+#	fl.write(stream)
+#	fl.close()
 
-	if res is None:
-		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
-	else:
-		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
+#	pass
+#	persistence.save(artist_cache,"artist_cache")
+#	persistence.save(track_cache,"track_cache")
 
-	# if the settings say caches never expire, just return
-	if retain is None: return res
+#def loadCache():
+#	global artist_cache, track_cache
+#	artist_cache_tmp = persistence.load("artist_cache")
+#	track_cache_tmp = persistence.load("track_cache")
+#	if artist_cache_tmp is not None: artist_cache = artist_cache_tmp
+#	if track_cache_tmp is not None: track_cache = track_cache_tmp
+#	pass
 
-	# look if entry is too old
-	nowday = datetime.date.today().toordinal()
-	cacheday = cachedTracksDays[(frozenset(artists),title)]
+#	try:
+#		fl = open("images/cache","rb")
+#	except:
+#		return
 
-	if (nowday - cacheday) > retain:
-		# fetch the new image in the background, but still return the old one for one last time
-		log("Expired cache for " + "/".join(artists) + " - " + title)
-		del cachedTracks[(frozenset(artists),title)]
-		t = Thread(target=getTrackImage,args=(artists,title,))
-		t.start()
-	return res
-
-def artist_from_cache(artist):
-	try:
-		res = cachedArtists[artist]
-	except:
-		# no entry there, let the calling function know
-		raise KeyError()
-
-	if res is None:
-		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
-	else:
-		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
-
-	# if the settings say caches never expire, just return
-	if retain is None: return res
-
-	# look if entry is too old
-	nowday = datetime.date.today().toordinal()
-	cacheday = cachedArtistsDays[artist]
-
-	if (nowday - cacheday) > retain:
-		# fetch the new image in the background, but still return the old one for one last time
-		log("Expired cache for " + artist)
-		del cachedArtists[artist]
-		t = Thread(target=getArtistImage,args=(artist,))
-		t.start()
-	return res
-
-
-def saveCache():
-	fl = open("images/cache","wb")
-	stream = pickle.dumps({"tracks":cachedTracks,"artists":cachedArtists,"tracks_days":cachedTracksDays,"artists_days":cachedArtistsDays})
-	fl.write(stream)
-	fl.close()
-
-def loadCache():
-	try:
-		fl = open("images/cache","rb")
-	except:
-		return
-
-	try:
-		ob = pickle.loads(fl.read())
-		global cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays
-		cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays = ob["tracks"],ob["artists"],ob["tracks_days"],ob["artists_days"]
-		#(cachedTracks, cachedArtists) = ob
-	finally:
-		fl.close()
-
+#	try:
+#		ob = pickle.loads(fl.read())
+#		global cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays
+#		cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays = ob["tracks"],ob["artists"],ob["tracks_days"],ob["artists_days"]
+#		#(cachedTracks, cachedArtists) = ob
+#	finally:
+#		fl.close()
+#
 	# remove corrupt caching from previous versions
-	toremove = []
-	for k in cachedTracks:
-		if cachedTracks[k] == "":
-			toremove.append(k)
-	for k in toremove:
-		del cachedTracks[k]
-		log("Removed invalid cache key: " + str(k))
+#	toremove = []
+#	for k in cachedTracks:
+#		if cachedTracks[k] == "":
+#			toremove.append(k)
+#	for k in toremove:
+#		del cachedTracks[k]
+#		log("Removed invalid cache key: " + str(k))
 
-	toremove = []
-	for k in cachedArtists:
-		if cachedArtists[k] == "":
-			toremove.append(k)
-	for k in toremove:
-		del cachedArtists[k]
-		log("Removed invalid cache key: " + str(k))
+#	toremove = []
+#	for k in cachedArtists:
+#		if cachedArtists[k] == "":
+#			toremove.append(k)
+#	for k in toremove:
+#		del cachedArtists[k]
+#		log("Removed invalid cache key: " + str(k))
 
 def getTrackImage(artists,title,fast=False):
 
@@ -398,7 +423,7 @@ def getTrackImage(artists,title,fast=False):
 		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
 		# (even if we're not in a fast lookup right now)
 		#result = cachedTracks[(frozenset(artists),title)]
-		result = track_from_cache(artists,title)
+		result = track_cache.get((frozenset(artists),title)) #track_from_cache(artists,title)
 		if result is not None: return result
 		else:
 			for a in artists:
@@ -421,7 +446,7 @@ def getTrackImage(artists,title,fast=False):
 
 	# cache results (even negative ones)
 	#cachedTracks[(frozenset(artists),title)] = result
-	cache_track(artists,title,result)
+	track_cache.add((frozenset(artists),title),result) #cache_track(artists,title,result)
 
 	# return either result or redirect to artist
 	if result is not None: return result
@@ -458,7 +483,7 @@ def getArtistImage(artist,fast=False):
 
 	try:
 		#result = cachedArtists[artist]
-		result = artist_from_cache(artist)
+		result = artist_cache.get(artist) #artist_from_cache(artist)
 		if result is not None: return result
 		else: return ""
 	except:
@@ -480,7 +505,7 @@ def getArtistImage(artist,fast=False):
 
 	# cache results (even negative ones)
 	#cachedArtists[artist] = result
-	cache_artist(artist,result)
+	artist_cache.add(artist,result) #cache_artist(artist,result)
 
 	if result is not None: return result
 	else: return ""

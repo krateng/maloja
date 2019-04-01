@@ -1,2 +1,3 @@
 logging.logfolder = logs
 settings.files = [ "settings/default.ini" , "settings/settings.ini" ]
+caching.folder = "images/cache/"
