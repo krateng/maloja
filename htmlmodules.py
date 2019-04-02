@@ -166,6 +166,92 @@ def module_artistcharts(max_=None,**kwargs):
 	return (html, representative)
 
 
+
+def module_toptracks(**kwargs):
+
+	kwargs_filter = pickKeys(kwargs,"artist","associated")
+	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+
+	tracks = database.get_top_tracks(**kwargs_filter,**kwargs_time)
+
+	if tracks != []:
+		maxbar = max(t["scrobbles"] for t in tracks)
+		representative = [t["track"] for t in tracks if t["scrobbles"] == maxbar][0]
+	else:
+		representative = None
+
+
+	i = 0
+	html = "<table class='list'>"
+	for e in tracks:
+
+		fromstr = "/".join([str(p) for p in e["from"]])
+		tostr = "/".join([str(p) for p in e["to"]])
+
+		i += 1
+		html += "<tr>"
+
+
+		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
+		if e["track"] is None:
+			html += "<td class='stats'>" + "No scrobbles" + "</td>"
+			html += "<td>" + "" + "</td>"
+			html += "<td class='amount'>" + "0" + "</td>"
+			html += "<td class='bar'>" + "" + "</td>"
+		else:
+			html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
+			html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
+			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},amount=e["scrobbles"]) + "</td>"
+			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar) + "</td>"
+		html += "</tr>"
+		prev = e
+	html += "</table>"
+
+	return (html,representative)
+
+def module_topartists(**kwargs):
+
+	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+
+	artists = database.get_top_artists(**kwargs_time)
+
+	if artists != []:
+		maxbar = max(a["scrobbles"] for a in artists)
+		representative = [a["artist"] for a in artists if a["scrobbles"] == maxbar][0]
+	else:
+		representative = None
+
+
+	i = 0
+	html = "<table class='list'>"
+	for e in artists:
+
+		fromstr = "/".join([str(p) for p in e["from"]])
+		tostr = "/".join([str(p) for p in e["to"]])
+
+		i += 1
+		html += "<tr>"
+
+
+		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
+		if e["artist"] is None:
+			html += "<td class='stats'>" + "No scrobbles" + "</td>"
+			html += "<td class='amount'>" + "0" + "</td>"
+			html += "<td class='bar'>" + "" + "</td>"
+		else:
+			html += "<td class='artist'>" + artistLink(e["artist"])
+			if (e["counting"] != []):
+				html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
+			html += "</td>"
+			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},amount=e["scrobbles"],associated=True) + "</td>"
+			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+		html += "</tr>"
+		prev = e
+	html += "</table>"
+
+	return (html,representative)
+
+
 def module_artistcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now

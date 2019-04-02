@@ -393,7 +393,7 @@ def get_top_artists(**keys):
 	for (a,b) in rngs:
 		try:
 			res = db_aggregate(since=a,to=b,by="ARTIST")[0]
-			results.append({"from":a,"to":b,"artist":res["artist"],"scrobbles":res["scrobbles"]})
+			results.append({"from":a,"to":b,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"from":a,"to":b,"artist":None,"scrobbles":0})
 
