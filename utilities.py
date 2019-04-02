@@ -399,7 +399,7 @@ track_cache = caching.Cache.create(name="track_cache",maxage=cacheage,maxage_neg
 def getTrackImage(artists,title,fast=False):
 
 	obj = (frozenset(artists),title)
-	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
+	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in sorted(artists)]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
 	if filename == "": filename = str(hash(obj))
 	filepath = "images/tracks/" + filename
 
