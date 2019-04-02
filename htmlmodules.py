@@ -176,7 +176,18 @@ def module_toptracks(pictures=True,**kwargs):
 
 	if tracks != []:
 		maxbar = max(t["scrobbles"] for t in tracks)
-		representative = [t["track"] for t in tracks if t["scrobbles"] == maxbar][0]
+
+
+		# track with most #1 positions
+		max_appear = 0
+		representatives = list(t["track"] for t in tracks if t["track"] is not None)
+		for t in representatives:
+			max_appear = max(max_appear,representatives.count(t))
+		#representatives.sort(key=lambda reftrack:len([t for t in tracks if t["track"] == reftrack["track"] and t["track"] is not None]))
+		representatives = [t for t in tracks if representatives.count(t["track"]) == max_appear]
+		# of these, track with highest scrobbles in its #1 range
+		representatives.sort(key=lambda t: t["scrobbles"])
+		representative = representatives[-1]["track"]
 	else:
 		representative = None
 
@@ -221,7 +232,17 @@ def module_topartists(pictures=True,**kwargs):
 
 	if artists != []:
 		maxbar = max(a["scrobbles"] for a in artists)
-		representative = [a["artist"] for a in artists if a["scrobbles"] == maxbar][0]
+
+		# artists with most #1 positions
+		max_appear = 0
+		representatives = list(a["artist"] for a in artists if a["artist"] is not None)
+		for a in representatives:
+			max_appear = max(max_appear,representatives.count(a))
+		representatives = [a for a in artists if representatives.count(a["artist"]) == max_appear]
+		# of these, artist with highest scrobbles in their #1 range
+		representatives.sort(key=lambda a: a["scrobbles"])
+
+		representative = representatives[-1]["artist"]
 	else:
 		representative = None
 
