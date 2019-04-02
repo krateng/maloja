@@ -343,7 +343,7 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	if delimit:
 
-		retainkeys = {k:keys[k] for k in keys if k not in ["step","stepn","trail"]}
+		retainkeys = {k:keys[k] for k in keys if k not in ["step","stepn"]}
 		keystr = "?" + urllib.parse.urlencode(retainkeys)
 
 		html += "<div>"
@@ -363,7 +363,30 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<span class='stat_selector' style='opacity:0.5;'>Yearly</span>"
 		else:
 			html += "<a href='" + keystr + "&step=year'><span class='stat_selector'>Yearly</span></a>"
+
+		html += "</div>"
+
+
+		retainkeys = {k:keys[k] for k in keys if k not in ["trail"]}
+		keystr = "?" + urllib.parse.urlencode(retainkeys)
+
+		html += "<div>"
+		if keys.get("trail") == "1" or keys.get("trail") is None:
+			html += "<span class='stat_selector' style='opacity:0.5;'>Standard</span>"
+		else:
+			html += "<a href='" + keystr + "'><span class='stat_selector'>Standard</span></a>"
 		html += " | "
+
+		if keys.get("trail") == "2":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Trailing</span>"
+		else:
+			html += "<a href='" + keystr + "&trail=2'><span class='stat_selector'>Trailing</span></a>"
+		html += " | "
+
+		if keys.get("trail") == "3":
+			html += "<span class='stat_selector' style='opacity:0.5;'>Long Trailing</span>"
+		else:
+			html += "<a href='" + keystr + "&trail=3'><span class='stat_selector'>Long Trailing</span></a>"
 
 		html += "</div>"
 
