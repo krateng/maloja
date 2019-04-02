@@ -167,7 +167,7 @@ def module_artistcharts(max_=None,**kwargs):
 
 
 
-def module_toptracks(**kwargs):
+def module_toptracks(pictures=True,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
 	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
@@ -194,11 +194,15 @@ def module_toptracks(**kwargs):
 
 		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
 		if e["track"] is None:
+			if pictures:
+				html += "<td><div></div></td>"
 			html += "<td class='stats'>" + "No scrobbles" + "</td>"
 			html += "<td>" + "" + "</td>"
 			html += "<td class='amount'>" + "0" + "</td>"
 			html += "<td class='bar'>" + "" + "</td>"
 		else:
+			if pictures:
+				html += """<td class='icon'><div style="background-image:url('""" + getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True) + """')"></div></td>"""
 			html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
 			html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
 			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},amount=e["scrobbles"]) + "</td>"
@@ -209,7 +213,7 @@ def module_toptracks(**kwargs):
 
 	return (html,representative)
 
-def module_topartists(**kwargs):
+def module_topartists(pictures=True,**kwargs):
 
 	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
 
@@ -234,11 +238,16 @@ def module_topartists(**kwargs):
 
 
 		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
+
 		if e["artist"] is None:
+			if pictures:
+				html += "<td><div></div></td>"
 			html += "<td class='stats'>" + "No scrobbles" + "</td>"
 			html += "<td class='amount'>" + "0" + "</td>"
 			html += "<td class='bar'>" + "" + "</td>"
 		else:
+			if pictures:
+				html += """<td class='icon'><div style="background-image:url('""" + getArtistImage(e["artist"],fast=True) + """')"></div></td>"""
 			html += "<td class='artist'>" + artistLink(e["artist"])
 			if (e["counting"] != []):
 				html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
