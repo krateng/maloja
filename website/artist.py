@@ -19,13 +19,13 @@ def instructions(keys):
 	if "medals" in data and data["medals"] is not None:
 		if "gold" in data["medals"]:
 			for y in data["medals"]["gold"]:
-				html_medals += "<span title='Best Artist in " + str(y) + "' class='gold'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+				html_medals += "<a  title='Best Artist in " + str(y) + "' class='hidelink medal gold' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 		if "silver" in data["medals"]:
 			for y in data["medals"]["silver"]:
-				html_medals += "<span title='Second Best Artist in " + str(y) + "' class='silver'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+				html_medals += "<a title='Second Best Artist in " + str(y) + "' class='hidelink medal silver' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 		if "bronze" in data["medals"]:
 			for y in data["medals"]["bronze"]:
-				html_medals += "<span title='Third Best Artist in " + str(y) + "' class='bronze'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+				html_medals += "<a title='Third Best Artist in " + str(y) + "' class='hidelink medal bronze' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 
 	credited = data.get("replace")
 	includestr = " "

@@ -20,6 +20,9 @@ a {
 a.textlink {
 	color:gold;
 }
+a.hidelink:hover {
+	text-decoration:none;
+}
 
 a:hover {
 	text-decoration:underline;
@@ -247,17 +250,49 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 }
 
 
+/* SHINY*/
+.medal {
+	top:5px;
+	position:relative;
+	overflow: hidden;
+	display: inline-block;
 
-.gold,.silver,.bronze {
 	font-size:80%;
 	padding:3px;
 	margin:2px;
 	border-radius:2px;
 }
-.gold a:hover,.silver a:hover,.bronze a:hover {
-	text-decoration:none;
+.medal:after {
+  content: "";
+  position: absolute;
+  top: -110%;
+  left: -210%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
 
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
 }
+.medal:hover:after {
+  opacity: 1;
+  top: -30%;
+  left: -30%;
+  transition-property: left, top, opacity;
+  transition-duration: 0.7s, 0.7s, 0.15s;
+  transition-timing-function: ease;
+}
+.medal:active:after {
+  opacity: 0;
+}
+
 
 .gold {
 	background-color:gold;

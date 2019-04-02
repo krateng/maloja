@@ -810,10 +810,6 @@ def build_db():
 			scr = a["scrobbles"]
 
 
-
-
-		print(MEDALS)
-
 	log("Database fully built!")
 
 
