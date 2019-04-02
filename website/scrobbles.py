@@ -5,7 +5,7 @@ import database
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
-	from htmlmodules import module_scrobblelist
+	from htmlmodules import module_scrobblelist, module_filterselection
 	from malojatime import range_desc
 
 
@@ -27,6 +27,8 @@ def instructions(keys):
 
 	limitstring += " " + range_desc(**timekeys)
 
+	html_filterselector = module_filterselection(keys)
+
 
 	html, amount, rep = module_scrobblelist(**filterkeys,**timekeys,**amountkeys)
 
@@ -44,6 +46,10 @@ def instructions(keys):
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
 
-	replace = {"KEY_SCROBBLELIST":html,"KEY_SCROBBLES":str(amount),"KEY_IMAGEURL":imgurl,"KEY_LIMITS":limitstring}
+	replace = {"KEY_SCROBBLELIST":html,
+	"KEY_SCROBBLES":str(amount),
+	"KEY_IMAGEURL":imgurl,
+	"KEY_LIMITS":limitstring,
+	"KEY_FILTERSELECTOR":html_filterselector}
 
 	return (replace,pushresources)

@@ -283,10 +283,10 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	html = ""
 
+
 	if time:
 
-		retainkeys = {k:keys[k] for k in keys if k not in ["since","to","in"]}
-		keystr = "?" + urllib.parse.urlencode(retainkeys)
+		keystr = "?" + keysToUrl(keys,exclude=["since","to","in"])
 
 
 		# wonky selector for precise date range
@@ -343,8 +343,7 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	if delimit:
 
-		retainkeys = {k:keys[k] for k in keys if k not in ["step","stepn"]}
-		keystr = "?" + urllib.parse.urlencode(retainkeys)
+		keystr = "?" + keysToUrl(keys,exclude=["step","stepn"])
 
 		html += "<div>"
 		if keys.get("step") == "day":
@@ -367,8 +366,8 @@ def module_filterselection(keys,time=True,delimit=False):
 		html += "</div>"
 
 
-		retainkeys = {k:keys[k] for k in keys if k not in ["trail"]}
-		keystr = "?" + urllib.parse.urlencode(retainkeys)
+
+		keystr = "?" + keysToUrl(keys,exclude=["trail"])
 
 		html += "<div>"
 		if keys.get("trail") == "1" or keys.get("trail") is None:
