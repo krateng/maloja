@@ -248,6 +248,31 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 
 
 
+.gold,.silver,.bronze {
+	font-size:80%;
+	padding:3px;
+	margin:2px;
+	border-radius:2px;
+}
+.gold a:hover,.silver a:hover,.bronze a:hover {
+	text-decoration:none;
+
+}
+
+.gold {
+	background-color:gold;
+	color:black;
+}
+.silver {
+	background-color:silver;
+	color:black;
+}
+.bronze {
+	background-color:darkred;
+	color:black;
+}
+
+
 
 /*
 **

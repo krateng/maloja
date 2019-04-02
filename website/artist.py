@@ -15,6 +15,18 @@ def instructions(keys):
 	scrobbles = str(data["scrobbles"])
 	pos = "#" + str(data["position"])
 
+	html_medals = ""
+	if "medals" in data and data["medals"] is not None:
+		if "gold" in data["medals"]:
+			for y in data["medals"]["gold"]:
+				html_medals += "<span title='Best Artist in " + str(y) + "' class='gold'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+		if "silver" in data["medals"]:
+			for y in data["medals"]["silver"]:
+				html_medals += "<span title='Second Best Artist in " + str(y) + "' class='silver'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+		if "bronze" in data["medals"]:
+			for y in data["medals"]["bronze"]:
+				html_medals += "<span title='Third Best Artist in " + str(y) + "' class='bronze'><a href='/charts_artists?max=50&in=" + str(y) + "'>" + str(y) + "</a></span>"
+
 	credited = data.get("replace")
 	includestr = " "
 	if credited is not None:
@@ -27,12 +39,12 @@ def instructions(keys):
 
 
 	html_tracks, _ = module_trackcharts(**filterkeys,max_=15)
-	
+
 
 	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
 
 	replace = {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
-	"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"",
+	"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_MEDALS":html_medals,
 	"KEY_TRACKLIST":html_tracks,"KEY_PULSE":html_pulse,
 	"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,
 	"KEY_ASSOCIATED":includestr}

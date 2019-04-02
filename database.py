@@ -33,6 +33,7 @@ TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
 #STAMPS_SET = set()	# as set for easier check if exists
+MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -461,7 +462,7 @@ def artistInfo(artist):
 		others = coa.getAllAssociated(artist)
 		position = charts.index(c)
 		while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
-		return {"scrobbles":scrobbles,"position":position + 1,"associated":others}
+		return {"scrobbles":scrobbles,"position":position + 1,"associated":others,"medals":MEDALS.get(artist)}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
 		artist = coa.getCredited(artist)
@@ -786,6 +787,32 @@ def build_db():
 
 	# load cached images
 	#loadCache()
+
+	#medals
+	global MEDALS
+	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
+	currentyear = datetime.datetime.utcnow().year
+	for year in range(firstyear,currentyear):
+
+		charts = get_charts_artists(within=[year])
+		scr = -1
+		rank = 0
+		for a in charts:
+			if a["scrobbles"] != scr: rank = charts.index(a) + 1
+			if rank > 3: break
+
+			artist = a["artist"]
+			if rank == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
+			if rank == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
+			if rank == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
+
+
+			scr = a["scrobbles"]
+
+
+
+
+		print(MEDALS)
 
 	log("Database fully built!")
 
