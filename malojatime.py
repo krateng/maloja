@@ -9,8 +9,16 @@ def register_scrobbletime(timestamp):
 	global FIRST_SCROBBLE
 	if timestamp < FIRST_SCROBBLE:
 		FIRST_SCROBBLE = int(timestamp)
-	
 
+def start_of_scrobbling():
+	global FIRST_SCROBBLE
+	f = datetime.datetime.utcfromtimestamp(FIRST_SCROBBLE)
+	return [f.year]
+
+def end_of_scrobbling():
+	global FIRST_SCROBBLE
+	f = datetime.datetime.now()
+	return [f.year]
 
 
 
@@ -22,15 +30,15 @@ def time_fix(t):
 		tod = datetime.datetime.utcnow()
 		months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
 		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
-		
+
 		if t.lower() in ["today","day"]:
 			t = [tod.year,tod.month,tod.day]
 		elif t.lower() == "month":
 			t = [tod.year,tod.month]
 		elif t.lower() == "year":
 			t = [tod.year]
-		
-		
+
+
 		elif t.lower() in months:
 			#diff = (tod.month - months.index(t.lower()) - 1)
 			month = months.index(t.lower()) + 1
@@ -44,30 +52,30 @@ def time_fix(t):
 
 	if isinstance(t,str): t = t.split("/")
 	#if isinstance(t,tuple): t = list(t)
-	
+
 	t = [int(p) for p in t]
-	
+
 	return t[:3]
 
-# makes times the same precision level		
-def time_pad(f,t):
+# makes times the same precision level
+def time_pad(f,t,full=False):
 	f,t = time_fix(f), time_fix(t)
-	while len(f) < len(t):
+	while (len(f) < len(t)) or (full and len(f) < 3):
 		if len(f) == 1: f.append(1)
 		elif len(f) == 2: f.append(1)
-	while len(f) > len(t):
+	while (len(f) > len(t)) or (full and len(t) < 3):
 		if len(t) == 1: t.append(12)
 		elif len(t) == 2: t.append(monthrange(*t)[1])
-		
+
 	return (f,t)
-		
-		
+
+
 def time_desc(t,short=False):
 	if isinstance(t,int):
 		if short:
 			now = datetime.datetime.now(tz=datetime.timezone.utc)
 			difference = int(now.timestamp() - t)
-				
+
 			if difference < 10: return "just now"
 			if difference < 60: return str(difference) + " seconds ago"
 			difference = int(difference/60)
@@ -80,18 +88,18 @@ def time_desc(t,short=False):
 			if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
 			#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
 			#if difference < 300: return tim.strftime("%B %Y")
-			
+
 			return timeobject.strftime("%d. %B %Y")
 		else:
 			timeobject = datetime.datetime.utcfromtimestamp(t)
 			return timeobject.strftime("%d. %b %Y %I:%M %p")
-			
+
 	else:
 		t = time_fix(t)
 		date = [1970,1,1]
 		date[:len(t)] = t
 		timeobject = datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc)
-		
+
 		nowdate = [1970,1,1]
 		nowobject = datetime.datetime.now(tz=datetime.timezone.utc)
 		nowdate[:len(t)] = [nowobject.year, nowobject.month, nowobject.day][:len(t)]
@@ -103,12 +111,12 @@ def time_desc(t,short=False):
 				if diff == 1: return "Yesterday"
 				if diff < 7: return timeobject.strftime("%A")
 			#elif len(t) == 2:
-				
-				
+
+
 		if len(t) == 3: return timeobject.strftime("%d. %B %Y")
 		if len(t) == 2: return timeobject.strftime("%B %Y")
 		if len(t) == 1: return timeobject.strftime("%Y")
-		
+
 def range_desc(since=None,to=None,within=None,short=False):
 
 	# the 'short' var we pass down to some of the time_desc calls is a different one than the one here
@@ -124,10 +132,10 @@ def range_desc(since=None,to=None,within=None,short=False):
 		sincestr = ""
 	if to is None:
 		tostr = ""
-		
+
 	if isinstance(since,int) and to is None:
-		sincestr = "since " + time_desc(since)	
-		shortsincestr = sincestr	
+		sincestr = "since " + time_desc(since)
+		shortsincestr = sincestr
 	elif isinstance(to,int) and since is None:
 		tostr = "up until " + time_desc(to)
 	elif isinstance(since,int) and not isinstance(to,int):
@@ -153,50 +161,50 @@ def range_desc(since=None,to=None,within=None,short=False):
 				shortsincestr = time_desc(since,short=True)
 				tostr = ""
 			elif _week(since,to):
-				
+
 				sincestr = "in " + _week(since,to)
 				shortsincestr = _week(since,to)
 				tostr = ""
 			else:
 				fparts = time_desc(since).split(" ")
 				tparts = time_desc(to).split(" ")
-				
+
 				fparts.reverse()
 				tparts.reverse()
-				
+
 				fparts = fparts[len(commonprefix([fparts,tparts])):]
-				
+
 				fparts.reverse()
 				tparts.reverse()
-				
+
 				sincestr =  "from " + " ".join(fparts)
 				shortsincestr = " ".join(fparts)
 				tostr = "to " + " ".join(tparts)
-			
+
 		else:
 			if since is not None:
 				sincestr = "since " + time_desc(since)
 				shortsincestr = sincestr
 			if to is not None:
 				tostr = "up until " + time_desc(to)
-		
+
 	if short: return shortsincestr + " " + tostr
 	else: return sincestr + " " + tostr
-	
-		
-	
-	
-	
+
+
+
+
+
 def time_stamps(since=None,to=None,within=None):
 
-		
+
 	if within is not None:
 		since = within
 		to = within
-		
-	
-	
-	
+
+
+
+
 	if (since==None): stamp1 = FIRST_SCROBBLE
 	else:
 		since = time_fix(since)
@@ -211,42 +219,42 @@ def time_stamps(since=None,to=None,within=None):
 		date = [1970,1,1]
 		date[:len(to)] = to
 		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
-		
-	
+
+
 	return (stamp1,stamp2)
-	
-		
-		
-		
+
+
+
+
 def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
 	if stepn is not 1: txt += _num(stepn) + "-"
 	txt += {"year":"Yearly","month":"Monthly","day":"Daily"}[step.lower()]
 	#if trail is not 1: txt += " " + _num(trail) + "-Trailing"
 	if trail is not 1: txt += " Trailing" #we don't need all the info in the title
-	
+
 	return txt
-	
-	
+
+
 def _week(since,to):
 	if len(since) != 3 or len(to) != 3: return False
 	dt_since, dt_to = datetime.datetime(*since,tzinfo=datetime.timezone.utc), datetime.datetime(*to,tzinfo=datetime.timezone.utc)
 	if (dt_to - dt_since).days != 6: return False
 	if dt_since.weekday() != 6: return False
-	
+
 	c = dt_to.isocalendar()[:2]
 	return str("Week " + str(c[1]) + " " + str(c[0]))
-	
+
 def _num(i):
 	names = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve"]
 	if i < len(names): return names[i]
 	else: return str(i)
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 def ranges(since=None,to=None,within=None,step="month",stepn=1,trail=1,max_=None):
 
 	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within)
@@ -256,7 +264,7 @@ def ranges(since=None,to=None,within=None,step="month",stepn=1,trail=1,max_=None
 	d_start = _get_next(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
 	d_start = _get_next(d_start,step,stepn * trail * -1)	# go one range back to begin
 
-	
+
 	i = 0
 	d_current = d_start
 	while not _is_past(d_current,d_end) and (max_ is None or i < max_):
@@ -282,7 +290,7 @@ def _get_start_of(timestamp,unit):
 		d = datetime.timedelta(days=change)
 		newdate = date - d
 		return [newdate.year,newdate.month,newdate.day]
-		
+
 def _get_next(time,unit="auto",step=1):
 	result = time[:]
 	if unit == "auto":
@@ -313,7 +321,7 @@ def _get_next(time,unit="auto",step=1):
 		#eugh
 	elif unit == "week":
 		return _get_next(time,"day",step * 7)
-		
+
 # like _get_next(), but gets the last INCLUDED day / month whatever
 def _get_end(time,unit="auto",step=1):
 	if step == 1:
@@ -324,9 +332,9 @@ def _get_end(time,unit="auto",step=1):
 	exc = _get_next(time,unit,step)
 	inc = _get_next(exc,"auto",-1)
 	return inc
-	
-	
-	
+
+
+
 def _is_past(date,limit):
 	date_, limit_ = date[:], limit[:]
 	while len(date_) != 3: date_.append(1)
@@ -336,4 +344,3 @@ def _is_past(date,limit):
 	if not date_[1] == limit_[1]:
 		return date_[1] > limit_[1]
 	return (date_[2] > limit_[2])
-

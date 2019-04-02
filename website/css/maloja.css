@@ -26,6 +26,16 @@ a:hover {
 }
 
 
+input[type="date"] {
+	background-color:inherit;
+	color:inherit;
+	outline: none;
+	border:0px;
+	font-family: inherit;
+	font-size: inherit;
+
+}
+
 /**
 Header (unused)
 **/

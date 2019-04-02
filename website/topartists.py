@@ -26,6 +26,9 @@ def instructions(keys):
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
 
-	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_ARTISTLIST":html_charts,"KEY_RANGE":limitstring,"KEY_FILTERSELECTOR":html_filterselector}
+	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,
+	"KEY_ARTISTLIST":html_charts,
+	"KEY_RANGE":limitstring,
+	"KEY_FILTERSELECTOR":html_filterselector}
 
 	return (replace,pushresources)

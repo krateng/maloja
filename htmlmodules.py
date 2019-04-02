@@ -289,6 +289,26 @@ def module_filterselection(keys,time=True,delimit=False):
 		keystr = "?" + urllib.parse.urlencode(retainkeys)
 
 
+		# wonky selector for precise date range
+
+#		fromdate = start_of_scrobbling()
+#		todate = end_of_scrobbling()
+#		if keys.get("since") is not None: fromdate = keys.get("since")
+#		if keys.get("to") is not None: todate = keys.get("to")
+#		if keys.get("in") is not None: fromdate, todate = keys.get("in"), keys.get("in")
+#		fromdate = time_fix(fromdate)
+#		todate = time_fix(todate)
+#		fromdate, todate = time_pad(fromdate,todate,full=True)
+#		fromdate = [str(e) if e>9 else "0" + str(e) for e in fromdate]
+#		todate = [str(e) if e>9 else "0" + str(e) for e in todate]
+#
+#		html += "<div>"
+#		html += "from <input id='dateselect_from' onchange='datechange()' type='date' value='" + "-".join(fromdate) + "'/> "
+#		html += "to <input id='dateselect_to' onchange='datechange()' type='date' value='" + "-".join(todate) + "'/>"
+#		html += "</div>"
+
+
+
 		html += "<div>"
 		if keys.get("since") == "today" or keys.get("in") == "today":
 			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
@@ -333,7 +353,7 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<a href='" + keystr + "&step=day'><span class='stat_selector'>Daily</span></a>"
 		html += " | "
 
-		if keys.get("step") == "month":
+		if keys.get("step") == "month" or keys.get("step") is None:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Monthly</span>"
 		else:
 			html += "<a href='" + keystr + "&step=month'><span class='stat_selector'>Monthly</span></a>"
