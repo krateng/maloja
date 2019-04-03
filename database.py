@@ -788,26 +788,10 @@ def build_db():
 	# load cached images
 	#loadCache()
 
-	#medals
-	global MEDALS
-	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
-	currentyear = datetime.datetime.utcnow().year
-	for year in range(firstyear,currentyear):
+	#start regular tasks
+	startpulse()
 
-		charts = get_charts_artists(within=[year])
-		scr = -1
-		rank = 0
-		for a in charts:
-			if a["scrobbles"] != scr: rank = charts.index(a) + 1
-			if rank > 3: break
-
-			artist = a["artist"]
-			if rank == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
-			if rank == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
-			if rank == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
-
-
-			scr = a["scrobbles"]
+	
 
 
 	log("Database fully built!")
