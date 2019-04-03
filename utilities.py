@@ -240,18 +240,27 @@ def local_files(artist=None,artists=None,title=None):
 
 
 
+# these caches are there so we don't check all files every thime, but return the same one
+local_cache_age = settings.get_settings("LOCAL_IMAGE_ROTATE")
+local_artist_cache = caching.Cache(maxage=local_cache_age)
+local_track_cache = caching.Cache(maxage=local_cache_age)
 
 def getTrackImage(artists,title,fast=False):
 
-	obj = (frozenset(artists),title)
-	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in sorted(artists)]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
-	if filename == "": filename = str(hash(obj))
-	filepath = "images/tracks/" + filename
+#	obj = (frozenset(artists),title)
+#	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in sorted(artists)]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
+#	if filename == "": filename = str(hash(obj))
+#	filepath = "images/tracks/" + filename
 
-	images = local_files(artists=artists,title=title)
-	if len(images) != 0:
-		#return random.choice(images)
-		return urllib.parse.quote(random.choice(images))
+	try:
+		return local_track_cache.get((frozenset(artists),title))
+	except:
+		images = local_files(artists=artists,title=title)
+		if len(images) != 0:
+			#return random.choice(images)
+			res = random.choice(images)
+			local_track_cache.add((frozenset(artists),title),res)
+			return urllib.parse.quote(res)
 
 
 	# check if custom image exists
@@ -308,19 +317,24 @@ def getTrackImage(artists,title,fast=False):
 		return ""
 
 
-
 def getArtistImage(artist,fast=False):
 
-	obj = artist
-	filename = re.sub("[^a-zA-Z0-9]","",artist)
-	if filename == "": filename = str(hash(obj))
-	filepath = "images/artists/" + filename
-	#filepath_cache = "info/artists_cache/" + filename
+#	obj = artist
+#	filename = re.sub("[^a-zA-Z0-9]","",artist)
+#	if filename == "": filename = str(hash(obj))
+#	filepath = "images/artists/" + filename
+#	#filepath_cache = "info/artists_cache/" + filename
 
-	images = local_files(artist=artist)
-	if len(images) != 0:
-		#return random.choice(images)
-		return urllib.parse.quote(random.choice(images))
+	try:
+		return local_artist_cache.get(artist)
+	except:
+		images = local_files(artist=artist)
+		if len(images) != 0:
+			#return random.choice(images)
+			res = random.choice(images)
+			local_artist_cache.add(artist,res)
+			return urllib.parse.quote(res)
+
 
 	# check if custom image exists
 #	if os.path.exists(filepath + ".png"):
