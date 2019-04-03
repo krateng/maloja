@@ -5,51 +5,11 @@ from threading import Thread
 import pickle
 import urllib
 import datetime
+import random
 from doreah import settings
 from doreah import caching
 from doreah.logging import log
 
-
-### TSV files
-
-#def parseTSV(filename,*args,escape=True):
-#	f = open(filename)
-#
-#	result = []
-#	for l in [l for l in f if (not l.startswith("#")) and (not l.strip()=="")]:
-#
-#		l = l.replace("\n","")
-#		if escape:
-#			l = l.split("#")[0]
-#		l = l.replace(r"\num","#") # translate escape sequences even if we don't support comments in the file and they are not actually necessary (they might still be used for some reason)
-#		data = list(filter(None,l.split("\t"))) # Multiple tabs are okay, we don't accept empty fields unless trailing
-#		entry = [] * len(args)
-#		for i in range(len(args)):
-#			if args[i]=="list":
-#				try:
-#					entry.append(data[i].split("␟"))
-#				except:
-#					entry.append([])
-#			elif args[i]=="string":
-#				try:
-#					entry.append(data[i])
-#				except:
-#					entry.append("")
-#			elif args[i]=="int":
-#				try:
-#					entry.append(int(data[i]))
-#				except:
-#					entry.append(0)
-#			elif args[i]=="bool":
-#				try:
-#					entry.append((data[i].lower() in ["true","yes","1","y"]))
-#				except:
-#					entry.append(False)
-#
-#		result.append(entry)
-
-#	f.close()
-#	return result
 
 def checksumTSV(folder):
 
@@ -110,86 +70,6 @@ def consistentRulestate(folder,checksums):
 				f.close()
 
 	return True
-
-
-#def parseAllTSV(path,*args,escape=True):
-#
-#
-#	result = []
-#	for f in os.listdir(path + "/"):
-#
-#		if (f.endswith(".tsv")):
-#
-#			result += parseTSV(path + "/" + f,*args,escape=escape)
-#
-#	return result
-
-#def createTSV(filename):
-#
-#	if not os.path.exists(filename):
-#		open(filename,"w").close()
-
-#def addEntry(filename,a,escape=True):
-#
-#	createTSV(filename)
-#
-#	line = "\t".join(a)
-#	if escape: line = line.replace("#",r"\num")
-#	with open(filename,"a") as f:
-#		f.write(line + "\n")
-
-#def addEntries(filename,al,escape=True):
-#
-#	with open(filename,"a") as f:
-#		for a in al:
-#			line = "\t".join(a)
-#			if escape: line = line.replace("#",r"\num")
-#			f.write(line + "\n")
-#
-
-
-### Useful functions
-
-#def int_or_none(input_):
-#	try:
-#		return int(input_)
-#	except:
-#		return None
-
-#def cleandict(d):
-#	newdict = {k:d[k] for k in d if d[k] is not None}
-#	d.clear()
-#	d.update(newdict)
-
-
-
-
-
-### Logging
-# now handled by doreah
-
-#def log(msg,module=None):
-#	now = datetime.datetime.utcnow().strftime("%Y/%m/%d %H:%M:%S")
-#	if module is None:
-#		import inspect
-#		module = inspect.getmodule(inspect.stack()[1][0]).__name__
-#		if module == "__main__": module = "mainserver"
-#	print("[" + module + "] " + msg)
-#	with open("logs/" + module + ".log","a") as logfile:
-#		logfile.write(now + "  " + msg + "\n")
-
-
-### not meant to be precise, just for a rough idea
-# now handled by doreah
-#measurement = 0
-#def clock(*args):
-#	import time
-#	global measurement
-#	now = time.time()
-#	if len(args) > 0:
-#		print(args[0] + ": " + str(now - measurement))
-#	measurement = now
-
 
 
 
@@ -276,125 +156,6 @@ track_cache = caching.Cache.create(name="track_cache",maxage=cacheage,maxage_neg
 
 
 
-# I think I've only just understood modules
-#cachedTracks = {}
-#cachedArtists = {}
-#
-#cachedTracksDays = {}
-#cachedArtistsDays = {}
-#
-#def cache_track(artists,title,result):
-#	cachedTracks[(frozenset(artists),title)] = result
-#	day = datetime.date.today().toordinal()
-#	cachedTracksDays[(frozenset(artists),title)] = day
-#def cache_artist(artist,result):
-#	if result is None: log("Caching None for " + artist,module="debug")
-#	cachedArtists[artist] = result
-#	day = datetime.date.today().toordinal()
-#	cachedArtistsDays[artist] = day
-
-#def track_from_cache(artists,title):
-#	try:
-#		res = cachedTracks[(frozenset(artists),title)]
-#	except:
-#		# no entry there, let the calling function know
-#		raise KeyError()
-#
-#	if res is None:
-#		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
-#	else:
-#		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
-#
-#	# if the settings say caches never expire, just return
-#	if retain is None: return res
-#
-#	# look if entry is too old
-#	nowday = datetime.date.today().toordinal()
-#	cacheday = cachedTracksDays[(frozenset(artists),title)]
-#
-#	if (nowday - cacheday) > retain:
-#		# fetch the new image in the background, but still return the old one for one last time
-#		log("Expired cache for " + "/".join(artists) + " - " + title)
-#		del cachedTracks[(frozenset(artists),title)]
-#		t = Thread(target=getTrackImage,args=(artists,title,))
-#		t.start()
-#	return res
-
-#def artist_from_cache(artist):
-#	try:
-#		res = cachedArtists[artist]
-#	except:
-#		# no entry there, let the calling function know
-#		raise KeyError()
-#
-#	if res is None:
-#		retain = settings.get_settings("CACHE_EXPIRE_NEGATIVE")
-#	else:
-#		retain = settings.get_settings("CACHE_EXPIRE_POSITIVE")
-#
-#	# if the settings say caches never expire, just return
-#	if retain is None: return res
-#
-#	# look if entry is too old
-#	nowday = datetime.date.today().toordinal()
-#	cacheday = cachedArtistsDays[artist]
-#
-#	if (nowday - cacheday) > retain:
-#		# fetch the new image in the background, but still return the old one for one last time
-#		log("Expired cache for " + artist)
-#		del cachedArtists[artist]
-#		t = Thread(target=getArtistImage,args=(artist,))
-#		t.start()
-#	return res
-#
-
-#def saveCache():
-#	fl = open("images/cache","wb")
-#	stream = pickle.dumps({"tracks":cachedTracks,"artists":cachedArtists,"tracks_days":cachedTracksDays,"artists_days":cachedArtistsDays})
-#	fl.write(stream)
-#	fl.close()
-
-#	pass
-#	persistence.save(artist_cache,"artist_cache")
-#	persistence.save(track_cache,"track_cache")
-
-#def loadCache():
-#	global artist_cache, track_cache
-#	artist_cache_tmp = persistence.load("artist_cache")
-#	track_cache_tmp = persistence.load("track_cache")
-#	if artist_cache_tmp is not None: artist_cache = artist_cache_tmp
-#	if track_cache_tmp is not None: track_cache = track_cache_tmp
-#	pass
-
-#	try:
-#		fl = open("images/cache","rb")
-#	except:
-#		return
-
-#	try:
-#		ob = pickle.loads(fl.read())
-#		global cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays
-#		cachedTracks, cachedArtists, cachedTracksDays, cachedArtistsDays = ob["tracks"],ob["artists"],ob["tracks_days"],ob["artists_days"]
-#		#(cachedTracks, cachedArtists) = ob
-#	finally:
-#		fl.close()
-#
-	# remove corrupt caching from previous versions
-#	toremove = []
-#	for k in cachedTracks:
-#		if cachedTracks[k] == "":
-#			toremove.append(k)
-#	for k in toremove:
-#		del cachedTracks[k]
-#		log("Removed invalid cache key: " + str(k))
-
-#	toremove = []
-#	for k in cachedArtists:
-#		if cachedArtists[k] == "":
-#			toremove.append(k)
-#	for k in toremove:
-#		del cachedArtists[k]
-#		log("Removed invalid cache key: " + str(k))
 
 def getTrackImage(artists,title,fast=False):
 
@@ -403,19 +164,38 @@ def getTrackImage(artists,title,fast=False):
 	if filename == "": filename = str(hash(obj))
 	filepath = "images/tracks/" + filename
 
+	images = []
+
+	# add all images named like the tracks
+	for ext in ["png","jpg","jpeg","gif"]:
+		for num in [""] + [str(n) for n in range(0,10)]:
+			if os.path.exists(filepath + num + "." + ext):
+				images.append("/" + filepath + num + "." + ext)
+
+	# add images in a folder for that track
+	try:
+		for f in os.listdir(filepath + "/"):
+			if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
+				images.append("/" + filepath + "/" + f)
+	except:
+		pass
+
+	if len(images) != 0:
+		return random.choice(images)
+
 	# check if custom image exists
-	if os.path.exists(filepath + ".png"):
-		imgurl = "/" + filepath + ".png"
-		return imgurl
-	elif os.path.exists(filepath + ".jpg"):
-		imgurl = "/" + filepath + ".jpg"
-		return imgurl
-	elif os.path.exists(filepath + ".jpeg"):
-		imgurl = "/" + filepath + ".jpeg"
-		return imgurl
-	elif os.path.exists(filepath + ".gif"):
-		imgurl = "/" + filepath + ".gif"
-		return imgurl
+#	if os.path.exists(filepath + ".png"):
+#		imgurl = "/" + filepath + ".png"
+#		return imgurl
+#	elif os.path.exists(filepath + ".jpg"):
+#		imgurl = "/" + filepath + ".jpg"
+#		return imgurl
+#	elif os.path.exists(filepath + ".jpeg"):
+#		imgurl = "/" + filepath + ".jpeg"
+#		return imgurl
+#	elif os.path.exists(filepath + ".gif"):
+#		imgurl = "/" + filepath + ".gif"
+#		return imgurl
 
 
 	try:
@@ -466,19 +246,38 @@ def getArtistImage(artist,fast=False):
 	filepath = "images/artists/" + filename
 	#filepath_cache = "info/artists_cache/" + filename
 
+	images = []
+
+	# add all images named like the artist
+	for ext in ["png","jpg","jpeg","gif"]:
+		for num in [""] + [str(n) for n in range(0,10)]:
+			if os.path.exists(filepath + num + "." + ext):
+				images.append("/" + filepath + num + "." + ext)
+
+	# add images in a folder for that artist
+	try:
+		for f in os.listdir(filepath + "/"):
+			if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
+				images.append("/" + filepath + "/" + f)
+	except:
+		pass
+
+	if len(images) != 0:
+		return random.choice(images)
+
 	# check if custom image exists
-	if os.path.exists(filepath + ".png"):
-		imgurl = "/" + filepath + ".png"
-		return imgurl
-	elif os.path.exists(filepath + ".jpg"):
-		imgurl = "/" + filepath + ".jpg"
-		return imgurl
-	elif os.path.exists(filepath + ".jpeg"):
-		imgurl = "/" + filepath + ".jpeg"
-		return imgurl
-	elif os.path.exists(filepath + ".gif"):
-		imgurl = "/" + filepath + ".gif"
-		return imgurl
+#	if os.path.exists(filepath + ".png"):
+#		imgurl = "/" + filepath + ".png"
+#		return imgurl
+#	elif os.path.exists(filepath + ".jpg"):
+#		imgurl = "/" + filepath + ".jpg"
+#		return imgurl
+#	elif os.path.exists(filepath + ".jpeg"):
+#		imgurl = "/" + filepath + ".jpeg"
+#		return imgurl
+#	elif os.path.exists(filepath + ".gif"):
+#		imgurl = "/" + filepath + ".gif"
+#		return imgurl
 
 
 	try:

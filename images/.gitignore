@@ -1,6 +1,3 @@
-cache
-cached/
-*.jpg
-*.jpeg
-*.png
-*.gif
+*
+!.gitignore
+!*.info
