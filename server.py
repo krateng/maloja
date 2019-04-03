@@ -39,6 +39,33 @@ def mainpage():
 	response = static_html("start")
 	return response
 
+@webserver.error(400)
+@webserver.error(403)
+@webserver.error(404)
+@webserver.error(405)
+@webserver.error(408)
+@webserver.error(500)
+@webserver.error(505)
+def customerror(error):
+	code = int(str(error).split(",")[0][1:])
+	log("Error: " + str(code),module="error")
+
+	if os.path.exists("website/errors/" + str(code) + ".html"):
+		return static_file("website/errors/" + str(code) + ".html",root="")
+	else:
+		with open("website/errors/generic.html") as htmlfile:
+			html = htmlfile.read()
+
+		# apply global substitutions
+		with open("website/common/footer.html") as footerfile:
+			footerhtml = footerfile.read()
+		with open("website/common/header.html") as headerfile:
+			headerhtml = headerfile.read()
+		html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
+
+		html = html.replace("ERROR_CODE",str(code))
+		return html
+
 
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
 # e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
@@ -89,7 +116,7 @@ def dynamic_image():
 	relevant, _, _, _ = KeySplit(keys)
 	result = resolveImage(**relevant)
 	if result == "": return ""
-	redirect(result,301)
+	redirect(result,307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
