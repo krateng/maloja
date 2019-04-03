@@ -6,6 +6,7 @@ import pickle
 import urllib
 import datetime
 import random
+import itertools
 from doreah import settings
 from doreah import caching
 from doreah.logging import log
@@ -155,6 +156,89 @@ artist_cache = caching.Cache.create(name="artist_cache",maxage=cacheage,maxage_n
 track_cache = caching.Cache.create(name="track_cache",maxage=cacheage,maxage_negative=cacheage_neg)
 
 
+# removes emojis and weird shit from names
+def clean(name):
+	return "".join(c for c in name if c.isalnum() or c in []).strip()
+
+def local_files(artist=None,artists=None,title=None):
+
+	# check if we're dealing with a track or artist, then clean up names
+	# (only remove non-alphanumeric, allow korean and stuff)
+	if title is not None and artists is not None:
+		track = True
+		title, artists = clean(title), [clean(a) for a in artists]
+	elif artist is not None:
+		track = False
+		artist = clean(artist)
+	else: return []
+
+
+	superfolder = "images/tracks/" if track else "images/artists/"
+
+	filenames = []
+
+	if track:
+		#unsafeartists = [artist.translate(None,"-_./\\") for artist in artists]
+		safeartists = [re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]
+		#unsafetitle = title.translate(None,"-_./\\")
+		safetitle = re.sub("[^a-zA-Z0-9]","",title)
+
+		if len(artists) < 4:
+			unsafeperms = itertools.permutations(artists)
+			safeperms = itertools.permutations(safeartists)
+		else:
+			unsafeperms = [sorted(artists)]
+			safeperms = [sorted(safeartists)]
+
+
+		for unsafeartistlist in unsafeperms:
+			filename = "-".join(unsafeartistlist) + "_" + title
+			if filename != "":
+				filenames.append(filename)
+				filenames.append(filename.lower())
+		for safeartistlist in safeperms:
+			filename = "-".join(safeartistlist) + "_" + safetitle
+			if filename != "":
+				filenames.append(filename)
+				filenames.append(filename.lower())
+		filenames = list(set(filenames))
+		if len(filenames) == 0: filenames.append(str(hash((frozenset(artists),title))))
+	else:
+		#unsafeartist = artist.translate(None,"-_./\\")
+		safeartist = re.sub("[^a-zA-Z0-9]","",artist)
+
+		filename = artist
+		if filename != "":
+			filenames.append(filename)
+			filenames.append(filename.lower())
+		filename = safeartist
+		if filename != "":
+			filenames.append(filename)
+			filenames.append(filename.lower())
+
+		filenames = list(set(filenames))
+		if len(filenames) == 0: filenames.append(str(hash(artist)))
+
+	images = []
+
+	for purename in filenames:
+		# direct files
+		for ext in ["png","jpg","jpeg","gif"]:
+			#for num in [""] + [str(n) for n in range(0,10)]:
+			if os.path.exists(superfolder + purename + "." + ext):
+				images.append("/" + superfolder + purename + "." + ext)
+
+		# folder
+		try:
+			for f in os.listdir(superfolder + purename + "/"):
+				if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
+					images.append("/" + superfolder + purename + "/" + f)
+		except:
+			pass
+
+	return images
+
+
 
 
 def getTrackImage(artists,title,fast=False):
@@ -164,24 +248,11 @@ def getTrackImage(artists,title,fast=False):
 	if filename == "": filename = str(hash(obj))
 	filepath = "images/tracks/" + filename
 
-	images = []
-
-	# add all images named like the tracks
-	for ext in ["png","jpg","jpeg","gif"]:
-		for num in [""] + [str(n) for n in range(0,10)]:
-			if os.path.exists(filepath + num + "." + ext):
-				images.append("/" + filepath + num + "." + ext)
-
-	# add images in a folder for that track
-	try:
-		for f in os.listdir(filepath + "/"):
-			if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
-				images.append("/" + filepath + "/" + f)
-	except:
-		pass
-
+	images = local_files(artists=artists,title=title)
 	if len(images) != 0:
-		return random.choice(images)
+		#return random.choice(images)
+		return urllib.parse.quote(random.choice(images))
+
 
 	# check if custom image exists
 #	if os.path.exists(filepath + ".png"):
@@ -246,24 +317,10 @@ def getArtistImage(artist,fast=False):
 	filepath = "images/artists/" + filename
 	#filepath_cache = "info/artists_cache/" + filename
 
-	images = []
-
-	# add all images named like the artist
-	for ext in ["png","jpg","jpeg","gif"]:
-		for num in [""] + [str(n) for n in range(0,10)]:
-			if os.path.exists(filepath + num + "." + ext):
-				images.append("/" + filepath + num + "." + ext)
-
-	# add images in a folder for that artist
-	try:
-		for f in os.listdir(filepath + "/"):
-			if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
-				images.append("/" + filepath + "/" + f)
-	except:
-		pass
-
+	images = local_files(artist=artist)
 	if len(images) != 0:
-		return random.choice(images)
+		#return random.choice(images)
+		return urllib.parse.quote(random.choice(images))
 
 	# check if custom image exists
 #	if os.path.exists(filepath + ".png"):

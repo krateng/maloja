@@ -155,7 +155,9 @@ def static_html(name):
 
 		# add headers for server push
 		for resource in resources:
-			linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
+			if all(ord(c) < 128 for c in resource["file"]):
+				# we can only put ascii stuff in the http header
+				linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
 
 		# apply key substitutions
 		for k in txt_keys:
