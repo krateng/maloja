@@ -1,6 +1,7 @@
 import urllib
 from bottle import FormsDict
 import datetime
+from malojatime import time_fix, internal_to_uri
 
 
 def artistLink(name):
@@ -33,6 +34,9 @@ def scrobblesLink(timekeys,amount=None,percent=None,artist=None,track=None,assoc
 
 # necessary because urllib.parse.urlencode doesnt handle multidicts
 def keysToUrl(*dicts,exclude=[]):
+	for dict in dicts:
+		for key in dict:
+			dict[key] = internal_to_uri(dict[key])
 	st = ""
 	keys = removeIdentical(*dicts)
 	for k in keys:
@@ -148,17 +152,17 @@ def KeySplit(keys,forceTrack=False,forceArtist=False):
 
 	# 2
 	resultkeys2 = {}
-	if "since" in keys: resultkeys2["since"] = keys.get("since")
-	elif "from" in keys: resultkeys2["since"] = keys.get("from")
-	elif "start" in keys: resultkeys2["since"] = keys.get("start")
+	if "since" in keys: resultkeys2["since"] = time_fix(keys.get("since"))
+	elif "from" in keys: resultkeys2["since"] = time_fix(keys.get("from"))
+	elif "start" in keys: resultkeys2["since"] = time_fix(keys.get("start"))
 	#
-	if "to" in keys: resultkeys2["to"] = keys.get("to")
-	elif "until" in keys: resultkeys2["to"] = keys.get("until")
-	elif "end" in keys: resultkeys2["to"] = keys.get("end")
+	if "to" in keys: resultkeys2["to"] = time_fix(keys.get("to"))
+	elif "until" in keys: resultkeys2["to"] = time_fix(keys.get("until"))
+	elif "end" in keys: resultkeys2["to"] = time_fix(keys.get("end"))
 	#
-	if "in" in keys: resultkeys2["within"] = keys.get("in")
-	elif "within" in keys: resultkeys2["within"] = keys.get("within")
-	elif "during" in keys: resultkeys2["within"] = keys.get("during")
+	if "in" in keys: resultkeys2["within"] = time_fix(keys.get("in"))
+	elif "within" in keys: resultkeys2["within"] = time_fix(keys.get("within"))
+	elif "during" in keys: resultkeys2["within"] = time_fix(keys.get("during"))
 
 
 	#3
