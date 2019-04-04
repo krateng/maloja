@@ -461,16 +461,14 @@ def artistInfo(artist):
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = coa.getAllAssociated(artist)
-		position = charts.index(c)
-		while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
-		return {"scrobbles":scrobbles,"position":position + 1,"associated":others,"medals":MEDALS.get(artist)}
+		position = c["rank"]
+		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
-		position = charts.index(c)
-		while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
-		return {"replace":artist,"scrobbles":scrobbles,"position":position + 1}
+		position = c["rank"]
+		return {"replace":artist,"scrobbles":scrobbles,"position":position}
 
 
 
@@ -490,10 +488,9 @@ def trackInfo(artists,title):
 	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
 	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
 	scrobbles = c["scrobbles"]
-	position = charts.index(c)
-	while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
+	position = c["rank"]
 
-	return {"scrobbles":scrobbles,"position":position + 1,"medals":MEDALS_TRACKS.get((frozenset(artists),title))}
+	return {"scrobbles":scrobbles,"position":position,"medals":MEDALS_TRACKS.get((frozenset(artists),title))}
 
 
 
