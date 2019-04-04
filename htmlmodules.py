@@ -347,7 +347,7 @@ def module_artistcharts_tiles(**kwargs):
 
 	bigpart = [0,1,2,6,15]
 	smallpart = [0,1,2,4,6,9,12,15]
-	rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
+	#rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
 
 	html = """<table class="tiles_top"><tr>"""
 
@@ -363,9 +363,9 @@ def module_artistcharts_tiles(**kwargs):
 
 
 		if e is not None:
-			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
-			rnk = (rank,e["scrobbles"])
-			rank = "#" + str(rank)
+			#rank = i if e["scrobbles"] != rnk[1] else rnk[0]
+			#rnk = (rank,e["scrobbles"])
+			rank = "#" + str(e["rank"])
 			#image = "/image?artist=" + urllib.parse.quote(e["artist"])
 			image = getArtistImage(e["artist"],fast=True)
 			link = artistLink(e["artist"])
@@ -402,7 +402,7 @@ def module_trackcharts_tiles(**kwargs):
 
 	bigpart = [0,1,2,6,15]
 	smallpart = [0,1,2,4,6,9,12,15]
-	rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
+	#rnk = (0,0) #temporary store so entries with the same scrobble amount get the same rank
 
 
 	html = """<table class="tiles_top"><tr>"""
@@ -419,9 +419,9 @@ def module_trackcharts_tiles(**kwargs):
 
 
 		if e is not None:
-			rank = i if e["scrobbles"] != rnk[1] else rnk[0]
-			rnk = (rank,e["scrobbles"])
-			rank = "#" + str(rank)
+			#rank = i if e["scrobbles"] != rnk[1] else rnk[0]
+			#rnk = (rank,e["scrobbles"])
+			rank = "#" + str(e["rank"])
 			#image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]])
 			image = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
 			link = trackLink(e["track"])
