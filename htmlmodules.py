@@ -98,6 +98,20 @@ def module_trackcharts(max_=None,**kwargs):
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)
 
+	# last time range (to compare)
+	if "within" in kwargs_time:
+		from malojatime import _get_next
+		trackslast = database.get_charts_tracks(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+		# create rank association
+		lastrank = {}
+		for tl in trackslast:
+			lastrank[(*tl["track"]["artists"],tl["track"]["title"])] = tl["rank"]
+		for t in tracks:
+			try:
+				t["delta"] = lastrank[(*t["track"]["artists"],t["track"]["title"])] - t["rank"]
+			except:
+				t["delta"] = None
+
 	if tracks != []:
 		maxbar = tracks[0]["scrobbles"]
 		representative = tracks[0]["track"]
@@ -112,12 +126,25 @@ def module_trackcharts(max_=None,**kwargs):
 		if max_ is not None and i>max_:
 			break
 		html += "<tr>"
+		# rank
 		if i == 1 or e["scrobbles"] < prev["scrobbles"]:
 			html += "<td class='rank'>#" + str(i) + "</td>"
 		else:
 			html += "<td class='rank'></td>"
+		# rank change
+		if "within" not in kwargs_time: pass
+		elif e["delta"] is None:
+			html += "<td class='rankup' title='New'>🆕</td>"
+		elif e["delta"] > 0:
+			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
+		elif e["delta"] < 0:
+			html += "<td class='rankdown' title='down from #" + str(e["rank"]+e["delta"]) + "'>↘</td>"
+		else:
+			html += "<td class='ranksame' title='Unchanged'>➡</td>"
+		# track
 		html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
 		html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
+		# scrobbles
 		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],kwargs_time,amount=e["scrobbles"]) + "</td>"
 		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],kwargs_time,percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
@@ -134,6 +161,19 @@ def module_artistcharts(max_=None,**kwargs):
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)
 
+	# last time range (to compare)
+	if "within" in kwargs_time:
+		from malojatime import _get_next
+		artistslast = database.get_charts_artists(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+		# create rank association
+		lastrank = {}
+		for al in artistslast:
+			lastrank[al["artist"]] = al["rank"]
+		for a in artists:
+			try:
+				a["delta"] = lastrank[a["artist"]] - a["rank"]
+			except:
+				a["delta"] = None
 
 	if artists != []:
 		maxbar = artists[0]["scrobbles"]
@@ -148,14 +188,27 @@ def module_artistcharts(max_=None,**kwargs):
 		if max_ is not None and i>max_:
 			break
 		html += "<tr>"
+		# rank
 		if i == 1 or e["scrobbles"] < prev["scrobbles"]:
 			html += "<td class='rank'>#" + str(i) + "</td>"
 		else:
 			html += "<td class='rank'></td>"
+		# rank change
+		if "within" not in kwargs_time: pass
+		elif e["delta"] is None:
+			html += "<td class='rankup' title='New'>🆕</td>"
+		elif e["delta"] > 0:
+			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
+		elif e["delta"] < 0:
+			html += "<td class='rankdown' title='down from #" + str(e["rank"]+e["delta"]) + "'>↘</td>"
+		else:
+			html += "<td class='ranksame' title='Unchanged'>➡</td>"
+		# artist
 		html += "<td class='artist'>" + artistLink(e["artist"])
 		if (e["counting"] != []):
 			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
 		html += "</td>"
+		# scrobbles
 		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],kwargs_time,amount=e["scrobbles"],associated=True) + "</td>"
 		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],kwargs_time,percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
