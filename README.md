@@ -6,11 +6,13 @@ Simple self-hosted music scrobble database to create personal listening statisti
 
 ### Why not Last.fm / Libre.fm / GNU FM?
 
-Maloja is self-hosted. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can follow your own tagging schema or even group associated artists together in your charts.
+Maloja is **self-hosted**. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can **follow your own tagging schema** or even **group associated artists together** in your charts.
 
-Maloja also gets rid of all the extra stuff: social networking, radios, recommendations, etc. It only keeps track of your listening history and lets you analyze it.
+Maloja also gets **rid of all the extra stuff**: social networking, radios, recommendations, etc. It only keeps track of your listening history and lets you analyze it.
 
-Maloja's database has one big advantage: It supports multiple artists per track. This means artists who are often just "featuring" in the track title get a place in your charts, and collaborations between several artists finally get credited to all participants. This allows you to get an actual idea of your artist preferences over time.
+Maloja's database has one big advantage: It supports **multiple artists per track**. This means artists who are often just "featuring" in the track title get a place in your charts, and **collaborations between several artists finally get credited to all participants**. This allows you to get an actual idea of your artist preferences over time.
+
+Also neat: You can use your **custom artist or track images**.
 
 ## Current status
 
