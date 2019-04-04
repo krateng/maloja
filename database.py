@@ -791,7 +791,7 @@ def build_db():
 	#start regular tasks
 	startpulse()
 
-	
+
 
 
 	log("Database fully built!")
@@ -965,7 +965,14 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 				charts[a] = charts.setdefault(a,0) + 1
 
 		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
-		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
+		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
+		# add ranks
+		for rnk in range(len(ls)):
+			if rnk == 0 or ls[rnk]["scrobbles"] < ls[rnk-1]["scrobbles"]:
+				ls[rnk]["rank"] = rnk + 1
+			else:
+				ls[rnk]["rank"] = ls[rnk-1]["rank"]
+		return ls
 
 	elif (by=="TRACK"):
 		charts = {}
@@ -976,7 +983,14 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 			charts[track] = charts.setdefault(track,0) + 1
 
 		ls = [{"track":getTrackObject(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
-		return sorted(ls,key=lambda k:k["scrobbles"], reverse=True)
+		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
+		# add ranks
+		for rnk in range(len(ls)):
+			if rnk == 0 or ls[rnk]["scrobbles"] < ls[rnk-1]["scrobbles"]:
+				ls[rnk]["rank"] = rnk + 1
+			else:
+				ls[rnk]["rank"] = ls[rnk-1]["rank"]
+		return ls
 
 	else:
 		#return len([scr for scr in SCROBBLES if since < scr[1] < to])
