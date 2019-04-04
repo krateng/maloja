@@ -240,15 +240,7 @@ p.desc a {
 }
 
 
-.rankup {
-	color:green;
-}
-.rankdown {
-	color:red;
-}
-.ranksame {
-	color:grey;
-}
+
 
 a {
 	cursor:pointer;
@@ -363,6 +355,25 @@ table.list tr:hover {
 table.list td.time {
 	width:11%;
 	color:gray;
+}
+
+
+table.list tr td.rank {
+	padding-right: 4px;
+
+}
+
+table.list tr td.rankup {
+	color:green;
+	padding-right: 8px;
+}
+table.list tr td.rankdown {
+	color:red;
+	padding-right: 8px;
+}
+table.list tr td.ranksame {
+	color:grey;
+	padding-right: 8px;
 }
 
 
