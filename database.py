@@ -34,6 +34,7 @@ SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
 #STAMPS_SET = set()	# as set for easier check if exists
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
+MEDALS_TRACKS = {}
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -492,7 +493,7 @@ def trackInfo(artists,title):
 	position = charts.index(c)
 	while position != 0 and c["scrobbles"] == charts[position-1]["scrobbles"]: position -= 1
 
-	return {"scrobbles":scrobbles,"position":position + 1}
+	return {"scrobbles":scrobbles,"position":position + 1,"medals":MEDALS_TRACKS.get((frozenset(artists),title))}
 
 
 

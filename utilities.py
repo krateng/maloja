@@ -491,26 +491,35 @@ def startpulse():
 def yearly():
 
 	#medals
-	from database import MEDALS, STAMPS, get_charts_artists
-	MEDALS.clear()
+	from database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
+
 	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
 	currentyear = datetime.datetime.utcnow().year
+
+	MEDALS.clear()
 	for year in range(firstyear,currentyear):
 
 		charts = get_charts_artists(within=[year])
-		scr = -1
-		rank = 0
 		for a in charts:
-			if a["scrobbles"] != scr: rank = charts.index(a) + 1
-			if rank > 3: break
 
 			artist = a["artist"]
-			if rank == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
-			if rank == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
-			if rank == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
+			if a["rank"] == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
+			elif a["rank"] == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
+			elif a["rank"] == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
+			else: break
 
+	MEDALS_TRACKS.clear()
+	for year in range(firstyear,currentyear):
 
-			scr = a["scrobbles"]
+		charts = get_charts_tracks(within=[year])
+		for t in charts:
+
+			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
+			if t["rank"] == 1: MEDALS_TRACKS.setdefault(track,{}).setdefault("gold",[]).append(year)
+			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
+			elif t["rank"] == 3: MEDALS_TRACKS.setdefault(track,{}).setdefault("bronze",[]).append(year)
+			else: break
+
 
 
 	# schedule for next year

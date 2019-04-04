@@ -20,13 +20,27 @@ def instructions(keys):
 	pos = "#" + str(data["position"])
 
 
+	html_medals = ""
+	if "medals" in data and data["medals"] is not None:
+		if "gold" in data["medals"]:
+			for y in data["medals"]["gold"]:
+				html_medals += "<a  title='Best Track in " + str(y) + "' class='hidelink medal gold' href='/charts_tracks?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+		if "silver" in data["medals"]:
+			for y in data["medals"]["silver"]:
+				html_medals += "<a title='Second Best Track in " + str(y) + "' class='hidelink medal silver' href='/charts_tracks?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+		if "bronze" in data["medals"]:
+			for y in data["medals"]["bronze"]:
+				html_medals += "<a title='Third Best Track in " + str(y) + "' class='hidelink medal bronze' href='/charts_tracks?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+
+
+
 	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=100,earlystop=True)	 # we have the number already from the trackinfo
 
 	html_pulse = module_pulse(track=track,step="year",stepn=1,trail=1)
 
 
 	replace = {"KEY_TRACKTITLE":track.get("title"),"KEY_ARTISTS":artistLinks(track.get("artists")),"KEY_SCROBBLES":scrobblesnum,"KEY_POSITION":pos,"KEY_IMAGEURL":imgurl,
-		"KEY_SCROBBLELINK":keysToUrl(keys),
+		"KEY_SCROBBLELINK":keysToUrl(keys),"KEY_MEDALS":html_medals,
 		"KEY_SCROBBLELIST":html_scrobbles,"KEY_PULSE":html_pulse}
 
 	return (replace,pushresources)
