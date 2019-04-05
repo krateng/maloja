@@ -366,14 +366,17 @@ table.list tr td.rank {
 table.list tr td.rankup {
 	color:green;
 	padding-right: 8px;
+	font-size: 80%;
 }
 table.list tr td.rankdown {
 	color:red;
 	padding-right: 8px;
+	font-size: 80%;
 }
 table.list tr td.ranksame {
 	color:grey;
 	padding-right: 8px;
+	font-size: 80%;
 }
 
 
