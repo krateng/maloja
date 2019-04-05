@@ -787,8 +787,8 @@ def build_db():
 	#loadCache()
 
 	#start regular tasks
-	startpulse()
-
+	update_medals()
+	scheduletest()
 
 
 

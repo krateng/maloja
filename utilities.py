@@ -10,6 +10,7 @@ import itertools
 from doreah import settings
 from doreah import caching
 from doreah.logging import log
+from doreah.regular import yearly, daily
 
 
 
@@ -476,21 +477,12 @@ def resolveImage(artist=None,track=None):
 ## PULSE MAINTENANCE
 #####
 
-def startpulse():
-
-	# execute all actions for startup
-	# they will themselves trigger their next pass
-	yearly()
-	monthly()
-	daily()
 
 
+@yearly
+def update_medals():
 
 
-
-def yearly():
-
-	#medals
 	from database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
 
 	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
@@ -521,32 +513,7 @@ def yearly():
 			else: break
 
 
-
-	# schedule for next year
-	now = datetime.datetime.utcnow()
-	nextyear = datetime.datetime(now.year+1,1,1)
-	wait = nextyear.timestamp() - now.timestamp()
-
-	Timer(wait,yearly).start()
-
-def monthly():
-
-	log("New month!",module="debug")
-
-	# schedule for next month
-	now = datetime.datetime.utcnow()
-	nextmonth = datetime.datetime(now.year,now.month + 1,1) if now.month != 12 else datetime.datetime(now.year+1,1,1)
-	wait = nextmonth.timestamp() - now.timestamp()
-
-	Timer(wait,monthly).start()
-
-def daily():
+@daily
+def scheduletest():
 
 	log("New day!",module="debug")
-
-	# schedule for tomorrow
-	now = datetime.datetime.utcnow()
-	nextday = datetime.datetime(now.year,now.month,now.day) + datetime.timedelta(days=1)
-	wait = nextday.timestamp() - now.timestamp()
-
-	Timer(wait,daily).start()
