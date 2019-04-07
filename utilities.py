@@ -286,15 +286,17 @@ def getTrackImage(artists,title,fast=False):
 #	if filename == "": filename = str(hash(obj))
 #	filepath = "images/tracks/" + filename
 
-	try:
-		return local_track_cache.get((frozenset(artists),title))
-	except:
-		images = local_files(artists=artists,title=title)
-		if len(images) != 0:
-			#return random.choice(images)
-			res = random.choice(images)
-			local_track_cache.add((frozenset(artists),title),res)
-			return urllib.parse.quote(res)
+	if settings.get_settings("USE_LOCAL_IMAGES"):
+
+		try:
+			return local_track_cache.get((frozenset(artists),title))
+		except:
+			images = local_files(artists=artists,title=title)
+			if len(images) != 0:
+				#return random.choice(images)
+				res = random.choice(images)
+				local_track_cache.add((frozenset(artists),title),res)
+				return urllib.parse.quote(res)
 
 
 	# check if custom image exists
@@ -359,15 +361,17 @@ def getArtistImage(artist,fast=False):
 #	filepath = "images/artists/" + filename
 #	#filepath_cache = "info/artists_cache/" + filename
 
-	try:
-		return local_artist_cache.get(artist)
-	except:
-		images = local_files(artist=artist)
-		if len(images) != 0:
-			#return random.choice(images)
-			res = random.choice(images)
-			local_artist_cache.add(artist,res)
-			return urllib.parse.quote(res)
+	if settings.get_settings("USE_LOCAL_IMAGES"):
+
+		try:
+			return local_artist_cache.get(artist)
+		except:
+			images = local_files(artist=artist)
+			if len(images) != 0:
+				#return random.choice(images)
+				res = random.choice(images)
+				local_artist_cache.add(artist,res)
+				return urllib.parse.quote(res)
 
 
 	# check if custom image exists
@@ -511,9 +515,3 @@ def update_medals():
 			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
 			elif t["rank"] == 3: MEDALS_TRACKS.setdefault(track,{}).setdefault("bronze",[]).append(year)
 			else: break
-
-
-@daily
-def scheduletest():
-
-	log("New day!",module="debug")
