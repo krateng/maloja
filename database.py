@@ -15,6 +15,7 @@ import datetime
 import sys
 import unicodedata
 import json
+from collections import namedtuple
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
@@ -27,12 +28,17 @@ dbserver = Bottle()
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
-TRACKS = []	# Format: tuple(frozenset(artist_ref,...),title)
+TRACKS = []	# Format: namedtuple(artists=frozenset(artist_ref,...),title=title)
+
+Track = namedtuple("Track",["artists","title"])
+Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
 
 ### OPTIMIZATION
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
 #STAMPS_SET = set()	# as set for easier check if exists
+TRACKS_LOWER = []
+ARTISTS_LOWER = []
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
 
@@ -65,15 +71,15 @@ def checkAPIkey(k):
 ####
 
 def getScrobbleObject(o):
-	track = getTrackObject(TRACKS[o[0]])
-	return {"artists":track["artists"],"title":track["title"],"time":o[1]}
+	track = getTrackObject(TRACKS[o.track)
+	return {"artists":track["artists"],"title":track["title"],"time":o.time}
 
 def getArtistObject(o):
 	return o
 
 def getTrackObject(o):
-	artists = [getArtistObject(ARTISTS[a]) for a in o[0]]
-	return {"artists":artists,"title":o[1]}
+	artists = [getArtistObject(ARTISTS[a]) for a in o.artists]
+	return {"artists":artists,"title":o.title}
 
 
 ####
@@ -86,7 +92,7 @@ def createScrobble(artists,title,time,volatile=False):
 	while (time in SCROBBLESDICT):
 		time += 1
 	i = getTrackID(artists,title)
-	obj = (i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
+	obj = Scrobble(i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
 	# immediately insert scrobble correctly so we can guarantee sorted list
 	index = insert(SCROBBLES,obj,key=lambda x:x[1])
@@ -100,7 +106,7 @@ def readScrobble(artists,title,time):
 	while (time in SCROBBLESDICT):
 		time += 1
 	i = getTrackID(artists,title)
-	obj = (i,time,True)
+	obj = Scrobble(i,time,True)
 	SCROBBLES.append(obj)
 	SCROBBLESDICT[time] = obj
 	#STAMPS.append(time)
@@ -117,30 +123,37 @@ def getArtistID(name):
 	except:
 		pass
 	try:
-		return [a.lower() for a in ARTISTS].index(objlower)
+		return ARTISTS_LOWER.index(objlower)
 	except:
 		i = len(ARTISTS)
 		ARTISTS.append(obj)
+		ARTISTS_LOWER.append(objlower)
 		return i
 
 def getTrackID(artists,title):
 	artistset = set()
 	for a in artists:
 		artistset.add(getArtistID(name=a))
-	obj = (frozenset(artistset),title)
-	objlower = (frozenset(artistset),title.lower())
+	obj = Track(artists=frozenset(artistset),title=title)
+	objlower = Track(artists=frozenset(artistset),title=title.lower())
 
 	try:
 		return TRACKS.index(obj)
 	except:
 		pass
 	try:
+		# better now
+		return TRACKS_LOWER.index(objlower)
 		# not the best performance
-		return [(t[0],t[1].lower()) for t in TRACKS].index(objlower)
+		#return [(t.artists,t.title.lower()) for t in TRACKS].index(objlower)
+
 	except:
 		i = len(TRACKS)
 		TRACKS.append(obj)
+		TRACKS_LOWER.append(obj)
 		return i
+
+
 
 
 
@@ -292,7 +305,7 @@ def get_tracks(artist=None):
 		artistid = None
 
 	# Option 1
-	return [getTrackObject(t) for t in TRACKS if (artistid in t[0]) or (artistid==None)]
+	return [getTrackObject(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
 
 	# Option 2 is a bit more elegant but much slower
 	#tracklist = [getTrackObject(t) for t in TRACKS]
@@ -788,7 +801,6 @@ def build_db():
 
 	#start regular tasks
 	update_medals()
-	scheduletest()
 
 
 
