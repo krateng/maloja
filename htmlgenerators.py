@@ -1,8 +1,29 @@
 import urllib
 from bottle import FormsDict
 import datetime
-from malojatime import time_fix, internal_to_uri
+from malojatime import uri_to_internal, internal_to_uri
 
+
+# returns the proper column(s) for an artist or track
+def entity_column(element,counting=[],image=None):
+
+	html = ""
+
+	if image is not None:
+		html += """<td class='icon'><div style="background-image:url('""" + image + """')"></div></td>"""
+
+	if "artists" in element:
+		# track
+		html += "<td class='artists'>" + artistLinks(element["artists"]) + "</td>"
+		html += "<td class='title'>" + trackLink({"artists":element["artists"],"title":element["title"]}) + "</td>"
+	else:
+		# artist
+		html += "<td class='artist'>" + artistLink(element)
+		if (counting != []):
+			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in counting]) + "</span>"
+		html += "</td>"
+
+	return html
 
 def artistLink(name):
 	return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"

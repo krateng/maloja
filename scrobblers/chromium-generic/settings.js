@@ -2,11 +2,14 @@
 document.addEventListener("DOMContentLoaded",function() {
 	document.getElementById("serverurl").addEventListener("input",updateServer);
 	document.getElementById("apikey").addEventListener("input",updateAPIKey);
-	
+
 	document.getElementById("serverurl").addEventListener("change",checkServer);
 	document.getElementById("apikey").addEventListener("change",checkServer);
-	
-	
+
+	document.getElementById("serverurl").addEventListener("focusout",checkServer);
+	document.getElementById("apikey").addEventListener("focusout",checkServer);
+
+
 	chrome.storage.local.get({"serverurl":"http://localhost:42010"},function(result) {
 		document.getElementById("serverurl").value = result["serverurl"]
 		checkServer()
@@ -15,18 +18,18 @@ document.addEventListener("DOMContentLoaded",function() {
 		document.getElementById("apikey").value = result["apikey"]
 		checkServer()
 	});
-	
-	
-	
+
+
+
 });
 
 
 
 function updateServer() {
-	
+
 	text = document.getElementById("serverurl").value
-	
-	
+
+
 	chrome.storage.local.set({"serverurl":text})
 }
 
@@ -37,7 +40,7 @@ function updateAPIKey() {
 
 function checkServer() {
 	url = document.getElementById("serverurl").value + "/db/test?key=" + document.getElementById("apikey").value
-	
+
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = createCheckmarks;
 	try {
@@ -50,7 +53,7 @@ function checkServer() {
 		document.getElementById("serverurl").style.backgroundColor = "red"
 		document.getElementById("apikey").style.backgroundColor = "red"
 	}
-	
+
 }
 
 function createCheckmarks() {

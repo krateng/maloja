@@ -42,9 +42,9 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 		html += "<tr>"
 		html += "<td class='time'>" + time_desc(s["time"],short=shortTimeDesc) + "</td>"
 		if pictures:
-			html += """<td class='icon'><div style="background-image:url('""" + scrobbleimages[i] + """')"></div></td>"""
-		html += "<td class='artists'>" + artistLinks(s["artists"]) + "</td>"
-		html += "<td class='title'>" + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
+			img = scrobbleimages[i]
+		else: img = None
+		html += entity_column(s,image=img)
 		# Alternative way: Do it in one cell
 		#html += "<td class='title'><span>" + artistLinks(s["artists"]) + "</span> — " + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
 		html += "</tr>"
@@ -142,8 +142,7 @@ def module_trackcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='ranksame' title='Unchanged'>➡</td>"
 		# track
-		html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
-		html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
+		html += entity_column(e["track"])
 		# scrobbles
 		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],kwargs_time,amount=e["scrobbles"]) + "</td>"
 		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],kwargs_time,percent=e["scrobbles"]*100/maxbar) + "</td>"
@@ -204,10 +203,7 @@ def module_artistcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='ranksame' title='Unchanged'>➡</td>"
 		# artist
-		html += "<td class='artist'>" + artistLink(e["artist"])
-		if (e["counting"] != []):
-			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
-		html += "</td>"
+		html += entity_column(e["artist"],counting=e["counting"])
 		# scrobbles
 		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],kwargs_time,amount=e["scrobbles"],associated=True) + "</td>"
 		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],kwargs_time,percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
@@ -266,9 +262,9 @@ def module_toptracks(pictures=True,**kwargs):
 			html += "<td class='bar'>" + "" + "</td>"
 		else:
 			if pictures:
-				html += """<td class='icon'><div style="background-image:url('""" + getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True) + """')"></div></td>"""
-			html += "<td class='artists'>" + artistLinks(e["track"]["artists"]) + "</td>"
-			html += "<td class='title'>" + trackLink(e["track"]) + "</td>"
+				img = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
+			else: img = None
+			html += entity_column(e["track"],image=img)
 			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},amount=e["scrobbles"]) + "</td>"
 			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
@@ -321,11 +317,9 @@ def module_topartists(pictures=True,**kwargs):
 			html += "<td class='bar'>" + "" + "</td>"
 		else:
 			if pictures:
-				html += """<td class='icon'><div style="background-image:url('""" + getArtistImage(e["artist"],fast=True) + """')"></div></td>"""
-			html += "<td class='artist'>" + artistLink(e["artist"])
-			if (e["counting"] != []):
-				html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in e["counting"]]) + "</span>"
-			html += "</td>"
+				img = getArtistImage(e["artist"],fast=True)
+			else: img = None
+			html += entity_column(e["artist"],image=img)
 			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},amount=e["scrobbles"],associated=True) + "</td>"
 			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
