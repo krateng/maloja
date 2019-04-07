@@ -10,6 +10,9 @@ body {
 	padding-top:45px;
 	padding-bottom:25px;
 	**/
+/*
+	font-size:1.65vh;
+*/
 }
 
 a {
@@ -91,7 +94,7 @@ div.footer div:nth-child(2) {
 	width:19%;
 	text-align:center;
 	color:gold;
-	font-size:17px;
+	font-size:110%;
 }
 div.footer div:nth-child(3) {
 	display:inline-block;
@@ -112,7 +115,7 @@ div.footer input {
 	border:0px;
 	border-bottom:1px solid beige;
 	color:beige;
-	font-size:15px;
+	font-size:90%;
 	width:70%;
 	padding-left:5px;
 	padding-right:5px;
@@ -174,6 +177,47 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 	color:grey;
 
 }
+
+
+@media (max-width: 1000px) {
+
+	div.footer {
+		position:fixed;
+		/*height:30px;*/
+		/**width:100%;**/
+		background-color:rgba(10,10,10,0.9);
+		bottom:0px;
+		left:0px;
+		right:0px;
+		padding:10px;
+		padding-bottom: 25px;
+		opacity:1;
+	}
+
+	div.footer div:nth-child(1) {
+		display:none;
+	}
+	div.footer div:nth-child(2) {
+		display:inline-block;
+		width:20%;
+		text-align:center;
+		color:gold;
+	}
+	div.footer div:nth-child(3) {
+		display:inline-block;
+		width:70%;
+		text-align:right;
+	}
+
+	div.footer input {
+
+		width:90%;
+	}
+
+
+}
+
+
 
 /*
 **
