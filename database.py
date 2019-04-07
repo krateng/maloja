@@ -32,8 +32,6 @@ SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: namedtuple(artists=frozenset(artist_ref,...),title=title)
 
-ARTIST_SET = set()
-TRACK_SET = set()
 
 Track = namedtuple("Track",["artists","title"])
 Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
@@ -41,9 +39,11 @@ Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
 ### OPTIMIZATION
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
-#STAMPS_SET = set()	# as set for easier check if exists
+#STAMPS_SET = set()	# as set for easier check if exists # we use the scrobbles dict for that now
 TRACKS_LOWER = []
 ARTISTS_LOWER = []
+ARTIST_SET = set()
+TRACK_SET = set()
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
 
@@ -127,15 +127,13 @@ def getArtistID(name):
 	obj = name
 	objlower = name.lower()
 
-	try:
-		return ARTISTS.index(obj)
-	except:
-		pass
-	try:
+	if objlower in ARTIST_SET:
 		return ARTISTS_LOWER.index(objlower)
-	except:
+
+	else:
 		i = len(ARTISTS)
 		ARTISTS.append(obj)
+		ARTIST_SET.add(objlower)
 		ARTISTS_LOWER.append(objlower)
 		return i
 
@@ -146,20 +144,13 @@ def getTrackID(artists,title):
 	obj = Track(artists=frozenset(artistset),title=title)
 	objlower = Track(artists=frozenset(artistset),title=title.lower())
 
-	try:
-		return TRACKS.index(obj)
-	except:
-		pass
-	try:
-		# better now
+	if objlower in TRACK_SET:
 		return TRACKS_LOWER.index(objlower)
-		# not the best performance
-		#return [(t.artists,t.title.lower()) for t in TRACKS].index(objlower)
-
-	except:
+	else:
 		i = len(TRACKS)
 		TRACKS.append(obj)
-		TRACKS_LOWER.append(obj)
+		TRACK_SET.add(objlower)
+		TRACKS_LOWER.append(objlower)
 		return i
 
 
@@ -1050,14 +1041,14 @@ def simplestr(input,ignorecapitalization=True):
 
 
 
-def getArtistId(nameorid):
-	if isinstance(nameorid,int):
-		return nameorid
-	else:
-		try:
-			return ARTISTS.index(nameorid)
-		except:
-			return -1
+#def getArtistId(nameorid):
+#	if isinstance(nameorid,int):
+#		return nameorid
+#	else:
+#		try:
+#			return ARTISTS.index(nameorid)
+#		except:
+#			return -1
 
 
 def insert(list_,item,key=lambda x:x):
