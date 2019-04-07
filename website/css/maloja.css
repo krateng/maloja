@@ -284,6 +284,12 @@ p.desc a {
 }
 
 
+input#apikey {
+	font-family:'Ubuntu';
+	outline:none;
+	border: 0px solid;
+	padding:2px;
+}
 
 
 a {
