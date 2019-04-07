@@ -70,15 +70,16 @@ def checkAPIkey(k):
 ## Getting dict representations of database objects
 ####
 
-def getScrobbleObject(o):
-	track = getTrackObject(TRACKS[o.track)
+def get_scrobble_dict(o):
+	track = get_track_dict(TRACKS[o.track)
 	return {"artists":track["artists"],"title":track["title"],"time":o.time}
 
-def getArtistObject(o):
+def get_artist_dict(o):
 	return o
+	#technically not a dict, but... you know
 
-def getTrackObject(o):
-	artists = [getArtistObject(ARTISTS[a]) for a in o.artists]
+def get_track_dict(o):
+	artists = [get_artist_dict(ARTISTS[a]) for a in o.artists]
 	return {"artists":artists,"title":o.title}
 
 
@@ -305,10 +306,10 @@ def get_tracks(artist=None):
 		artistid = None
 
 	# Option 1
-	return [getTrackObject(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
+	return [get_track_dict(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
 
 	# Option 2 is a bit more elegant but much slower
-	#tracklist = [getTrackObject(t) for t in TRACKS]
+	#tracklist = [get_track_dict(t) for t in TRACKS]
 	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
 
 
@@ -818,7 +819,7 @@ def sync():
 	for idx in range(len(SCROBBLES)):
 		if not SCROBBLES[idx][2]:
 
-			t = getScrobbleObject(SCROBBLES[idx])
+			t = get_scrobble_dict(SCROBBLES[idx])
 
 			artistlist = list(t["artists"])
 			artistlist.sort() #we want the order of artists to be deterministic so when we update files with new rules a diff can see what has actually been changed
@@ -944,7 +945,7 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 	for s in scrobbles_in_range(since,to,reverse=True):
 		if i == max_: break
 		if (track is None or s[0] == track) and (artist is None or artist in TRACKS[s[0]][0] or associated and artist in coa.getCreditedList(TRACKS[s[0]][0])):
-			result.append(getScrobbleObject(s))
+			result.append(get_scrobble_dict(s))
 			i += 1
 
 	return result
@@ -974,7 +975,7 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
 
-		ls = [{"artist":getArtistObject(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
+		ls = [{"artist":get_artist_dict(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
 		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
 		# add ranks
 		for rnk in range(len(ls)):
@@ -992,7 +993,7 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 			# this either creates the new entry or increments the existing one
 			charts[track] = charts.setdefault(track,0) + 1
 
-		ls = [{"track":getTrackObject(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
+		ls = [{"track":get_track_dict(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
 		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
 		# add ranks
 		for rnk in range(len(ls)):
@@ -1021,7 +1022,7 @@ def db_search(query,type=None):
 		for t in TRACKS:
 			#if query.lower() in t[1].lower():
 			if simplestr(query) in simplestr(t[1]):
-				results.append(getTrackObject(t))
+				results.append(get_track_dict(t))
 
 	return results
 
@@ -1083,17 +1084,17 @@ def generateStuff(num=0,pertrack=0,mult=0):
 	import random
 	for i in range(num):
 		track = random.choice(TRACKS)
-		t = getTrackObject(track)
+		t = get_track_dict(track)
 		time = random.randint(STAMPS[0],STAMPS[-1])
 		createScrobble(t["artists"],t["title"],time,volatile=True)
 
 	for track in TRACKS:
-		t = getTrackObject(track)
+		t = get_track_dict(track)
 		for i in range(pertrack):
 			time = random.randint(STAMPS[0],STAMPS[-1])
 			createScrobble(t["artists"],t["title"],time,volatile=True)
 
 	for scrobble in SCROBBLES:
-		s = getScrobbleObject(scrobble)
+		s = get_scrobble_dict(scrobble)
 		for i in range(mult):
 			createScrobble(s["artists"],s["title"],s["time"] - i*500,volatile=True)
