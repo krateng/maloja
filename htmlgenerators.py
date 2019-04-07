@@ -173,25 +173,27 @@ def KeySplit(keys,forceTrack=False,forceArtist=False):
 
 	# 2
 	resultkeys2 = {}
-	if "since" in keys: resultkeys2["since"] = uri_to_internal(keys.get("since"))
-	elif "from" in keys: resultkeys2["since"] = uri_to_internal(keys.get("from"))
-	elif "start" in keys: resultkeys2["since"] = uri_to_internal(keys.get("start"))
+	if "since" in keys: resultkeys2["since"] = keys.get("since")
+	elif "from" in keys: resultkeys2["since"] = keys.get("from")
+	elif "start" in keys: resultkeys2["since"] = keys.get("start")
 	#
-	if "to" in keys: resultkeys2["to"] = uri_to_internal(keys.get("to"))
-	elif "until" in keys: resultkeys2["to"] = uri_to_internal(keys.get("until"))
-	elif "end" in keys: resultkeys2["to"] = uri_to_internal(keys.get("end"))
+	if "to" in keys: resultkeys2["to"] = keys.get("to")
+	elif "until" in keys: resultkeys2["to"] = keys.get("until")
+	elif "end" in keys: resultkeys2["to"] = keys.get("end")
 	#
 	if "since" in resultkeys2 and "to" in resultkeys2 and resultkeys2["since"] == resultkeys2["to"]:
 		resultkeys2["within"] = resultkeys2["since"]
 		del resultkeys2["since"]
 		del resultkeys2["to"]
 	#
-	if "in" in keys: resultkeys2["within"] = uri_to_internal(keys.get("in"))
-	elif "within" in keys: resultkeys2["within"] = uri_to_internal(keys.get("within"))
-	elif "during" in keys: resultkeys2["within"] = uri_to_internal(keys.get("during"))
+	if "in" in keys: resultkeys2["within"] = keys.get("in")
+	elif "within" in keys: resultkeys2["within"] = keys.get("within")
+	elif "during" in keys: resultkeys2["within"] = keys.get("during")
 	if "within" in resultkeys2:
-		del resultkeys2["since"]
-		del resultkeys2["to"]
+		if "since" in resultkeys2:
+			del resultkeys2["since"]
+		if "to" in resultkeys2:
+			del resultkeys2["to"]
 
 
 	#3
