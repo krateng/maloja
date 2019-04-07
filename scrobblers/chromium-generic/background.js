@@ -3,12 +3,12 @@
 chrome.tabs.onUpdated.addListener(onTabUpdated);
 chrome.tabs.onRemoved.addListener(onTabRemoved);
 //chrome.tabs.onActivated.addListener(onTabChanged);
-chrome.runtime.onMessage.addListener(onPlaybackUpdate);
+chrome.runtime.onMessage.addListener(onInternalMessage);
 
 tabManagers = {}
 
 pages = {
-	"plex":{
+	"Plex Web":{
 		"patterns":[
 			"https://app.plex.tv",
 			"http://app.plex.tv",
@@ -17,7 +17,7 @@ pages = {
 		],
 		"script":"plex.js"
 	},
-	"youtube_music":{
+	"YouTube Music":{
 		"patterns":[
 			"https://music.youtube.com",
 			"http://music.youtube.com"
@@ -84,15 +84,34 @@ function onTabRemoved(tabId,removeInfo) {
 
 
 
-function onPlaybackUpdate(request,sender) {
-	tabId = sender.tab.id
-	//console.log("Message was sent from tab id " + tabId)
-	if (tabManagers.hasOwnProperty(tabId)) {
-		//console.log("This is managed! Seems to be " + tabManagers[tabId].page)
-		tabManagers[tabId].playbackUpdate(request)
+function onInternalMessage(request,sender) {
+	// message from settings menu
+	if (request.type == "query") {
+		answer = [];
+		for (tabId in tabManagers) {
+			manager = tabManagers[tabId]
+			if (manager.currentlyPlaying) {
+				answer.push([manager.page,manager.currentArtist,manager.currentTitle])
+			}
+			else {
+				answer.push([manager.page,null])
+			}
 
+		}
+		chrome.runtime.sendMessage({"type":"response","content":answer})
 	}
-	//console.log("Got update from Plex Web!")
+
+	//message from content script
+	if (request.type == "startPlayback" || request.type == "stopPlayback") {
+		tabId = sender.tab.id
+		//console.log("Message was sent from tab id " + tabId)
+		if (tabManagers.hasOwnProperty(tabId)) {
+			//console.log("This is managed! Seems to be " + tabManagers[tabId].page)
+			tabManagers[tabId].playbackUpdate(request)
+
+		}
+	}
+
 
 }
 

@@ -21,15 +21,22 @@
 				border: 0px solid;
 				padding:2px;
 			}
+			span {
+				line-height: 20px;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="wat">
-			<span id="checkmark_url"></span> <span style="line-height:20px">Server:</span><br />
+			<span id="checkmark_url"></span> <span>Server:</span><br />
 			<input type="text" id="serverurl" value="http://localhost:42010" />
 			<br /><br />
-			<span id="checkmark_key"></span> <span style="line-height:20px">API key:</span><br />
+			<span id="checkmark_key"></span> <span>API key:</span><br />
 			<input type="text" id="apikey" />
+			<br/><br/>
+			<span>Tabs:</span>
+			<list id="playinglist">
+			</list>
 		</div>
 	</body>
 </html>

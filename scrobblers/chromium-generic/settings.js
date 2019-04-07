@@ -10,18 +10,51 @@ document.addEventListener("DOMContentLoaded",function() {
 	document.getElementById("apikey").addEventListener("focusout",checkServer);
 
 
+	chrome.runtime.onMessage.addListener(onInternalMessage);
+
+
 	chrome.storage.local.get({"serverurl":"http://localhost:42010"},function(result) {
 		document.getElementById("serverurl").value = result["serverurl"]
-		checkServer()
+		checkServerMaybe()
 	});
 	chrome.storage.local.get({"apikey":"BlackPinkInYourArea"},function(result) {
 		document.getElementById("apikey").value = result["apikey"]
-		checkServer()
+		checkServerMaybe()
 	});
+
+	chrome.runtime.sendMessage({"type":"query"})
 
 
 
 });
+
+
+//this makes sure only the second call actually makes a request (the first request is pointless
+//when the other element isn't filled yet and might actually overwrite the correct result because
+//of a race condition)
+var done = 0
+function checkServerMaybe() {
+	done++;
+	if (done == 2) {
+		checkServer()
+	}
+}
+
+function onInternalMessage(request,sender) {
+	if (request.type == "response") {
+		players = request.content
+		html = "";
+		for (var i=0;i<players.length;i++) {
+			if (players[i][1]) {
+				html += "<li>" + players[i][0] + ": " + players[i][1] + " - " + players[i][2]
+			}
+			else {
+				html += "<li>" + players[i][0] + ": Playing nothing"
+			}
+		}
+		document.getElementById("playinglist").innerHTML = html;
+	}
+}
 
 
 
