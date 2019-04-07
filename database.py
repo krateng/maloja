@@ -16,6 +16,7 @@ import sys
 import unicodedata
 import json
 from collections import namedtuple
+from threading import Lock
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
@@ -25,10 +26,14 @@ import urllib
 
 dbserver = Bottle()
 
+dblock = Lock() #global database lock
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
 TRACKS = []	# Format: namedtuple(artists=frozenset(artist_ref,...),title=title)
+
+ARTIST_SET = set()
+TRACK_SET = set()
 
 Track = namedtuple("Track",["artists","title"])
 Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
@@ -71,8 +76,8 @@ def checkAPIkey(k):
 ####
 
 def get_scrobble_dict(o):
-	track = get_track_dict(TRACKS[o.track)
-	return {"artists":track["artists"],"title":track["title"],"time":o.time}
+	track = get_track_dict(TRACKS[o.track])
+	return {"artists":track["artists"],"title":track["title"],"time":o.timestamp}
 
 def get_artist_dict(o):
 	return o
@@ -90,6 +95,7 @@ def get_track_dict(o):
 
 
 def createScrobble(artists,title,time,volatile=False):
+	dblock.acquire()
 	while (time in SCROBBLESDICT):
 		time += 1
 	i = getTrackID(artists,title)
@@ -101,8 +107,10 @@ def createScrobble(artists,title,time,volatile=False):
 	STAMPS.insert(index,time) #should be same index as scrobblelist
 	register_scrobbletime(time)
 	invalidate_caches()
+	dblock.release()
 
 
+# this will never be called from different threads, so no lock
 def readScrobble(artists,title,time):
 	while (time in SCROBBLESDICT):
 		time += 1
