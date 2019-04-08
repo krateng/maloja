@@ -1,7 +1,7 @@
 bar = document.querySelector("div[class*=PlayerControls]")
 if (bar == null) {
 	console.log("Nothing playing right now!")
-	chrome.runtime.sendMessage({type:"stopPlayback",artist:"",title:""})
+	chrome.runtime.sendMessage({type:"stopPlayback",time:Math.floor(Date.now()),artist:"",title:""})
 	exit()
 }
 
@@ -21,18 +21,11 @@ else {
 control = bar.querySelector("div[class*=PlayerControls-buttonGroupCenter] > button:nth-child(2)").getAttribute("title")
 if (control == "Play") {
 	console.log("Not playing right now")
-	chrome.runtime.sendMessage({type:"stopPlayback",artist:artist,title:title})
+	chrome.runtime.sendMessage({type:"stopPlayback",time:Math.floor(Date.now()),artist:artist,title:title})
 	//stopPlayback()
 }
 else if (control == "Pause") {
 	console.log("Playing " + artist + " - " + title)
-	chrome.runtime.sendMessage({type:"startPlayback",artist:artist,title:title,duration:durationSeconds})
+	chrome.runtime.sendMessage({type:"startPlayback",time:Math.floor(Date.now()),artist:artist,title:title,duration:durationSeconds})
 	//startPlayback(artist,title,durationSeconds)
 }
-
-
-
-
-
-
-

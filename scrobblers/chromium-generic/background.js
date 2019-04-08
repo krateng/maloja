@@ -130,6 +130,7 @@ class Controller {
 		this.alreadyScrobbled = false;
 
 		this.messageID = 0;
+		this.lastMessage = 0;
 
 		this.update()
 	}
@@ -143,6 +144,13 @@ class Controller {
 
 	// an actual update message from the script has arrived
 	playbackUpdate(request) {
+
+		if (request.time < self.lastMessage) {
+			console.log("Got message out of order, discarding!")
+			return
+		}
+		self.lastMessage = request.time
+
 		//console.log("Update message from our tab " + this.tabId + " (" + this.page + ")")
 		if (request.type == "stopPlayback" && this.currentlyPlaying) {
 			this.stopPlayback(request.artist,request.title);

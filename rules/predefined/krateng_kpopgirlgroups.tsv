@@ -19,6 +19,7 @@ replaceartist	4minute					4Minute
 replacetitle	미쳐					Crazy
 
 # BLACKPINK
+countas		Jennie					BLACKPINK
 replacetitle	AS IF IT'S YOUR LAST			As If It's Your Last
 replacetitle	BOOMBAYAH				Boombayah
 replacetitle	WHISTLE					Whistle
@@ -62,6 +63,9 @@ replacetitle	RBB (Really Bad Boy)			Really Bad Boy
 
 # EXID
 countas		Dasoni					EXID
+countas		Junghwa					EXID
+countas		Hani					EXID
+countas		LE					EXID
 replacetitle	HOT PINK				Hot Pink
 replacetitle	AH YEAH					Ah Yeah
 replacetitle	WHOZ THAT GIRL				Whoz that girl
@@ -91,6 +95,7 @@ replacetitle	I'll be yours				I'll Be Yours
 replacetitle	FEMALE PRESIDENT(여자 대통령)		Female President
 
 # Mamamoo
+countas		Hwasa					Mamamoo
 replaceartist	Hwa Sa					Hwasa
 replaceartist	MAMAMOO					Mamamoo
 replacetitle	Egotistic(너나 해)				Egotistic
