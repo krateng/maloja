@@ -1,5 +1,5 @@
 # NAME: K-Pop Girl Groups
-# DESC: Fixes various different spellings and romanizes artist names and track titles for some K-Pop Girl Groups
+# DESC: Fixes various different spellings, romanizes artist names and track titles and includes subgroups for some K-Pop Girl Groups
 
 # HyunA
 replaceartist	Kim Hyun-a				HyunA
@@ -14,6 +14,7 @@ replaceartist	HyunA(현아)				HyunA
 replacetitle	Cause I'm God Girl			Roll Deep
 
 # 4Minute
+countas		2Yoon					4Minute
 replaceartist	4minute					4Minute
 replacetitle	미쳐					Crazy
 
@@ -60,6 +61,7 @@ replacetitle	봐 Look					Look
 replacetitle	RBB (Really Bad Boy)			Really Bad Boy
 
 # EXID
+countas		Dasoni					EXID
 replacetitle	HOT PINK				Hot Pink
 replacetitle	AH YEAH					Ah Yeah
 replacetitle	WHOZ THAT GIRL				Whoz that girl
@@ -71,12 +73,14 @@ replacetitle	OOH-AHH					Like Ooh-Ahh
 replacetitle	LIKEY					Likey
 
 # AOA
+countas		AOA Black	AOA
+countas		AOA White	AOA
+countas		AOA Cream	AOA
 replaceartist	Ace of Angels				AOA
 replacetitle	사뿐사뿐 (Like a Cat)			Like a Cat
 replacetitle	Like A Cat (Japanese Version)		Like a Cat (Japanese Version)
 replacetitle	MOYA (inst)				Moya
 replacetitle	MOYA (instrumental)			Moya (instrumental)
-countas		AOA Black				AOA
 
 # Girl's Day
 replaceartist	Girl's Day(걸스데이)			Girl's Day
