@@ -43,10 +43,12 @@ class CleanerAgent:
 		confirmed = self.rules_belongtogether + [self.rules_replaceartist[r] for r in self.rules_replaceartist]
 		return (a in confirmed)
 
-	delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]			#Delimiters used for extra artists, even when in the title field
-	delimiters = ["vs.","vs","&"]											#Delimiters in informal artist strings, spaces expected around them
-	delimiters_formal = ["; ",";","/"]										#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
-
+	#Delimiters used for extra artists, even when in the title field
+	delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]
+	#Delimiters in informal artist strings, spaces expected around them
+	delimiters = ["vs.","vs","&"]
+	#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
+	delimiters_formal = ["; ",";","/"]
 
 	def parseArtists(self,a):
 
@@ -68,7 +70,8 @@ class CleanerAgent:
 
 		for d in self.delimiters_feat:
 			if re.match(r"(.*) \(" + d + " (.*)\)",a) is not None:
-				return self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
+				return self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + \
+						self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
 
 		for d in self.delimiters_formal:
 			if (d in a):
@@ -127,41 +130,57 @@ class CollectorAgent:
 	def __init__(self):
 		self.updateRules()
 
+	# rules_countas			dict: real artist -> credited artist
+	# rules_countas_id		dict: real artist ID -> credited artist ID
+	# rules_include			dict: credited artist -> all real artists
+
 	def updateRules(self):
 		raw = tsv.parse_all("rules","string","string","string")
 		self.rules_countas = {b:c for [a,b,c] in raw if a=="countas"}
-		self.rules_include = {} #Twice the memory, double the performance! (Yes, we're saving redundant information here, but it's not unelegant if it's within a closed object!)
+		self.rules_countas_id = {}
+		self.rules_include = {} #Twice the memory, double the performance!
+		# (Yes, we're saving redundant information here, but it's not unelegant if it's within a closed object!)
 		for a in self.rules_countas:
 			self.rules_include[self.rules_countas[a]] = self.rules_include.setdefault(self.rules_countas[a],[]) + [a]
 
-	# this agent needs to be aware of the current id assignment in the main program. unelegant, but the best way i can think of
+	# this agent needs to be aware of the current id assignment in the main program
+	# unelegant, but the best way i can think of
 	def updateIDs(self,artistlist):
-		self.rules_countas_id = {artistlist.index(a):artistlist.index(self.rules_countas[a]) for a in self.rules_countas}
+		self.rules_countas_id = {artistlist.index(a):artistlist.index(self.rules_countas[a]) for a in self.rules_countas if a in artistlist}
 		#self.rules_include_id = {artistlist.index(a):artistlist.index(self.rules_include[a]) for a in self.rules_include}
 		#this needs to take lists into account
 
+
+	# get who is credited for this artist
 	def getCredited(self,artist):
-		if artist in self.rules_countas_id:
-			return self.rules_countas_id[artist]
 		if artist in self.rules_countas:
 			return self.rules_countas[artist]
+		if artist in self.rules_countas_id:
+			return self.rules_countas_id[artist]
+
 		else:
 			return artist
 
-
+	# get all credited artists for the artists given
 	def getCreditedList(self,artists):
 		updatedArtists = []
 		for artist in artists:
 			updatedArtists.append(self.getCredited(artist))
 		return list(set(updatedArtists))
 
+	# get artists who the given artist is given credit for
 	def getAllAssociated(self,artist):
 		return self.rules_include.get(artist,[])
 
-	# this function is there to check for artists that we should include in the database even though they never have any scrobble. important to avoid bugs when
-	# countas rules are declared preemptively
+	# this function is there to check for artists that we should include in the
+	# database even though they never have any scrobble.
 	def getAllArtists(self):
-		return list(set([a for a in self.rules_countas] + [self.rules_countas[a] for a in self.rules_countas]))
+		return list(set([self.rules_countas[a] for a in self.rules_countas]))
+		# artists that count can be nonexisting (counting HyunA as 4Minute even
+		# though 4Minute has never been listened to)
+		# but artists that are counted as someone else are only relevant if they
+		# exist (so we can preemptively declare lots of rules just in case)
+		#return list(set([a for a in self.rules_countas] + [self.rules_countas[a] for a in self.rules_countas]))
 
 
 

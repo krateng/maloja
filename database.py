@@ -135,6 +135,13 @@ def getArtistID(name):
 		ARTISTS.append(obj)
 		ARTIST_SET.add(objlower)
 		ARTISTS_LOWER.append(objlower)
+
+		# with a new artist added, we might also get new artists that they are credited as
+		cr = coa.getCredited(name)
+		getArtistID(cr)
+
+		coa.updateIDs(ARTISTS)
+
 		return i
 
 def getTrackID(artists,title):
@@ -473,7 +480,7 @@ def artistInfo(artist):
 	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
-		others = coa.getAllAssociated(artist)
+		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
 		position = c["rank"]
 		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
 	except:
@@ -785,12 +792,14 @@ def build_db():
 	# inform malojatime module about earliest scrobble
 	register_scrobbletime(STAMPS[0])
 
-	# get extra artists with zero scrobbles from countas rules
-	for artist in coa.getAllArtists():
-		if artist not in ARTISTS:
-			ARTISTS.append(artist)
-
-	coa.updateIDs(ARTISTS)
+	# NOT NEEDED BECAUSE WE DO THAT ON ADDING EVERY ARTIST ANYWAY
+	# get extra artists with no real scrobbles from countas rules
+	#for artist in coa.getAllArtists():
+	#for artist in coa.getCreditedList(ARTISTS):
+	#	if artist not in ARTISTS:
+	#		log(artist + " is added to database because of countas rules",module="debug")
+	#		ARTISTS.append(artist)
+	# coa.updateIDs(ARTISTS)
 
 	#start regular tasks
 	update_medals()
@@ -968,7 +977,7 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
 				# this either creates the new entry or increments the existing one
 				charts[a] = charts.setdefault(a,0) + 1
 
-		ls = [{"artist":get_artist_dict(ARTISTS[a]),"scrobbles":charts[a],"counting":coa.getAllAssociated(ARTISTS[a])} for a in charts]
+		ls = [{"artist":get_artist_dict(ARTISTS[a]),"scrobbles":charts[a],"counting":[arti for arti in coa.getAllAssociated(ARTISTS[a]) if arti in ARTISTS]} for a in charts]
 		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
 		# add ranks
 		for rnk in range(len(ls)):
