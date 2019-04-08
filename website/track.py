@@ -5,7 +5,7 @@ import database
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLinks
-	from urihandler import compose_querystring
+	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_scrobblelist, module_pulse
 
 
