@@ -4,12 +4,13 @@ import database
 
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
-	from htmlgenerators import artistLink, artistLinks, trackLink, KeySplit
+	from htmlgenerators import artistLink, artistLinks, trackLink
+	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_scrobblelist, module_filterselection
 	from malojatime import range_desc
 
 
-	filterkeys, timekeys, _, amountkeys = KeySplit(keys)
+	filterkeys, timekeys, _, amountkeys = uri_to_internal(keys)
 
 	# describe the scope
 	limitstring = ""

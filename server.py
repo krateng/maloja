@@ -5,9 +5,8 @@ from bottle import Bottle, route, get, post, error, run, template, static_file, 
 import waitress
 # rest of the project
 import database
-from htmlgenerators import removeIdentical
 from utilities import *
-from htmlgenerators import KeySplit
+from urihandler import uri_to_internal, remove_identical
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -113,7 +112,7 @@ def graceful_exit(sig=None,frame=None):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	relevant, _, _, _ = KeySplit(keys)
+	relevant, _, _, _ = uri_to_internal(keys)
 	result = resolveImage(**relevant)
 	if result == "": return ""
 	redirect(result,307)
@@ -162,7 +161,7 @@ def static(name):
 @webserver.route("/<name>")
 def static_html(name):
 	linkheaders = ["</css/maloja.css>; rel=preload; as=style"]
-	keys = removeIdentical(FormsDict.decode(request.query))
+	keys = remove_identical(FormsDict.decode(request.query))
 
 	with open("website/" + name + ".html") as htmlfile:
 		html = htmlfile.read()

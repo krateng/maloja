@@ -2,6 +2,7 @@ from htmlgenerators import *
 import database
 from utilities import getArtistImage, getTrackImage
 from malojatime import *
+from urihandler import compose_querystring, internal_to_uri
 import urllib
 
 
@@ -144,8 +145,8 @@ def module_trackcharts(max_=None,**kwargs):
 		# track
 		html += entity_column(e["track"])
 		# scrobbles
-		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],kwargs_time,amount=e["scrobbles"]) + "</td>"
-		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],kwargs_time,percent=e["scrobbles"]*100/maxbar) + "</td>"
+		html += "<td class='amount'>" + scrobblesTrackLink(e["track"],internal_to_uri(kwargs_time),amount=e["scrobbles"]) + "</td>"
+		html += "<td class='bar'>" + scrobblesTrackLink(e["track"],internal_to_uri(kwargs_time),percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -205,8 +206,8 @@ def module_artistcharts(max_=None,**kwargs):
 		# artist
 		html += entity_column(e["artist"],counting=e["counting"])
 		# scrobbles
-		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],kwargs_time,amount=e["scrobbles"],associated=True) + "</td>"
-		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],kwargs_time,percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+		html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],internal_to_uri(kwargs_time),amount=e["scrobbles"],associated=True) + "</td>"
+		html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],internal_to_uri(kwargs_time),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		prev = e
 
@@ -245,14 +246,15 @@ def module_toptracks(pictures=True,**kwargs):
 	html = "<table class='list'>"
 	for e in tracks:
 
-		fromstr = "/".join([str(p) for p in e["from"]])
-		tostr = "/".join([str(p) for p in e["to"]])
+		#fromstr = "/".join([str(p) for p in e["from"]])
+		#tostr = "/".join([str(p) for p in e["to"]])
+		limits = pickKeys(e,"since","to")
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
+		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
 		if e["track"] is None:
 			if pictures:
 				html += "<td><div></div></td>"
@@ -265,8 +267,8 @@ def module_toptracks(pictures=True,**kwargs):
 				img = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
 			else: img = None
 			html += entity_column(e["track"],image=img)
-			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},amount=e["scrobbles"]) + "</td>"
-			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar) + "</td>"
+			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),amount=e["scrobbles"]) + "</td>"
+			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -300,14 +302,15 @@ def module_topartists(pictures=True,**kwargs):
 	html = "<table class='list'>"
 	for e in artists:
 
-		fromstr = "/".join([str(p) for p in e["from"]])
-		tostr = "/".join([str(p) for p in e["to"]])
+		#fromstr = "/".join([str(p) for p in e["from"]])
+		#tostr = "/".join([str(p) for p in e["to"]])
+		limits = pickKeys(e,"since","to")
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["from"],e["to"],short=True) + "</td>"
+		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
 
 		if e["artist"] is None:
 			if pictures:
@@ -320,8 +323,8 @@ def module_topartists(pictures=True,**kwargs):
 				img = getArtistImage(e["artist"],fast=True)
 			else: img = None
 			html += entity_column(e["artist"],image=img)
-			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},amount=e["scrobbles"],associated=True) + "</td>"
-			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],{"since":fromstr,"to":tostr},percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),amount=e["scrobbles"],associated=True) + "</td>"
+			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -439,17 +442,14 @@ def module_trackcharts_tiles(**kwargs):
 	return html
 
 
-
+# THIS FUNCTION USES THE ORIGINAL URI KEYS!!!
 def module_filterselection(keys,time=True,delimit=False):
-	# all other keys that will not be changed by clicking another filter
-
 
 	html = ""
 
-
 	if time:
-
-		keystr = "?" + keysToUrl(keys,exclude=["since","to","in"])
+		# all other keys that will not be changed by clicking another filter
+		keystr = "?" + compose_querystring(keys,exclude=["since","to","in"])
 
 
 		# wonky selector for precise date range
@@ -506,7 +506,7 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	if delimit:
 
-		keystr = "?" + keysToUrl(keys,exclude=["step","stepn"])
+		keystr = "?" + compose_querystring(keys,exclude=["step","stepn"])
 
 		html += "<div>"
 		if keys.get("step") == "day":
@@ -530,7 +530,7 @@ def module_filterselection(keys,time=True,delimit=False):
 
 
 
-		keystr = "?" + keysToUrl(keys,exclude=["trail"])
+		keystr = "?" + compose_querystring(keys,exclude=["trail"])
 
 		html += "<div>"
 		if keys.get("trail") == "1" or keys.get("trail") is None:

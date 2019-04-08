@@ -5,7 +5,7 @@ import waitress
 from cleanup import *
 from utilities import *
 from malojatime import *
-from htmlgenerators import KeySplit
+from urihandler import uri_to_internal
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -196,7 +196,7 @@ def test_server():
 @dbserver.route("/scrobbles")
 def get_scrobbles_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, k_time, _, k_amount = KeySplit(keys)
+	k_filter, k_time, _, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles(**ckeys)
@@ -226,7 +226,7 @@ def get_scrobbles(**keys):
 @dbserver.route("/numscrobbles")
 def get_scrobbles_num_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, k_time, _, k_amount = KeySplit(keys)
+	k_filter, k_time, _, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles_num(**ckeys)
@@ -291,7 +291,7 @@ def get_scrobbles_num(**keys):
 @dbserver.route("/tracks")
 def get_tracks_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, _, _, _ = KeySplit(keys,forceArtist=True)
+	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
 	result = get_tracks(**ckeys)
@@ -329,7 +329,7 @@ def get_artists():
 @dbserver.route("/charts/artists")
 def get_charts_artists_external():
 	keys = FormsDict.decode(request.query)
-	_, k_time, _, _ = KeySplit(keys)
+	_, k_time, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
 	result = get_charts_artists(**ckeys)
@@ -346,7 +346,7 @@ def get_charts_artists(**keys):
 @dbserver.route("/charts/tracks")
 def get_charts_tracks_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, k_time, _, _ = KeySplit(keys,forceArtist=True)
+	k_filter, k_time, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
 	result = get_charts_tracks(**ckeys)
@@ -366,7 +366,7 @@ def get_charts_tracks(**keys):
 @dbserver.route("/pulse")
 def get_pulse_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, k_time, k_internal, k_amount = KeySplit(keys)
+	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
 	results = get_pulse(**ckeys)
@@ -394,7 +394,7 @@ def get_pulse(**keys):
 def get_top_artists_external():
 
 	keys = FormsDict.decode(request.query)
-	_, k_time, k_internal, _ = KeySplit(keys)
+	_, k_time, k_internal, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
 	results = get_top_artists(**ckeys)
@@ -408,9 +408,9 @@ def get_top_artists(**keys):
 	for (a,b) in rngs:
 		try:
 			res = db_aggregate(since=a,to=b,by="ARTIST")[0]
-			results.append({"from":a,"to":b,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
+			results.append({"since":a,"to":b,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"from":a,"to":b,"artist":None,"scrobbles":0})
+			results.append({"since":a,"to":b,"artist":None,"scrobbles":0})
 
 	return results
 
@@ -426,7 +426,7 @@ def get_top_artists(**keys):
 @dbserver.route("/top/tracks")
 def get_top_tracks_external():
 	keys = FormsDict.decode(request.query)
-	_, k_time, k_internal, _ = KeySplit(keys)
+	_, k_time, k_internal, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
@@ -442,9 +442,9 @@ def get_top_tracks(**keys):
 	for (a,b) in rngs:
 		try:
 			res = db_aggregate(since=a,to=b,by="TRACK")[0]
-			results.append({"from":a,"to":b,"track":res["track"],"scrobbles":res["scrobbles"]})
+			results.append({"since":a,"to":b,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"from":a,"to":b,"track":None,"scrobbles":0})
+			results.append({"since":a,"to":b,"track":None,"scrobbles":0})
 
 	return results
 
@@ -461,7 +461,7 @@ def get_top_tracks(**keys):
 @dbserver.route("/artistinfo")
 def artistInfo_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, _, _, _ = KeySplit(keys,forceArtist=True)
+	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
 	results = artistInfo(**ckeys)
@@ -490,7 +490,7 @@ def artistInfo(artist):
 @dbserver.route("/trackinfo")
 def trackInfo_external():
 	keys = FormsDict.decode(request.query)
-	k_filter, _, _, _ = KeySplit(keys,forceTrack=True)
+	k_filter, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
 	results = trackInfo(**ckeys)

@@ -4,10 +4,11 @@ import database
 
 def instructions(keys):
 	from utilities import getArtistImage
-	from htmlgenerators import artistLink, artistLinks, KeySplit
+	from htmlgenerators import artistLink, artistLinks
+	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_pulse, module_trackcharts
 
-	filterkeys, _, _, _ = KeySplit(keys,forceArtist=True)
+	filterkeys, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	imgurl = getArtistImage(filterkeys["artist"],fast=True)
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 

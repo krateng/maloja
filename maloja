@@ -280,6 +280,8 @@ def update():
 
 	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
 
+	print("Make sure to install the latest version of doreah! (" + yellow("pip3 install --upgrade --no-cache-dir doreah") + ")")
+
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 
 

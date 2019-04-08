@@ -4,11 +4,12 @@ import database
 
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
-	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesLink, keysToUrl, KeySplit
+	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesLink
+	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_pulse, module_filterselection
 	from malojatime import range_desc, delimit_desc
 
-	filterkeys, timekeys, delimitkeys, _ = KeySplit(keys)
+	filterkeys, timekeys, delimitkeys, _ = uri_to_internal(keys)
 
 
 	# describe the scope (and creating a key for the relevant artist or track)

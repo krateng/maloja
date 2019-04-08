@@ -3,11 +3,12 @@ import urllib
 
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
-	from htmlgenerators import artistLink, KeySplit
+	from htmlgenerators import artistLink
+	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_topartists, module_filterselection
 	from malojatime import range_desc
 
-	_, timekeys, delimitkeys, _ = KeySplit(keys)
+	_, timekeys, delimitkeys, _ = uri_to_internal(keys)
 
 
 	limitstring = ""

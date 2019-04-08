@@ -22,15 +22,18 @@ def end_of_scrobbling():
 
 
 
-def uri_to_internal(t):
-	return time_fix(t)
+#def uri_to_internal(t):
+#	return time_fix(t)
+#
+#def internal_to_uri(t):
+#	if isinstance(t,list) or isinstance(t,tuple):
+#		return "/".join(str(t))
+#
+#	return str(t)
 
-def internal_to_uri(t):
-	if isinstance(t,list) or isinstance(t,tuple):
-		return "/".join(str(t))
 
-	return str(t)
-
+def time_str(t):
+	return "/".join(str(tp) for tp in t)
 
 # converts strings and stuff to lists
 def time_fix(t):

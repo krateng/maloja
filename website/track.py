@@ -4,11 +4,12 @@ import database
 
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
-	from htmlgenerators import artistLinks, keysToUrl, KeySplit
+	from htmlgenerators import artistLinks
+	from urihandler import compose_querystring
 	from htmlmodules import module_scrobblelist, module_pulse
 
 
-	filterkeys, _, _, _ = KeySplit(keys,forceTrack=True)
+	filterkeys, _, _, _ = uri_to_internal(keys,forceTrack=True)
 
 	track = filterkeys.get("track")
 	imgurl = getTrackImage(track["artists"],track["title"],fast=True)
@@ -40,7 +41,7 @@ def instructions(keys):
 
 
 	replace = {"KEY_TRACKTITLE":track.get("title"),"KEY_ARTISTS":artistLinks(track.get("artists")),"KEY_SCROBBLES":scrobblesnum,"KEY_POSITION":pos,"KEY_IMAGEURL":imgurl,
-		"KEY_SCROBBLELINK":keysToUrl(keys),"KEY_MEDALS":html_medals,
+		"KEY_SCROBBLELINK":compose_querystring(keys),"KEY_MEDALS":html_medals,
 		"KEY_SCROBBLELIST":html_scrobbles,"KEY_PULSE":html_pulse}
 
 	return (replace,pushresources)
