@@ -1,0 +1,17 @@
+# NAME: Jeremy Soule
+# DESC: Fixes various different spellings and mistakes for Jeremy Soule's soundtracks
+
+# MORROWIND
+replacetitle		Nerevar Rising (Morrowind Title Song)			Nerevar Rising
+replacetitle		Nerevar Rising (Morrowind Title Song Reprise)		Nerevar Rising (Reprise)
+
+# OBLIVION
+replacetitle		Elder Scrolls: Oblivion					Reign of the Septims
+
+
+# SKYRIM
+
+
+# GUILD WARS
+replacetitle		Guild Wars Nightfall Theme				Land of the Golden Sun
+replacetitle		Under the Dark Span (Asura Theme)			Under the Dark Span

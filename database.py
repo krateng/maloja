@@ -125,7 +125,7 @@ def readScrobble(artists,title,time):
 def getArtistID(name):
 
 	obj = name
-	objlower = name.lower()
+	objlower = name.lower().replace("'","")
 
 	if objlower in ARTIST_SET:
 		return ARTISTS_LOWER.index(objlower)
@@ -142,7 +142,7 @@ def getTrackID(artists,title):
 	for a in artists:
 		artistset.add(getArtistID(name=a))
 	obj = Track(artists=frozenset(artistset),title=title)
-	objlower = Track(artists=frozenset(artistset),title=title.lower())
+	objlower = Track(artists=frozenset(artistset),title=title.lower().replace("'",""))
 
 	if objlower in TRACK_SET:
 		return TRACKS_LOWER.index(objlower)
@@ -792,17 +792,11 @@ def build_db():
 
 	coa.updateIDs(ARTISTS)
 
-
-	global db_rulestate
-	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
-
-	# load cached images
-	#loadCache()
-
 	#start regular tasks
 	update_medals()
 
-
+	global db_rulestate
+	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
 
 	log("Database fully built!")
 

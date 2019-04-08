@@ -14,8 +14,8 @@ class CleanerAgent:
 		raw = tsv.parse_all("rules","string","string","string")
 		self.rules_belongtogether = [b for [a,b,c] in raw if a=="belongtogether"]
 		self.rules_notanartist = [b for [a,b,c] in raw if a=="notanartist"]
-		self.rules_replacetitle = {b:c for [a,b,c] in raw if a=="replacetitle"}
-		self.rules_replaceartist = {b:c for [a,b,c] in raw if a=="replaceartist"}
+		self.rules_replacetitle = {b.lower():c for [a,b,c] in raw if a=="replacetitle"}
+		self.rules_replaceartist = {b.lower():c for [a,b,c] in raw if a=="replaceartist"}
 
 		# we always need to be able to tell if our current database is made with the current rules
 		self.checksums = utilities.checksumTSV("rules")
@@ -61,8 +61,8 @@ class CleanerAgent:
 
 		if a.strip() in self.rules_belongtogether:
 			return [a.strip()]
-		if a.strip() in self.rules_replaceartist:
-			return self.rules_replaceartist[a.strip()].split("␟")
+		if a.strip().lower() in self.rules_replaceartist:
+			return self.rules_replaceartist[a.strip().lower()].split("␟")
 
 
 
@@ -91,8 +91,8 @@ class CleanerAgent:
 		return [a.strip()]
 
 	def parseTitle(self,t):
-		if t.strip() in self.rules_replacetitle:
-			return self.rules_replacetitle[t.strip()]
+		if t.strip().lower() in self.rules_replacetitle:
+			return self.rules_replacetitle[t.strip().lower()]
 
 		t = t.replace("[","(").replace("]",")")
 
