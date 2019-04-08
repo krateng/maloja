@@ -481,29 +481,38 @@ def module_filterselection(keys,time=True,delimit=False):
 		thismonth = today[:2]
 		thisyear = thismonth[:1]
 
+		### temp!!! this will not allow weekly rank changes
+		weekday = ((now.isoweekday()) % 7)
+		weekbegin = now - datetime.timedelta(days=weekday)
+		weekend = weekbegin + datetime.timedelta(days=6)
+		weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
+		weekend = [weekend.year,weekend.month,weekend.day]
+		weekbeginstr = "/".join((str(num) for num in weekbegin))
+		weekendstr = "/".join((str(num) for num in weekend))
+
 		html += "<div>"
 		if timekeys.get("since") == today or timekeys.get("within") == today:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":"today"}) + "'><span class='stat_selector'>Today</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"today"}) + "'><span class='stat_selector'>Today</span></a>"
 		html += " | "
 
-		if keys.get("since") == "sunday":
+		if timekeys.get("since") == weekbegin and timekeys.get("to") == weekend:
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":"sunday"}) + "'><span class='stat_selector'>This Week</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":weekbeginstr,"to":weekendstr}) + "'><span class='stat_selector'>This Week</span></a>"
 		html += " | "
 
 		if timekeys.get("since") == thismonth or timekeys.get("within") == thismonth:
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":"month"}) + "'><span class='stat_selector'>This Month</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"month"}) + "'><span class='stat_selector'>This Month</span></a>"
 		html += " | "
 
 		if timekeys.get("since") == thisyear or timekeys.get("within") == thisyear:
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
 		html += " | "
 
 		if timekeys.get("since") is None and timekeys.get("within") is None:

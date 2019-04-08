@@ -65,14 +65,32 @@ def time_fix(t):
 
 	if isinstance(t,str): t = t.split("/")
 	#if isinstance(t,tuple): t = list(t)
+	try:
+		t = [int(p) for p in t]
+		return t[:3]
+	except:
+		pass
 
-	t = [int(p) for p in t]
+	if t[1].startswith("W"):
+		try:
+			weeknum = int(t[1][1:])
+			return [t[0],"W",t[1]]
+		except:
+			pass
 
-	return t[:3]
+# checks if time is a week
+def is_week(t):
+	return ((len(t) == 3) and (t[1] == "W"))
+def week_to_days(t):
+	pass
 
 # makes times the same precision level
 def time_pad(f,t,full=False):
 	f,t = time_fix(f), time_fix(t)
+
+	# week handling
+
+
 	while (len(f) < len(t)) or (full and len(f) < 3):
 		if len(f) == 1: f.append(1)
 		elif len(f) == 2: f.append(1)
