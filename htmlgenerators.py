@@ -92,6 +92,29 @@ def scrobblesLink(timekeys,amount=None,percent=None,artist=None,track=None,assoc
 
 
 
+def rankTrackLink(track,timekeys,rank=None,percent=None,medal=None):
+	cl = ""
+	if medal == 1: cl = "class='gold'"
+	if medal == 2: cl = "class='silver'"
+	if medal == 3: cl = "class='bronze'"
+	inner = str(rank) if rank is not None else "<div " + cl + " style='width:" + str(percent) + "%;'></div>"
+
+	return "<a href='/charts_tracks?" + compose_querystring(timekeys) + "'>" + inner + "</a>"
+
+def rankArtistLink(artist,timekeys,rank=None,percent=None,medal=None):
+	cl = ""
+	if medal == 1: cl = "class='gold'"
+	if medal == 2: cl = "class='silver'"
+	if medal == 3: cl = "class='bronze'"
+	inner = str(rank) if rank is not None else "<div " + cl + " style='width:" + str(percent) + "%;'></div>"
+	return "<a " + cl + " href='/charts_artists?" + compose_querystring(timekeys) + "'>" + inner + "</a>"
+
+def rankLink(timekeys,rank=None,percent=None,artist=None,track=None,medal=None):
+	if track is not None: return rankTrackLink(track,timekeys,rank,percent,medal)
+	if artist is not None: return rankArtistLink(artist,timekeys,rank,percent,medal)
+
+
+
 # limit a multidict to only the specified keys
 # would be a simple constructor expression, but multidicts apparently don't let me do that
 def pickKeys(d,*keys):

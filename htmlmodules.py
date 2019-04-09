@@ -93,6 +93,45 @@ def module_pulse(max_=None,**kwargs):
 
 	return html
 
+
+
+def module_performance(max_=None,**kwargs):
+
+	kwargs_filter = pickKeys(kwargs,"artist","track")
+	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+
+	ranges = database.get_performance(**kwargs_time,**kwargs_filter)
+
+	if max_ is not None: ranges = ranges[:max_]
+
+	# if time range not explicitly specified, only show from first appearance
+#	if "since" not in kwargs:
+#		while ranges[0]["scrobbles"] == 0:
+#			del ranges[0]
+
+
+	minrank = 80
+	for t in ranges:
+		if t["rank"] is not None and t["rank"] > minrank: minrank = t["rank"]
+
+	#build list
+	html = "<table class='list'>"
+	for t in ranges:
+		fromstr = "/".join([str(e) for e in t["from"]])
+		tostr = "/".join([str(e) for e in t["to"]])
+		html += "<tr>"
+		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
+		html += "<td class='rank'>" + ("#" + str(t["rank"]) if t["rank"] is not None else "No scrobbles") + "</td>"
+		prct = (minrank+1-t["rank"])*100/minrank if t["rank"] is not None else 0
+		html += "<td class='chart'>" + rankLink({"since":fromstr,"to":tostr},percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
+		html += "</tr>"
+	html += "</table>"
+
+
+	return html
+
+
+
 def module_trackcharts(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")

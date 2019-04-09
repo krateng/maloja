@@ -305,16 +305,18 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 /* SHINY*/
 .medal {
 	top:5px;
-	position:relative;
-	overflow: hidden;
-	display: inline-block;
-
 	font-size:80%;
 	padding:3px;
 	margin:2px;
 	border-radius:2px;
 }
-.medal:after {
+.shiny {
+	overflow: hidden;
+	position:relative;
+	display: inline-block;
+}
+
+.shiny:after {
   content: "";
   position: absolute;
   top: -110%;
@@ -333,7 +335,7 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
     rgba(255, 255, 255, 0.0) 100%
   );
 }
-.medal:hover:after {
+.shiny:hover:after {
   opacity: 1;
   top: -30%;
   left: -30%;
@@ -341,7 +343,7 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
   transition-duration: 0.7s, 0.7s, 0.15s;
   transition-timing-function: ease;
 }
-.medal:active:after {
+.shiny:active:after {
   opacity: 0;
 }
 
@@ -501,6 +503,33 @@ table.list tr:hover td.bar div {
 	background-color:yellow;
 	cursor:pointer;
 }
+
+table.list td.chart {
+	width:500px;
+	background-color:#333337;
+	/* Remove 5er separators for bars */
+	/*border-color:rgba(0,0,0,0)!important;*/
+}
+table.list td.chart div {
+	background-color:beige;
+	height:20px; /* can only do this absolute apparently */
+	position:relative;
+}
+table.list tr:hover td.chart div {
+	cursor:pointer;
+}
+
+table.list tr td.chart div.gold {
+	background-color:gold;
+}
+table.list tr td.chart div.silver {
+	background-color:silver;
+}
+table.list tr td.chart div.bronze {
+	background-color:#cd7f32;
+}
+
+
 
 table.list tr td.button {
 	width:200px;
