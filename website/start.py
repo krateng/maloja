@@ -2,6 +2,7 @@ import urllib
 from datetime import datetime, timedelta
 import database
 from doreah.timing import clock, clockp
+from doreah.settings import get_settings
 
 from htmlmodules import module_scrobblelist, module_pulse, module_artistcharts_tiles, module_trackcharts_tiles
 
@@ -35,6 +36,9 @@ def instructions(keys):
 
 
 	clockp("Tracks")
+
+	js_command = "showRange('topartists','" + get_settings("DEFAULT_RANGE_CHARTS_ARTISTS") + "');"
+	js_command += "showRange('toptracks','" + get_settings("DEFAULT_RANGE_CHARTS_TRACKS") + "');"
 
 
 	# scrobbles
@@ -95,6 +99,7 @@ def instructions(keys):
 #	"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars
 	"KEY_TOPARTISTS_TOTAL":topartists_total,"KEY_TOPARTISTS_YEAR":topartists_year,"KEY_TOPARTISTS_MONTH":topartists_month,"KEY_TOPARTISTS_WEEK":topartists_week,
 	"KEY_TOPTRACKS_TOTAL":toptracks_total,"KEY_TOPTRACKS_YEAR":toptracks_year,"KEY_TOPTRACKS_MONTH":toptracks_month,"KEY_TOPTRACKS_WEEK":toptracks_week,
+	"KEY_JS_INIT_TILES":js_command,
 	"KEY_SCROBBLE_NUM_TODAY":scrobbles_today,"KEY_SCROBBLE_NUM_MONTH":scrobbles_month,"KEY_SCROBBLE_NUM_YEAR":scrobbles_year,"KEY_SCROBBLE_NUM_TOTAL":scrobbles_total,
 	"KEY_SCROBBLES":html_scrobbles,
 	"KEY_PULSE_MONTHS":html_pulse_months,"KEY_PULSE_YEARS":html_pulse_years,"KEY_PULSE_DAYS":html_pulse_days,"KEY_PULSE_WEEKS":html_pulse_weeks,
