@@ -140,7 +140,7 @@ def time_desc(t,short=False):
 				diff = (nowobject - timeobject).days
 				if diff == 0: return "Today"
 				if diff == 1: return "Yesterday"
-				if diff < 7: return timeobject.strftime("%A")
+				if diff < 7 and diff > 1: return timeobject.strftime("%A")
 			#elif len(t) == 2:
 
 
