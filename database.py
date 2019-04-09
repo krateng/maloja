@@ -394,6 +394,43 @@ def get_pulse(**keys):
 
 
 
+@dbserver.route("/performance")
+def get_performance_external():
+	keys = FormsDict.decode(request.query)
+	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
+	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
+
+	results = get_performance(**ckeys)
+	return {"list":results}
+
+def get_performance(**keys):
+
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	results = []
+
+	for (a,b) in rngs:
+		if "track" in keys:
+			charts = get_charts_tracks(since=a,to=b)
+			rank = None
+			for c in charts:
+				if c["track"] == keys["track"]:
+					rank = c["rank"]
+					break
+		elif "artist" in keys:
+			charts = get_charts_artists(since=a,to=b)
+			rank = None
+			for c in charts:
+				if c["artist"] == keys["artist"]:
+					rank = c["rank"]
+					break
+		results.append({"from":a,"to":b,"rank":rank})
+
+	return results
+
+
+
+
+
 
 
 
