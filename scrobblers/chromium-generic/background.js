@@ -71,10 +71,9 @@ function onTabUpdated(tabId, changeInfo, tab) {
 
 function onTabRemoved(tabId,removeInfo) {
 
-	console.log(tabId + " closed")
 	if (tabManagers.hasOwnProperty(tabId)) {
 		page = tabManagers[tabId].page
-		console.log("this tab was " + page + ", now removing manager")
+		console.log("closed tab was " + page + ", now removing manager")
 		tabManagers[tabId].stopPlayback("","") //in case we want to scrobble the playing track
 		delete tabManagers[tabId]
 	}

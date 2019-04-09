@@ -14,38 +14,75 @@ def entity_column(element,counting=[],image=None):
 
 	if "artists" in element:
 		# track
-		html += "<td class='artists'>" + artistLinks(element["artists"]) + "</td>"
-		html += "<td class='title'>" + trackLink({"artists":element["artists"],"title":element["title"]}) + "</td>"
+		html += "<td class='artists'>" + html_links(element["artists"]) + "</td>"
+		html += "<td class='title'>" + html_link(element) + "</td>"
 	else:
 		# artist
-		html += "<td class='artist'>" + artistLink(element)
+		html += "<td class='artist'>" + html_link(element)
 		if (counting != []):
-			html += " <span class='extra'>incl. " + ", ".join([artistLink(a) for a in counting]) + "</span>"
+			html += " <span class='extra'>incl. " + html_links(counting) + "</span>"
 		html += "</td>"
 
 	return html
 
-def artistLink(name):
-	return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"
+def uri_query(entity):
+	if "artists" in entity:
+		#track
+		return "title=" + urllib.parse.quote(entity["title"]) \
+			+ "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in entity["artists"]])
 
+	else:
+		#artist
+		return "artist=" + urllib.parse.quote(entity)
+
+# returns the address of the track / artist page
+def link_address(entity):
+	if "artists" in entity:
+		#track
+		return "/track?" + uri_query(entity)
+	else:
+		#artist
+		return "/artist?" + uri_query(entity)
+
+#returns linked name
+def html_link(entity):
+	if "artists" in entity:
+		#track
+		name = entity["title"]
+	else:
+		#artist
+		name = entity
+	return "<a href='" + link_address(entity) + "'>" + name + "</a>"
+
+def html_links(entities):
+	return ", ".join([html_link(e) for e in entities])
+
+# DEPRECATED
+def artistLink(name):
+	return html_link(name)
+	#return "<a href='/artist?artist=" + urllib.parse.quote(name) + "'>" + name + "</a>"
+
+# DEPRECATED
 def artistLinks(artists):
 	return ", ".join([artistLink(a) for a in artists])
 
 #def trackLink(artists,title):
+# DEPRECATED
 def trackLink(track):
-	artists,title = track["artists"],track["title"]
-	return "<a href='/track?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "'>" + title + "</a>"
+	return html_link(track)
+	#artists,title = track["artists"],track["title"]
+	#return "<a href='/track?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "'>" + title + "</a>"
 
 #def scrobblesTrackLink(artists,title,timekeys,amount=None,pixels=None):
 def scrobblesTrackLink(track,timekeys,amount=None,percent=None):
 	artists,title = track["artists"],track["title"]
 	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
-	return "<a href='/scrobbles?" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "&title=" + urllib.parse.quote(title) + "&" + compose_querystring(timekeys) + "'>" + inner + "</a>"
+	return "<a href='/scrobbles?" + uri_query(track) + "&" + compose_querystring(timekeys) + "'>" + inner + "</a>"
 
 def scrobblesArtistLink(artist,timekeys,amount=None,percent=None,associated=False):
 	inner = str(amount) if amount is not None else "<div style='width:" + str(percent) + "%;'></div>"
 	askey = "&associated" if associated else ""
-	return "<a href='/scrobbles?artist=" + urllib.parse.quote(artist) + "&" + compose_querystring(timekeys) + askey + "'>" + inner + "</a>"
+	return "<a href='/scrobbles?" + uri_query(artist) + "&" + compose_querystring(timekeys) + askey + "'>" + inner + "</a>"
 
 def scrobblesLink(timekeys,amount=None,percent=None,artist=None,track=None,associated=False):
 	if track is not None: return scrobblesTrackLink(track,timekeys,amount,percent)

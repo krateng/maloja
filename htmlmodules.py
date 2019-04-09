@@ -361,19 +361,12 @@ def module_artistcharts_tiles(**kwargs):
 
 
 		if e is not None:
-			#rank = i if e["scrobbles"] != rnk[1] else rnk[0]
-			#rnk = (rank,e["scrobbles"])
-			rank = "#" + str(e["rank"])
-			#image = "/image?artist=" + urllib.parse.quote(e["artist"])
-			image = getArtistImage(e["artist"],fast=True)
-			link = artistLink(e["artist"])
+			html += "<td onclick='window.location.href=\"" \
+				+ link_address(e["artist"]) \
+				+ "\"' style='cursor:pointer;background-image:url(\"" + getArtistImage(e["artist"],fast=True) + "\");'>" \
+				+ "<span class='stats'>" + "#" + str(e["rank"]) + "</span> <span>" + html_link(e["artist"]) + "</span></td>"
 		else:
-			rank = ""
-			image = ""
-			link = ""
-
-
-		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
+			html += "<td><span class='stats'></span> <span></span></td>"
 
 		i += 1
 
@@ -417,18 +410,12 @@ def module_trackcharts_tiles(**kwargs):
 
 
 		if e is not None:
-			#rank = i if e["scrobbles"] != rnk[1] else rnk[0]
-			#rnk = (rank,e["scrobbles"])
-			rank = "#" + str(e["rank"])
-			#image = "/image?title=" + urllib.parse.quote(e["track"]["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in e["track"]["artists"]])
-			image = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
-			link = trackLink(e["track"])
+			html += "<td onclick='window.location.href=\"" \
+				+ link_address(e["track"]) \
+				+ "\"' style='cursor:pointer;background-image:url(\"" + getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True) + "\");'>" \
+				+ "<span class='stats'>" + "#" + str(e["rank"]) + "</span> <span>" + html_link(e["track"]) + "</span></td>"
 		else:
-			rank = ""
-			image = ""
-			link = ""
-
-		html += """<td style="background-image:url('""" + image + """')"><span class="stats">""" + rank + "</span> <span>" + link + "</span></td>"
+			html += "<td><span class='stats'></span> <span></span></td>"
 
 		i += 1
 
