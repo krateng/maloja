@@ -71,7 +71,7 @@ def time_fix(t):
 	except:
 		pass
 
-	if t[1].startswith("W"):
+	if isinstance(t[1],str) and t[1].startswith("W"):
 		try:
 			weeknum = int(t[1][1:])
 			return [t[0],"W",t[1]]
@@ -252,7 +252,7 @@ def time_stamps(since=None,to=None,within=None):
 		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
 
 
-	return (stamp1,stamp2)
+	return (stamp1,stamp2-1)
 
 
 
