@@ -1,0 +1,12 @@
+# NAME: Firefly / Serenity Soundtracks
+# DESC: Fixes tracks and artists from the soundtracks of Firefly and Serenity
+
+# Firefly
+replacetitle		Firefly Main Title					The Ballad of Serenity
+replacetitle		Firefly Main Theme					The Ballad of Serenity
+replacetitle		Firefly - Main Title					The Ballad of Serenity
+replacetitle		Firefly - Main Theme					The Ballad of Serenity
+
+# Serenity
+replacetitle		Jane & Zoe / Final Battle				Jayne & Zoe / Final Battle
+replacetitle		Jane & Zoe						Jayne & Zoe
