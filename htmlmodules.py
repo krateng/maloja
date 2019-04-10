@@ -63,10 +63,14 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 
 def module_pulse(max_=None,**kwargs):
 
+	from doreah.timing import clock, clockp
+
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
-	kwargs_time = pickKeys(kwargs,"timerange","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
+
 
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
+
 
 	if max_ is not None: ranges = ranges[:max_]
 
@@ -536,7 +540,7 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
 		html += " | "
 
-		if timekeys == {}:
+		if timekeys.get("timerange") is None or timekeys.get("timerange").unlimited():
 			html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys) + "'><span class='stat_selector'>All Time</span></a>"

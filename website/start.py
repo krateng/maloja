@@ -21,7 +21,7 @@ def instructions(keys):
 	newdate = tod - d
 	weekstart = [newdate.year,newdate.month,newdate.day]
 
-	#clock()
+	clock()
 
 	# artists
 
@@ -30,7 +30,7 @@ def instructions(keys):
 	topartists_month = module_artistcharts_tiles(since="month")
 	topartists_week = module_artistcharts_tiles(since=weekstart)
 
-	#clockp("Artists")
+	clockp("Artists")
 
 	# tracks
 
@@ -40,7 +40,7 @@ def instructions(keys):
 	toptracks_week = module_trackcharts_tiles(since=weekstart)
 
 
-	#clockp("Tracks")
+	clockp("Tracks")
 
 
 
@@ -48,7 +48,7 @@ def instructions(keys):
 	# scrobbles
 	html_scrobbles, _, _ = module_scrobblelist(max_=15,shortTimeDesc=True,pictures=True,earlystop=True)
 
-	#clockp("Scrobbles")
+	clockp("Scrobbles")
 
 	# stats
 
@@ -69,29 +69,22 @@ def instructions(keys):
 	amount_total = database.get_scrobbles_num()
 	scrobbles_total = "<a href='/scrobbles'>" + str(amount_total) + "</a>"
 
-	#clockp("Amounts")
+	clockp("Amounts")
 
 	# pulse
-	dt = datetime.utcnow()
-	first_month = [dt.year-1,dt.month+1]
-	dt_firstweek = dt - timedelta(11*7) - timedelta((tod.weekday() + 1) % 7)
-	first_week = [dt_firstweek.year,dt_firstweek.month,dt_firstweek.day]
-	dt_firstday = dt - timedelta(6)
-	first_day = [dt_firstday.year,dt_firstday.month,dt_firstday.day]
-	first_year = [dt.year - 9]
-	if first_month[1] > 12: first_month = [first_month[0]+1,first_month[1]-12]
+	from malojatime import today,thisweek,thismonth,thisyear
 
-	html_pulse_days = module_pulse(max_=7,since=first_day,step="day",trail=1)
-	html_pulse_weeks = module_pulse(max_=12,since=first_week,step="week",trail=1)
-	html_pulse_months = module_pulse(max_=12,since=first_month,step="month",trail=1)
-	html_pulse_years = module_pulse(max_=10,since=first_year,step="year",trail=1)
+	html_pulse_days = module_pulse(max_=7,since=today().next(-6),step="day",trail=1)
+	html_pulse_weeks = module_pulse(max_=12,since=thisweek().next(-11),step="week",trail=1)
+	html_pulse_months = module_pulse(max_=12,since=thismonth().next(-11),step="month",trail=1)
+	html_pulse_years = module_pulse(max_=10,since=thisyear().next(-9),step="year",trail=1)
 
 
 	#html_pulse_week = module_pulse(max_=7,since=weekstart,step="day",trail=1)
 	#html_pulse_month = module_pulse(max_=30,since=[dt.year,dt.month],step="day",trail=1)
 	#html_pulse_year = module_pulse(max_=12,since=[dt.year],step="month",trail=1)
 
-	#clockp("Pulse")
+	clockp("Pulse")
 
 	#pushresources = [{"file":img,"type":"image"} for img in artistimages + trackimages] #can't push scrobble images as we don't get them from the module function, need to think about that
 	pushresources = []

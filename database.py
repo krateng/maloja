@@ -382,9 +382,8 @@ def get_pulse_external():
 
 def get_pulse(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["timerange","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
-
 	for rng in rngs:
 		res = len(db_query(timerange=rng,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
 		results.append({"range":rng,"scrobbles":res})

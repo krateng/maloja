@@ -77,6 +77,9 @@ class MRangeDescriptor:
 	def uri(self):
 		return "&".join(k + "=" + self.urikeys[k] for k in self.urikeys)
 
+	def unlimited(self):
+		return False
+
 
 # a range that is exactly a gregorian calendar unit (year, month or day)
 class MTime(MRangeDescriptor):
@@ -263,6 +266,7 @@ class MRange(MRangeDescriptor):
 		self.since = since
 		self.to = to
 
+
 	def __str__(self):
 		return str(self.since) + " - " + str(self.to)
 	def fromstr(self):
@@ -270,6 +274,8 @@ class MRange(MRangeDescriptor):
 	def tostr(self):
 		return str(self.to)
 
+	def unlimited(self):
+		return (self.since is None and self.to is None)
 
 	def urikeys(self):
 		keys = {}
@@ -535,6 +541,7 @@ def from_timestamp(stamp,unit):
 	if unit == "year": return year_from_timestamp(stamp)
 
 
+# since, to and within can accept old notations or objects. timerange can only be a new object.
 def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,trail=1,max_=None):
 
 	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within,range=timerange)
