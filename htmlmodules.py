@@ -42,7 +42,7 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 	for s in scrobbles:
 
 		html += "<tr>"
-		html += "<td class='time'>" + time_desc(s["time"],short=shortTimeDesc) + "</td>"
+		html += "<td class='time'>" + timestamp_desc(s["time"],short=shortTimeDesc) + "</td>"
 		if pictures:
 			img = scrobbleimages[i]
 		else: img = None
@@ -81,12 +81,11 @@ def module_pulse(max_=None,**kwargs):
 	#build list
 	html = "<table class='list'>"
 	for t in ranges:
-		fromstr = "/".join([str(e) for e in t["from"]])
-		tostr = "/".join([str(e) for e in t["to"]])
+		range = t["range"]
 		html += "<tr>"
-		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
-		html += "<td class='amount'>" + scrobblesLink({"since":fromstr,"to":tostr},amount=t["scrobbles"],**kwargs_filter) + "</td>"
-		html += "<td class='bar'>" + scrobblesLink({"since":fromstr,"to":tostr},percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
+		html += "<td class='amount'>" + scrobblesLink({"since":range.fromstr(),"to":range.tostr()},amount=t["scrobbles"],**kwargs_filter) + "</td>"
+		html += "<td class='bar'>" + scrobblesLink({"since":range.fromstr(),"to":range.tostr()},percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -117,13 +116,12 @@ def module_performance(max_=None,**kwargs):
 	#build list
 	html = "<table class='list'>"
 	for t in ranges:
-		fromstr = "/".join([str(e) for e in t["from"]])
-		tostr = "/".join([str(e) for e in t["to"]])
+		range = t["range"]
 		html += "<tr>"
 		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
 		html += "<td class='rank'>" + ("#" + str(t["rank"]) if t["rank"] is not None else "No scrobbles") + "</td>"
 		prct = (minrank+1-t["rank"])*100/minrank if t["rank"] is not None else 0
-		html += "<td class='chart'>" + rankLink({"since":fromstr,"to":tostr},percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
+		html += "<td class='chart'>" + rankLink({"since":range.fromstr(),"to":range.tostr()},percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -288,13 +286,13 @@ def module_toptracks(pictures=True,**kwargs):
 
 		#fromstr = "/".join([str(p) for p in e["from"]])
 		#tostr = "/".join([str(p) for p in e["to"]])
-		limits = pickKeys(e,"since","to")
+		range = e["range"]
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 		if e["track"] is None:
 			if pictures:
 				html += "<td><div></div></td>"
@@ -307,8 +305,8 @@ def module_toptracks(pictures=True,**kwargs):
 				img = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
 			else: img = None
 			html += entity_column(e["track"],image=img)
-			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),amount=e["scrobbles"]) + "</td>"
-			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar) + "</td>"
+			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":range.fromstr(),"to":range.tostr()},amount=e["scrobbles"]) + "</td>"
+			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{"since":range.fromstr(),"to":range.tostr()},percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -344,13 +342,13 @@ def module_topartists(pictures=True,**kwargs):
 
 		#fromstr = "/".join([str(p) for p in e["from"]])
 		#tostr = "/".join([str(p) for p in e["to"]])
-		limits = pickKeys(e,"since","to")
+		range = e["range"]
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 
 		if e["artist"] is None:
 			if pictures:
@@ -363,8 +361,8 @@ def module_topartists(pictures=True,**kwargs):
 				img = getArtistImage(e["artist"],fast=True)
 			else: img = None
 			html += entity_column(e["artist"],image=img)
-			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),amount=e["scrobbles"],associated=True) + "</td>"
-			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],{"since":range.fromstr(),"to":range.tostr()},amount=e["scrobbles"],associated=True) + "</td>"
+			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],{"since":range.fromstr(),"to":range.tostr()},percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"

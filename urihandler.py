@@ -1,6 +1,6 @@
 import urllib
 from bottle import FormsDict
-from malojatime import time_fix, time_str
+from malojatime import time_fix, time_str, get_range_object
 
 
 # necessary because urllib.parse.urlencode doesnt handle multidicts
@@ -59,28 +59,39 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 	# 2
 	resultkeys2 = {}
-	if "since" in keys: resultkeys2["since"] = time_fix(keys.get("since"))
-	elif "from" in keys: resultkeys2["since"] = time_fix(keys.get("from"))
-	elif "start" in keys: resultkeys2["since"] = time_fix(keys.get("start"))
-	#
-	if "to" in keys: resultkeys2["to"] = time_fix(keys.get("to"))
-	elif "until" in keys: resultkeys2["to"] = time_fix(keys.get("until"))
-	elif "end" in keys: resultkeys2["to"] = time_fix(keys.get("end"))
-	#
-	if "since" in resultkeys2 and "to" in resultkeys2 and resultkeys2["since"] == resultkeys2["to"]:
-		resultkeys2["within"] = resultkeys2["since"]
-		del resultkeys2["since"]
-		del resultkeys2["to"]
-	#
-	if "in" in keys: resultkeys2["within"] = time_fix(keys.get("in"))
-	elif "within" in keys: resultkeys2["within"] = time_fix(keys.get("within"))
-	elif "during" in keys: resultkeys2["within"] = time_fix(keys.get("during"))
-	if "within" in resultkeys2:
-		if "since" in resultkeys2:
-			del resultkeys2["since"]
-		if "to" in resultkeys2:
-			del resultkeys2["to"]
-
+#	if "since" in keys: resultkeys2["since"] = time_fix(keys.get("since"))
+#	elif "from" in keys: resultkeys2["since"] = time_fix(keys.get("from"))
+#	elif "start" in keys: resultkeys2["since"] = time_fix(keys.get("start"))
+#	#
+#	if "to" in keys: resultkeys2["to"] = time_fix(keys.get("to"))
+#	elif "until" in keys: resultkeys2["to"] = time_fix(keys.get("until"))
+#	elif "end" in keys: resultkeys2["to"] = time_fix(keys.get("end"))
+#	#
+#	if "since" in resultkeys2 and "to" in resultkeys2 and resultkeys2["since"] == resultkeys2["to"]:
+#		resultkeys2["within"] = resultkeys2["since"]
+#		del resultkeys2["since"]
+#		del resultkeys2["to"]
+#	#
+#	if "in" in keys: resultkeys2["within"] = time_fix(keys.get("in"))
+#	elif "within" in keys: resultkeys2["within"] = time_fix(keys.get("within"))
+#	elif "during" in keys: resultkeys2["within"] = time_fix(keys.get("during"))
+#	if "within" in resultkeys2:
+#		if "since" in resultkeys2:
+#			del resultkeys2["since"]
+#		if "to" in resultkeys2:
+#			del resultkeys2["to"]
+	since,to,within = None,None,None
+	if "since" in keys: since = keys.get("since")
+	elif "from" in keys: since = keys.get("from")
+	elif "start" in keys: since = keys.get("start")
+	if "to" in keys: to = keys.get("to")
+	elif "until" in keys: to = keys.get("until")
+	elif "end" in keys: to = keys.get("end")
+	if "in" in keys: within = keys.get("in")
+	elif "within" in keys: within = keys.get("within")
+	elif "during" in keys: within = keys.get("during")
+	resultkeys2["timerange"] = get_range_object(since=since,to=to,within=within)
+	print(resultkeys2["timerange"].desc())
 
 	#3
 	resultkeys3 = {}
@@ -93,6 +104,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 	#4
 	resultkeys4 = {}
 	if "max" in keys: resultkeys4["max_"] = int(keys["max"])
+
 
 	return resultkeys1, resultkeys2, resultkeys3, resultkeys4
 
@@ -109,7 +121,11 @@ def internal_to_uri(keys):
 		urikeys.append("title",keys["track"]["title"])
 
 	#time
-	if "within" in keys:
+	if "range" in keys:
+		keydict = keys["range"].urikeys()
+		for k in keydict:
+			urikeys.append(k,keydict[k])
+	elif "within" in keys:
 		urikeys.append("in",time_str(keys["within"]))
 	else:
 		if "since" in keys:

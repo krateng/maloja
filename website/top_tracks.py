@@ -26,7 +26,7 @@ def instructions(keys):
 	else:
 		imgurl = ""
 
-	limitstring += " " + range_desc(**timekeys)
+	limitstring += " " + timekeys["timerange"].desc(prefix=True)
 
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 

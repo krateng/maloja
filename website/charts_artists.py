@@ -10,7 +10,7 @@ def instructions(keys):
 
 	_, timekeys, _, amountkeys = uri_to_internal(keys)
 
-	limitstring = range_desc(**timekeys)
+	limitstring = timekeys["timerange"].desc(prefix=True)
 
 	html_filterselector = module_filterselection(keys)
 

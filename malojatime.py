@@ -55,7 +55,30 @@ date = expandeddate
 
 # only for ranges, timestamps are separate
 
-class MTime:
+class MRangeDescriptor:
+
+	def __eq__(self,other):
+		return self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp()#
+
+	def __hash__(self):
+		return hash((self.first_stamp(),self.last_stamp()))
+
+	def info(self):
+		return {
+			"fromstring":self.fromstr(),
+			"tostr":self.tostr(),
+			"uri":self.uri(),
+			"fromstamp":self.first_stamp(),
+			"tostamp":self.last_stamp(),
+			"description":self.desc()
+		}
+
+	def uri(self):
+		return "&".join(k + "=" + self.urikeys[k] for k in self.urikeys)
+
+
+# a range that is exactly a gregorian calendar unit (year, month or day)
+class MTime(MRangeDescriptor):
 	def __init__(self,*ls):
 		# in case we want to call with non-unpacked arguments
 		if isinstance(ls[0],tuple) or isinstance(ls[0],list):
@@ -72,9 +95,13 @@ class MTime:
 
 	def __str__(self):
 		return "/".join(str(part) for part in self.tup)
+	def fromstr(self):
+		return str(self)
+	def tostr(self):
+		return str(self)
 
-	def uri(self):
-		return "in=" + str(self)
+	def urikeys(self):
+		return {"in":str(self)}
 
 	def desc(self,prefix=False):
 		if self.precision == 3:
@@ -140,9 +167,30 @@ class MTime:
 		day = self.last_day().dateobject + datetime.timedelta(days=1)
 		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
 
+	# next range of equal length (not exactly same amount of days, but same precision level)
+	def next(self,step=1):
+		if self.precision == 1:
+			return MTime(self.year + step)
+		elif self.precision == 2:
+			dt = [self.year,self.month]
+			dt[1] += step
+			while dt[1] > 12:
+				dt[1] -= 12
+				dt[0] += 1
+			while dt[1] < 1:
+				dt[1] += 12
+				dt[0] -= 1
+			return MTime(*dt)
+		elif self.precision == 3:
+			dt = self.dateobject
+			d = datetime.timedelta(days=step)
+			newdate = dt + d
+			return MTime(newdate.year,newdate.month,newdate.day)
 
 
-class MTimeWeek:
+
+# a range that is exactly one christian week (starting on sunday)
+class MTimeWeek(MRangeDescriptor):
 	def __init__(self,year=None,week=None):
 		self.year = year
 		self.week = week
@@ -158,9 +206,13 @@ class MTimeWeek:
 
 	def __str__(self):
 		return str(self.year) + "/W" + str(self.week)
+	def fromstr(self):
+		return str(self)
+	def tostr(self):
+		return str(self)
 
-	def uri(self):
-		return "in=" + str(self)
+	def urikeys(self):
+		return {"in":str(self)}
 
 	def desc(self,prefix=False):
 		if prefix:
@@ -195,8 +247,15 @@ class MTimeWeek:
 		day = self.lastday + datetime.timedelta(days=1)
 		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
 
+	def next(self,step=1):
+		try:
+			return MTimeWeek(self.year,self.week + step)
+		except:
+			pass
+			# TODO
 
-class MRange:
+# a range that is defined by separate start and end
+class MRange(MRangeDescriptor):
 
 	def __init__(self,since=None,to=None):
 		since,to = time_pad(since,to)
@@ -205,12 +264,17 @@ class MRange:
 
 	def __str__(self):
 		return str(self.since) + " - " + str(self.to)
+	def fromstr(self):
+		return str(self.since)
+	def tostr(self):
+		return str(self.to)
 
-	def uri(self):
-		keys = []
-		if self.since is not None: keys.append("since=" + uri(self.since))
-		if self.to is not None: keys.append("&to=" + uri(self.to))
-		return "&".join(keys)
+
+	def urikeys(self):
+		keys = {}
+		if self.since is not None: keys["since"] = str(self.since)
+		if self.to is not None: keys["to"] = str(self.to)
+		return keys
 
 	def desc(self,prefix=False):
 		if self.since is not None and self.to is not None:
@@ -239,9 +303,25 @@ class MRange:
 		return self.to.last_day()
 
 	def first_stamp(self):
-		return self.since.first_stamp()
+		if self.since is None: return FIRST_SCROBBLE
+		else: return self.since.first_stamp()
 	def last_stamp(self):
-		return self.to.last_stamp()
+		if self.to is None: return int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
+		else: return self.to.last_stamp()
+
+	def next(self,step=1):
+		# hop from the start element by one until we reach the end element
+		diff = 1
+		nxt = self.since
+		while (nxt != self.to):
+			diff += 1
+			nxt = nxt.next(step=1)
+
+		newstart = self.since.next(step=diff*step)
+		newend = self.to.next(step=diff*step)
+
+		return MRange(newstart,newend)
+
 
 ## test
 
@@ -258,7 +338,8 @@ def time_str(t):
 
 # converts strings and stuff to objects
 def time_fix(t):
-
+	if t is None: return None
+	if isinstance(t,MRangeDescriptor): return t
 
 	if isinstance(t, str):
 		tod = datetime.datetime.utcnow()
@@ -294,11 +375,26 @@ def time_fix(t):
 
 	if isinstance(t[1],str) and t[1].startswith("W"):
 		try:
+			year = int(t[0])
 			weeknum = int(t[1][1:])
-			return MTimeWeek(year=t[0],week=t[1])
+			return MTimeWeek(year=year,week=weeknum)
 		except:
-			pass
+			raise
 
+
+
+def get_range_object(since=None,to=None,within=None):
+
+	since,to,within = time_fix(since),time_fix(to),time_fix(within)
+
+	# check if we can simplify
+	if since is not None and to is not None and since == to: within = since
+	# TODO
+
+	if within is not None:
+		return within
+	else:
+		return MRange(since,to)
 
 
 
@@ -325,6 +421,8 @@ def time_pad(f,t,full=False):
 	return f,t
 
 
+def range_desc(f,t,short=False):
+	return MRange(time_fix(f),time_fix(t)).desc()
 
 
 
@@ -363,33 +461,34 @@ def timestamp_desc(t,short=False):
 
 
 
-def time_stamps(since=None,to=None,within=None):
+def time_stamps(since=None,to=None,within=None,range=None):
 
-
-	if within is not None:
-		since = within
-		to = within
-
-
-
-
-	if (since==None): stamp1 = FIRST_SCROBBLE
-	else:
-		since = time_fix(since)
-		date = [1970,1,1]
-		date[:len(since)] = since
-		stamp1 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
-
-	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
-	else:
-		to = time_fix(to)
-		to = _get_next(to)
-		date = [1970,1,1]
-		date[:len(to)] = to
-		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
-
-
-	return (stamp1,stamp2-1)
+	if range is None: range = get_range_object(since=since,to=to,within=within)
+	return range.first_stamp(),range.last_stamp()
+	#print(range.desc())
+#	if (since==None): stamp1 = FIRST_SCROBBLE
+#	else: stamp1 = range.first_stamp()
+#	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
+#	else: stamp2 = range.last_stamp()
+#	return stamp1,stamp2
+#	if (since==None): stamp1 = FIRST_SCROBBLE
+#	else:
+#		stamp1 = since1
+#		since = time_fix(since)
+#		date = [1970,1,1]
+#		date[:len(since)] = since
+#		stamp1 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
+#
+#	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
+#	else:
+#		to = time_fix(to)
+#		to = _get_next(to)
+#		date = [1970,1,1]
+#		date[:len(to)] = to
+#		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
+#
+#
+#	return (stamp1,stamp2-1)
 
 
 
@@ -406,93 +505,115 @@ def delimit_desc(step="month",stepn=1,trail=1):
 
 
 
-def ranges(since=None,to=None,within=None,step="month",stepn=1,trail=1,max_=None):
+def day_from_timestamp(stamp):
+	dt = datetime.datetime.utcfromtimestamp(stamp)
+	return MTime(dt.year,dt.month,dt.day)
+def month_from_timestamp(stamp):
+	dt = datetime.datetime.utcfromtimestamp(stamp)
+	return MTime(dt.year,dt.month)
+def year_from_timestamp(stamp):
+	dt = datetime.datetime.utcfromtimestamp(stamp)
+	return MTime(dt.year)
+def week_from_timestamp(stamp):
+	dt = datetime.datetime.utcfromtimestamp(stamp)
+	d = date(dt.year,dt.month,dt.day)
+	y,w,_ = d.chrcalendar()
+	return MTimeWeek(y,w)
 
-	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within)
+def from_timestamp(stamp,unit):
+	if unit == "day": return day_from_timestamp(stamp)
+	if unit == "week": return week_from_timestamp(stamp)
+	if unit == "month": return month_from_timestamp(stamp)
+	if unit == "year": return year_from_timestamp(stamp)
 
-	d_start = _get_start_of(firstincluded,step)
-	d_end = _get_start_of(lastincluded,step)
-	d_start = _get_next(d_start,step,stepn)			# first range should end right after the first active scrobbling week / month / whatever relevant step
-	d_start = _get_next(d_start,step,stepn * trail * -1)	# go one range back to begin
 
+def ranges(since=None,to=None,within=None,superrange=None,step="month",stepn=1,trail=1,max_=None):
+
+	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within,range=superrange)
+
+	d_start = from_timestamp(firstincluded,step)
+	d_start = d_start.next(stepn)
+	d_start = d_start.next(stepn*trail*-1)
+	first_range = MRange(d_start,d_start.next(stepn*trail-1))
 
 	i = 0
-	d_current = d_start
-	while not _is_past(d_current,d_end) and (max_ is None or i < max_):
-		d_current_end = _get_end(d_current,step,stepn * trail)
-		yield (d_current,d_current_end)
-		d_current = _get_next(d_current,step,stepn)
+	current = d_start
+	while current.first_stamp() <= lastincluded and (max_ is None or i < max_):
+		current_end = current.next(stepn*trail-1)
+		yield MRange(current,current_end)
+		current = current.next(stepn)
 		i += 1
 
 
 
-def _get_start_of(timestamp,unit):
-	date = datetime.datetime.utcfromtimestamp(timestamp)
-	if unit == "year":
-		#return [date.year,1,1]
-		return [date.year]
-	elif unit == "month":
-		#return [date.year,date.month,1]
-		return [date.year,date.month]
-	elif unit == "day":
-		return [date.year,date.month,date.day]
-	elif unit == "week":
-		change = (date.weekday() + 1) % 7
-		d = datetime.timedelta(days=change)
-		newdate = date - d
-		return [newdate.year,newdate.month,newdate.day]
-
-def _get_next(time,unit="auto",step=1):
-	result = time[:]
-	if unit == "auto":
-		if is_week(time): unit = "week"
-		# see how long the list is, increment by the last specified unit
-		else: unit = [None,"year","month","day"][len(time)]
-	#while len(time) < 3:
-	#	time.append(1)
-
-	if unit == "year":
-		#return [time[0] + step,time[1],time[2]]
-		result[0] += step
-		return result
-	elif unit == "month":
-		#result = [time[0],time[1] + step,time[2]]
-		result[1] += step
-		while result[1] > 12:
-			result[1] -= 12
-			result[0] += 1
-		while result[1] < 1:
-			result[1] += 12
-			result[0] -= 1
-		return result
-	elif unit == "day":
-		dt = datetime.datetime(time[0],time[1],time[2])
-		d = datetime.timedelta(days=step)
-		newdate = dt + d
-		return [newdate.year,newdate.month,newdate.day]
-		#eugh
-	elif unit == "week":
-		return _get_next(time,"day",step * 7)
-
+#def _get_start_of(timestamp,unit):
+#	date = datetime.datetime.utcfromtimestamp(timestamp)
+#	if unit == "year":
+#		#return [date.year,1,1]
+#		return [date.year]
+#	elif unit == "month":
+#		#return [date.year,date.month,1]
+#		return [date.year,date.month]
+#	elif unit == "day":
+#		return [date.year,date.month,date.day]
+#	elif unit == "week":
+#		change = (date.weekday() + 1) % 7
+#		d = datetime.timedelta(days=change)
+#		newdate = date - d
+#		return [newdate.year,newdate.month,newdate.day]
+#
+#def _get_next(time,unit="auto",step=1):
+#	result = time[:]
+#	if unit == "auto":
+#		if is_week(time): unit = "week"
+#		# see how long the list is, increment by the last specified unit
+#		else: unit = [None,"year","month","day"][len(time)]
+#	#while len(time) < 3:
+#	#	time.append(1)
+#
+#	if unit == "year":
+#		#return [time[0] + step,time[1],time[2]]
+#		result[0] += step
+#		return result
+#	elif unit == "month":
+#		#result = [time[0],time[1] + step,time[2]]
+#		result[1] += step
+#		while result[1] > 12:
+#			result[1] -= 12
+#			result[0] += 1
+#		while result[1] < 1:
+#			result[1] += 12
+#			result[0] -= 1
+#		return result
+#	elif unit == "day":
+#		dt = datetime.datetime(time[0],time[1],time[2])
+#		d = datetime.timedelta(days=step)
+#		newdate = dt + d
+#		return [newdate.year,newdate.month,newdate.day]
+#		#eugh
+#	elif unit == "week":
+#		return _get_next(time,"day",step * 7)
+#
 # like _get_next(), but gets the last INCLUDED day / month whatever
-def _get_end(time,unit="auto",step=1):
-	if step == 1:
-		if unit == "auto": return time[:]
-		if unit == "year" and len(time) == 1: return time[:]
-		if unit == "month" and len(time) == 2: return time[:]
-		if unit == "day" and len(time) == 3: return time[:]
-	exc = _get_next(time,unit,step)
-	inc = _get_next(exc,"auto",-1)
-	return inc
+#def _get_end(time,unit="auto",step=1):
+#	if step == 1:
+#		if unit == "auto": return time[:]
+#		if unit == "year" and len(time) == 1: return time[:]
+#		if unit == "month" and len(time) == 2: return time[:]
+#		if unit == "day" and len(time) == 3: return time[:]
+#	exc = _get_next(time,unit,step)
+#	inc = _get_next(exc,"auto",-1)
+#	return inc
+#
 
 
-
-def _is_past(date,limit):
-	date_, limit_ = date[:], limit[:]
-	while len(date_) != 3: date_.append(1)
-	while len(limit_) != 3: limit_.append(1)
-	if not date_[0] == limit_[0]:
-		return date_[0] > limit_[0]
-	if not date_[1] == limit_[1]:
-		return date_[1] > limit_[1]
-	return (date_[2] > limit_[2])
+#def _is_past(date,limit):
+#	date_, limit_ = date[:], limit[:]
+#	while len(date_) != 3: date_.append(1)
+#	while len(limit_) != 3: limit_.append(1)
+#	if not date_[0] == limit_[0]:
+#		return date_[0] > limit_[0]
+#	if not date_[1] == limit_[1]:
+#		return date_[1] > limit_[1]
+#	return (date_[2] > limit_[2])
+##
