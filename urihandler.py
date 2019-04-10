@@ -39,7 +39,7 @@ def remove_identical(*dicts):
 	return new
 
 
-
+# this also sets defaults!
 def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 	# output:
@@ -94,11 +94,12 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 	print(resultkeys2["timerange"].desc())
 
 	#3
-	resultkeys3 = {}
+	resultkeys3 = {"step":"month","stepn":1,"trail":1}
 	if "step" in keys: [resultkeys3["step"],resultkeys3["stepn"]] = (keys["step"].split("-") + [1])[:2]
 	if "stepn" in keys: resultkeys3["stepn"] = keys["stepn"] #overwrite if explicitly given
 	if "stepn" in resultkeys3: resultkeys3["stepn"] = int(resultkeys3["stepn"]) #in both cases, convert it here
 	if "trail" in keys: resultkeys3["trail"] = int(keys["trail"])
+
 
 
 	#4
@@ -121,8 +122,8 @@ def internal_to_uri(keys):
 		urikeys.append("title",keys["track"]["title"])
 
 	#time
-	if "range" in keys:
-		keydict = keys["range"].urikeys()
+	if "timerange" in keys:
+		keydict = keys["timerange"].urikeys()
 		for k in keydict:
 			urikeys.append(k,keydict[k])
 	elif "within" in keys:

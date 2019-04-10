@@ -64,7 +64,7 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 def module_pulse(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"timerange","step","stepn","trail")
 
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
 
@@ -499,47 +499,44 @@ def module_filterselection(keys,time=True,delimit=False):
 #		html += "to <input id='dateselect_to' onchange='datechange()' type='date' value='" + "-".join(todate) + "'/>"
 #		html += "</div>"
 
-
-		now = datetime.datetime.utcnow()
-		today = [now.year,now.month,now.day]
-		thismonth = today[:2]
-		thisyear = thismonth[:1]
+		from malojatime import today, thisweek, thismonth, thisyear
 
 		### temp!!! this will not allow weekly rank changes
-		weekday = ((now.isoweekday()) % 7)
-		weekbegin = now - datetime.timedelta(days=weekday)
-		weekend = weekbegin + datetime.timedelta(days=6)
-		weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
-		weekend = [weekend.year,weekend.month,weekend.day]
-		weekbeginstr = "/".join((str(num) for num in weekbegin))
-		weekendstr = "/".join((str(num) for num in weekend))
+	#	weekday = ((now.isoweekday()) % 7)
+	#	weekbegin = now - datetime.timedelta(days=weekday)
+	#	weekend = weekbegin + datetime.timedelta(days=6)
+	#	weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
+	#	weekend = [weekend.year,weekend.month,weekend.day]
+	#	weekbeginstr = "/".join((str(num) for num in weekbegin))
+	#	weekendstr = "/".join((str(num) for num in weekend))
+
 
 		html += "<div>"
-		if timekeys.get("since") == today or timekeys.get("within") == today:
+		if timekeys.get("timerange") == today():
 			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"today"}) + "'><span class='stat_selector'>Today</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == weekbegin and timekeys.get("to") == weekend:
+		if timekeys.get("timerange") == thisweek():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":weekbeginstr,"to":weekendstr}) + "'><span class='stat_selector'>This Week</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"week"}) + "'><span class='stat_selector'>This Week</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == thismonth or timekeys.get("within") == thismonth:
+		if timekeys.get("timerange") == thismonth():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"month"}) + "'><span class='stat_selector'>This Month</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == thisyear or timekeys.get("within") == thisyear:
+		if timekeys.get("timerange") == thisyear():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
 		html += " | "
 
-		if timekeys.get("since") is None and timekeys.get("within") is None:
+		if timekeys == {}:
 			html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys) + "'><span class='stat_selector'>All Time</span></a>"
@@ -561,7 +558,13 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"day"}) + "'><span class='stat_selector'>Daily</span></a>"
 		html += " | "
 
-		if (delimitkeys.get("step") == "month" or delimitkeys.get("step") is None) and delimitkeys.get("stepn") == 1:
+		if delimitkeys.get("step") == "week" and delimitkeys.get("stepn") == 1:
+			html += "<span class='stat_selector' style='opacity:0.5;'>Weekly</span>"
+		else:
+			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"week"}) + "'><span class='stat_selector'>Weekly</span></a>"
+		html += " | "
+
+		if delimitkeys.get("step") == "month" and delimitkeys.get("stepn") == 1:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Monthly</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"month"}) + "'><span class='stat_selector'>Monthly</span></a>"
@@ -579,7 +582,7 @@ def module_filterselection(keys,time=True,delimit=False):
 		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k != "trail"})
 
 		html += "<div>"
-		if delimitkeys.get("trail") == 1 or delimitkeys.get("trail") is None:
+		if delimitkeys.get("trail") == 1:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Standard</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"1"}) + "'><span class='stat_selector'>Standard</span></a>"

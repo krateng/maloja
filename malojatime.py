@@ -58,7 +58,8 @@ date = expandeddate
 class MRangeDescriptor:
 
 	def __eq__(self,other):
-		return self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp()#
+		if not isinstance(other,MRangeDescriptor): return False
+		return (self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp())
 
 	def __hash__(self):
 		return hash((self.first_stamp(),self.last_stamp()))
@@ -286,6 +287,8 @@ class MRange(MRangeDescriptor):
 			return "since " + self.since.desc()
 		if self.since is None and self.to is not None:
 			return "until " + self.to.desc()
+		if self.since is None and self.to is None:
+			return ""
 
 	def informal_desc(self):
 		# dis gonna be hard
@@ -332,9 +335,13 @@ y = MTime(2020)
 
 
 
+def range_desc(r,**kwargs):
+	if r is None: return ""
+	return r.desc(**kwargs)
 
 def time_str(t):
-	return str(t)
+	obj = time_fix(t)
+	return obj.desc()
 
 # converts strings and stuff to objects
 def time_fix(t):
@@ -347,11 +354,13 @@ def time_fix(t):
 		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
 
 		if t.lower() in ["today","day"]:
-			t = [tod.year,tod.month,tod.day]
-		elif t.lower() == "month":
-			t = [tod.year,tod.month]
-		elif t.lower() == "year":
-			t = [tod.year]
+			return today()
+		elif t.lower() in ["month","thismonth"]:
+			return thismonth()
+		elif t.lower() in ["year","thisyear"]:
+			return thisyear()
+		elif t.lower() in ["week","thisweek"]:
+			return thisweek()
 
 
 		elif t.lower() in months:
@@ -421,8 +430,7 @@ def time_pad(f,t,full=False):
 	return f,t
 
 
-def range_desc(f,t,short=False):
-	return MRange(time_fix(f),time_fix(t)).desc()
+
 
 
 
@@ -496,7 +504,7 @@ def time_stamps(since=None,to=None,within=None,range=None):
 def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
 	if stepn is not 1: txt += _num(stepn) + "-"
-	txt += {"year":"Yearly","month":"Monthly","day":"Daily"}[step.lower()]
+	txt += {"year":"Yearly","month":"Monthly","week":"Weekly","day":"Daily"}[step.lower()]
 	#if trail is not 1: txt += " " + _num(trail) + "-Trailing"
 	if trail is not 1: txt += " Trailing" #we don't need all the info in the title
 
@@ -527,9 +535,9 @@ def from_timestamp(stamp,unit):
 	if unit == "year": return year_from_timestamp(stamp)
 
 
-def ranges(since=None,to=None,within=None,superrange=None,step="month",stepn=1,trail=1,max_=None):
+def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,trail=1,max_=None):
 
-	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within,range=superrange)
+	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	d_start = from_timestamp(firstincluded,step)
 	d_start = d_start.next(stepn)
@@ -540,11 +548,29 @@ def ranges(since=None,to=None,within=None,superrange=None,step="month",stepn=1,t
 	current = d_start
 	while current.first_stamp() <= lastincluded and (max_ is None or i < max_):
 		current_end = current.next(stepn*trail-1)
-		yield MRange(current,current_end)
+		if current == current_end:
+			yield current
+		else:
+			yield MRange(current,current_end)
 		current = current.next(stepn)
 		i += 1
 
 
+
+
+def today():
+	tod = date.today()
+	return MTime(tod.year,tod.month,tod.day)
+def thisweek():
+	tod = date.today()
+	y,w,_ = tod.chrcalendar()
+	return MTimeWeek(y,w)
+def thismonth():
+	tod = date.today()
+	return MTime(tod.year,tod.month)
+def thisyear():
+	tod = date.today()
+	return MTime(tod.year)
 
 #def _get_start_of(timestamp,unit):
 #	date = datetime.datetime.utcfromtimestamp(timestamp)
