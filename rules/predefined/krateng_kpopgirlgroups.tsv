@@ -26,6 +26,7 @@ replacetitle	WHISTLE					Whistle
 replacetitle	DDU-DU DDU-DU				Ddu-Du Ddu-Du
 replacetitle	PLAYING WITH FIRE			Playing with Fire
 replaceartist	BLΛƆKPIИK				BLACKPINK
+replaceartist	Jennie Kim				Jennie
 
 # Dal Shabet
 replaceartist	Dal Shabet				Dal★Shabet
@@ -84,8 +85,9 @@ countas		AOA Cream	AOA
 replaceartist	Ace of Angels				AOA
 replacetitle	사뿐사뿐 (Like a Cat)			Like a Cat
 replacetitle	Like A Cat (Japanese Version)		Like a Cat (Japanese Version)
-replacetitle	MOYA (inst)				Moya
+replacetitle	MOYA (inst)				Moya (instrumental)
 replacetitle	MOYA (instrumental)			Moya (instrumental)
+replacetitle	MOYA					Moya
 
 # Girl's Day
 replaceartist	Girl's Day(걸스데이)			Girl's Day

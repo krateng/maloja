@@ -80,10 +80,9 @@ def setup():
 				key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
 			print("Your API Key: " + yellow(key))
 			with open("./clients/authenticated_machines.tsv","w") as keyfile:
-				keyfile.write(key + "\n" + "Default Generated Key")
+				keyfile.write(key + "\t" + "Default Generated Key")
 		elif answer.lower() in ["n","no","nay","0","negative","false"]:
 			pass
-			#file is generated my server itself if not found
 
 def install():
 	toinstall = []
