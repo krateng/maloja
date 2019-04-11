@@ -29,7 +29,7 @@ def instructions(keys):
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 
-	limitstring += " " + range_desc(**timekeys)
+	limitstring += " " + range_desc(timekeys["timerange"],prefix=True)
 
 	delimitstring = delimit_desc(**delimitkeys)
 

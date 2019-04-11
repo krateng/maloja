@@ -15,6 +15,7 @@ import datetime
 import sys
 import unicodedata
 import json
+import pickle
 from collections import namedtuple
 from threading import Lock
 # url handling
@@ -210,7 +211,7 @@ def get_scrobbles_external():
 	return {"list":result}
 
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","associated","track","max_"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track","max_"]})
 	#if keys.get("max_") is not None:
 	#	return r[:int(keys.get("max_"))]
 	#else:
@@ -240,7 +241,7 @@ def get_scrobbles_num_external():
 	return {"amount":result}
 
 def get_scrobbles_num(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","associated"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
 	return len(r)
 
 
@@ -343,7 +344,7 @@ def get_charts_artists_external():
 	return {"list":result}
 
 def get_charts_artists(**keys):
-	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within"]})
+	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
 
 
 
@@ -360,7 +361,7 @@ def get_charts_tracks_external():
 	return {"list":result}
 
 def get_charts_tracks(**keys):
-	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","artist"]})
+	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
 
 
 
@@ -381,12 +382,11 @@ def get_pulse_external():
 
 def get_pulse(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
-
-	for (a,b) in rngs:
-		res = len(db_query(since=a,to=b,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
-		results.append({"from":a,"to":b,"scrobbles":res})
+	for rng in rngs:
+		res = len(db_query(timerange=rng,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
+		results.append({"range":rng,"scrobbles":res})
 
 	return results
 
@@ -405,25 +405,25 @@ def get_performance_external():
 
 def get_performance(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
-	for (a,b) in rngs:
+	for rng in rngs:
 		if "track" in keys:
-			charts = get_charts_tracks(since=a,to=b)
+			charts = get_charts_tracks(timerange=rng)
 			rank = None
 			for c in charts:
 				if c["track"] == keys["track"]:
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
-			charts = get_charts_artists(since=a,to=b)
+			charts = get_charts_artists(timerange=rng)
 			rank = None
 			for c in charts:
 				if c["artist"] == keys["artist"]:
 					rank = c["rank"]
 					break
-		results.append({"from":a,"to":b,"rank":rank})
+		results.append({"range":rng,"rank":rank})
 
 	return results
 
@@ -446,15 +446,15 @@ def get_top_artists_external():
 
 def get_top_artists(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
-	for (a,b) in rngs:
+	for rng in rngs:
 		try:
-			res = db_aggregate(since=a,to=b,by="ARTIST")[0]
-			results.append({"since":a,"to":b,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
+			res = db_aggregate(timerange=rng,by="ARTIST")[0]
+			results.append({"range":rng,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"since":a,"to":b,"artist":None,"scrobbles":0})
+			results.append({"range":rng,"artist":None,"scrobbles":0})
 
 	return results
 
@@ -480,15 +480,15 @@ def get_top_tracks_external():
 
 def get_top_tracks(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for (a,b) in rngs:
 		try:
-			res = db_aggregate(since=a,to=b,by="TRACK")[0]
-			results.append({"since":a,"to":b,"track":res["track"],"scrobbles":res["scrobbles"]})
+			res = db_aggregate(timerange=rng,by="TRACK")[0]
+			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"since":a,"to":b,"track":None,"scrobbles":0})
+			results.append({"range":rng,"track":None,"scrobbles":0})
 
 	return results
 
@@ -900,7 +900,7 @@ cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
 	global cache_query
-	key = json.dumps(kwargs)
+	key = pickle.dumps(kwargs)
 	if key in cache_query: return copy.copy(cache_query[key])
 
 	result = db_query_full(**kwargs)
@@ -911,7 +911,7 @@ cache_aggregate = {}
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate
-	key = json.dumps(kwargs)
+	key = pickle.dumps(kwargs)
 	if key in cache_aggregate: return copy.copy(cache_aggregate[key])
 
 	result = db_aggregate_full(**kwargs)
@@ -942,9 +942,9 @@ def check_cache_age():
 
 
 # Queries the database
-def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,associated=False,max_=None):
+def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,timerange=None,associated=False,max_=None):
 
-	(since, to) = time_stamps(since,to,within)
+	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
@@ -993,8 +993,10 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 
 
 # Queries that... well... aggregate
-def db_aggregate_full(by=None,since=None,to=None,within=None,artist=None):
-	(since, to) = time_stamps(since,to,within)
+def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,artist=None):
+
+
+	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	if isinstance(artist, str):
 		artist = ARTISTS.index(artist)

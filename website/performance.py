@@ -24,7 +24,7 @@ def instructions(keys):
 		#limitkey["artist"], limitkey["associated"] = keys.get("artist"), (keys.get("associated")!=None)
 		limitstring += "of " + artistLink(filterkeys.get("artist"))
 
-	limitstring += " " + range_desc(**timekeys)
+	limitstring += " " + timekeys["timerange"].desc(prefix=True)
 
 	delimitstring = delimit_desc(**delimitkeys)
 

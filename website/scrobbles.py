@@ -26,7 +26,7 @@ def instructions(keys):
 			if moreartists != []:
 				limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 
-	limitstring += " " + range_desc(**timekeys)
+	limitstring += " " + timekeys["timerange"].desc(prefix=True)
 
 	html_filterselector = module_filterselection(keys)
 

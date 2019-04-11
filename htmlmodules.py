@@ -5,6 +5,7 @@ from malojatime import *
 from urihandler import compose_querystring, internal_to_uri, uri_to_internal
 import urllib
 import datetime
+import math
 
 
 #def getpictures(ls,result,tracks=False):
@@ -21,7 +22,7 @@ import datetime
 def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 
 	# if earlystop, we don't care about the actual amount and only request as many from the db
@@ -42,7 +43,7 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 	for s in scrobbles:
 
 		html += "<tr>"
-		html += "<td class='time'>" + time_desc(s["time"],short=shortTimeDesc) + "</td>"
+		html += "<td class='time'>" + timestamp_desc(s["time"],short=shortTimeDesc) + "</td>"
 		if pictures:
 			img = scrobbleimages[i]
 		else: img = None
@@ -63,10 +64,14 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 
 def module_pulse(max_=None,**kwargs):
 
+	from doreah.timing import clock, clockp
+
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
+
 
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
+
 
 	if max_ is not None: ranges = ranges[:max_]
 
@@ -81,12 +86,11 @@ def module_pulse(max_=None,**kwargs):
 	#build list
 	html = "<table class='list'>"
 	for t in ranges:
-		fromstr = "/".join([str(e) for e in t["from"]])
-		tostr = "/".join([str(e) for e in t["to"]])
+		range = t["range"]
 		html += "<tr>"
-		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
-		html += "<td class='amount'>" + scrobblesLink({"since":fromstr,"to":tostr},amount=t["scrobbles"],**kwargs_filter) + "</td>"
-		html += "<td class='bar'>" + scrobblesLink({"since":fromstr,"to":tostr},percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
+		html += "<td class='amount'>" + scrobblesLink(range.urikeys(),amount=t["scrobbles"],**kwargs_filter) + "</td>"
+		html += "<td class='bar'>" + scrobblesLink(range.urikeys(),percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -98,7 +102,7 @@ def module_pulse(max_=None,**kwargs):
 def module_performance(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
 
 	ranges = database.get_performance(**kwargs_time,**kwargs_filter)
 
@@ -117,13 +121,12 @@ def module_performance(max_=None,**kwargs):
 	#build list
 	html = "<table class='list'>"
 	for t in ranges:
-		fromstr = "/".join([str(e) for e in t["from"]])
-		tostr = "/".join([str(e) for e in t["to"]])
+		range = t["range"]
 		html += "<tr>"
-		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 		html += "<td class='rank'>" + ("#" + str(t["rank"]) if t["rank"] is not None else "No scrobbles") + "</td>"
 		prct = (minrank+1-t["rank"])*100/minrank if t["rank"] is not None else 0
-		html += "<td class='chart'>" + rankLink({"since":fromstr,"to":tostr},percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
+		html += "<td class='chart'>" + rankLink(range.urikeys(),percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -135,14 +138,13 @@ def module_performance(max_=None,**kwargs):
 def module_trackcharts(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)
 
 	# last time range (to compare)
-	if "within" in kwargs_time:
-		from malojatime import _get_next
-		trackslast = database.get_charts_tracks(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+	try:
+		trackslast = database.get_charts_tracks(**kwargs_filter,timerange=kwargs_time["timerange"].next(step=-1))
 		# create rank association
 		lastrank = {}
 		for tl in trackslast:
@@ -151,7 +153,9 @@ def module_trackcharts(max_=None,**kwargs):
 			try:
 				t["delta"] = lastrank[(*t["track"]["artists"],t["track"]["title"])] - t["rank"]
 			except:
-				t["delta"] = None
+				t["delta"] = math.inf
+	except:
+		pass
 
 	if tracks != []:
 		maxbar = tracks[0]["scrobbles"]
@@ -173,8 +177,9 @@ def module_trackcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
-		if "within" not in kwargs_time: pass
-		elif e["delta"] is None:
+		if e.get("delta") is None:
+			pass
+		elif e["delta"] is math.inf:
 			html += "<td class='rankup' title='New'>🆕</td>"
 		elif e["delta"] > 0:
 			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
@@ -197,14 +202,14 @@ def module_trackcharts(max_=None,**kwargs):
 def module_artistcharts(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)
 
 	# last time range (to compare)
-	if "within" in kwargs_time:
-		from malojatime import _get_next
-		artistslast = database.get_charts_artists(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+	try:
+	#from malojatime import _get_next
+		artistslast = database.get_charts_artists(**kwargs_filter,timerange=kwargs_time["timerange"].next(step=-1))
 		# create rank association
 		lastrank = {}
 		for al in artistslast:
@@ -213,7 +218,9 @@ def module_artistcharts(max_=None,**kwargs):
 			try:
 				a["delta"] = lastrank[a["artist"]] - a["rank"]
 			except:
-				a["delta"] = None
+				a["delta"] = math.inf
+	except:
+		pass
 
 	if artists != []:
 		maxbar = artists[0]["scrobbles"]
@@ -234,8 +241,10 @@ def module_artistcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
-		if "within" not in kwargs_time: pass
-		elif e["delta"] is None:
+		#if "within" not in kwargs_time: pass
+		if e.get("delta") is None:
+			pass
+		elif e["delta"] is math.inf:
 			html += "<td class='rankup' title='New'>🆕</td>"
 		elif e["delta"] > 0:
 			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
@@ -260,7 +269,7 @@ def module_artistcharts(max_=None,**kwargs):
 def module_toptracks(pictures=True,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within","step","stepn","trail")
 
 	tracks = database.get_top_tracks(**kwargs_filter,**kwargs_time)
 
@@ -288,13 +297,13 @@ def module_toptracks(pictures=True,**kwargs):
 
 		#fromstr = "/".join([str(p) for p in e["from"]])
 		#tostr = "/".join([str(p) for p in e["to"]])
-		limits = pickKeys(e,"since","to")
+		range = e["range"]
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 		if e["track"] is None:
 			if pictures:
 				html += "<td><div></div></td>"
@@ -307,8 +316,8 @@ def module_toptracks(pictures=True,**kwargs):
 				img = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
 			else: img = None
 			html += entity_column(e["track"],image=img)
-			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),amount=e["scrobbles"]) + "</td>"
-			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar) + "</td>"
+			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],range.urikeys(),amount=e["scrobbles"]) + "</td>"
+			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],range.urikeys(),percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -317,7 +326,7 @@ def module_toptracks(pictures=True,**kwargs):
 
 def module_topartists(pictures=True,**kwargs):
 
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within","step","stepn","trail")
 
 	artists = database.get_top_artists(**kwargs_time)
 
@@ -344,13 +353,13 @@ def module_topartists(pictures=True,**kwargs):
 
 		#fromstr = "/".join([str(p) for p in e["from"]])
 		#tostr = "/".join([str(p) for p in e["to"]])
-		limits = pickKeys(e,"since","to")
+		range = e["range"]
 
 		i += 1
 		html += "<tr>"
 
 
-		html += "<td>" + range_desc(e["since"],e["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 
 		if e["artist"] is None:
 			if pictures:
@@ -363,8 +372,8 @@ def module_topartists(pictures=True,**kwargs):
 				img = getArtistImage(e["artist"],fast=True)
 			else: img = None
 			html += entity_column(e["artist"],image=img)
-			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),amount=e["scrobbles"],associated=True) + "</td>"
-			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],internal_to_uri(limits),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],range.urikeys(),amount=e["scrobbles"],associated=True) + "</td>"
+			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],range.urikeys(),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -375,7 +384,7 @@ def module_topartists(pictures=True,**kwargs):
 def module_artistcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)[:14]
 	while len(artists)<14: artists.append(None)
@@ -423,7 +432,7 @@ def module_artistcharts_tiles(**kwargs):
 def module_trackcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)[:14]
 	while len(tracks)<14: tracks.append(None) #{"track":{"title":"","artists":[]}}
@@ -501,47 +510,44 @@ def module_filterselection(keys,time=True,delimit=False):
 #		html += "to <input id='dateselect_to' onchange='datechange()' type='date' value='" + "-".join(todate) + "'/>"
 #		html += "</div>"
 
-
-		now = datetime.datetime.utcnow()
-		today = [now.year,now.month,now.day]
-		thismonth = today[:2]
-		thisyear = thismonth[:1]
+		from malojatime import today, thisweek, thismonth, thisyear
 
 		### temp!!! this will not allow weekly rank changes
-		weekday = ((now.isoweekday()) % 7)
-		weekbegin = now - datetime.timedelta(days=weekday)
-		weekend = weekbegin + datetime.timedelta(days=6)
-		weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
-		weekend = [weekend.year,weekend.month,weekend.day]
-		weekbeginstr = "/".join((str(num) for num in weekbegin))
-		weekendstr = "/".join((str(num) for num in weekend))
+	#	weekday = ((now.isoweekday()) % 7)
+	#	weekbegin = now - datetime.timedelta(days=weekday)
+	#	weekend = weekbegin + datetime.timedelta(days=6)
+	#	weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
+	#	weekend = [weekend.year,weekend.month,weekend.day]
+	#	weekbeginstr = "/".join((str(num) for num in weekbegin))
+	#	weekendstr = "/".join((str(num) for num in weekend))
+
 
 		html += "<div>"
-		if timekeys.get("since") == today or timekeys.get("within") == today:
+		if timekeys.get("timerange") == today():
 			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"today"}) + "'><span class='stat_selector'>Today</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == weekbegin and timekeys.get("to") == weekend:
+		if timekeys.get("timerange") == thisweek():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
 		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"since":weekbeginstr,"to":weekendstr}) + "'><span class='stat_selector'>This Week</span></a>"
+			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"week"}) + "'><span class='stat_selector'>This Week</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == thismonth or timekeys.get("within") == thismonth:
+		if timekeys.get("timerange") == thismonth():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"month"}) + "'><span class='stat_selector'>This Month</span></a>"
 		html += " | "
 
-		if timekeys.get("since") == thisyear or timekeys.get("within") == thisyear:
+		if timekeys.get("timerange") == thisyear():
 			html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
 		html += " | "
 
-		if timekeys.get("since") is None and timekeys.get("within") is None:
+		if timekeys.get("timerange") is None or timekeys.get("timerange").unlimited():
 			html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys) + "'><span class='stat_selector'>All Time</span></a>"
@@ -563,7 +569,13 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"day"}) + "'><span class='stat_selector'>Daily</span></a>"
 		html += " | "
 
-		if (delimitkeys.get("step") == "month" or delimitkeys.get("step") is None) and delimitkeys.get("stepn") == 1:
+		if delimitkeys.get("step") == "week" and delimitkeys.get("stepn") == 1:
+			html += "<span class='stat_selector' style='opacity:0.5;'>Weekly</span>"
+		else:
+			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"week"}) + "'><span class='stat_selector'>Weekly</span></a>"
+		html += " | "
+
+		if delimitkeys.get("step") == "month" and delimitkeys.get("stepn") == 1:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Monthly</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"month"}) + "'><span class='stat_selector'>Monthly</span></a>"
@@ -581,7 +593,7 @@ def module_filterselection(keys,time=True,delimit=False):
 		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k != "trail"})
 
 		html += "<div>"
-		if delimitkeys.get("trail") == 1 or delimitkeys.get("trail") is None:
+		if delimitkeys.get("trail") == 1:
 			html += "<span class='stat_selector' style='opacity:0.5;'>Standard</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"1"}) + "'><span class='stat_selector'>Standard</span></a>"
@@ -597,6 +609,12 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<span class='stat_selector' style='opacity:0.5;'>Long Trailing</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"3"}) + "'><span class='stat_selector'>Long Trailing</span></a>"
+		html += " | "
+
+		if delimitkeys.get("trail") == math.inf:
+			html += "<span class='stat_selector' style='opacity:0.5;'>Cumulative</span>"
+		else:
+			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"cumulative":"yes"}) + "'><span class='stat_selector'>Cumulative</span></a>"
 
 		html += "</div>"
 
