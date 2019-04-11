@@ -5,6 +5,7 @@ import sys
 import signal
 import os
 import stat
+import pathlib
 
 
 
@@ -27,6 +28,16 @@ def blue(txt): return "\033[94m" + txt + "\033[0m"
 def green(txt): return "\033[92m" + txt + "\033[0m"
 def yellow(txt): return "\033[93m" + txt + "\033[0m"
 
+## GOTODIR			goes to directory that seems to have a maloja install
+## SETUP			assumes correct directory. sets settings and key
+## INSTALL			ignores local files, just installs prerequisites
+## START			INSTALL - GOTODIR - SETUP - starts process
+## RESTART			STOP - START
+## STOP				Stops process
+## UPDATE			GOTODIR - updates from repo
+## LOADLASTFM		GOTODIR - imports csv data
+## INSTALLHERE		makes this directory valid - UPDATE - INSTALL - SETUP
+
 def gotodir():
 	if os.path.exists("./server.py"):
 		return True
@@ -36,7 +47,6 @@ def gotodir():
 
 	print("Maloja installation could not be found.")
 	return False
-
 
 def setup():
 
@@ -54,18 +64,6 @@ def setup():
 
 	else:
 		print("Last.FM API key found.")
-
-#	if os.path.exists("./apikey"):
-#		with open("apikey","r") as keyfile:
-#			apikey = keyfile.read().replace("\n","")
-#
-#		if apikey == "NONE": print("Currently not using an API key for image display. Only local images will be used.")
-#	else:
-#		print("Please enter your Last.FM API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
-#		key = input()
-#		if key == "": key = "NONE"
-#		with open("apikey","w") as keyfile:
-#			keyfile.write(key)
 
 	# OWN API KEY
 	if os.path.exists("./clients/authenticated_machines.tsv"):
@@ -167,8 +165,6 @@ def install():
 		print("All necessary modules seem to be installed.")
 		return True
 
-
-
 def getInstance():
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
@@ -176,9 +172,6 @@ def getInstance():
 		return pid
 	except:
 		return None
-
-
-
 
 def start():
 	if install():
@@ -204,8 +197,6 @@ def start():
 
 		print("Error while starting Maloja.")
 		return False
-
-
 
 def restart():
 	#pid = getInstance()
@@ -283,7 +274,6 @@ def update():
 
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 
-
 def loadlastfm():
 
 	try:
@@ -304,6 +294,18 @@ def loadlastfm():
 		os.system("python3 ./lastfmconverter.py " + filename + " ./scrobbles/lastfmimport.tsv")
 		print("Successfully imported your Last.FM scrobbles!")
 
+def installhere():
+	if len(os.listdir()) > 1:
+		print("You should install Maloja in an empty directory.")
+		return False
+	else:
+		open("server.py","w").close()
+		# if it's cheese, but it works, it ain't cheese
+		update()
+		install()
+		setup()
+
+		print("Maloja installed! Start with " + yellow("./maloja start"))
 
 
 if __name__ == "__main__":
@@ -312,4 +314,5 @@ if __name__ == "__main__":
 	elif sys.argv[1] == "stop": stop()
 	elif sys.argv[1] == "update": update()
 	elif sys.argv[1] == "import": loadlastfm()
-	else: print("Valid commands: start restart stop update")
+	elif sys.argv[1] == "install": installhere()
+	else: print("Valid commands: start restart stop update import install")

@@ -31,7 +31,7 @@ There are only two scrobblers (YouTube Music and Plex, both for Chromium), but a
 
 1) Either install Maloja with a package, or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with `./`. You can also only download the file `maloja` instead of the whole repository and fetch the rest with
 
-		./maloja update
+		./maloja install
 
 2) Start the server with
 
