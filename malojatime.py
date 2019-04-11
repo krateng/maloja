@@ -471,10 +471,10 @@ def timestamp_desc(t,short=False):
 		timeobject = datetime.datetime.utcfromtimestamp(t)
 		if difference < 5: return timeobject.strftime("%A")
 		if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
-		#if difference < 300 and tim.year == now.year: return tim.strftime("%B")
+		if difference < 300 or timeobject.year == now.year: return timeobject.strftime("%B")
 		#if difference < 300: return tim.strftime("%B %Y")
 
-		return timeobject.strftime("%d. %B %Y")
+		return timeobject.strftime("%Y")
 	else:
 		timeobject = datetime.datetime.utcfromtimestamp(t)
 		return timeobject.strftime("%d. %b %Y %I:%M %p")
@@ -560,18 +560,23 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 
 	d_start = from_timestamp(firstincluded,step)
 	d_start = d_start.next(stepn-1) #last part of first included range
-
 	i = 0
 	current_end = d_start
+	#ranges = []
 	while current_end.first_stamp() <= lastincluded and (max_ is None or i < max_):
+
 		current_start = current_end.next((stepn*trail-1)*-1)
 		if current_start == current_end:
 			yield current_start
+			#ranges.append(current_start)
 		else:
 			yield MRange(current_start,current_end)
+			#ranges.append(MRange(current_start,current_end))
 		current_end = current_end.next(stepn)
+
 		i += 1
 
+	#return ranges
 
 
 

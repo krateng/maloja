@@ -47,7 +47,7 @@ def mainpage():
 @webserver.error(505)
 def customerror(error):
 	code = int(str(error).split(",")[0][1:])
-	log("Error: " + str(code),module="error")
+	log("HTTP Error: " + str(code),module="error")
 
 	if os.path.exists("website/errors/" + str(code) + ".html"):
 		return static_file("website/errors/" + str(code) + ".html",root="")
@@ -177,7 +177,11 @@ def static_html(name):
 	# If a python file exists, it provides the replacement dict for the html file
 	if os.path.exists("website/" + name + ".py"):
 		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
-		txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
+		try:
+			txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
+		except Exception as e:
+			log("Error in website generation: " + str(sys.exc_info()),module="error")
+			raise
 
 		# add headers for server push
 		for resource in resources:
