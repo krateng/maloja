@@ -5,6 +5,7 @@ from malojatime import *
 from urihandler import compose_querystring, internal_to_uri, uri_to_internal
 import urllib
 import datetime
+import math
 
 
 #def getpictures(ls,result,tracks=False):
@@ -602,6 +603,12 @@ def module_filterselection(keys,time=True,delimit=False):
 			html += "<span class='stat_selector' style='opacity:0.5;'>Long Trailing</span>"
 		else:
 			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"3"}) + "'><span class='stat_selector'>Long Trailing</span></a>"
+		html += " | "
+
+		if delimitkeys.get("trail") == math.inf:
+			html += "<span class='stat_selector' style='opacity:0.5;'>Cumulative</span>"
+		else:
+			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"cumulative":"yes"}) + "'><span class='stat_selector'>Cumulative</span></a>"
 
 		html += "</div>"
 

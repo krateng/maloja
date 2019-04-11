@@ -1,6 +1,7 @@
 import datetime
 from calendar import monthrange
 from os.path import commonprefix
+import math
 
 
 FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
@@ -173,6 +174,7 @@ class MTime(MRangeDescriptor):
 
 	# next range of equal length (not exactly same amount of days, but same precision level)
 	def next(self,step=1):
+		if abs(step) == math.inf: return None
 		if self.precision == 1:
 			return MTime(self.year + step)
 		elif self.precision == 2:
@@ -252,6 +254,7 @@ class MTimeWeek(MRangeDescriptor):
 		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
 
 	def next(self,step=1):
+		if abs(step) == math.inf: return None
 		try:
 			return MTimeWeek(self.year,self.week + step)
 		except:
@@ -265,7 +268,8 @@ class MRange(MRangeDescriptor):
 		since,to = time_pad(since,to)
 		self.since = since
 		self.to = to
-
+		if isinstance(self.since,MRange): self.since = self.since.start()
+		if isinstance(self.to,MRange): self.to = self.to.end()
 
 	def __str__(self):
 		return str(self.since) + " - " + str(self.to)
@@ -319,6 +323,7 @@ class MRange(MRangeDescriptor):
 		else: return self.to.last_stamp()
 
 	def next(self,step=1):
+		if abs(step) == math.inf: return None
 		# hop from the start element by one until we reach the end element
 		diff = 1
 		nxt = self.since
@@ -512,7 +517,8 @@ def delimit_desc(step="month",stepn=1,trail=1):
 	if stepn is not 1: txt += _num(stepn) + "-"
 	txt += {"year":"Yearly","month":"Monthly","week":"Weekly","day":"Daily"}[step.lower()]
 	#if trail is not 1: txt += " " + _num(trail) + "-Trailing"
-	if trail is not 1: txt += " Trailing" #we don't need all the info in the title
+	if trail is math.inf: txt += " Cumulative"
+	elif trail is not 1: txt += " Trailing" #we don't need all the info in the title
 
 	return txt
 
@@ -547,19 +553,17 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 	(firstincluded,lastincluded) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	d_start = from_timestamp(firstincluded,step)
-	d_start = d_start.next(stepn)
-	d_start = d_start.next(stepn*trail*-1)
-	first_range = MRange(d_start,d_start.next(stepn*trail-1))
+	d_start = d_start.next(stepn-1) #last part of first included range
 
 	i = 0
-	current = d_start
-	while current.first_stamp() <= lastincluded and (max_ is None or i < max_):
-		current_end = current.next(stepn*trail-1)
-		if current == current_end:
-			yield current
+	current_end = d_start
+	while current_end.first_stamp() <= lastincluded and (max_ is None or i < max_):
+		current_start = current_end.next((stepn*trail-1)*-1)
+		if current_start == current_end:
+			yield current_start
 		else:
-			yield MRange(current,current_end)
-		current = current.next(stepn)
+			yield MRange(current_start,current_end)
+		current_end = current_end.next(stepn)
 		i += 1
 
 

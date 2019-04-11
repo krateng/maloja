@@ -1,7 +1,7 @@
 import urllib
 from bottle import FormsDict
 from malojatime import time_fix, time_str, get_range_object
-
+import math
 
 # necessary because urllib.parse.urlencode doesnt handle multidicts
 def compose_querystring(*dicts,exclude=[]):
@@ -91,7 +91,6 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 	elif "within" in keys: within = keys.get("within")
 	elif "during" in keys: within = keys.get("during")
 	resultkeys2["timerange"] = get_range_object(since=since,to=to,within=within)
-	print(resultkeys2["timerange"].desc())
 
 	#3
 	resultkeys3 = {"step":"month","stepn":1,"trail":1}
@@ -99,6 +98,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 	if "stepn" in keys: resultkeys3["stepn"] = keys["stepn"] #overwrite if explicitly given
 	if "stepn" in resultkeys3: resultkeys3["stepn"] = int(resultkeys3["stepn"]) #in both cases, convert it here
 	if "trail" in keys: resultkeys3["trail"] = int(keys["trail"])
+	if "cumulative" in keys: resultkeys3["trail"] = math.inf
 
 
 
@@ -140,7 +140,10 @@ def internal_to_uri(keys):
 	if "stepn" in keys:
 		urikeys.append("stepn",str(keys["stepn"]))
 	if "trail" in keys:
-		urikeys.append("trail",str(keys["trail"]))
+		if keys["trail"] == math.inf:
+			urikeys.append("cumulative","yes")
+		else:
+			urikeys.append("trail",str(keys["trail"]))
 
 	# stuff
 	if "max_" in keys:
