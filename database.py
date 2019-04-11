@@ -211,7 +211,7 @@ def get_scrobbles_external():
 	return {"list":result}
 
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","associated","track","max_"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track","max_"]})
 	#if keys.get("max_") is not None:
 	#	return r[:int(keys.get("max_"))]
 	#else:
@@ -241,7 +241,7 @@ def get_scrobbles_num_external():
 	return {"amount":result}
 
 def get_scrobbles_num(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","associated"]})
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
 	return len(r)
 
 
@@ -344,7 +344,7 @@ def get_charts_artists_external():
 	return {"list":result}
 
 def get_charts_artists(**keys):
-	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within"]})
+	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
 
 
 
@@ -361,7 +361,7 @@ def get_charts_tracks_external():
 	return {"list":result}
 
 def get_charts_tracks(**keys):
-	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","artist"]})
+	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
 
 
 
@@ -405,7 +405,7 @@ def get_performance_external():
 
 def get_performance(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
@@ -446,15 +446,15 @@ def get_top_artists_external():
 
 def get_top_artists(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
-	for (a,b) in rngs:
+	for rng in rngs:
 		try:
-			res = db_aggregate(since=a,to=b,by="ARTIST")[0]
-			results.append({"since":a,"to":b,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
+			res = db_aggregate(timerange=rng,by="ARTIST")[0]
+			results.append({"range":rng,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"since":a,"to":b,"artist":None,"scrobbles":0})
+			results.append({"range":rng,"artist":None,"scrobbles":0})
 
 	return results
 
@@ -480,15 +480,15 @@ def get_top_tracks_external():
 
 def get_top_tracks(**keys):
 
-	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","step","stepn","trail"]})
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for (a,b) in rngs:
 		try:
-			res = db_aggregate(since=a,to=b,by="TRACK")[0]
-			results.append({"since":a,"to":b,"track":res["track"],"scrobbles":res["scrobbles"]})
+			res = db_aggregate(timerange=rng,by="TRACK")[0]
+			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
-			results.append({"since":a,"to":b,"track":None,"scrobbles":0})
+			results.append({"range":rng,"track":None,"scrobbles":0})
 
 	return results
 

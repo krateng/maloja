@@ -201,14 +201,24 @@ class MTimeWeek(MRangeDescriptor):
 		self.year = year
 		self.week = week
 
+		# assume the first day of the first week of this year is 1/1
 		firstday = date(year,1,1)
 		y,w,d = firstday.chrcalendar()
 		if y == self.year:
 			firstday -= datetime.timedelta(days=(d-1))
 		else:
 			firstday += datetime.timedelta(days=8-d)
-		self.firstday = firstday + datetime.timedelta(days=7*(week-1))
-		self.lastday = self.firstday + datetime.timedelta(days=6)
+		# now we know the real first day, add the weeks we need
+		firstday = firstday + datetime.timedelta(days=7*(week-1))
+		lastday = firstday + datetime.timedelta(days=6)
+		# turn them into local overwritten date objects
+		self.firstday = date(firstday.year,firstday.month,firstday.day)
+		self.lastday = date(lastday.year,lastday.month,lastday.day)
+		# now check if we're still in the same year
+		y,w,_ = self.firstday.chrcalendar()
+		self.year,self.week = y,w
+		# firstday and lastday are already correct
+
 
 	def __str__(self):
 		return str(self.year) + "/W" + str(self.week)
@@ -255,11 +265,7 @@ class MTimeWeek(MRangeDescriptor):
 
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
-		try:
-			return MTimeWeek(self.year,self.week + step)
-		except:
-			pass
-			# TODO
+		return MTimeWeek(self.year,self.week + step)
 
 # a range that is defined by separate start and end
 class MRange(MRangeDescriptor):

@@ -22,7 +22,7 @@ import math
 def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 
 	# if earlystop, we don't care about the actual amount and only request as many from the db
@@ -89,8 +89,8 @@ def module_pulse(max_=None,**kwargs):
 		range = t["range"]
 		html += "<tr>"
 		html += "<td>" + range.desc() + "</td>"
-		html += "<td class='amount'>" + scrobblesLink({"since":range.fromstr(),"to":range.tostr()},amount=t["scrobbles"],**kwargs_filter) + "</td>"
-		html += "<td class='bar'>" + scrobblesLink({"since":range.fromstr(),"to":range.tostr()},percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
+		html += "<td class='amount'>" + scrobblesLink(range.urikeys(),amount=t["scrobbles"],**kwargs_filter) + "</td>"
+		html += "<td class='bar'>" + scrobblesLink(range.urikeys(),percent=t["scrobbles"]*100/maxbar,**kwargs_filter) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -102,7 +102,7 @@ def module_pulse(max_=None,**kwargs):
 def module_performance(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
 
 	ranges = database.get_performance(**kwargs_time,**kwargs_filter)
 
@@ -123,10 +123,10 @@ def module_performance(max_=None,**kwargs):
 	for t in ranges:
 		range = t["range"]
 		html += "<tr>"
-		html += "<td>" + range_desc(t["from"],t["to"],short=True) + "</td>"
+		html += "<td>" + range.desc() + "</td>"
 		html += "<td class='rank'>" + ("#" + str(t["rank"]) if t["rank"] is not None else "No scrobbles") + "</td>"
 		prct = (minrank+1-t["rank"])*100/minrank if t["rank"] is not None else 0
-		html += "<td class='chart'>" + rankLink({"since":range.fromstr(),"to":range.tostr()},percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
+		html += "<td class='chart'>" + rankLink(range.urikeys(),percent=prct,**kwargs_filter,medal=t["rank"]) + "</td>"
 		html += "</tr>"
 	html += "</table>"
 
@@ -138,14 +138,13 @@ def module_performance(max_=None,**kwargs):
 def module_trackcharts(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)
 
 	# last time range (to compare)
-	if "within" in kwargs_time:
-		from malojatime import _get_next
-		trackslast = database.get_charts_tracks(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+	try:
+		trackslast = database.get_charts_tracks(**kwargs_filter,timerange=kwargs_time["timerange"].next(step=-1))
 		# create rank association
 		lastrank = {}
 		for tl in trackslast:
@@ -154,7 +153,9 @@ def module_trackcharts(max_=None,**kwargs):
 			try:
 				t["delta"] = lastrank[(*t["track"]["artists"],t["track"]["title"])] - t["rank"]
 			except:
-				t["delta"] = None
+				t["delta"] = math.inf
+	except:
+		pass
 
 	if tracks != []:
 		maxbar = tracks[0]["scrobbles"]
@@ -176,8 +177,9 @@ def module_trackcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
-		if "within" not in kwargs_time: pass
-		elif e["delta"] is None:
+		if e.get("delta") is None:
+			pass
+		elif e["delta"] is math.inf:
 			html += "<td class='rankup' title='New'>🆕</td>"
 		elif e["delta"] > 0:
 			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
@@ -200,14 +202,14 @@ def module_trackcharts(max_=None,**kwargs):
 def module_artistcharts(max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)
 
 	# last time range (to compare)
-	if "within" in kwargs_time:
-		from malojatime import _get_next
-		artistslast = database.get_charts_artists(**kwargs_filter,within=_get_next(kwargs_time["within"],step=-1))
+	try:
+	#from malojatime import _get_next
+		artistslast = database.get_charts_artists(**kwargs_filter,timerange=kwargs_time["timerange"].next(step=-1))
 		# create rank association
 		lastrank = {}
 		for al in artistslast:
@@ -216,7 +218,9 @@ def module_artistcharts(max_=None,**kwargs):
 			try:
 				a["delta"] = lastrank[a["artist"]] - a["rank"]
 			except:
-				a["delta"] = None
+				a["delta"] = math.inf
+	except:
+		pass
 
 	if artists != []:
 		maxbar = artists[0]["scrobbles"]
@@ -237,8 +241,10 @@ def module_artistcharts(max_=None,**kwargs):
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
-		if "within" not in kwargs_time: pass
-		elif e["delta"] is None:
+		#if "within" not in kwargs_time: pass
+		if e.get("delta") is None:
+			pass
+		elif e["delta"] is math.inf:
 			html += "<td class='rankup' title='New'>🆕</td>"
 		elif e["delta"] > 0:
 			html += "<td class='rankup' title='up from #" + str(e["rank"]+e["delta"]) + "'>↗</td>"
@@ -263,7 +269,7 @@ def module_artistcharts(max_=None,**kwargs):
 def module_toptracks(pictures=True,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within","step","stepn","trail")
 
 	tracks = database.get_top_tracks(**kwargs_filter,**kwargs_time)
 
@@ -310,8 +316,8 @@ def module_toptracks(pictures=True,**kwargs):
 				img = getTrackImage(e["track"]["artists"],e["track"]["title"],fast=True)
 			else: img = None
 			html += entity_column(e["track"],image=img)
-			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],{"since":range.fromstr(),"to":range.tostr()},amount=e["scrobbles"]) + "</td>"
-			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],{"since":range.fromstr(),"to":range.tostr()},percent=e["scrobbles"]*100/maxbar) + "</td>"
+			html += "<td class='amount'>" + scrobblesTrackLink(e["track"],range.urikeys(),amount=e["scrobbles"]) + "</td>"
+			html += "<td class='bar'>" + scrobblesTrackLink(e["track"],range.urikeys(),percent=e["scrobbles"]*100/maxbar) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -320,7 +326,7 @@ def module_toptracks(pictures=True,**kwargs):
 
 def module_topartists(pictures=True,**kwargs):
 
-	kwargs_time = pickKeys(kwargs,"since","to","within","step","stepn","trail")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within","step","stepn","trail")
 
 	artists = database.get_top_artists(**kwargs_time)
 
@@ -366,8 +372,8 @@ def module_topartists(pictures=True,**kwargs):
 				img = getArtistImage(e["artist"],fast=True)
 			else: img = None
 			html += entity_column(e["artist"],image=img)
-			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],{"since":range.fromstr(),"to":range.tostr()},amount=e["scrobbles"],associated=True) + "</td>"
-			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],{"since":range.fromstr(),"to":range.tostr()},percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
+			html += "<td class='amount'>" + scrobblesArtistLink(e["artist"],range.urikeys(),amount=e["scrobbles"],associated=True) + "</td>"
+			html += "<td class='bar'>" + scrobblesArtistLink(e["artist"],range.urikeys(),percent=e["scrobbles"]*100/maxbar,associated=True) + "</td>"
 		html += "</tr>"
 		prev = e
 	html += "</table>"
@@ -378,7 +384,7 @@ def module_topartists(pictures=True,**kwargs):
 def module_artistcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)[:14]
 	while len(artists)<14: artists.append(None)
@@ -426,7 +432,7 @@ def module_artistcharts_tiles(**kwargs):
 def module_trackcharts_tiles(**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
-	kwargs_time = pickKeys(kwargs,"since","to","within")
+	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)[:14]
 	while len(tracks)<14: tracks.append(None) #{"track":{"title":"","artists":[]}}

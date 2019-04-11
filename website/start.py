@@ -14,30 +14,26 @@ def instructions(keys):
 	js_command += "showRange('toptracks','" + get_settings("DEFAULT_RANGE_CHARTS_TRACKS") + "');"
 	js_command += "showRange('pulse','" + get_settings("DEFAULT_RANGE_PULSE") + "');"
 
-	# get start of week
-	tod = datetime.utcnow()
-	change = (tod.weekday() + 1) % 7
-	d = timedelta(days=change)
-	newdate = tod - d
-	weekstart = [newdate.year,newdate.month,newdate.day]
 
 	clock()
+
+	from malojatime import today,thisweek,thismonth,thisyear
 
 	# artists
 
 	topartists_total = module_artistcharts_tiles()
-	topartists_year = module_artistcharts_tiles(since="year")
-	topartists_month = module_artistcharts_tiles(since="month")
-	topartists_week = module_artistcharts_tiles(since=weekstart)
+	topartists_year = module_artistcharts_tiles(timerange=thisyear())
+	topartists_month = module_artistcharts_tiles(timerange=thismonth())
+	topartists_week = module_artistcharts_tiles(timerange=thisweek())
 
 	clockp("Artists")
 
 	# tracks
 
 	toptracks_total = module_trackcharts_tiles()
-	toptracks_year = module_trackcharts_tiles(since="year")
-	toptracks_month = module_trackcharts_tiles(since="month")
-	toptracks_week = module_trackcharts_tiles(since=weekstart)
+	toptracks_year = module_trackcharts_tiles(timerange=thisyear())
+	toptracks_month = module_trackcharts_tiles(timerange=thismonth())
+	toptracks_week = module_trackcharts_tiles(timerange=thisweek())
 
 
 	clockp("Tracks")
@@ -52,19 +48,17 @@ def instructions(keys):
 
 	# stats
 
-	#(amount_day,amount_month,amount_year,amount_total) = database.get_scrobbles_num_multiple(("today","month","year",None))
-	#amount_month += amount_day
-	#amount_year += amount_month
-	#amount_total += amount_year
+	amount_day = database.get_scrobbles_num(timerange=today())
+	scrobbles_today = "<a href='/scrobbles?in=today'>" + str(amount_day) + "</a>"
 
-	amount_day = database.get_scrobbles_num(since="today")
-	scrobbles_today = "<a href='/scrobbles?since=today'>" + str(amount_day) + "</a>"
+	amount_week = database.get_scrobbles_num(timerange=thisweek())
+	scrobbles_week = "<a href='/scrobbles?in=week'>" + str(amount_week) + "</a>"
 
-	amount_month = database.get_scrobbles_num(since="month")
-	scrobbles_month = "<a href='/scrobbles?since=month'>" + str(amount_month) + "</a>"
+	amount_month = database.get_scrobbles_num(timerange=thismonth())
+	scrobbles_month = "<a href='/scrobbles?in=month'>" + str(amount_month) + "</a>"
 
-	amount_year = database.get_scrobbles_num(since="year")
-	scrobbles_year = "<a href='/scrobbles?since=year'>" + str(amount_year) + "</a>"
+	amount_year = database.get_scrobbles_num(timerange=thisyear())
+	scrobbles_year = "<a href='/scrobbles?in=year'>" + str(amount_year) + "</a>"
 
 	amount_total = database.get_scrobbles_num()
 	scrobbles_total = "<a href='/scrobbles'>" + str(amount_total) + "</a>"
@@ -72,7 +66,7 @@ def instructions(keys):
 	clockp("Amounts")
 
 	# pulse
-	from malojatime import today,thisweek,thismonth,thisyear
+
 
 	html_pulse_days = module_pulse(max_=7,since=today().next(-6),step="day",trail=1)
 	html_pulse_weeks = module_pulse(max_=12,since=thisweek().next(-11),step="week",trail=1)
@@ -90,14 +84,10 @@ def instructions(keys):
 	pushresources = []
 
 	replace = {
-#	"KEY_ARTISTIMAGE":artistimages,"KEY_ARTISTNAME":artisttitles,"KEY_ARTISTLINK":artistlinks,"KEY_POSITION_ARTIST":posrange,
-#	"KEY_TRACKIMAGE":trackimages,"KEY_TRACKNAME":tracktitles,"KEY_TRACKLINK":tracklinks,"KEY_POSITION_TRACK":posrange,
-#	"KEY_SCROBBLE_TIME":scrobbletimes,"KEY_SCROBBLE_ARTISTS":scrobbleartists,"KEY_SCROBBLE_TITLE":scrobbletracklinks,"KEY_SCROBBLE_IMAGE":scrobbleimages,
-#	"KEY_PULSE_TERM":pulse_rangedescs,"KEY_PULSE_AMOUNT":pulse_amounts,"KEY_PULSE_BAR":pulse_bars
 	"KEY_TOPARTISTS_TOTAL":topartists_total,"KEY_TOPARTISTS_YEAR":topartists_year,"KEY_TOPARTISTS_MONTH":topartists_month,"KEY_TOPARTISTS_WEEK":topartists_week,
 	"KEY_TOPTRACKS_TOTAL":toptracks_total,"KEY_TOPTRACKS_YEAR":toptracks_year,"KEY_TOPTRACKS_MONTH":toptracks_month,"KEY_TOPTRACKS_WEEK":toptracks_week,
 	"KEY_JS_INIT_RANGES":js_command,
-	"KEY_SCROBBLE_NUM_TODAY":scrobbles_today,"KEY_SCROBBLE_NUM_MONTH":scrobbles_month,"KEY_SCROBBLE_NUM_YEAR":scrobbles_year,"KEY_SCROBBLE_NUM_TOTAL":scrobbles_total,
+	"KEY_SCROBBLE_NUM_TODAY":scrobbles_today,"KEY_SCROBBLE_NUM_WEEK":scrobbles_week,"KEY_SCROBBLE_NUM_MONTH":scrobbles_month,"KEY_SCROBBLE_NUM_YEAR":scrobbles_year,"KEY_SCROBBLE_NUM_TOTAL":scrobbles_total,
 	"KEY_SCROBBLES":html_scrobbles,
 	"KEY_PULSE_MONTHS":html_pulse_months,"KEY_PULSE_YEARS":html_pulse_years,"KEY_PULSE_DAYS":html_pulse_days,"KEY_PULSE_WEEKS":html_pulse_weeks,
 	#"KEY_PULSE_YEAR":html_pulse_year,"KEY_PULSE_MONTH":html_pulse_month,"KEY_PULSE_WEEK":html_pulse_week

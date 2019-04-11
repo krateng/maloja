@@ -103,7 +103,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 
 	#4
-	resultkeys4 = {}
+	resultkeys4 = {"max_":300}
 	if "max" in keys: resultkeys4["max_"] = int(keys["max"])
 
 
@@ -129,9 +129,9 @@ def internal_to_uri(keys):
 	elif "within" in keys:
 		urikeys.append("in",time_str(keys["within"]))
 	else:
-		if "since" in keys:
+		if "since" in keys and keys["since"] is not None:
 			urikeys.append("since",time_str(keys["since"]))
-		if "to" in keys:
+		if "to" in keys and keys["to"] is not None:
 			urikeys.append("to",time_str(keys["to"]))
 
 	# delimit
