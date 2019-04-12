@@ -9,13 +9,12 @@ from urihandler import uri_to_internal
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
+from doreah.caching import Cache
 # technical
 import os
 import datetime
 import sys
 import unicodedata
-import json
-import pickle
 from collections import namedtuple
 from threading import Lock
 # url handling
@@ -896,26 +895,43 @@ def sync():
 import copy
 
 cache_query = {}
+cache_query_permanent = Cache(maxsize=30000)
 cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
-	global cache_query
-	key = pickle.dumps(kwargs)
-	if key in cache_query: return copy.copy(cache_query[key])
+	global cache_query, cache_query_permanent
+	key = serialize(kwargs)
+	if "timerange" in kwargs and not kwargs["timerange"].active():
+		if key in cache_query_permanent:
+			#print("Hit")
+			return copy.copy(cache_query_permanent.get(key))
+		#print("Miss")
+		result = db_query_full(**kwargs)
+		cache_query_permanent.add(key,copy.copy(result))
+		#print(cache_query_permanent.cache)
+	else:
+		#print("I guess they never miss huh")
+		if key in cache_query: return copy.copy(cache_query[key])
+		result = db_query_full(**kwargs)
+		cache_query[key] = copy.copy(result)
 
-	result = db_query_full(**kwargs)
-	cache_query[key] = copy.copy(result)
 	return result
 
 cache_aggregate = {}
+cache_aggregate_permanent = Cache(maxsize=30000)
 def db_aggregate(**kwargs):
 	check_cache_age()
-	global cache_aggregate
-	key = pickle.dumps(kwargs)
-	if key in cache_aggregate: return copy.copy(cache_aggregate[key])
+	global cache_aggregate, cache_aggregate_permanent
+	key = serialize(kwargs)
+	if "timerange" in kwargs and not kwargs["timerange"].active():
+		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
+		result = db_aggregate_full(**kwargs)
+		cache_aggregate_permanent.add(key,copy.copy(result))
+	else:
+		if key in cache_aggregate: return copy.copy(cache_aggregate[key])
+		result = db_aggregate_full(**kwargs)
+		cache_aggregate[key] = copy.copy(result)
 
-	result = db_aggregate_full(**kwargs)
-	cache_aggregate[key] = copy.copy(result)
 	return result
 
 def invalidate_caches():

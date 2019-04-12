@@ -62,8 +62,10 @@ class MRangeDescriptor:
 		if not isinstance(other,MRangeDescriptor): return False
 		return (self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp())
 
-	def __hash__(self):
-		return hash((self.first_stamp(),self.last_stamp()))
+	# gives a hashable object that uniquely identifies this time range
+	def hashable(self):
+		return self.first_stamp(),self.last_stamp()
+
 
 	def info(self):
 		return {
@@ -104,6 +106,21 @@ class MTime(MRangeDescriptor):
 		return str(self)
 	def tostr(self):
 		return str(self)
+
+	# whether we currently live or will ever again live in this range
+	def active(self):
+		tod = date.today()
+		if tod.year > self.year: return False
+		if self.precision == 1: return True
+		if tod.year == self.year:
+			if tod.month > self.month: return False
+			if self.precision == 2: return True
+			if tod.month == self.month:
+				if tod.day > self.day: return False
+
+		return True
+
+
 
 	def urikeys(self):
 		return {"in":str(self)}
@@ -227,6 +244,15 @@ class MTimeWeek(MRangeDescriptor):
 	def tostr(self):
 		return str(self)
 
+	# whether we currently live or will ever again live in this range
+	def active(self):
+		tod = date.today()
+		if tod.year > self.year: return False
+		if tod.year == self.year:
+			if tod.chrcalendar()[1] > self.week: return False
+
+		return True
+
 	def urikeys(self):
 		return {"in":str(self)}
 
@@ -283,6 +309,11 @@ class MRange(MRangeDescriptor):
 		return str(self.since)
 	def tostr(self):
 		return str(self.to)
+
+	# whether we currently live or will ever again live in this range
+	def active(self):
+		if self.to is None: return True
+		return self.to.active()
 
 	def unlimited(self):
 		return (self.since is None and self.to is None)

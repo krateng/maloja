@@ -3,6 +3,7 @@ import os
 import hashlib
 from threading import Thread, Timer
 import pickle
+import json
 import urllib
 import datetime
 import random
@@ -13,6 +14,25 @@ from doreah.logging import log
 from doreah.regular import yearly, daily
 
 
+
+#####
+## SERIALIZE
+#####
+
+def serialize(obj):
+	try:
+		return json.dumps(obj)
+	except:
+		if isinstance(obj,list) or isinstance(obj,tuple):
+			return "[" + ",".join(serialize(o) for o in obj) + "]"
+		elif isinstance(obj,dict):
+			return "{" + ",".join(serialize(o) + ":" + serialize(obj[o]) for o in obj) + "}"
+		return json.dumps(obj.hashable())
+
+
+	#if isinstance(obj,list) or if isinstance(obj,tuple):
+	#	return "[" + ",".join(dumps(o) for o in obj) + "]"
+	#if isinstance(obj,str)
 
 
 

@@ -23,6 +23,11 @@ def instructions(keys):
 	elif filterkeys.get("artist") is not None:
 		#limitkey["artist"], limitkey["associated"] = keys.get("artist"), (keys.get("associated")!=None)
 		limitstring += "of " + artistLink(filterkeys.get("artist"))
+		# associated are counted by default
+		data = database.artistInfo(filterkeys["artist"])
+		moreartists = data["associated"]
+		if moreartists != []:
+			limitstring += " <span class='extra'>including " + artistLinks(moreartists) + "</span>"
 
 	limitstring += " " + timekeys["timerange"].desc(prefix=True)
 
