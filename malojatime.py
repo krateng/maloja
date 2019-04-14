@@ -47,6 +47,7 @@ class expandeddate(datetime.date):
 		cal = tomorrow.isocalendar()
 		return (cal[0],cal[1],cal[2] % 7)
 
+
 date = expandeddate
 
 
@@ -612,17 +613,18 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 
 
 def today():
-	tod = date.today()
+	tod = datetime.datetime.utcnow()
 	return MTime(tod.year,tod.month,tod.day)
 def thisweek():
-	tod = date.today()
+	tod = datetime.datetime.utcnow()
+	tod = date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
 	return MTimeWeek(y,w)
 def thismonth():
-	tod = date.today()
+	tod = datetime.datetime.utcnow()
 	return MTime(tod.year,tod.month)
 def thisyear():
-	tod = date.today()
+	tod = datetime.datetime.utcnow()
 	return MTime(tod.year)
 
 #def _get_start_of(timestamp,unit):
