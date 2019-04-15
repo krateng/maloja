@@ -1,4 +1,4 @@
 logging.logfolder = logs
 settings.files = [ "settings/default.ini" , "settings/settings.ini" ]
-caching.folder = "images/cached/"
+caching.folder = "cache/"
 regular.autostart = false

@@ -206,8 +206,8 @@ def apirequest(artists=None,artist=None,title=None):
 cacheage = settings.get_settings("CACHE_EXPIRE_POSITIVE") * 24 * 3600
 cacheage_neg = settings.get_settings("CACHE_EXPIRE_NEGATIVE") * 24 * 3600
 
-artist_cache = caching.Cache.create(name="artist_cache",maxage=cacheage,maxage_negative=cacheage_neg)
-track_cache = caching.Cache.create(name="track_cache",maxage=cacheage,maxage_negative=cacheage_neg)
+artist_cache = caching.Cache(name="imgcache_artists",maxage=cacheage,maxage_negative=cacheage_neg,persistent=True)
+track_cache = caching.Cache(name="imgcache_tracks",maxage=cacheage,maxage_negative=cacheage_neg,persistent=True)
 
 
 # removes emojis and weird shit from names

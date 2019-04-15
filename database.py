@@ -895,7 +895,7 @@ def sync():
 import copy
 
 cache_query = {}
-cache_query_permanent = Cache(maxsize=30000)
+cache_query_permanent = Cache(maxmemory=1024*1024*settings.get_settings("DB_CACHE_SIZE"),persistent=True,name="dbcache_query")
 cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
@@ -918,7 +918,7 @@ def db_query(**kwargs):
 	return result
 
 cache_aggregate = {}
-cache_aggregate_permanent = Cache(maxsize=30000)
+cache_aggregate_permanent = Cache(maxmemory=1024*1024*settings.get_settings("DB_CACHE_SIZE"),persistent=True,name="dbcache_aggregate")
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
