@@ -589,10 +589,12 @@ table.tiles_top td {
 }
 
 table.tiles_top:hover td td {
-	opacity:0.4;
+	opacity:0.5;
+	filter: grayscale(80%);
 }
 table.tiles_top:hover td td:hover {
 	opacity:1;
+	filter: grayscale(0%);
 }
 
 table.tiles_top, table.tiles_sub {
