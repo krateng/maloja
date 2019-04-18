@@ -1,9 +1,18 @@
-__pycache__
+# generic temporary / dev files
+*.pyc
 *.sh
-apikey
 *.txt
+*.xcf
 nohup.out
-screenshot*.png
-/settings/settings.ini
-proxyscrobble.py
-doreah
+
+# user files
+*.tsv
+*.rulestate
+*.log
+
+# currently not using
+/screenshot*.png
+/proxyscrobble.py
+
+# only for development, normally external
+/doreah
