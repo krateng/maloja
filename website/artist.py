@@ -6,7 +6,7 @@ def instructions(keys):
 	from utilities import getArtistImage
 	from htmlgenerators import artistLink, artistLinks
 	from urihandler import compose_querystring, uri_to_internal
-	from htmlmodules import module_pulse, module_trackcharts, module_scrobblelist
+	from htmlmodules import module_pulse, module_performance, module_trackcharts, module_scrobblelist
 
 	filterkeys, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	artist = filterkeys.get("artist")
@@ -45,6 +45,7 @@ def instructions(keys):
 	html_scrobbles, _, _ = module_scrobblelist(artist=artist,max_=10,earlystop=True)
 
 	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
+	html_performance = module_performance(**filterkeys,step="year",stepn=1,trail=1)
 
 	replace = {
 		"KEY_ARTISTNAME":keys["artist"],
@@ -54,6 +55,7 @@ def instructions(keys):
 		"KEY_MEDALS":html_medals,
 		"KEY_TRACKLIST":html_tracks,
 		"KEY_PULSE":html_pulse,
+		"KEY_PERFORMANCE":html_performance,
 		"KEY_SCROBBLES":scrobbles,
 		"KEY_SCROBBLELIST":html_scrobbles,
 		"KEY_SCROBBLELINK":compose_querystring(keys),

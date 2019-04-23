@@ -371,6 +371,12 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 **
 */
 
+table.twopart {
+	width:100%;
+}
+table.twopart>tr>td {
+	width:50%;
+}
 
 
 
