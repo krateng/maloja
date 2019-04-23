@@ -5,11 +5,17 @@ import database
 def instructions(keys):
 	from utilities import getArtistImage, getTrackImage
 	from htmlgenerators import artistLink, artistLinks, trackLink, scrobblesLink
-	from urihandler import compose_querystring, uri_to_internal
+	from urihandler import compose_querystring, uri_to_internal, internal_to_uri
 	from htmlmodules import module_performance, module_filterselection
 	from malojatime import range_desc, delimit_desc
 
 	filterkeys, timekeys, delimitkeys, _ = uri_to_internal(keys)
+
+	#equivalent pulse chart
+	pulselink_keys = internal_to_uri({**filterkeys,**timekeys,**delimitkeys})
+	pulselink = "/pulse?" + compose_querystring(pulselink_keys)
+
+	pulselink = "<a href=\"" + pulselink + "\"><span>View Pulse</span></a>"
 
 
 	# describe the scope (and creating a key for the relevant artist or track)
@@ -50,7 +56,9 @@ def instructions(keys):
 
 	html_performance = module_performance(**filterkeys,**timekeys,**delimitkeys)
 
-	replace = {"KEY_PERFORMANCE_TABLE":html_performance,
+	replace = {
+	"KEY_PULSE_LINK":pulselink,
+	"KEY_PERFORMANCE_TABLE":html_performance,
 	"KEY_IMAGEURL":imgurl,
 	"KEY_LIMITS":limitstring,
 	"KEY_PULSEDETAILS":delimitstring,

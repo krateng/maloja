@@ -482,7 +482,7 @@ def get_top_tracks(**keys):
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
-	for (a,b) in rngs:
+	for rng in rngs:
 		try:
 			res = db_aggregate(timerange=rng,by="TRACK")[0]
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
