@@ -10,6 +10,11 @@ def instructions(keys):
 
 	filterkeys, timekeys, _, amountkeys = uri_to_internal(keys)
 
+	if len(filterkeys) == 0:
+		toptrackslink = "<a href='/top_tracks'><span>View #1 Tracks</span></a>"
+	else:
+		toptrackslink = ""
+
 
 	limitstring = ""
 
@@ -32,6 +37,12 @@ def instructions(keys):
 
 
 
-	replace = {"KEY_TOPARTIST_IMAGEURL":imgurl,"KEY_TRACKLIST":html_charts,"KEY_LIMITS":limitstring,"KEY_FILTERSELECTOR":html_filterselector}
+	replace = {
+		"KEY_TOPARTIST_IMAGEURL":imgurl,
+		"KEY_TRACKLIST":html_charts,
+		"KEY_LIMITS":limitstring,
+		"KEY_FILTERSELECTOR":html_filterselector,
+		"TOP_TRACKS_LINK":toptrackslink,
+	}
 
 	return (replace,pushresources)
