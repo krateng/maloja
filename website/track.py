@@ -35,13 +35,21 @@ def instructions(keys):
 
 
 
-	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=100,earlystop=True)	 # we have the number already from the trackinfo
+	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=10,earlystop=True)	 # we have the number already from the trackinfo
 
 	html_pulse = module_pulse(track=track,step="year",stepn=1,trail=1)
 
 
-	replace = {"KEY_TRACKTITLE":track.get("title"),"KEY_ARTISTS":artistLinks(track.get("artists")),"KEY_SCROBBLES":scrobblesnum,"KEY_POSITION":pos,"KEY_IMAGEURL":imgurl,
-		"KEY_SCROBBLELINK":compose_querystring(keys),"KEY_MEDALS":html_medals,
-		"KEY_SCROBBLELIST":html_scrobbles,"KEY_PULSE":html_pulse}
+	replace = {
+		"KEY_TRACKTITLE":track.get("title"),
+		"KEY_ARTISTS":artistLinks(track.get("artists")),
+		"KEY_SCROBBLES":scrobblesnum,
+		"KEY_POSITION":pos,
+		"KEY_IMAGEURL":imgurl,
+		"KEY_SCROBBLELINK":compose_querystring(keys),
+		"KEY_MEDALS":html_medals,
+		"KEY_SCROBBLELIST":html_scrobbles,
+		"KEY_PULSE":html_pulse
+	}
 
 	return (replace,pushresources)

@@ -6,9 +6,10 @@ def instructions(keys):
 	from utilities import getArtistImage
 	from htmlgenerators import artistLink, artistLinks
 	from urihandler import compose_querystring, uri_to_internal
-	from htmlmodules import module_pulse, module_trackcharts
+	from htmlmodules import module_pulse, module_trackcharts, module_scrobblelist
 
 	filterkeys, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	artist = filterkeys.get("artist")
 	imgurl = getArtistImage(filterkeys["artist"],fast=True)
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
@@ -41,13 +42,23 @@ def instructions(keys):
 
 	html_tracks, _ = module_trackcharts(**filterkeys,max_=15)
 
+	html_scrobbles, _, _ = module_scrobblelist(artist=artist,max_=10,earlystop=True)
 
 	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
 
-	replace = {"KEY_ARTISTNAME":keys["artist"],"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
-	"KEY_IMAGEURL":imgurl, "KEY_DESCRIPTION":"","KEY_MEDALS":html_medals,
-	"KEY_TRACKLIST":html_tracks,"KEY_PULSE":html_pulse,
-	"KEY_SCROBBLES":scrobbles,"KEY_POSITION":pos,
-	"KEY_ASSOCIATED":includestr}
+	replace = {
+		"KEY_ARTISTNAME":keys["artist"],
+		"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
+		"KEY_IMAGEURL":imgurl,
+		"KEY_DESCRIPTION":"",
+		"KEY_MEDALS":html_medals,
+		"KEY_TRACKLIST":html_tracks,
+		"KEY_PULSE":html_pulse,
+		"KEY_SCROBBLES":scrobbles,
+		"KEY_SCROBBLELIST":html_scrobbles,
+		"KEY_SCROBBLELINK":compose_querystring(keys),
+		"KEY_POSITION":pos,
+		"KEY_ASSOCIATED":includestr
+	}
 
 	return (replace,pushresources)
