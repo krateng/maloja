@@ -518,7 +518,7 @@ table.list td.chart {
 }
 table.list td.chart div {
 	background-color:beige;
-	height:20px; /* can only do this absolute apparently */
+	height:4px; /* can only do this absolute apparently */
 	position:relative;
 }
 table.list tr:hover td.chart div {
