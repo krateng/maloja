@@ -84,6 +84,13 @@ class MRangeDescriptor:
 	def unlimited(self):
 		return False
 
+	# returns the description of the range including buttons to go back and forth
+	#def desc_interactive(self,**kwargs):
+	#	if self.next(1) is None:
+	#		return self.desc(**kwargs)
+	#	else:
+	#		prevrange = self.next(-1)
+	#		nextrange = self.next(1)
 
 # a range that is exactly a gregorian calendar unit (year, month or day)
 class MTime(MRangeDescriptor):
@@ -362,6 +369,7 @@ class MRange(MRangeDescriptor):
 
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
+		if self.since is None or self.to is None: return None
 		# hop from the start element by one until we reach the end element
 		diff = 1
 		nxt = self.since

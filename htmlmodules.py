@@ -522,6 +522,33 @@ def module_filterselection(keys,time=True,delimit=False):
 	#	weekendstr = "/".join((str(num) for num in weekend))
 
 
+
+		# relative to current range
+
+		html += "<div>"
+	#	if timekeys.get("timerange").next(-1) is not None:
+	#		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":timekeys.get("timerange").next(-1)})) + "'><span class='stat_selector'>«</span></a>"
+	#	if timekeys.get("timerange").next(-1) is not None or timekeys.get("timerange").next(1) is not None:
+	#		html += " " + timekeys.get("timerange").desc() + " "
+	#	if timekeys.get("timerange").next(1) is not None:
+	#		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":timekeys.get("timerange").next(1)})) + "'><span class='stat_selector'>»</span></a>"
+
+		if timekeys.get("timerange").next(-1) is not None:
+			prevrange = timekeys.get("timerange").next(-1)
+			html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":prevrange})) + "'><span class='stat_selector'>" + prevrange.desc() + "</span></a>"
+			html += " | "
+		if timekeys.get("timerange").next(-1) is not None or timekeys.get("timerange").next(1) is not None:
+			html += "<span class='stat_selector' style='opacity:0.5;'>" + timekeys.get("timerange").desc() + "</span>"
+		if timekeys.get("timerange").next(1) is not None:
+			html += " | "
+			nextrange = timekeys.get("timerange").next(1)
+			html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":nextrange})) + "'><span class='stat_selector'>" + nextrange.desc() + "</span></a>"
+
+		html += "</div>"
+
+
+		# predefined ranges
+
 		html += "<div>"
 		if timekeys.get("timerange") == today():
 			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
