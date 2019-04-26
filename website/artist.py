@@ -34,6 +34,8 @@ def instructions(keys):
 	if credited is not None:
 		includestr = "Competing under " + artistLink(credited) + " (" + pos + ")"
 		pos = ""
+	else:
+		credited = artist
 	included = data.get("associated")
 	if included is not None and included != []:
 		includestr = "associated: "
@@ -45,11 +47,12 @@ def instructions(keys):
 	html_scrobbles, _, _ = module_scrobblelist(artist=artist,max_=10,earlystop=True)
 
 	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
-	html_performance = module_performance(**filterkeys,step="year",stepn=1,trail=1)
+	html_performance = module_performance(artist=credited,step="year",stepn=1,trail=1)
 
 	replace = {
 		"KEY_ARTISTNAME":keys["artist"],
 		"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
+		"KEY_ENC_CREDITEDARTISTNAME":urllib.parse.quote(credited),
 		"KEY_IMAGEURL":imgurl,
 		"KEY_DESCRIPTION":"",
 		"KEY_MEDALS":html_medals,
