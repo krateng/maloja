@@ -527,7 +527,7 @@ table.list td.chart div {
 	background-image:url("/media/chartpos_normal.png");
 	background-position: right;
 	background-repeat:no-repeat;
-	background-size: contain;
+	background-size: auto 100%;
 	position:relative;
 
 
