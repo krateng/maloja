@@ -670,7 +670,7 @@ table.tiles_3x3 td {
 **
 */
 
-span.stat_module_pulse {
+span.stat_module_pulse, span.stat_module_topartists, span.stat_module_toptracks {
 	display: inline-block;
 	vertical-align: top;
 }
