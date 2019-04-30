@@ -348,15 +348,15 @@ span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptra
 }
 
 
-.gold {
+a.gold {
 	background-color:gold;
 	color:black;
 }
-.silver {
+a.silver {
 	background-color:silver;
 	color:black;
 }
-.bronze {
+a.bronze {
 	background-color:#cd7f32;
 	color:black;
 }
@@ -393,7 +393,7 @@ table.list tr td {
 	overflow:hidden;
 	text-overflow:ellipsis;
 	padding-right:15px;
-	line-height: 140%;
+	/*line-height: 140%;*/
 
 }
 
@@ -518,22 +518,35 @@ table.list td.chart {
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
 table.list td.chart div {
-	background-color:beige;
-	height:4px; /* can only do this absolute apparently */
+	/*background-color:beige;
+	height:4px;
+	*/
+	height:20px;
+	background-color: rgba(0,0,0,0.1);
+	border-radius: 0px 30px 30px 0px;
+	background-image:url("/media/chartpos_normal.png");
+	background-position: right;
+	background-repeat:no-repeat;
+	background-size: contain;
 	position:relative;
+
+
 }
 table.list tr:hover td.chart div {
 	cursor:pointer;
 }
 
 table.list tr td.chart div.gold {
-	background-color:gold;
+	/*background-color:gold;*/
+	background-image:url("/media/chartpos_gold.png");
 }
 table.list tr td.chart div.silver {
-	background-color:silver;
+	/*background-color:silver;*/
+	background-image:url("/media/chartpos_silver.png");
 }
 table.list tr td.chart div.bronze {
-	background-color:#cd7f32;
+	/*background-color:#cd7f32;*/
+	background-image:url("/media/chartpos_bronze.png");
 }
 
 

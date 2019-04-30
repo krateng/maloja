@@ -107,7 +107,7 @@ def rankArtistLink(artist,timekeys,rank=None,percent=None,medal=None):
 	if medal == 2: cl = "class='silver'"
 	if medal == 3: cl = "class='bronze'"
 	inner = str(rank) if rank is not None else "<div " + cl + " style='width:" + str(percent) + "%;'></div>"
-	return "<a " + cl + " href='/charts_artists?" + compose_querystring(timekeys) + "'>" + inner + "</a>"
+	return "<a href='/charts_artists?" + compose_querystring(timekeys) + "'>" + inner + "</a>"
 
 def rankLink(timekeys,rank=None,percent=None,artist=None,track=None,medal=None):
 	if track is not None: return rankTrackLink(track,timekeys,rank,percent,medal)
