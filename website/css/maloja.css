@@ -393,6 +393,7 @@ table.list tr td {
 	overflow:hidden;
 	text-overflow:ellipsis;
 	padding-right:15px;
+	line-height: 140%;
 
 }
 
@@ -648,6 +649,18 @@ table.tiles_3x3 td {
 
 
 
+/*
+**
+**
+** Pulse / performance thingies
+**
+**
+*/
+
+span.stat_module_pulse {
+	display: inline-block;
+	vertical-align: top;
+}
 
 /*
 **

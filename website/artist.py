@@ -1,5 +1,6 @@
 import urllib
 import database
+from malojatime import today,thisweek,thismonth,thisyear
 
 
 def instructions(keys):
@@ -46,24 +47,46 @@ def instructions(keys):
 
 	html_scrobbles, _, _ = module_scrobblelist(artist=artist,max_=10,earlystop=True)
 
+	# pulse and rankings
 	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
+	html_pulse_days = module_pulse(**filterkeys,max_=7,since=today().next(-6),step="day",trail=1)
+	html_pulse_weeks = module_pulse(**filterkeys,max_=12,since=thisweek().next(-11),step="week",trail=1)
+	html_pulse_months = module_pulse(**filterkeys,max_=12,since=thismonth().next(-11),step="month",trail=1)
+	html_pulse_years = module_pulse(**filterkeys,max_=10,since=thisyear().next(-9),step="year",trail=1)
+
 	html_performance = module_performance(artist=credited,step="year",stepn=1,trail=1)
+	html_performance_days = module_performance(**filterkeys,max_=7,since=today().next(-6),step="day",trail=1)
+	html_performance_weeks = module_performance(**filterkeys,max_=12,since=thisweek().next(-11),step="week",trail=1)
+	html_performance_months = module_performance(**filterkeys,max_=12,since=thismonth().next(-11),step="month",trail=1)
+	html_performance_years = module_performance(**filterkeys,max_=10,since=thisyear().next(-9),step="year",trail=1)
 
 	replace = {
+		# info
 		"KEY_ARTISTNAME":keys["artist"],
 		"KEY_ENC_ARTISTNAME":urllib.parse.quote(keys["artist"]),
 		"KEY_ENC_CREDITEDARTISTNAME":urllib.parse.quote(credited),
 		"KEY_IMAGEURL":imgurl,
 		"KEY_DESCRIPTION":"",
-		"KEY_MEDALS":html_medals,
-		"KEY_TRACKLIST":html_tracks,
-		"KEY_PULSE":html_pulse,
-		"KEY_PERFORMANCE":html_performance,
 		"KEY_SCROBBLES":scrobbles,
+		"KEY_POSITION":pos,
+		"KEY_ASSOCIATED":includestr,
+		"KEY_MEDALS":html_medals,
+		# tracks
+		"KEY_TRACKLIST":html_tracks,
+		# pulse
+		"KEY_PULSE_MONTHS":html_pulse_months,
+		"KEY_PULSE_YEARS":html_pulse_years,
+		"KEY_PULSE_DAYS":html_pulse_days,
+		"KEY_PULSE_WEEKS":html_pulse_weeks,
+		# performance
+		"KEY_PERFORMANCE_MONTHS":html_performance_months,
+		"KEY_PERFORMANCE_YEARS":html_performance_years,
+		"KEY_PERFORMANCE_DAYS":html_performance_days,
+		"KEY_PERFORMANCE_WEEKS":html_performance_weeks,
+		# scrobbles
 		"KEY_SCROBBLELIST":html_scrobbles,
 		"KEY_SCROBBLELINK":compose_querystring(keys),
-		"KEY_POSITION":pos,
-		"KEY_ASSOCIATED":includestr
+
 	}
 
 	return (replace,pushresources)

@@ -4,26 +4,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>Maloja</title>
-
-
-
-		<script>
-			function showRange(identifier,unit) {
-				modules = document.getElementsByClassName("stat_module_" + identifier)
-				for (var i=0;i<modules.length;i++) {
-					modules[i].setAttribute("style","display:none;")
-				}
-				document.getElementById(identifier + "_" + unit).setAttribute("style","")
-
-				selectors = document.getElementsByClassName("stat_selector_" + identifier)
-				for (var i=0;i<selectors.length;i++) {
-					selectors[i].setAttribute("style","")
-				}
-				document.getElementById("selector_" + identifier + "_" + unit).setAttribute("style","opacity:0.5;")
-			}
-
-			document.addEventListener('DOMContentLoaded',function() {KEY_JS_INIT_RANGES})
-		</script>
+		<script src="javascript/rangeselect.js"></script>
 	</head>
 
 
@@ -39,17 +20,17 @@
 
 
 
-		<span onclick="showRange('topartists','week')" class="stat_selector_topartists" id="selector_topartists_week">This Week</span>
-      			| <span onclick="showRange('topartists','month')" class="stat_selector_topartists" id="selector_topartists_month">This Month</span>
-      			| <span onclick="showRange('topartists','year')" class="stat_selector_topartists" id="selector_topartists_year">This Year</span>
-      			| <span onclick="showRange('topartists','alltime')" class="stat_selector_topartists" id="selector_topartists_alltime" style="opacity:0.5;">All Time</span>
+		<span onclick="showRange('topartists','week')" class="stat_selector_topartists selector_topartists_week">This Week</span>
+      			| <span onclick="showRange('topartists','month')" class="stat_selector_topartists selector_topartists_month">This Month</span>
+      			| <span onclick="showRange('topartists','year')" class="stat_selector_topartists selector_topartists_year">This Year</span>
+      			| <span onclick="showRange('topartists','alltime')" class="stat_selector_topartists selector_topartists_alltime" style="opacity:0.5;">All Time</span>
 
 		<br/><br/>
 
-		<span class="stat_module_topartists" id="topartists_week" style="display:none;">KEY_TOPARTISTS_WEEK</span>
-      		<span class="stat_module_topartists" id="topartists_month" style="display:none;">KEY_TOPARTISTS_MONTH</span>
-      		<span class="stat_module_topartists" id="topartists_year" style="display:none;">KEY_TOPARTISTS_YEAR</span>
-      		<span class="stat_module_topartists" id="topartists_alltime">KEY_TOPARTISTS_TOTAL</span>
+		<span class="stat_module_topartists topartists_week" style="display:none;">KEY_TOPARTISTS_WEEK</span>
+      		<span class="stat_module_topartists topartists_month" style="display:none;">KEY_TOPARTISTS_MONTH</span>
+      		<span class="stat_module_topartists topartists_year" style="display:none;">KEY_TOPARTISTS_YEAR</span>
+      		<span class="stat_module_topartists topartists_alltime">KEY_TOPARTISTS_TOTAL</span>
 
 
 
@@ -57,17 +38,17 @@
 		<h1><a href="/charts_tracks?max=50">Top Tracks</a></h1>
 
 
-		<span onclick="showRange('toptracks','week')" class="stat_selector_toptracks" id="selector_toptracks_week">This Week</span>
-      			| <span onclick="showRange('toptracks','month')" class="stat_selector_toptracks" id="selector_toptracks_month">This Month</span>
-      			| <span onclick="showRange('toptracks','year')" class="stat_selector_toptracks" id="selector_toptracks_year">This Year</span>
-      			| <span onclick="showRange('toptracks','alltime')" class="stat_selector_toptracks" id="selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
+		<span onclick="showRange('toptracks','week')" class="stat_selector_toptracks selector_toptracks_week">This Week</span>
+      			| <span onclick="showRange('toptracks','month')" class="stat_selector_toptracks selector_toptracks_month">This Month</span>
+      			| <span onclick="showRange('toptracks','year')" class="stat_selector_toptracks selector_toptracks_year">This Year</span>
+      			| <span onclick="showRange('toptracks','alltime')" class="stat_selector_toptracks selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
 
 		<br/><br/>
 
-		<span class="stat_module_toptracks" id="toptracks_week" style="display:none;">KEY_TOPTRACKS_WEEK</span>
-      		<span class="stat_module_toptracks" id="toptracks_month" style="display:none;">KEY_TOPTRACKS_MONTH</span>
-      		<span class="stat_module_toptracks" id="toptracks_year" style="display:none;">KEY_TOPTRACKS_YEAR</span>
-      		<span class="stat_module_toptracks" id="toptracks_alltime">KEY_TOPTRACKS_TOTAL</span>
+		<span class="stat_module_toptracks toptracks_week" style="display:none;">KEY_TOPTRACKS_WEEK</span>
+      		<span class="stat_module_toptracks toptracks_month" style="display:none;">KEY_TOPTRACKS_MONTH</span>
+      		<span class="stat_module_toptracks toptracks_year" style="display:none;">KEY_TOPTRACKS_YEAR</span>
+      		<span class="stat_module_toptracks toptracks_alltime">KEY_TOPTRACKS_TOTAL</span>
 
 
 
@@ -97,27 +78,27 @@
       			<a href="/pulse?step=year&trail=1">Years</a>
       			-->
 
-      			<span onclick="showRange('pulse','days')" class="stat_selector_pulse" id="selector_pulse_days">7 days</span>
-      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse" id="selector_pulse_weeks">12 weeks</span>
-      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse" id="selector_pulse_months" style="opacity:0.5;">12 months</span>
-      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse" id="selector_pulse_years">10 years</span>
+      			<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
+      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
+      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
+      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
       			<!--
       			### this is for extra views of the current canonical week / month / year
       			<br/>
-      			<span onclick="showRange('pulse','week')" class="stat_selector_pulse" id="selector_pulse_week">This Week</span>
-      			| <span onclick="showRange('pulse','month')" class="stat_selector_pulse" id="selector_pulse_month">This Month</span>
-      			| <span onclick="showRange('pulse','year')" class="stat_selector_pulse" id="selector_pulse_year"">This Year</span>
+      			<span onclick="showRange('pulse','week')" class="stat_selector_pulse selector_pulse_week">This Week</span>
+      			| <span onclick="showRange('pulse','month')" class="stat_selector_pulse selector_pulse_month">This Month</span>
+      			| <span onclick="showRange('pulse','year')" class="stat_selector_pulse selector_pulse_year"">This Year</span>
       			-->
       			<br/><br/>
 
-      			<span class="stat_module_pulse" id="pulse_months">KEY_PULSE_MONTHS</span>
-      			<span class="stat_module_pulse" id="pulse_days" style="display:none;">KEY_PULSE_DAYS</span>
-      			<span class="stat_module_pulse" id="pulse_years" style="display:none;">KEY_PULSE_YEARS</span>
-      			<span class="stat_module_pulse" id="pulse_weeks" style="display:none;">KEY_PULSE_WEEKS</span>
+      			<span class="stat_module_pulse pulse_months">KEY_PULSE_MONTHS</span>
+      			<span class="stat_module_pulse pulse_days" style="display:none;">KEY_PULSE_DAYS</span>
+      			<span class="stat_module_pulse pulse_years" style="display:none;">KEY_PULSE_YEARS</span>
+      			<span class="stat_module_pulse pulse_weeks" style="display:none;">KEY_PULSE_WEEKS</span>
       			<!--
-      			<span class="stat_module_pulse" id="pulse_week" style="display:none;">KEY_PULSE_WEEK</span>
-      			<span class="stat_module_pulse" id="pulse_month" style="display:none;">KEY_PULSE_MONTH</span>
-      			<span class="stat_module_pulse" id="pulse_year" style="display:none;">KEY_PULSE_YEAR</span>
+      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PULSE_WEEK</span>
+      			<span class="stat_module_pulse pulse_month" style="display:none;">KEY_PULSE_MONTH</span>
+      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PULSE_YEAR</span>
       			-->
    		</div>
 
