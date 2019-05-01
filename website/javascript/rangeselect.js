@@ -26,5 +26,3 @@ function showRange(identifier,unit) {
 		reactivate[i].setAttribute("style","opacity:0.5;")
 	}
 }
-
-document.addEventListener('DOMContentLoaded',function() {KEY_JS_INIT_RANGES})
