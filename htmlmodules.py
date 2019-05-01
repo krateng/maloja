@@ -116,7 +116,7 @@ def module_performance(max_=None,**kwargs):
 
 	minrank = 80
 	for t in ranges:
-		if t["rank"] is not None and t["rank"] > minrank: minrank = t["rank"]
+		if t["rank"] is not None and t["rank"]+20 > minrank: minrank = t["rank"]+20
 
 	#build list
 	html = "<table class='list'>"

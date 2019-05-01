@@ -48,17 +48,15 @@ def instructions(keys):
 	html_scrobbles, _, _ = module_scrobblelist(artist=artist,max_=10,earlystop=True)
 
 	# pulse and rankings
-	html_pulse = module_pulse(**filterkeys,step="year",stepn=1,trail=1)
 	html_pulse_days = module_pulse(**filterkeys,max_=7,since=today().next(-6),step="day",trail=1)
 	html_pulse_weeks = module_pulse(**filterkeys,max_=12,since=thisweek().next(-11),step="week",trail=1)
 	html_pulse_months = module_pulse(**filterkeys,max_=12,since=thismonth().next(-11),step="month",trail=1)
 	html_pulse_years = module_pulse(**filterkeys,max_=10,since=thisyear().next(-9),step="year",trail=1)
 
-	html_performance = module_performance(artist=credited,step="year",stepn=1,trail=1)
-	html_performance_days = module_performance(**filterkeys,max_=7,since=today().next(-6),step="day",trail=1)
-	html_performance_weeks = module_performance(**filterkeys,max_=12,since=thisweek().next(-11),step="week",trail=1)
-	html_performance_months = module_performance(**filterkeys,max_=12,since=thismonth().next(-11),step="month",trail=1)
-	html_performance_years = module_performance(**filterkeys,max_=10,since=thisyear().next(-9),step="year",trail=1)
+	html_performance_days = module_performance(artist=credited,max_=7,since=today().next(-6),step="day",trail=1)
+	html_performance_weeks = module_performance(artist=credited,max_=12,since=thisweek().next(-11),step="week",trail=1)
+	html_performance_months = module_performance(artist=credited,max_=12,since=thismonth().next(-11),step="month",trail=1)
+	html_performance_years = module_performance(artist=credited,max_=10,since=thisyear().next(-9),step="year",trail=1)
 
 	replace = {
 		# info
