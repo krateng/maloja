@@ -374,7 +374,7 @@ a.bronze {
 table.twopart {
 	width:100%;
 }
-table.twopart>tr>td {
+table.twopart tr td {
 	width:50%;
 }
 
