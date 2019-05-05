@@ -55,7 +55,7 @@ def setup():
 	# LASTFM API KEY
 	key = settings.get_settings("LASTFM_API_KEY")
 	if key is None:
-		print("Currently not using an API key for image display. Only local images will be used.")
+		print("Currently not using a Last.fm API key for image display. Only local images will be used.")
 	elif key == "ASK":
 		print("Please enter your Last.FM API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
 		key = input()
@@ -64,6 +64,19 @@ def setup():
 
 	else:
 		print("Last.FM API key found.")
+
+	# FANART.TV API KEY
+	key = settings.get_settings("FANARTTV_API_KEY")
+	if key is None:
+		print("Currently not using a Fanart.tv API key for image display. Only local images will be used for artists.")
+	elif key == "ASK":
+		print("Please enter your Fanart.tv API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
+		key = input()
+		if key == "": key = None
+		settings.update_settings("settings/settings.ini",{"FANARTTV_API_KEY":key},create_new=True)
+
+	else:
+		print("Fanart.tv API key found.")
 
 	# OWN API KEY
 	if os.path.exists("./clients/authenticated_machines.tsv"):
