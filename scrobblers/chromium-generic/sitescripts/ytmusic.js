@@ -10,7 +10,14 @@ metadata = bar.querySelector("div[class*=middle-controls] > div[class*=content-i
 ctrl = bar.querySelector("div[class*=left-controls]")
 
 title = metadata.querySelector("yt-formatted-string[class*=title]").getAttribute("title")
-artist = metadata.querySelector("span > span[class*=subtitle] > yt-formatted-string > a:nth-child(1)").innerHTML
+artistlist = metadata.querySelector("span > span[class*=subtitle] > yt-formatted-string")
+artistelements = artistlist.getElementsByTagName("a")
+artists = []
+for (var i=0;i<artistelements.length-1;i++) {
+	artists.push(artistelements[i].innerHTML)
+}
+//artist = metadata.querySelector("span > span[class*=subtitle] > yt-formatted-string > a:nth-child(1)").innerHTML
+artist = artists.join(";");
 duration = ctrl.querySelector("[class*=time-info]").innerHTML.split("/")[1]
 if (duration.split(":").length == 2) {
 	durationSeconds = parseInt(duration.split(":")[0]) * 60 + parseInt(duration.split(":")[1])
