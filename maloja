@@ -230,6 +230,10 @@ def update():
 
 	if not gotodir(): return False
 
+	if os.path.exists("./.dev"):
+		print("Better not overwrite the development server!")
+		return
+
 	print("Updating Maloja...")
 	#with urllib.request.urlopen(SOURCE_URL) as response:
 	#	with tempfile.NamedTemporaryFile(delete=True) as tmpfile:

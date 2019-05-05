@@ -4,6 +4,7 @@
 *.txt
 *.xcf
 nohup.out
+/.dev
 
 # user files
 *.tsv
