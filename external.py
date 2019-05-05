@@ -7,7 +7,7 @@ from doreah.logging import log
 apis_artists = [
 	{
 		"name":"LastFM + Fanart.tv",
-		"check":get_settings("LASTFM_API_KEY") is not None and get_settings("FANARTTV_API_KEY") is not None,
+		"check":get_settings("LASTFM_API_KEY") not in [None,"ASK"] and get_settings("FANARTTV_API_KEY") not in [None,"ASK"],
 		"steps":[
 			("url","http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist={artiststring}&api_key=" + get_settings("LASTFM_API_KEY") + "&format=json"),
 			("parse",["artist","mbid"]),
@@ -20,7 +20,7 @@ apis_artists = [
 apis_tracks = [
 	{
 		"name":"LastFM",
-		"check":get_settings("LASTFM_API_KEY") is not None,
+		"check":get_settings("LASTFM_API_KEY") not in [None,"ASK"],
 		"steps":[
 			("url","https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track={titlestring}&artist={artiststring}&api_key=" + get_settings("LASTFM_API_KEY") + "&format=json"),
 			("parse",["track","album","image",3,"#text"])

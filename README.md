@@ -2,6 +2,8 @@
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
+You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
+
 ## Never Asked Questions
 
 ### Why not Last.fm / Libre.fm / GNU FM?
@@ -14,19 +16,13 @@ Maloja's database has one big advantage: It supports **multiple artists per trac
 
 Also neat: You can use your **custom artist or track images**.
 
-## Current status
-
-You can check [my own Maloja page](https://maloja.krateng.ch) to see what it currently looks like.
-
-There are only two scrobblers (YouTube Music and Plex, both for Chromium), but a very simple API to create your own scrobbler.
-
 ## Requirements
 
 * [python3](https://www.python.org/) - [GitHub](https://github.com/python/cpython)
 * [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
 * [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.6.1)
-* If you'd like to display images, you will need API keys for Last.fm and Fanart.tv. These are free of charge!
+* If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
 
@@ -55,7 +51,7 @@ There are only two scrobblers (YouTube Music and Plex, both for Chromium), but a
 
 If you didn't install Maloja from the package (and therefore don't have it in `/opt/maloja`), every command needs to be executed from the Maloja directory and led with `./`. Otherwise, all commands work in any location and without the prefix.
 
-1) In order to scrobble your music from Plex Web or YouTube Music, install the included Chrome extension. Make sure to enter the random key Maloja generates on first startup in the extension.
+1) In order to scrobble your music from Plex Web or YouTube Music, install the included Chrome extension. Make sure to enter the random key Maloja generates on first startup in the extension. If you use another music player, Maloja has a very simple API to create your own scrobbler.
 
 2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
 
