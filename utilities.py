@@ -13,6 +13,8 @@ from doreah import caching
 from doreah.logging import log
 from doreah.regular import yearly, daily
 
+from external import api_request_track, api_request_artist
+
 
 
 #####
@@ -130,75 +132,6 @@ def consistentRulestate(folder,checksums):
 
 
 
-def apirequest(artists=None,artist=None,title=None):
-
-	import urllib.parse, urllib.request
-	import json
-
-	#try:
-		#with open("apikey","r") as keyfile:
-		#	apikey = keyfile.read().replace("\n","")
-
-	apikey = settings.get_settings("LASTFM_API_KEY")
-	if apikey is None: return None
-	#except:
-	#	return None
-
-
-	sites = [
-		{
-			"name":"lastfm",
-			"artisturl":"https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist={artist}&api_key=" + apikey + "&format=json",
-			"trackurl":"https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track={title}&artist={artist}&api_key=" + apikey + "&format=json",
-			"result_artist_imgurl":lambda data:data["artist"]["image"][3]["#text"],
-			"result_track_imgurl":lambda data:data["track"]["album"]["image"][3]["#text"]
-			#"result_artist_desc":lambda data:data["artist"]["bio"]["summary"],
-			#"result_track_desc":lambda data:None
-		}
-	]
-
-
-	# TRACKS
-	if title is not None:
-		for s in sites:
-			try:
-				artiststr = urllib.parse.quote(", ".join(artists))
-				titlestr = urllib.parse.quote(title)
-				response = urllib.request.urlopen(s["trackurl"].format(artist=artiststr,title=titlestr))
-				log("API: " + s["name"] + "; Image request: " + "/".join(artists) + " - " + title,module="external")
-				data = json.loads(response.read())
-				if s["result_track_imgurl"](data) != "":
-					return s["result_track_imgurl"](data)
-			except:
-				pass
-
-		if len(artists) == 1:
-			#return {"image":apirequest(artist=artists[0])["image"]}
-			return None
-
-		# try the same track with every single artist
-		for a in artists:
-			rec = apirequest(artists=[a],title=title)
-			if rec is not None:
-				return rec
-
-		return None
-
-	# ARTISTS
-	else:
-		for s in sites:
-			try:
-				response = urllib.request.urlopen(s["artisturl"].format(artist=urllib.parse.quote(artist)))
-				log("API: " + s["name"] + "; Image request: " + artist,module="external")
-				data = json.loads(response.read())
-				if s["result_artist_imgurl"](data) != "":
-					return s["result_artist_imgurl"](data)
-			except:
-				pass
-
-		return None
-
-
 
 
 ### Caches
@@ -294,7 +227,7 @@ def local_files(artist=None,artists=None,title=None):
 
 
 
-# these caches are there so we don't check all files every thime, but return the same one
+# these caches are there so we don't check all files every time, but return the same one
 local_cache_age = settings.get_settings("LOCAL_IMAGE_ROTATE")
 local_artist_cache = caching.Cache(maxage=local_cache_age)
 local_track_cache = caching.Cache(maxage=local_cache_age)
@@ -350,15 +283,15 @@ def getTrackImage(artists,title,fast=False):
 		pass
 
 	# do we have an api key?
-	apikey = settings.get_settings("LASTFM_API_KEY")
-	if apikey is None: return "" # DO NOT CACHE THAT
+#	apikey = settings.get_settings("LASTFM_API_KEY")
+#	if apikey is None: return "" # DO NOT CACHE THAT
 
 
 	# fast request only retuns cached and local results, generates redirect link for rest
 	if fast: return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
 
 	# non-fast lookup (esentially only the resolver lookup)
-	result = apirequest(artists=artists,title=title)
+	result = api_request_track((artists,title))
 
 	# cache results (even negative ones)
 	#cachedTracks[(frozenset(artists),title)] = result
@@ -420,8 +353,8 @@ def getArtistImage(artist,fast=False):
 
 
 	# do we have an api key?
-	apikey = settings.get_settings("LASTFM_API_KEY")
-	if apikey is None: return "" # DO NOT CACHE THAT
+#	apikey = settings.get_settings("LASTFM_API_KEY")
+#	if apikey is None: return "" # DO NOT CACHE THAT
 
 
 
@@ -429,7 +362,7 @@ def getArtistImage(artist,fast=False):
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)
 
 	# non-fast lookup (esentially only the resolver lookup)
-	result = apirequest(artist=artist)
+	result = api_request_artist(artist=artist)
 
 	# cache results (even negative ones)
 	#cachedArtists[artist] = result

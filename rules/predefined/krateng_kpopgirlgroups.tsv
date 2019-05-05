@@ -55,6 +55,7 @@ replaceartist	스텔라(Stellar) (Stellar)		Stellar
 replacetitle	찔려 Sting				Sting
 
 # Red Velvet
+countas		Seulgi					Red Velvet
 replacetitle	러시안 룰렛 Russian Roulette		Russian Roulette
 replacetitle	피카부 Peek-a-Boo			Peek-A-Boo
 replacetitle	빨간 맛 Red Flavor			Red Flavor
@@ -130,3 +131,7 @@ replaceartist	소녀시대				Girls' Generation
 # Apink
 replaceartist	A Pink					Apink
 replaceartist	A pink					Apink
+
+# IOI
+replaceartist	CHUNG HA				Chungha
+countas		Chungha					I.O.I
