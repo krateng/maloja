@@ -1,6 +1,13 @@
 # custom json encoding
 
-from simplejson import JSONEncoder
+# make sure we use the json encoder that bottle uses
+try:
+	from simplejson import JSONEncoder
+except ImportError:
+	try:
+		from json import JSONEncoder
+	except ImportError:
+		from django.utils.simplejson import JSONEncoder
 
 def newdefault(self,object):
 	return getattr(object.__class__,"__json__", olddefault)(object)
