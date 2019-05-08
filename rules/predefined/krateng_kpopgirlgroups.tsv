@@ -97,6 +97,7 @@ replacetitle	Expect(기대해)				Expect
 replacetitle	EXPECT					Expect
 replacetitle	I'll be yours				I'll Be Yours
 replacetitle	FEMALE PRESIDENT(여자 대통령)		Female President
+replacetitle	여자 대통령					Female President
 
 # Mamamoo
 countas		Hwasa					Mamamoo
@@ -134,5 +135,6 @@ replaceartist	A pink					Apink
 
 # IOI
 replaceartist	CHUNG HA				Chungha
+replaceartist	청하 CHUNGHA				Chungha
 countas		Chungha					I.O.I
 replacetitle	벌써 12시 Gotta Go				Gotta Go
