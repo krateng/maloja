@@ -23,33 +23,6 @@ def end_of_scrobbling():
 
 
 
-#def uri_to_internal(t):
-#	return time_fix(t)
-#
-#def internal_to_uri(t):
-#	if isinstance(t,list) or isinstance(t,tuple):
-#		return "/".join(str(t))
-#
-#	return str(t)
-
-
-### helpers
-
-# adjusting to sunday-first calendar
-# damn iso heathens
-class expandeddate(datetime.date):
-
-	def chrweekday(self):
-		return self.isoweekday() + 1 % 7
-
-	def chrcalendar(self):
-		tomorrow = self + datetime.timedelta(days=1)
-		cal = tomorrow.isocalendar()
-		return (cal[0],cal[1],cal[2] % 7)
-
-
-date = expandeddate
-
 
 
 
@@ -115,7 +88,7 @@ class MTime(MRangeDescriptor):
 		if len(ls)>2: self.day = ls[2]
 		dt = [1970,1,1]
 		dt[:len(ls)] = ls
-		self.dateobject = date(dt[0],dt[1],dt[2])
+		self.dateobject = datetime.date(dt[0],dt[1],dt[2])
 
 	def __str__(self):
 		return "/".join(str(part) for part in self.tup)
@@ -126,7 +99,7 @@ class MTime(MRangeDescriptor):
 
 	# whether we currently live or will ever again live in this range
 	def active(self):
-		tod = date.today()
+		tod = datetime.date.today()
 		if tod.year > self.year: return False
 		if self.precision == 1: return True
 		if tod.year == self.year:
@@ -161,7 +134,7 @@ class MTime(MRangeDescriptor):
 
 	def informal_desc(self):
 		now = datetime.datetime.now(tz=datetime.timezone.utc)
-		today = date(now.year,now.month,now.day)
+		today = datetime.date(now.year,now.month,now.day)
 		if self.precision == 3:
 			diff = (today - dateobject).days
 			if diff == 0: return "Today"
@@ -236,7 +209,7 @@ class MTimeWeek(MRangeDescriptor):
 		self.week = week
 
 		# assume the first day of the first week of this year is 1/1
-		firstday = date(year,1,1)
+		firstday = datetime.date(year,1,1)
 		y,w,d = firstday.chrcalendar()
 		if y == self.year:
 			firstday -= datetime.timedelta(days=(d-1))
@@ -246,8 +219,8 @@ class MTimeWeek(MRangeDescriptor):
 		firstday = firstday + datetime.timedelta(days=7*(week-1))
 		lastday = firstday + datetime.timedelta(days=6)
 		# turn them into local overwritten date objects
-		self.firstday = date(firstday.year,firstday.month,firstday.day)
-		self.lastday = date(lastday.year,lastday.month,lastday.day)
+		self.firstday = datetime.date(firstday.year,firstday.month,firstday.day)
+		self.lastday = datetime.date(lastday.year,lastday.month,lastday.day)
 		# now check if we're still in the same year
 		y,w,_ = self.firstday.chrcalendar()
 		self.year,self.week = y,w
@@ -263,7 +236,7 @@ class MTimeWeek(MRangeDescriptor):
 
 	# whether we currently live or will ever again live in this range
 	def active(self):
-		tod = date.today()
+		tod = datetime.date.today()
 		if tod.year > self.year: return False
 		if tod.year == self.year:
 			if tod.chrcalendar()[1] > self.week: return False
@@ -591,7 +564,7 @@ def year_from_timestamp(stamp):
 	return MTime(dt.year)
 def week_from_timestamp(stamp):
 	dt = datetime.datetime.utcfromtimestamp(stamp)
-	d = date(dt.year,dt.month,dt.day)
+	d = datetime.date(dt.year,dt.month,dt.day)
 	y,w,_ = d.chrcalendar()
 	return MTimeWeek(y,w)
 
@@ -634,7 +607,7 @@ def today():
 	return MTime(tod.year,tod.month,tod.day)
 def thisweek():
 	tod = datetime.datetime.utcnow()
-	tod = date(tod.year,tod.month,tod.day)
+	tod = datetime.date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
 	return MTimeWeek(y,w)
 def thismonth():
