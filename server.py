@@ -3,6 +3,8 @@
 # server stuff
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
 import waitress
+# monkey patching
+import monkey
 # rest of the project
 import database
 from utilities import *

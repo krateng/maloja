@@ -78,6 +78,15 @@ class MRangeDescriptor:
 			"description":self.desc()
 		}
 
+	def __json__(self):
+		return {
+			"fromstring":self.fromstr(),
+			"tostr":self.tostr(),
+			"fromstamp":self.first_stamp(),
+			"tostamp":self.last_stamp(),
+			"description":self.desc()
+		}
+
 	def uri(self):
 		return "&".join(k + "=" + self.urikeys[k] for k in self.urikeys)
 
