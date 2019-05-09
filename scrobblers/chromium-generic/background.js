@@ -41,7 +41,8 @@ function onTabUpdated(tabId, changeInfo, tab) {
 		for (var i=0;i<patterns.length;i++) {
 			if (tab.url.startsWith(patterns[i])) {
 				//console.log("Still on same page!")
-				tabManagers[tabId].update()
+				//tabManagers[tabId].update()
+				window.setTimeout(tabManagers[tabId].update(),1000);
 				return
 			}
 		}
