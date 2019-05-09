@@ -9,7 +9,11 @@ from urihandler import uri_to_internal
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
-from doreah.caching import Cache
+from doreah.caching import Cache, DeepCache
+try:
+	from doreah.persistence import DiskDict
+except: pass
+import doreah
 # technical
 import os
 import datetime
@@ -888,14 +892,18 @@ def sync():
 
 ###
 ## Caches in front of DB
-## these are intended mainly for excessive site navigation during one session (e.g. constantly going back to the main page to click the next link)
+## the volatile caches are intended mainly for excessive site navigation during one session
+## the permanent caches are there to save data that is hard to calculate and never changes (old charts)
 ###
 
 
 import copy
 
 cache_query = {}
-cache_query_permanent = Cache(maxmemory=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if doreah.version >= (0,7,1):
+	cache_query_permanent = DiskDict(name="dbquery",folder="cache",maxmemory=1024*1024*10,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+else:
+	cache_query_permanent = Cache(maxmemory=1024*1024*10)
 cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
@@ -918,7 +926,10 @@ def db_query(**kwargs):
 	return result
 
 cache_aggregate = {}
-cache_aggregate_permanent = Cache(maxmemory=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if doreah.version >= (0,7,1):
+	cache_aggregate_permanent = DiskDict(name="dbaggregate",folder="cache",maxmemory=1024*1024*10,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+else:
+	cache_aggregate_permanent = Cache(maxmemory=1024*1024*10)
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
