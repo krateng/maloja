@@ -17,3 +17,9 @@ nohup.out
 
 # only for development, normally external
 /doreah
+
+# ignore virtual environment
+.venv/
+
+# ignore vscode
+.vscode/
