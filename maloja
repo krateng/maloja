@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import subprocess
 import sys
@@ -6,6 +6,7 @@ import signal
 import os
 import stat
 import pathlib
+import pprint
 
 
 
@@ -322,10 +323,13 @@ def installhere():
 
 
 if __name__ == "__main__":
-	if sys.argv[1] == "start": restart()
-	elif sys.argv[1] == "restart": restart()
-	elif sys.argv[1] == "stop": stop()
-	elif sys.argv[1] == "update": update()
-	elif sys.argv[1] == "import": loadlastfm()
-	elif sys.argv[1] == "install": installhere()
-	else: print("Valid commands: start restart stop update import install")
+	errorString = "Valid commands: start restart stop update import install"
+	if len(sys.argv) > 1:
+		if sys.argv[1] == "start": restart()
+		elif sys.argv[1] == "restart": restart()
+		elif sys.argv[1] == "stop": stop()
+		elif sys.argv[1] == "update": update()
+		elif sys.argv[1] == "import": loadlastfm()
+		elif sys.argv[1] == "install": installhere()
+		else: print(errorString)
+	else: print(errorString)
