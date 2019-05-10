@@ -900,10 +900,10 @@ def sync():
 import copy
 
 cache_query = {}
-if doreah.version >= (0,7,1):
-	cache_query_permanent = DiskDict(name="dbquery",folder="cache",maxmemory=1024*1024*10,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
+	cache_query_permanent = DiskDict(name="dbquery",folder="cache",maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
 else:
-	cache_query_permanent = Cache(maxmemory=1024*1024*10)
+	cache_query_permanent = Cache(maxmemory=1024*1024*500)
 cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
@@ -926,10 +926,10 @@ def db_query(**kwargs):
 	return result
 
 cache_aggregate = {}
-if doreah.version >= (0,7,1):
-	cache_aggregate_permanent = DiskDict(name="dbaggregate",folder="cache",maxmemory=1024*1024*10,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
+	cache_aggregate_permanent = DiskDict(name="dbaggregate",folder="cache",maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
 else:
-	cache_aggregate_permanent = Cache(maxmemory=1024*1024*10)
+	cache_aggregate_permanent = Cache(maxmemory=1024*1024*500)
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
