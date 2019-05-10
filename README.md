@@ -24,7 +24,7 @@ Also neat: You can use your **custom artist or track images**.
 * [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.6.1)
 * Wand
 * setproctitle
-  * For Windows: [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/downloads/)
+  * For Windows: `pip install` a [precompiled binary](https://www.lfd.uci.edu/~gohlke/pythonlibs/#setproctitle)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
