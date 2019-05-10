@@ -4,7 +4,7 @@ from utilities import *
 
 
 log = open(sys.argv[1])
-outputlog = open(sys.argv[2],"w")
+outputlog = open(sys.argv[2],"w", encoding='utf-8')
 checksumfile = open(sys.argv[2] + ".rulestate","w") #this file stores an identifier for all rules that were in place when the corresponding file was created
 
 
