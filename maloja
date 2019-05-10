@@ -52,31 +52,27 @@ def setup():
 
 	from doreah import settings
 
-	# LASTFM API KEY
-	key = settings.get_settings("LASTFM_API_KEY")
-	if key is None:
-		print("Currently not using a Last.fm API key for image display. Only local images will be used.")
-	elif key == "ASK":
-		print("Please enter your Last.FM API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
-		key = input()
-		if key == "": key = None
-		settings.update_settings("settings/settings.ini",{"LASTFM_API_KEY":key},create_new=True)
+	# EXTERNAL API KEYS
+	apikeys = {
+		"LASTFM_API_KEY":"Last.fm API Key",
+		"FANARTTV_API_KEY":"Fanart.tv API Key",
+		"SPOTIFY_API_ID":"Spotify Client ID",
+		"SPOTIFY_API_SECRET":"Spotify Client Secret"
+	}
 
-	else:
-		print("Last.FM API key found.")
+	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
+	for k in apikeys:
+		key = settings.get_settings(k)
+		if key is None:
+			print("Currently not using a " + apikeys[k] + " for image display.")
+		elif key == "ASK":
+			print("Please enter your " + apikeys[k] + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
+			key = input()
+			if key == "": key = None
+			settings.update_settings("settings/settings.ini",{k:key},create_new=True)
+		else:
+			print(apikeys[k] + " found.")
 
-	# FANART.TV API KEY
-	key = settings.get_settings("FANARTTV_API_KEY")
-	if key is None:
-		print("Currently not using a Fanart.tv API key for image display. Only local images will be used for artists.")
-	elif key == "ASK":
-		print("Please enter your Fanart.tv API key. If you do not want to display artist and track images, simply leave this empty and press Enter.")
-		key = input()
-		if key == "": key = None
-		settings.update_settings("settings/settings.ini",{"FANARTTV_API_KEY":key},create_new=True)
-
-	else:
-		print("Fanart.tv API key found.")
 
 	# OWN API KEY
 	if os.path.exists("./clients/authenticated_machines.tsv"):
