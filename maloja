@@ -70,7 +70,7 @@ def setup():
 			print("Please enter your " + apikeys[k] + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = input()
 			if key == "": key = None
-			settings.update_settings("settings/settings.ini",{k:key},create_new=True)
+			if key != None: settings.update_settings("settings/settings.ini",{k:key},create_new=True)
 		else:
 			print(apikeys[k] + " found.")
 
@@ -188,7 +188,13 @@ def start():
 
 		if gotodir():
 			setup()
-			p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+			try:
+				p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+			except FileNotFoundError:
+				p = subprocess.Popen(["python","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+			except:
+				print(yellow("Maloja failed to start"))
+
 			print(green("Maloja started!") + " PID: " + str(p.pid))
 
 			from doreah import settings
