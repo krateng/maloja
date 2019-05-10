@@ -1,0 +1,3 @@
+bottle==0.12.16
+doreah==0.7.1
+waitress==1.3.0
