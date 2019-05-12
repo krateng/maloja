@@ -36,16 +36,7 @@ Also neat: You can use your **custom artist or track images**.
 
 	If you're missing packages, the console output will tell you so. Install them.
 
-2) (Recommended) Put your server behind a reverse proxy for SSL encryption. Configure that proxy to rewrite /api/ requests to the API port. In nginx this would look as follows:
-
-		location / {
-			proxy_pass http://yoururl:42010;
-		}
-
-		location /api {
-			rewrite ^/api(.*)$ $1 break;
-			proxy_pass http://yoururl:42011;
-		}
+2) (Recommended) Put your server behind a reverse proxy for SSL encryption.
 
 ## How to use
 
