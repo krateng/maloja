@@ -21,7 +21,7 @@ Also neat: You can use your **custom artist or track images**.
 * [python3](https://www.python.org/) - [GitHub](https://github.com/python/cpython)
 * [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
-* [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.6.1)
+* [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.7.2)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
@@ -51,15 +51,14 @@ Also neat: You can use your **custom artist or track images**.
 
 If you didn't install Maloja from the package (and therefore don't have it in `/opt/maloja`), every command needs to be executed from the Maloja directory and led with `./`. Otherwise, all commands work in any location and without the prefix.
 
-1) In order to scrobble your music from Plex Web or YouTube Music, install the included Chrome extension. Make sure to enter the random key Maloja generates on first startup in the extension. If you use another music player, Maloja has a very simple API to create your own scrobbler.
 
-2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
+1) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
 
 		maloja import *filename*
 
 	to import the downloaded file into Maloja.
 
-3) You can interact with the server at any time with the commands
+2) You can interact with the server at any time with the commands
 
 		maloja stop
 		maloja restart
@@ -67,3 +66,14 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 		maloja update
 
 	The `update` command will always fetch the latest version, while packages are only offered for release versions.
+
+
+## How to scrobble
+
+If you use Plex Web or Youtube Music on Chromium, you can use the included extension. Make sure to enter the random key Maloja generates on first startup in the extension settings.
+
+You can use any third-party scrobbler that supports the audioscrobbler protocol (GNUFM). This is still very experimental, but give it a try with these settings:
+
+	Gnukebox URL: Your Maloja URL followed by `/api/s/audioscrobbler`
+	Username: Any name, doesn't matter
+	Password: Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)

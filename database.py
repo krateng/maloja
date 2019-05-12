@@ -6,6 +6,7 @@ from cleanup import *
 from utilities import *
 from malojatime import *
 from urihandler import uri_to_internal
+import compliant_api
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -73,6 +74,8 @@ def loadAPIkeys():
 
 def checkAPIkey(k):
 	return (k in [k for [k,d] in clients])
+def allAPIkeys():
+	return [k for [k,d] in clients]
 
 
 ####
@@ -609,6 +612,24 @@ def post_scrobble():
 	sync() #let's just always sync, not like one filesystem access every three minutes is a problem and it avoids lost tracks when we lose power
 
 	return ""
+
+
+
+# standard-compliant scrobbling methods
+
+@dbserver.post("/s/<path:path>")
+def sapi(path):
+	path = path.split("/")
+	keys = FormsDict.decode(request.forms)
+	return compliant_api.handle(path,keys)
+@dbserver.get("/s/<path:path>")
+def sapi(path):
+	path = path.split("/")
+	keys = FormsDict.decode(request.query)
+	return compliant_api.handle(path,keys)
+
+
+
 
 @dbserver.route("/sync")
 def abouttoshutdown():
