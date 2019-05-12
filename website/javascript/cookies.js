@@ -21,7 +21,7 @@ function saveAPIkey() {
 
 function checkAPIkey() {
 	saveAPIkey()
-	url = "/db/test?key=" + document.getElementById("apikey").value
+	url = "/api/test?key=" + document.getElementById("apikey").value
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && (this.status == 204 || this.status == 205)) {
