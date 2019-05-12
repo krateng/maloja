@@ -72,7 +72,7 @@ function updateAPIKey() {
 }
 
 function checkServer() {
-	url = document.getElementById("serverurl").value + "/db/test?key=" + document.getElementById("apikey").value
+	url = document.getElementById("serverurl").value + "/api/test?key=" + document.getElementById("apikey").value
 
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = createCheckmarks;

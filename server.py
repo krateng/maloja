@@ -71,7 +71,7 @@ def customerror(error):
 # this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
 # e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
 
-@webserver.get("/db/<pth:path>")
+@webserver.get("/api/<pth:path>")
 def database_get(pth):
 	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
 	keystring = "?"
@@ -88,7 +88,7 @@ def database_get(pth):
 		response.status = e.code
 		return
 
-@webserver.post("/db/<pth:path>")
+@webserver.post("/api/<pth:path>")
 def database_post(pth):
 	response.set_header("Access-Control-Allow-Origin","*")
 	try:

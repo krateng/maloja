@@ -255,7 +255,7 @@ function scrobble(artist,title,seconds) {
 		chrome.storage.local.get("serverurl",function(result) {
 			URL = result["serverurl"]
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST",URL + "/db/newscrobble",true);
+			xhttp.open("POST",URL + "/api/newscrobble",true);
 			xhttp.send("artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds + "&key=" + APIKEY)
 		});
 	});

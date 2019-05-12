@@ -6,7 +6,7 @@ function search(searchfield) {
 	else {
 		xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = searchresult
-		xhttp.open("GET","/db/search?max=5&query=" + encodeURIComponent(txt), true);
+		xhttp.open("GET","/api/search?max=5&query=" + encodeURIComponent(txt), true);
 		xhttp.send();
 	}
 }
