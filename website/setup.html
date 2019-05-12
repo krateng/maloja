@@ -76,9 +76,11 @@
 
 		If you use Vivaldi, Brave, Iridium or any other Chromium-based browser and listen to music on Plex or YouTube Music, download the extension and simply enter the server URL as well as your API key in the relevant fields. They will turn green if the server is accessible.
 		<br/><br/>
+		You can also use any GNUFM-compliant scrobbler. Enter <span class="stats"><span name="serverurl">yourserver.tld</span>/api/s/audioscrobbler</span> as your Gnukebox server and your API key as the password.
+		<br/><br/>
 		If you use another browser or another music player, you could try to code your own extension. The API is super simple! Just send a POST HTTP request to
 
-		<span class="stats"><span name="serverurl">yourserver.tld</span>/db/newscrobble</span>
+		<span class="stats"><span name="serverurl">yourserver.tld</span>/api/newscrobble</span>
 
 		(make sure to use the public URL) with the key-value-pairs
 		<br/>

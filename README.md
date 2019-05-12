@@ -77,3 +77,5 @@ You can use any third-party scrobbler that supports the audioscrobbler protocol 
 	Gnukebox URL: Your Maloja URL followed by `/api/s/audioscrobbler`
 	Username: Any name, doesn't matter
 	Password: Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)
+
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request with the keys `artist`, `title` and `key`.
