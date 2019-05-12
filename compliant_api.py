@@ -14,6 +14,12 @@ def md5(input):
 	m.update(bytes(input,encoding="utf-8"))
 	return m.hexdigest()
 
+def generate_key(ls):
+	key = ""
+	for i in range(64):
+		key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+	ls.append(key)
+	return key
 
 #def check_sig(keys):
 #	try:
@@ -26,15 +32,28 @@ def md5(input):
 
 
 
-def handle(path,keys):
-#	log("API REQUEST")
-#	log(str(path))
-#	for k in keys:
-#		log(str(k) + ": " + str(keys.getall(k)))
+def handle(path,keys,headers,auth):
+	print("API request: " + str(path))
+	print("Keys:")
+	for k in keys:
+		print("\t" + str(k) + ": " + str(keys.get(k)))
+	print("Headers:")
+	for h in headers:
+		print("\t" + str(h) + ": " + str(headers.get(h)))
+	print("Auth: " + str(auth))
 
-	if path[0] == "audioscrobbler":
-		return handle_audioscrobbler(path[1:],keys)
+	try:
+		if path[0] in ["audioscrobbler","gnukebox","gnufm"]:
+			response = handle_audioscrobbler(path[1:],keys)
+		elif path[0] in ["listenbrainz","lbrnz"]:
+			response = handle_listenbrainz(path[1:],keys,headers)
+		else:
+			response = {"error_message":"Invalid scrobble protocol"}
+	except:
+		response = {"error_message":"Unknown API error"}
 
+	print("Response: " + str(response))
+	return response
 
 # no need to save these on disk, clients can always request a new session
 mobile_sessions = []
@@ -46,13 +65,18 @@ def handle_audioscrobbler(path,keys):
 		if keys.get("method") == "auth.getMobileSession":
 			token = keys.get("authToken")
 			user = keys.get("username")
-			for key in database.allAPIkeys():
-				if md5(user + md5(key)) == token:
-					sessionkey = ""
-					for i in range(64):
-						sessionkey += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
-					mobile_sessions.append(sessionkey)
+			password = keys.get("password")
+			# either username and password
+			if user is not None and password is not None:
+				if password in database.allAPIkeys():
+					sessionkey = generate_key(mobile_sessions)
 					return {"session":{"key":sessionkey}}
+			# or username and token (deprecated by lastfm)
+			elif user is not None and token is not None:
+				for key in database.allAPIkeys():
+					if md5(user + md5(key)) == token:
+						sessionkey = generate_key(mobile_sessions)
+						return {"session":{"key":sessionkey}}
 			return {"error":4}
 
 
@@ -77,3 +101,20 @@ def handle_audioscrobbler(path,keys):
 					return {"scrobbles":{"@attr":{"ignored":0}}}
 
 		return {"error":3}
+
+	else:
+		return {"error_message":"API version not supported"}
+
+
+def handle_listenbrainz(path,keys,headers):
+
+	if path[0] == "1":
+
+		if path[1] == "submit-listens":
+
+			if headers.get("Authorization") is not None:
+				print(headers.get("Authorization"))
+				return {"wat":"wut"}
+
+	else:
+		return {"error_message":"API version not supported"}

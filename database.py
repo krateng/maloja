@@ -1,6 +1,5 @@
 # server
-from bottle import Bottle, route, get, post, run, template, static_file, request, response, FormsDict
-import waitress
+from bottle import request, response, FormsDict
 # rest of the project
 from cleanup import *
 from utilities import *
@@ -28,8 +27,6 @@ import urllib
 
 
 
-
-dbserver = Bottle()
 
 dblock = Lock() #global database lock
 
@@ -181,6 +178,47 @@ def getTrackID(artists,title):
 ## HTTP requests and their associated functions
 ########
 ########
+
+
+# silly patch to get old syntax working without dbserver
+
+# function to register all the functions to the real server
+def register_subroutes(server,path):
+	for subpath in dbserver.handlers_get:
+		func = dbserver.handlers_get[subpath]
+		decorator = server.get(path + subpath)
+		decorator(func)
+	for subpath in dbserver.handlers_post:
+		func = dbserver.handlers_post[subpath]
+		decorator = server.post(path + subpath)
+		decorator(func)
+
+
+# fake server
+class FakeBottle:
+	def __init__(self):
+		self.handlers_get = {}
+		self.handlers_post = {}
+
+	# these functions pretend that they're the bottle decorators, but only write
+	# down which functions asked for them so they can later report their names
+	# to the real bottle server
+	def get(self,path):
+		def register(func):
+			self.handlers_get[path] = func
+			return func
+		return register
+	def post(self,path):
+		def register(func):
+			self.handlers_post[path] = func
+			return func
+		return register
+
+	def route(self,path):
+		return self.get(path)
+
+
+dbserver = FakeBottle()
 
 
 
@@ -618,15 +656,14 @@ def post_scrobble():
 # standard-compliant scrobbling methods
 
 @dbserver.post("/s/<path:path>")
-def sapi(path):
-	path = path.split("/")
-	keys = FormsDict.decode(request.forms)
-	return compliant_api.handle(path,keys)
 @dbserver.get("/s/<path:path>")
 def sapi(path):
 	path = path.split("/")
-	keys = FormsDict.decode(request.query)
-	return compliant_api.handle(path,keys)
+	path = list(filter(None,path))
+	keys = FormsDict.decode(request.params)
+	headers = request.headers
+	auth = request.auth
+	return compliant_api.handle(path,keys,headers,auth)
 
 
 
@@ -806,17 +843,14 @@ def search():
 
 
 # Starts the server
-def runserver(PORT):
-	log("Starting database server...")
+def start_db():
+	log("Starting database...")
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 	build_db()
-
-
 	loadAPIkeys()
-
-	run(dbserver, host='::', port=PORT, server='waitress')
-	log("Database server reachable!")
+	#run(dbserver, host='::', port=PORT, server='waitress')
+	log("Database reachable!")
 
 def build_db():
 
