@@ -58,6 +58,7 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 
 	The `update` command will always fetch the latest version, while packages are only offered for release versions.
 
+3) Various folders have `.info` files with more information on how to use their associated features.
 
 ## How to scrobble
 
@@ -65,7 +66,7 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 
 If you use Plex Web or Youtube Music on Chromium, you can use the included extension. Make sure to enter the random key Maloja generates on first startup in the extension settings.
 
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request with the keys `artist`, `title` and `key`.
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key`.
 
 ### Standard-compliant API
 
@@ -75,10 +76,12 @@ GNU FM | &nbsp;
 ------ | ---------
 Gnukebox URL | Your Maloja URL followed by `/api/s/audioscrobbler`
 Username | Any name, doesn't matter
-Password | Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)
+Password | Any of your API keys
 
 ListenBrainz | &nbsp;
 ------ | ---------
-API URL | Your Maloja URL followed by `api/s/listenbrainz`
+API URL | Your Maloja URL followed by `/api/s/listenbrainz`
 Username | Any name, doesn't matter
-Auth Token | Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)
+Auth Token | Any of your API keys
+
+It is recommended to define a different API key for every scrobbler you use in `clients/authenticated_machines.tsv` in your Maloja folder.

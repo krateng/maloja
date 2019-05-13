@@ -41,8 +41,8 @@ function onTabUpdated(tabId, changeInfo, tab) {
 		for (var i=0;i<patterns.length;i++) {
 			if (tab.url.startsWith(patterns[i])) {
 				//console.log("Still on same page!")
-				//tabManagers[tabId].update()
-				window.setTimeout(tabManagers[tabId].update(),1000);
+				tabManagers[tabId].update()
+
 				return
 			}
 		}
@@ -132,14 +132,30 @@ class Controller {
 		this.messageID = 0;
 		this.lastMessage = 0;
 
-		this.update()
+		this.alreadyQueued = false;
+		// we reject update requests when we're already planning to run an update!
+
+		this.update();
 	}
 
 	// the tab has been updated, we need to run the script
 	update() {
+		if (this.alreadyQueued) {
+		}
+		else {
+			this.alreadyQueued = true;
+			setTimeout(() => { this.actuallyupdate(); },800);
+			//this.actuallyupdate();
+		}
+	}
+
+	actuallyupdate() {
 		this.messageID++;
 		//console.log("Update! Our page is " + this.page + ", our tab id " + this.tabId)
-		chrome.tabs.executeScript(this.tabId,{"file":"sitescripts/" + pages[this.page]["script"]})
+		chrome.tabs.executeScript(this.tabId,{"file":"sites/" + pages[this.page]["script"]});
+		chrome.tabs.executeScript(this.tabId,{"file":"sitescript.js"});
+
+		this.alreadyQueued = false;
 	}
 
 	// an actual update message from the script has arrived
@@ -184,16 +200,22 @@ class Controller {
 		else if (artist != this.currentArtist || title != this.currentTitle) {
 
 			//first inform ourselves that the previous track has now been stopped for good
-			this.stopPlayback(artist,title)
+			this.stopPlayback(artist,title);
 			//then initialize new playback
-			console.log("New track")
-			this.setUpdate()
-			this.alreadyPlayed = 0
-			this.currentTitle = title
-			this.currentArtist = artist
-			this.currentLength = seconds
-			console.log(artist + " - " + title + " is playing!")
-			this.currentlyPlaying = true
+			console.log("New track");
+			this.setUpdate();
+			this.alreadyPlayed = 0;
+			this.currentTitle = title;
+			this.currentArtist = artist;
+			if (Number.isInteger(seconds)) {
+				this.currentLength = seconds;
+			}
+			else {
+				this.currentLength = 300;
+				// avoid excessive scrobbling when the selector breaks
+			}
+			console.log(artist + " - " + title + " is playing! (" + this.currentLength + " seconds)");
+			this.currentlyPlaying = true;
 		}
 	}
 
