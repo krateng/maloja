@@ -89,9 +89,7 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.png>")
 @webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
-	small_pth = pth.split(".")
-	small_pth.insert(-1,"small")
-	small_pth = ".".join(small_pth)
+	small_pth = pth + "-small"
 	if os.path.exists("images/" + small_pth):
 		response = static_file("images/" + small_pth,root="")
 	else:
