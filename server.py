@@ -69,59 +69,6 @@ def customerror(error):
 
 
 
-#@webserver.get("/api/<pth:path>")
-#def api(pth):
-#	return database.handle_get(pth,request)
-
-#@webserver.post("/api/<pth:path>")
-#def api_post(pth):
-#	return database.handle_post(pth,request)
-
-# this is the fallback option. If you run this service behind a reverse proxy, it is recommended to rewrite /db/ requests to the port of the db server
-# e.g. location /db { rewrite ^/db(.*)$ $1 break; proxy_pass http://yoururl:12349; }
-
-#@webserver.get("/api/<pth:path>")
-def database_get(pth):
-	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
-	keystring = "?"
-	for k in keys:
-		keystring += urllib.parse.quote(k) + "=" + urllib.parse.quote(keys[k]) + "&"
-	response.set_header("Access-Control-Allow-Origin","*")
-	try:
-		proxyresponse = urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/" + pth + keystring)
-		contents = proxyresponse.read()
-		response.status = proxyresponse.getcode()
-		response.content_type = "application/json"
-		return contents
-	except HTTPError as e:
-		response.status = e.code
-		return
-
-#@webserver.post("/api/<pth:path>")
-def database_post(pth):
-	#print(request.headers)
-	#response.set_header("Access-Control-Allow-Origin","*")
-	try:
-		proxyrequest = urllib.request.Request(
-			url="http://[::1]:" + str(DATABASE_PORT) + "/" + pth,
-			data=request.body,
-			headers=request.headers,
-			method="POST"
-		)
-		proxyresponse = urllib.request.urlopen(proxyrequest)
-
-		contents = proxyresponse.read()
-		response.status = proxyresponse.getcode()
-		response.headers = proxyresponse.headers
-		response.content_type = "application/json"
-		return contents
-	except HTTPError as e:
-		response.status = e.code
-		return
-
-	return
-
-
 def graceful_exit(sig=None,frame=None):
 	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
 	database.sync()
@@ -231,9 +178,7 @@ signal.signal(signal.SIGTERM, graceful_exit)
 #rename process, this is now required for the daemon manager to work
 setproctitle.setproctitle("Maloja")
 
-## start database server
-#_thread.start_new_thread(SourceFileLoader("database","database.py").load_module().runserver,(DATABASE_PORT,))
-#_thread.start_new_thread(database.runserver,(DATABASE_PORT,))
+## start database
 database.start_db()
 database.register_subroutes(webserver,"/api")
 

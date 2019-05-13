@@ -2,7 +2,9 @@ from doreah.logging import log
 import hashlib
 import random
 import database
+import datetime
 from cleanup import CleanerAgent
+from bottle import response
 
 ## GNU-FM-compliant scrobbling
 
@@ -51,6 +53,7 @@ def handle(path,keys,headers,auth):
 			response = {"error_message":"Invalid scrobble protocol"}
 	except:
 		response = {"error_message":"Unknown API error"}
+		raise
 
 	print("Response: " + str(response))
 	return response
@@ -113,8 +116,32 @@ def handle_listenbrainz(path,keys,headers):
 		if path[1] == "submit-listens":
 
 			if headers.get("Authorization") is not None:
-				print(headers.get("Authorization"))
-				return {"wat":"wut"}
+				token = headers.get("Authorization").replace("token ","").strip()
+				if token in database.allAPIkeys():
+					if "payload" in keys:
+						if keys["listen_type"] in ["single","import"]:
+							for listen in keys["payload"]:
+								metadata = listen["track_metadata"]
+								artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
+								(artists,title) = cla.fullclean(artiststr,titlestr)
+								try:
+									timestamp = int(listen["listened_at"])
+								except:
+									timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+								database.createScrobble(artists,title,timestamp)
+						return {"code":200,"status":"ok"}
+					else:
+						response.status = 400
+						return {"code":400,"error":"Invalid JSON document submitted."}
 
+
+				else:
+					return {"error":"Bad Auth"}
+
+			else:
+				return {"code":401,"error":"You need to provide an Authorization header."}
+
+		else:
+			return {"error_message":"Invalid API method"}
 	else:
 		return {"error_message":"API version not supported"}

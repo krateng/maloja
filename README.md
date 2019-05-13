@@ -61,12 +61,24 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 
 ## How to scrobble
 
+### Native API
+
 If you use Plex Web or Youtube Music on Chromium, you can use the included extension. Make sure to enter the random key Maloja generates on first startup in the extension settings.
 
-You can use any third-party scrobbler that supports the audioscrobbler protocol (GNUFM). This is still very experimental, but give it a try with these settings:
-
-	Gnukebox URL: Your Maloja URL followed by `/api/s/audioscrobbler`
-	Username: Any name, doesn't matter
-	Password: Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)
-
 If you want to implement your own method of scrobbling, it's very simple: You only need one POST request with the keys `artist`, `title` and `key`.
+
+### Standard-compliant API
+
+You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) or the ListenBrainz protocol. This is still very experimental, but give it a try with these settings:
+
+GNU FM | &nbsp;
+------ | ---------
+Gnukebox URL | Your Maloja URL followed by `/api/s/audioscrobbler`
+Username | Any name, doesn't matter
+Password | Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)
+
+ListenBrainz | &nbsp;
+------ | ---------
+API URL | Your Maloja URL followed by `api/s/listenbrainz`
+Username | Any name, doesn't matter
+Auth Token | Any of your API keys (you can define new ones in `clients/authenticated_machines` in your Maloja folder)

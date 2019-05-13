@@ -660,8 +660,11 @@ def post_scrobble():
 def sapi(path):
 	path = path.split("/")
 	path = list(filter(None,path))
-	keys = FormsDict.decode(request.params)
 	headers = request.headers
+	if "application/json" in request.get_header("Content-Type"):
+		keys = request.json
+	else:
+		keys = FormsDict.decode(request.params)
 	auth = request.auth
 	return compliant_api.handle(path,keys,headers,auth)
 
