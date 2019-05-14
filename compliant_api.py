@@ -3,6 +3,8 @@ import hashlib
 import random
 import database
 import datetime
+import itertools
+import sys
 from cleanup import CleanerAgent
 from bottle import response
 
@@ -33,6 +35,13 @@ def generate_key(ls):
 #		return False
 
 
+handlers = {}
+
+def handler(apiname,version):
+	def deco(cls):
+		handlers[(apiname,version)] = cls()
+		return cls
+	return deco
 
 def handle(path,keys,headers,auth):
 	print("API request: " + str(path))
@@ -44,104 +53,152 @@ def handle(path,keys,headers,auth):
 		print("\t" + str(h) + ": " + str(headers.get(h)))
 	print("Auth: " + str(auth))
 
-	try:
-		if path[0] in ["audioscrobbler","gnukebox","gnufm"]:
-			response = handle_audioscrobbler(path[1:],keys)
-		elif path[0] in ["listenbrainz","lbrnz"]:
-			response = handle_listenbrainz(path[1:],keys,headers)
-		else:
-			response = {"error_message":"Invalid scrobble protocol"}
-	except:
-		response = {"error_message":"Unknown API error"}
-		raise
+	keys = {**keys,**headers}
 
-	print("Response: " + str(response))
-	return response
-
-# no need to save these on disk, clients can always request a new session
-mobile_sessions = []
-
-def handle_audioscrobbler(path,keys):
-
-	if path[0] == "2.0":
-
-		if keys.get("method") == "auth.getMobileSession":
-			token = keys.get("authToken")
-			user = keys.get("username")
-			password = keys.get("password")
-			# either username and password
-			if user is not None and password is not None:
-				if password in database.allAPIkeys():
-					sessionkey = generate_key(mobile_sessions)
-					return {"session":{"key":sessionkey}}
-			# or username and token (deprecated by lastfm)
-			elif user is not None and token is not None:
-				for key in database.allAPIkeys():
-					if md5(user + md5(key)) == token:
-						sessionkey = generate_key(mobile_sessions)
-						return {"session":{"key":sessionkey}}
-			return {"error":4}
+	if len(path)>1 and (path[0],path[1]) in handlers:
+		handler = handlers[(path[0],path[1])]
+		path = path[2:]
+		try:
+			response.status,result = handler.handle(path,keys)
+		except:
+			type = sys.exc_info()[0]
+			response.status,result = handler.errors[type]
+	else:
+		result = {"error":"Invalid scrobble protocol"}
+		response.status = 500
 
 
-		elif keys.get("method") == "track.scrobble":
-			if keys.get("sk") is None or keys.get("sk") not in mobile_sessions:
-				return {"error":9}
+	print("Response: " + str(result))
+	return result
+
+
+class BadAuthException(Exception): pass
+class InvalidAuthException(Exception): pass
+class InvalidMethodException(Exception): pass
+class InvalidSessionKey(Exception): pass
+class MalformedJSONException(Exception): pass
+
+
+class APIHandler:
+	_instance = None
+	def __new__(cls, *args, **kwargs):
+		if not isinstance(cls._instance, cls):
+			cls._instance = object.__new__(cls, *args, **kwargs)
+		return cls._instance
+
+
+	def handle(self,pathnodes,keys):
+		try:
+			methodname = self.get_method(pathnodes,keys)
+			method = self.methods[methodname]
+		except:
+			raise InvalidMethodException()
+		return method(pathnodes,keys)
+
+@handler("audioscrobbler","2.0")
+@handler("gnufm","2.0")
+@handler("gnukebox","2.0")
+class GNUFM2(APIHandler):
+	def __init__(self):
+		# no need to save these on disk, clients can always request a new session
+		self.mobile_sessions = []
+		self.methods = {
+			"auth.getMobileSession":self.authmobile,
+			"track.scrobble":self.scrobble
+		}
+		self.errors = {
+			BadAuthException:(400,{"error":6,"message":"Requires authentication"}),
+			InvalidAuthException:(401,{"error":4,"message":"Invalid credentials"}),
+			InvalidMethodException:(200,{"error":3,"message":"Invalid method"}),
+			InvalidSessionKey:(403,{"error":9,"message":"Invalid session key"})
+		}
+
+	def get_method(self,pathnodes,keys):
+		return keys.get("method")
+
+	def authmobile(self,pathnodes,keys):
+		token = keys.get("authToken")
+		user = keys.get("username")
+		password = keys.get("password")
+		# either username and password
+		if user is not None and password is not None:
+			if password in database.allAPIkeys():
+				sessionkey = generate_key(self.mobile_sessions)
+				return 200,{"session":{"key":sessionkey}}
 			else:
+				raise InvalidAuthException()
+		# or username and token (deprecated by lastfm)
+		elif user is not None and token is not None:
+			for key in database.allAPIkeys():
+				if md5(user + md5(key)) == token:
+					sessionkey = generate_key(self.mobile_sessions)
+					return 200,{"session":{"key":sessionkey}}
+			raise InvalidAuthException()
+		else:
+			raise BadAuthException()
 
-				if "track" in keys and "artist" in keys:
-					artiststr,titlestr = keys["artist"], keys["track"]
+	def scrobble(self,pathnodes,keys):
+		if keys.get("sk") is None or keys.get("sk") not in self.mobile_sessions:
+			raise InvalidSessionKey()
+		else:
+			if "track" in keys and "artist" in keys:
+				artiststr,titlestr = keys["artist"], keys["track"]
+				(artists,title) = cla.fullclean(artiststr,titlestr)
+				timestamp = int(keys["timestamp"])
+				database.createScrobble(artists,title,timestamp)
+				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
+			else:
+				for num in range(50):
+					if "track[" + str(num) + "]" in keys:
+						artiststr,titlestr = keys["artist[" + str(num) + "]"], keys["track[" + str(num) + "]"]
+						(artists,title) = cla.fullclean(artiststr,titlestr)
+						timestamp = int(keys["timestamp[" + str(num) + "]"])
+						database.createScrobble(artists,title,timestamp)
+				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
+
+
+
+@handler("listenbrainz","1")
+@handler("lbrnz","1")
+class LBrnz1(APIHandler):
+	def __init__(self):
+		self.methods = {
+			"submit-listens":self.submit
+		}
+		self.errors = {
+			BadAuthException:(401,{"code":401,"error":"You need to provide an Authorization header."}),
+			InvalidAuthException:(401,{"code":401,"error":"Bad Auth"}),
+			InvalidMethodException:(200,{"code":200,"error":"Invalid Method"}),
+			MalformedJSONException:(400,{"code":400,"error":"Invalid JSON document submitted."})
+		}
+
+	def get_method(self,pathnodes,keys):
+		print(pathnodes)
+		return pathnodes.pop(0)
+
+	def submit(self,pathnodes,keys):
+		try:
+			token = keys.get("Authorization").replace("token ","").strip()
+		except:
+			raise BadAuthException()
+
+		if token not in database.allAPIkeys():
+			raise InvalidAuthException()
+
+		try:
+			if keys["listen_type"] in ["single","import"]:
+				payload = keys["payload"]
+				for listen in payload:
+					metadata = listen["track_metadata"]
+					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
 					(artists,title) = cla.fullclean(artiststr,titlestr)
-					timestamp = int(keys["timestamp"])
+					try:
+						timestamp = int(listen["listened_at"])
+					except:
+						timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 					database.createScrobble(artists,title,timestamp)
-					return {"scrobbles":{"@attr":{"ignored":0}}}
-				else:
-					for num in range(50):
-						if "track[" + str(num) + "]" in keys:
-							artiststr,titlestr = keys["artist[" + str(num) + "]"], keys["track[" + str(num) + "]"]
-							(artists,title) = cla.fullclean(artiststr,titlestr)
-							timestamp = int(keys["timestamp[" + str(num) + "]"])
-							database.createScrobble(artists,title,timestamp)
-					return {"scrobbles":{"@attr":{"ignored":0}}}
-
-		return {"error":3}
-
-	else:
-		return {"error_message":"API version not supported"}
-
-
-def handle_listenbrainz(path,keys,headers):
-
-	if path[0] == "1":
-
-		if path[1] == "submit-listens":
-
-			if headers.get("Authorization") is not None:
-				token = headers.get("Authorization").replace("token ","").strip()
-				if token in database.allAPIkeys():
-					if "payload" in keys:
-						if keys["listen_type"] in ["single","import"]:
-							for listen in keys["payload"]:
-								metadata = listen["track_metadata"]
-								artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
-								(artists,title) = cla.fullclean(artiststr,titlestr)
-								try:
-									timestamp = int(listen["listened_at"])
-								except:
-									timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-								database.createScrobble(artists,title,timestamp)
-						return {"code":200,"status":"ok"}
-					else:
-						response.status = 400
-						return {"code":400,"error":"Invalid JSON document submitted."}
-
-
-				else:
-					return {"error":"Bad Auth"}
-
+					return 200,{"code":200,"status":"ok"}
 			else:
-				return {"code":401,"error":"You need to provide an Authorization header."}
-
-		else:
-			return {"error_message":"Invalid API method"}
-	else:
-		return {"error_message":"API version not supported"}
+				return 200,{"code":200,"status":"ok"}
+		except:
+			raise MalformedJSONException()

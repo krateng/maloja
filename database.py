@@ -664,7 +664,7 @@ def sapi(path):
 	path = path.split("/")
 	path = list(filter(None,path))
 	headers = request.headers
-	if "application/json" in request.get_header("Content-Type"):
+	if request.get_header("Content-Type") is not None and "application/json" in request.get_header("Content-Type"):
 		keys = request.json
 	else:
 		keys = FormsDict.decode(request.params)
