@@ -85,3 +85,7 @@ Username | Any name, doesn't matter
 Auth Token | Any of your API keys
 
 It is recommended to define a different API key for every scrobbler you use in `clients/authenticated_machines.tsv` in your Maloja folder.
+
+### Manual
+
+If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server. 
