@@ -109,7 +109,7 @@ def static_image(pth):
 			response = static_file("images/" + pth,root="")
 
 	#response = static_file("images/" + pth,root="")
-	response.set_header("Cache-Control", "public, max-age=604800")
+	response.set_header("Cache-Control", "public, max-age=86400")
 	return response
 
 #@webserver.route("/<name:re:.*\\.html>")
@@ -120,7 +120,7 @@ def static_image(pth):
 @webserver.route("/<name:re:.*\\.ico>")
 def static(name):
 	response = static_file("website/" + name,root="")
-	response.set_header("Cache-Control", "public, max-age=604800")
+	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
 @webserver.route("/<name>")
