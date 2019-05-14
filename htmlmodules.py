@@ -483,6 +483,9 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	filterkeys, timekeys, delimitkeys, extrakeys = uri_to_internal(keys)
 
+	# drop keys that are not relevant so they don't clutter the URI
+	if not time: timekeys = {}
+	if not delimit: delimitkeys = {}
 
 	html = ""
 

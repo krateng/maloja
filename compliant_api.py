@@ -80,6 +80,7 @@ class MalformedJSONException(Exception): pass
 
 
 class APIHandler:
+	# make these classes singletons
 	_instance = None
 	def __new__(cls, *args, **kwargs):
 		if not isinstance(cls._instance, cls):
