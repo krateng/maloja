@@ -21,11 +21,9 @@ function searchresult() {
 				<table class="searchresults_artists">`
 
 				for (var i=0;i<artists.length;i++) {
-					name = artists[i];
-					uristr = "artist=" + encodeURIComponent(name);
-					uristr = uristr.replace("'","\\'");
-					image = "/image?" + uristr;
-					link = "/artist?" + uristr;
+					name = artists[i]["name"];
+					link = artists[i]["link"];
+					image = artists[i]["image"];
 
 					html += `<tr onclick="goto('` + link + `')">
 						<td class="image" style="background-image:url('` + image + `');"></td>
@@ -44,10 +42,8 @@ function searchresult() {
 
 					artists = tracks[i]["artists"].join(", ");
 					title = tracks[i]["title"];
-					uristr = "title=" + encodeURIComponent(title) + "&" + tracks[i]["artists"].map(x => "artist=" + encodeURIComponent(x)).join("&");
-					uristr = uristr.replace("'","\\'");
-					image = "/image?" + uristr;
-					link = "/track?" + uristr;
+					link = tracks[i]["link"];
+					image = tracks[i]["image"];
 
 					html += `<tr onclick="goto('` + link + `')">
 						<td class="image" style="background-image:url('` + image + `');"></td>

@@ -4,7 +4,7 @@ from bottle import request, response, FormsDict
 from cleanup import *
 from utilities import *
 from malojatime import *
-from urihandler import uri_to_internal
+from urihandler import uri_to_internal, internal_to_uri, compose_querystring
 import compliant_api
 # doreah toolkit
 from doreah.logging import log
@@ -833,11 +833,30 @@ def search():
 
 	artists = db_search(query,type="ARTIST")
 	tracks = db_search(query,type="TRACK")
+
+
+
 	# if the string begins with the query it's a better match, if a word in it begins with it, still good
 	# also, shorter is better (because longer titles would be easier to further specify)
 	artists.sort(key=lambda x: ((0 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 2),len(x)))
 	tracks.sort(key=lambda x: ((0 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 2),len(x["title"])))
-	return {"artists":artists[:max_],"tracks":tracks[:max_]}
+
+	# add links
+	artists_result = []
+	for a in artists:
+		result = {"name":a}
+		result["link"] = "/artist?" + compose_querystring(internal_to_uri({"artist":a}))
+		result["image"] = "/image?" + compose_querystring(internal_to_uri({"artist":a}))
+		artists_result.append(result)
+
+	tracks_result = []
+	for t in tracks:
+		result = t
+		result["link"] = "/track?" + compose_querystring(internal_to_uri({"track":t}))
+		result["image"] = "/image?" + compose_querystring(internal_to_uri({"track":t}))
+		tracks_result.append(result)
+
+	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
 
 ####
 ## Server operation
