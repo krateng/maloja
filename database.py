@@ -113,6 +113,8 @@ def createScrobble(artists,title,time,volatile=False):
 	invalidate_caches()
 	dblock.release()
 
+	return get_track_dict(TRACKS[obj.track])
+
 
 # this will never be called from different threads, so no lock
 def readScrobble(artists,title,time):
@@ -617,12 +619,12 @@ def pseudo_post_scrobble():
 	## this is necessary for localhost testing
 	response.set_header("Access-Control-Allow-Origin","*")
 
-	createScrobble(artists,title,time)
+	trackdict = createScrobble(artists,title,time)
 
 	if (time - lastsync) > 3600:
 		sync()
 
-	return ""
+	return {"status":"success","track":trackdict}
 
 @dbserver.post("/newscrobble")
 def post_scrobble():
@@ -643,13 +645,14 @@ def post_scrobble():
 	## this is necessary for localhost testing
 	#response.set_header("Access-Control-Allow-Origin","*")
 
-	createScrobble(artists,title,time)
+	trackdict = createScrobble(artists,title,time)
 
 	#if (time - lastsync) > 3600:
 	#	sync()
 	sync() #let's just always sync, not like one filesystem access every three minutes is a problem and it avoids lost tracks when we lose power
 
-	return ""
+
+	return {"status":"success","track":trackdict}
 
 
 
