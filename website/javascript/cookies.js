@@ -42,3 +42,7 @@ function checkAPIkey() {
 		apikeycorrect = false
 	}
 }
+
+function APIkey() {
+	return document.getElementById("apikey").value;
+}
