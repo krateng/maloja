@@ -649,7 +649,8 @@ def post_scrobble():
 
 	#if (time - lastsync) > 3600:
 	#	sync()
-	sync() #let's just always sync, not like one filesystem access every three minutes is a problem and it avoids lost tracks when we lose power
+	sync()
+	#always sync, one filesystem access every three minutes shouldn't matter
 
 
 	return {"status":"success","track":trackdict}

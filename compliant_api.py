@@ -71,13 +71,21 @@ def handle(path,keys,headers,auth):
 	print("Response: " + str(result))
 	return result
 
+def scrobbletrack(artiststr,titlestr,timestamp):
+	try:
+		(artists,title) = cla.fullclean(artiststr,titlestr)
+		database.createScrobble(artists,title,timestamp)
+		database.sync()
+	except:
+		raise ScrobblingException()
+
 
 class BadAuthException(Exception): pass
 class InvalidAuthException(Exception): pass
 class InvalidMethodException(Exception): pass
 class InvalidSessionKey(Exception): pass
 class MalformedJSONException(Exception): pass
-
+class ScrobblingException(Exception): pass
 
 class APIHandler:
 	# make these classes singletons
@@ -111,7 +119,8 @@ class GNUFM2(APIHandler):
 			BadAuthException:(400,{"error":6,"message":"Requires authentication"}),
 			InvalidAuthException:(401,{"error":4,"message":"Invalid credentials"}),
 			InvalidMethodException:(200,{"error":3,"message":"Invalid method"}),
-			InvalidSessionKey:(403,{"error":9,"message":"Invalid session key"})
+			InvalidSessionKey:(403,{"error":9,"message":"Invalid session key"}),
+			ScrobblingException:(500,{"error":8,"message":"Operation failed"})
 		}
 
 	def get_method(self,pathnodes,keys):
@@ -144,17 +153,19 @@ class GNUFM2(APIHandler):
 		else:
 			if "track" in keys and "artist" in keys:
 				artiststr,titlestr = keys["artist"], keys["track"]
-				(artists,title) = cla.fullclean(artiststr,titlestr)
+				#(artists,title) = cla.fullclean(artiststr,titlestr)
 				timestamp = int(keys["timestamp"])
-				database.createScrobble(artists,title,timestamp)
+				#database.createScrobble(artists,title,timestamp)
+				scrobbletrack(artiststr,titlestr,timestamp)
 				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
 			else:
 				for num in range(50):
 					if "track[" + str(num) + "]" in keys:
 						artiststr,titlestr = keys["artist[" + str(num) + "]"], keys["track[" + str(num) + "]"]
-						(artists,title) = cla.fullclean(artiststr,titlestr)
+						#(artists,title) = cla.fullclean(artiststr,titlestr)
 						timestamp = int(keys["timestamp[" + str(num) + "]"])
-						database.createScrobble(artists,title,timestamp)
+						#database.createScrobble(artists,title,timestamp)
+						scrobbletrack(artiststr,titlestr,timestamp)
 				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
 
 
@@ -170,7 +181,8 @@ class LBrnz1(APIHandler):
 			BadAuthException:(401,{"code":401,"error":"You need to provide an Authorization header."}),
 			InvalidAuthException:(401,{"code":401,"error":"Bad Auth"}),
 			InvalidMethodException:(200,{"code":200,"error":"Invalid Method"}),
-			MalformedJSONException:(400,{"code":400,"error":"Invalid JSON document submitted."})
+			MalformedJSONException:(400,{"code":400,"error":"Invalid JSON document submitted."}),
+			ScrobblingException:(500,{"code":500,"error":"Unspecified server error."})
 		}
 
 	def get_method(self,pathnodes,keys):
@@ -192,12 +204,13 @@ class LBrnz1(APIHandler):
 				for listen in payload:
 					metadata = listen["track_metadata"]
 					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
-					(artists,title) = cla.fullclean(artiststr,titlestr)
+					#(artists,title) = cla.fullclean(artiststr,titlestr)
 					try:
 						timestamp = int(listen["listened_at"])
 					except:
 						timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-					database.createScrobble(artists,title,timestamp)
+					#database.createScrobble(artists,title,timestamp)
+					scrobbletrack(artiststr,titlestr,timestamp)
 					return 200,{"code":200,"status":"ok"}
 			else:
 				return 200,{"code":200,"status":"ok"}
