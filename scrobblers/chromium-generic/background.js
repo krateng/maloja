@@ -19,10 +19,15 @@ pages = {
 	},
 	"YouTube Music":{
 		"patterns":[
-			"https://music.youtube.com",
-			"http://music.youtube.com"
+			"https://music.youtube.com"
 		],
 		"script":"ytmusic.js"
+	},
+	"Spotify Web":{
+		"patterns":[
+			"https://open.spotify.com"
+		],
+		"script":"spotify.js"
 	}
 
 }

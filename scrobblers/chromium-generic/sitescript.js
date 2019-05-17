@@ -71,7 +71,7 @@ else {
 		//stopPlayback()
 	}
 	else if (control == "Pause") {
-		console.log("Playing " + artist + " - " + title);
+		console.log("Playing " + artist + " - " + title + " (" + durationSeconds + " sec)");
 		chrome.runtime.sendMessage({type:"startPlayback",time:Math.floor(Date.now()),artist:artist,title:title,duration:durationSeconds});
 		//startPlayback(artist,title,durationSeconds)
 	}
