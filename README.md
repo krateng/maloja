@@ -4,9 +4,7 @@ Simple self-hosted music scrobble database to create personal listening statisti
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
 
-## Never Asked Questions
-
-### Why not Last.fm / Libre.fm / GNU FM?
+## Why not Last.fm / Libre.fm / GNU FM?
 
 Maloja is **self-hosted**. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can **follow your own tagging schema** or even **group associated artists together** in your charts.
 
@@ -84,8 +82,10 @@ API URL | Your Maloja URL followed by `/api/s/listenbrainz`
 Username | Any name, doesn't matter
 Auth Token | Any of your API keys
 
+These are tested with the Pano Scrobbler and the Simple Last.fm Scrobbler for Android. I'm thankful for any feedback whether other scrobblers work!
+
 It is recommended to define a different API key for every scrobbler you use in `clients/authenticated_machines.tsv` in your Maloja folder.
 
 ### Manual
 
-If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server. 
+If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server.
