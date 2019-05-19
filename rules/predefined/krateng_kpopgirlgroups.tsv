@@ -62,7 +62,7 @@ replacetitle	빨간 맛 Red Flavor			Red Flavor
 replacetitle	행복 (Happiness)			Happiness
 replacetitle	봐 Look					Look
 replacetitle	RBB (Really Bad Boy)			Really Bad Boy
-replacetitle	7월 7일 One Of These Nights	One Of These Nights
+replacetitle	7월 7일 One Of These Nights		One Of These Nights
 
 # EXID
 countas		Dasoni					EXID
@@ -98,13 +98,18 @@ replacetitle	Expect(기대해)				Expect
 replacetitle	EXPECT					Expect
 replacetitle	I'll be yours				I'll Be Yours
 replacetitle	FEMALE PRESIDENT(여자 대통령)		Female President
-replacetitle	여자 대통령					Female President
+replacetitle	여자 대통령				Female President
 
 # Mamamoo
 countas		Hwasa					Mamamoo
 replaceartist	Hwa Sa					Hwasa
 replaceartist	MAMAMOO					Mamamoo
-replacetitle	Egotistic(너나 해)				Egotistic
+replacetitle	Egotistic(너나 해)			Egotistic
+replacetitle	Mr.Ambiguous				Mr. Ambiguous
+replacetitle	Mr.애매모호 (Mr. Ambiguous)		Mr. Ambiguous
+replacetitle	AHH OOP! (아훕!) (AHH OOP!)		AHH OOP!
+replacetitle	음오아예 (Um Oh Ah Yeh) (Um Oh Ah Yeh)	Um Oh Ah Yeh
+replacetitle	따끔 (a little bit)			A Little Bit
 
 # Hello Venus
 replaceartist	Hello/Venus				Hello Venus
@@ -138,4 +143,4 @@ replaceartist	A pink					Apink
 replaceartist	CHUNG HA				Chungha
 replaceartist	청하 CHUNGHA				Chungha
 countas		Chungha					I.O.I
-replacetitle	벌써 12시 Gotta Go				Gotta Go
+replacetitle	벌써 12시 Gotta Go			Gotta Go

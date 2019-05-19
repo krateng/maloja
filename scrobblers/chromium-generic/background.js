@@ -32,6 +32,13 @@ pages = {
 
 }
 
+function updateTabNum() {
+
+	var amount = Object.keys(tabManagers).length;
+	chrome.browserAction.setBadgeText({"text":amount.toString()});
+	chrome.browserAction.setBadgeBackgroundColor({"color":"#440000"});
+}
+
 
 function onTabUpdated(tabId, changeInfo, tab) {
 
@@ -40,29 +47,30 @@ function onTabUpdated(tabId, changeInfo, tab) {
 	//console.log("Update to tab " + tabId + "!")
 	if (tabManagers.hasOwnProperty(tabId)) {
 		//console.log("Yes!")
-		page = tabManagers[tabId].page
-		patterns = pages[page]["patterns"]
+		page = tabManagers[tabId].page;
+		patterns = pages[page]["patterns"];
 		//console.log("Page was managed by a " + page + " manager")
 		for (var i=0;i<patterns.length;i++) {
 			if (tab.url.startsWith(patterns[i])) {
 				//console.log("Still on same page!")
-				tabManagers[tabId].update()
+				tabManagers[tabId].update();
 
 				return
 			}
 		}
-		console.log("Page on tab " + tabId + " changed, removing old " + page + " manager!")
-		delete tabManagers[tabId]
+		console.log("Page on tab " + tabId + " changed, removing old " + page + " manager!");
+		delete tabManagers[tabId];
 	}
 
 	//check if pattern matches
 	for (var key in pages) {
 		if (pages.hasOwnProperty(key)) {
-			patterns = pages[key]["patterns"]
+			patterns = pages[key]["patterns"];
 			for (var i=0;i<patterns.length;i++) {
 				if (tab.url.startsWith(patterns[i])) {
-					console.log("New page on tab " + tabId + " will be handled by new " + key + " manager!")
-					tabManagers[tabId] = new Controller(tabId,key)
+					console.log("New page on tab " + tabId + " will be handled by new " + key + " manager!");
+					tabManagers[tabId] = new Controller(tabId,key);
+					updateTabNum();
 					return
 					//chrome.tabs.executeScript(tab.id,{"file":"sitescripts/" + pages[key]["script"]})
 
@@ -78,10 +86,11 @@ function onTabUpdated(tabId, changeInfo, tab) {
 function onTabRemoved(tabId,removeInfo) {
 
 	if (tabManagers.hasOwnProperty(tabId)) {
-		page = tabManagers[tabId].page
-		console.log("closed tab was " + page + ", now removing manager")
-		tabManagers[tabId].stopPlayback("","") //in case we want to scrobble the playing track
-		delete tabManagers[tabId]
+		page = tabManagers[tabId].page;
+		console.log("closed tab was " + page + ", now removing manager");
+		tabManagers[tabId].stopPlayback("",""); //in case we want to scrobble the playing track
+		delete tabManagers[tabId];
+		updateTabNum();
 	}
 
 }
@@ -96,10 +105,10 @@ function onInternalMessage(request,sender) {
 		for (tabId in tabManagers) {
 			manager = tabManagers[tabId]
 			if (manager.currentlyPlaying) {
-				answer.push([manager.page,manager.currentArtist,manager.currentTitle])
+				answer.push([manager.page,manager.currentArtist,manager.currentTitle]);
 			}
 			else {
-				answer.push([manager.page,null])
+				answer.push([manager.page,null]);
 			}
 
 		}
@@ -112,7 +121,7 @@ function onInternalMessage(request,sender) {
 		//console.log("Message was sent from tab id " + tabId)
 		if (tabManagers.hasOwnProperty(tabId)) {
 			//console.log("This is managed! Seems to be " + tabManagers[tabId].page)
-			tabManagers[tabId].playbackUpdate(request)
+			tabManagers[tabId].playbackUpdate(request);
 
 		}
 	}
