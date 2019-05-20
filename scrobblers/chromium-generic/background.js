@@ -36,7 +36,7 @@ function updateTabNum() {
 
 	var amount = Object.keys(tabManagers).length;
 	chrome.browserAction.setBadgeText({"text":amount.toString()});
-	chrome.browserAction.setBadgeBackgroundColor({"color":"#440000"});
+	chrome.browserAction.setBadgeBackgroundColor({"color":"#333337"});
 }
 
 

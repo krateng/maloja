@@ -1,7 +1,7 @@
 # NAME: K-Pop Girl Groups
 # DESC: Fixes various different spellings, romanizes artist names and track titles and includes subgroups for some K-Pop Girl Groups
 
-# HyunA
+# HyunA & 4Minute
 replaceartist	Kim Hyun-a				HyunA
 replaceartist	현아					HyunA
 replacetitle	빨개요					Red
@@ -12,8 +12,7 @@ replacetitle	How's This				How's This?
 replacetitle	How's this				How's This?
 replaceartist	HyunA(현아)				HyunA
 replacetitle	Cause I'm God Girl			Roll Deep
-
-# 4Minute
+#countas	HyunA					4Minute		# HyunA is too famous
 countas		2Yoon					4Minute
 replaceartist	4minute					4Minute
 replacetitle	미쳐					Crazy
@@ -139,8 +138,8 @@ replaceartist	소녀시대				Girls' Generation
 replaceartist	A Pink					Apink
 replaceartist	A pink					Apink
 
-# IOI
+# Chungha & IOI
 replaceartist	CHUNG HA				Chungha
 replaceartist	청하 CHUNGHA				Chungha
-countas		Chungha					I.O.I
+#countas		Chungha					I.O.I		# Chungha is too famous
 replacetitle	벌써 12시 Gotta Go			Gotta Go
