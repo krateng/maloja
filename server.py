@@ -7,6 +7,9 @@ import waitress
 import monkey
 # rest of the project
 import database
+import utilities
+import htmlmodules
+import malojatime
 from utilities import *
 from urihandler import uri_to_internal, remove_identical
 # doreah toolkit
@@ -20,6 +23,7 @@ import signal
 import os
 import setproctitle
 # url handling
+import urllib
 import urllib.request
 import urllib.parse
 from urllib.error import *
@@ -128,46 +132,74 @@ def static_html(name):
 	linkheaders = ["</css/maloja.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
-	with open("website/" + name + ".html") as htmlfile:
-		html = htmlfile.read()
+	# if a pyhp file exists, use this
+	if os.path.exists("website/" + name + ".pyhp"):
+		from doreah.pyhp import file
+		#try:
+		#	d = SourceFileLoader(name,"website/" + name + ".py").load_module().pyhp(keys)
+		#	print("loaded dict")
+		#except:
+		#	d = {}
+		#	print("error")
+		#	raise
+		environ = {} #things we expose to the pyhp pages
 
-	# apply global substitutions
-	with open("website/common/footer.html") as footerfile:
-		footerhtml = footerfile.read()
-	with open("website/common/header.html") as headerfile:
-		headerhtml = headerfile.read()
-	html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
+		# maloja
+		environ["db"] = database
+		environ["htmlmodules"] = htmlmodules
+		environ["malojatime"] = malojatime
+		environ["utilities"] = utilities
+		# external
+		environ["urllib"] = urllib
+		# request
+		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
+
+		#response.set_header("Content-Type","application/xhtml+xml")
+		return file("website/" + name + ".pyhp",environ)
+
+	# if not, use the old way
+	else:
+
+		with open("website/" + name + ".html") as htmlfile:
+			html = htmlfile.read()
+
+		# apply global substitutions
+		with open("website/common/footer.html") as footerfile:
+			footerhtml = footerfile.read()
+		with open("website/common/header.html") as headerfile:
+			headerhtml = headerfile.read()
+		html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
 
 
-	# If a python file exists, it provides the replacement dict for the html file
-	if os.path.exists("website/" + name + ".py"):
-		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
-		try:
-			txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
-		except Exception as e:
-			log("Error in website generation: " + str(sys.exc_info()),module="error")
-			raise
+		# If a python file exists, it provides the replacement dict for the html file
+		if os.path.exists("website/" + name + ".py"):
+			#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+			try:
+				txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
+			except Exception as e:
+				log("Error in website generation: " + str(sys.exc_info()),module="error")
+				raise
 
-		# add headers for server push
-		for resource in resources:
-			if all(ord(c) < 128 for c in resource["file"]):
-				# we can only put ascii stuff in the http header
-				linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
+			# add headers for server push
+			for resource in resources:
+				if all(ord(c) < 128 for c in resource["file"]):
+					# we can only put ascii stuff in the http header
+					linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
 
-		# apply key substitutions
-		for k in txt_keys:
-			if isinstance(txt_keys[k],list):
-				# if list, we replace each occurence with the next item
-				for element in txt_keys[k]:
-					html = html.replace(k,element,1)
-			else:
-				html = html.replace(k,txt_keys[k])
+			# apply key substitutions
+			for k in txt_keys:
+				if isinstance(txt_keys[k],list):
+					# if list, we replace each occurence with the next item
+					for element in txt_keys[k]:
+						html = html.replace(k,element,1)
+				else:
+					html = html.replace(k,txt_keys[k])
 
 
-	response.set_header("Link",",".join(linkheaders))
+		response.set_header("Link",",".join(linkheaders))
 
-	return html
-	#return static_file("website/" + name + ".html",root="")
+		return html
+		#return static_file("website/" + name + ".html",root="")
 
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
