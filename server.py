@@ -9,6 +9,7 @@ import monkey
 import database
 import utilities
 import htmlmodules
+import htmlgenerators
 import malojatime
 from utilities import *
 from urihandler import uri_to_internal, remove_identical
@@ -147,6 +148,7 @@ def static_html(name):
 		# maloja
 		environ["db"] = database
 		environ["htmlmodules"] = htmlmodules
+		environ["htmlgenerators"] = htmlgenerators
 		environ["malojatime"] = malojatime
 		environ["utilities"] = utilities
 		# external

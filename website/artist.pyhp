@@ -10,13 +10,12 @@
 	<pyhp save="info.get('replace')" as="credited" />
 	<pyhp save="info.get('associated')" as="included" />
 	<pyhp save="'#' + str(info.get('position'))" as="positionstring" />
-	<pyhp save="urllib.parse.quote(artist)" as="encodedartist" />
 	<pyhp save="'months'" as="initialrange" />
 
 	<!-- includestring -->
 	<pyhp save="''" as="includestring" />
 	<pyhp if="credited is not None">
-		<pyhp save="'Competing under ' + credited + ' (' + positionstring + ')'" as="includestring" />
+		<pyhp save="'Competing under ' + htmlgenerators.artistLink(credited) + ' (' + positionstring + ')'" as="includestring" />
 		<pyhp save="''" as="positionstring" /> <!-- clear positionstring so it's not shown next to the artist -->
 	</pyhp>
 	<pyhp if="credited is None">
@@ -24,8 +23,11 @@
 	</pyhp>
 
 	<pyhp if="included is not None and included != []">
-		<pyhp save="'associated: ' + ', '.join(included)" as="includestring" />
+		<pyhp save="'associated: ' + htmlgenerators.artistLinks(included)" as="includestring" />
 	</pyhp>
+
+	<pyhp save="urllib.parse.quote(artist)" as="encodedartist" />
+	<pyhp save="urllib.parse.quote(credited)" as="encodedcredited" />
 
 
 
@@ -119,7 +121,7 @@
 				</td>
 				<td>
 					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-					<h2><a href='/performance?artist={encodedartist}&amp;step=year&amp;trail=1'>Performance</a></h2>
+					<h2><a href='/performance?artist={encodedcredited}&amp;step=year&amp;trail=1'>Performance</a></h2>
 
 					<pyhp for="range" in="ranges" separator = " | ">
 						<pyhp if="initialrange==range[0]">
