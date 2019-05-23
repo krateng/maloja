@@ -1,7 +1,7 @@
 # generic temporary / dev files
 *.pyc
 *.sh
-*.txt
+*.note
 *.xcf
 nohup.out
 /.dev

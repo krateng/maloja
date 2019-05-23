@@ -118,10 +118,10 @@ def install():
 
 	if toinstall != [] or toinstallr != []:
 		if os.geteuid() != 0:
-			print("Installing python modules should be fairly straight-forward, but Maloja can try to install them automatically. For this, you need to run this script as a root user.")
+			print("You can install them with",yellow("pip install -r requirements.txt"),"or Maloja can try to install them automatically. For this, you need to run this script as a root user.")
 			return False
 		else:
-			print("Installing python modules should be fairly straight-forward, but Maloja can try to install them automatically, This might or might not work / bloat your system / cause a nuclear war.")
+			print("You can install them with",yellow("pip install -r requirements.txt"),"or Maloja can try to install them automatically, This might or might not work / bloat your system / cause a nuclear war.")
 			fail = False
 			if toinstall != []:
 				print("Attempt to install required modules? [Y/n]")
@@ -284,7 +284,7 @@ def update():
 
 	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
 
-	print("Make sure to install the latest version of doreah! (" + yellow("pip3 install --upgrade --no-cache-dir doreah") + ")")
+	print("Make sure to update required modules! (" + yellow("pip3 install -r requirements.txt --upgrade --no-cache-dir") + ")")
 
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 

@@ -21,6 +21,7 @@ Also neat: You can use your **custom artist or track images**.
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
 * [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.7.2)
 * [nimrodel](https://pypi.org/project/nimrodel/) - [GitHub](https://github.com/krateng/nimrodel) (at least Version 0.4.4)
+* [setproctitle](https://pypi.org/project/setproctitle/) - [GitHub](https://github.com/dvarrazzo/py-setproctitle)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
@@ -29,13 +30,15 @@ Also neat: You can use your **custom artist or track images**.
 
 		./maloja install
 
-2) Start the server with
+2) Install required packages with
+
+		pip3 install -r requirements.txt
+
+3) Start the server with
 
 		maloja start
 
-	If you're missing packages, the console output will tell you so. Install them.
-
-2) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
 
 ## How to use
 
