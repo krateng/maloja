@@ -189,8 +189,7 @@ dbserver = API(delay=True,path="api")
 
 
 @dbserver.get("test")
-def test_server():
-	apikey = request.query.get("key")
+def test_server(key=None):
 	response.set_header("Access-Control-Allow-Origin","*")
 	if apikey is not None and not (checkAPIkey(apikey)):
 		response.status = 403
@@ -437,9 +436,7 @@ def get_performance(**keys):
 
 
 @dbserver.get("top/artists")
-def get_top_artists_external():
-
-	keys = FormsDict.decode(request.query)
+def get_top_artists_external(**keys):
 	_, k_time, k_internal, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
