@@ -191,7 +191,7 @@ dbserver = API(delay=True,path="api")
 @dbserver.get("test")
 def test_server(key=None):
 	response.set_header("Access-Control-Allow-Origin","*")
-	if apikey is not None and not (checkAPIkey(apikey)):
+	if key is not None and not (checkAPIkey(key)):
 		response.status = 403
 		return "Wrong API key"
 
