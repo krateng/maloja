@@ -26,8 +26,9 @@
 		<pyhp save="'associated: ' + htmlgenerators.artistLinks(included)" as="includestring" />
 	</pyhp>
 
-	<pyhp save="urllib.parse.quote(artist)" as="encodedartist" />
-	<pyhp save="urllib.parse.quote(credited)" as="encodedcredited" />
+	<!-- url encode -->
+	<pyhp save="urihandler.compose_querystring(urihandler.internal_to_uri({'artist':artist}))" as="encodedartist" />
+	<pyhp save="urihandler.compose_querystring(urihandler.internal_to_uri({'artist':credited}))" as="encodedcredited" />
 
 
 
@@ -54,7 +55,7 @@
 						<span class="rank"><a href="/charts_artists?max=100"><pyhp echo="positionstring" /></a></span>
 						<br/>
 					<span><pyhp echo="includestring" /></span>
-					<p class="stats"><a href="/scrobbles?artist={encodedartist}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
+					<p class="stats"><a href="/scrobbles?{encodedartist}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
 
 					<pyhp if="info.get('medals') is not None and 'gold' in info['medals']">
 						<pyhp for="y" in="info['medals']['gold']">
@@ -76,7 +77,7 @@
 			</tr>
 		</table>
 
-		<h2><a href='/charts_tracks?artist={encodedartist}'>Top Tracks</a></h2>
+		<h2><a href='/charts_tracks?{encodedartist}'>Top Tracks</a></h2>
 
 		<pyhp echo="htmlmodules.module_trackcharts(**filterkeys,max_=15)[0]" />
 		<br/>
@@ -95,7 +96,7 @@
 
 			<tr>
 				<td>
-					<h2><a href='/pulse?artist={encodedartist}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+					<h2><a href='/pulse?{encodedartist}&amp;step=year&amp;trail=1'>Pulse</a></h2>
 
 					<pyhp for="range" in="ranges" separator = " | ">
 						<pyhp if="initialrange==range[0]">
@@ -121,7 +122,7 @@
 				</td>
 				<td>
 					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-					<h2><a href='/performance?artist={encodedcredited}&amp;step=year&amp;trail=1'>Performance</a></h2>
+					<h2><a href='/performance?{encodedcredited}&amp;step=year&amp;trail=1'>Performance</a></h2>
 
 					<pyhp for="range" in="ranges" separator = " | ">
 						<pyhp if="initialrange==range[0]">
@@ -149,7 +150,7 @@
 		</table>
 
 
-		<h2><a href='/scrobbles?artist={encodedartist}'>Last Scrobbles</a></h2>
+		<h2><a href='/scrobbles?{encodedartist}'>Last Scrobbles</a></h2>
 
 		<pyhp echo="htmlmodules.module_scrobblelist(**filterkeys,max_=10,earlystop=True)[0]" />
 

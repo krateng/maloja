@@ -13,6 +13,7 @@ import htmlgenerators
 import malojatime
 from utilities import *
 from urihandler import uri_to_internal, remove_identical
+import urihandler
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -151,6 +152,7 @@ def static_html(name):
 		environ["htmlgenerators"] = htmlgenerators
 		environ["malojatime"] = malojatime
 		environ["utilities"] = utilities
+		environ["urihandler"] = urihandler
 		# external
 		environ["urllib"] = urllib
 		# request
