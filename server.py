@@ -178,7 +178,8 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-database.register_subroutes(webserver,"/api")
+#database.register_subroutes(webserver,"/api")
+database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
 run(webserver, host='::', port=MAIN_PORT, server='waitress')

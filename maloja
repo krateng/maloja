@@ -13,7 +13,8 @@ neededmodules = [
 	"bottle",
 	"waitress",
 	"setproctitle",
-	"doreah"
+	"doreah",
+	"nimrodel"
 ]
 
 recommendedmodules = [

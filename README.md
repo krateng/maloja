@@ -20,6 +20,7 @@ Also neat: You can use your **custom artist or track images**.
 * [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
 * [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.7.2)
+* [nimrodel](https://pypi.org/project/nimrodel/) - [GitHub](https://github.com/krateng/nimrodel) (at least Version 0.4.4)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
@@ -58,13 +59,15 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 
 3) Various folders have `.info` files with more information on how to use their associated features.
 
+4) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
+
 ## How to scrobble
 
 ### Native API
 
 If you use Plex Web or Youtube Music on Chromium, you can use the included extension (also available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh)). Make sure to enter the random key Maloja generates on first startup in the extension settings.
 
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key`.
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key` - either as from-data or json.
 
 ### Standard-compliant API
 

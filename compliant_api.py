@@ -43,17 +43,12 @@ def handler(apiname,version):
 		return cls
 	return deco
 
-def handle(path,keys,headers,auth):
+def handle(path,keys):
 	print("API request: " + str(path))
 	print("Keys:")
 	for k in keys:
-		print("\t" + str(k) + ": " + str(keys.get(k)))
-	print("Headers:")
-	for h in headers:
-		print("\t" + str(h) + ": " + str(headers.get(h)))
-	print("Auth: " + str(auth))
+		print("\t",k,":",keys.get(k))
 
-	keys = {**keys,**headers}
 
 	if len(path)>1 and (path[0],path[1]) in handlers:
 		handler = handlers[(path[0],path[1])]
