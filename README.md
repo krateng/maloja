@@ -20,7 +20,7 @@ Also neat: You can use your **custom artist or track images**.
 * [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
 * [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.9.1)
-* [nimrodel](https://pypi.org/project/nimrodel/) - [GitHub](https://github.com/krateng/nimrodel) (at least Version 0.4.5)
+* [nimrodel](https://pypi.org/project/nimrodel/) - [GitHub](https://github.com/krateng/nimrodel) (at least Version 0.4.8)
 * [setproctitle](https://pypi.org/project/setproctitle/) - [GitHub](https://github.com/dvarrazzo/py-setproctitle)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 

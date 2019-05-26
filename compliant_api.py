@@ -174,7 +174,7 @@ class LBrnz1(APIHandler):
 		}
 		self.errors = {
 			BadAuthException:(401,{"code":401,"error":"You need to provide an Authorization header."}),
-			InvalidAuthException:(401,{"code":401,"error":"Bad Auth"}),
+			InvalidAuthException:(401,{"code":401,"error":"Incorrect Authorization"}),
 			InvalidMethodException:(200,{"code":200,"error":"Invalid Method"}),
 			MalformedJSONException:(400,{"code":400,"error":"Invalid JSON document submitted."}),
 			ScrobblingException:(500,{"code":500,"error":"Unspecified server error."})
@@ -186,7 +186,7 @@ class LBrnz1(APIHandler):
 
 	def submit(self,pathnodes,keys):
 		try:
-			token = keys.get("Authorization").replace("token ","").strip()
+			token = keys.get("Authorization").replace("token ","").replace("Token ","").strip()
 		except:
 			raise BadAuthException()
 
