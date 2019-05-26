@@ -118,6 +118,7 @@ def static_image(pth):
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")
+@webserver.route("/<name:re:.*\\.txt>")
 def static(name):
 	response = static_file("website/" + name,root="")
 	response.set_header("Cache-Control", "public, max-age=3600")
