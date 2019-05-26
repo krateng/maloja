@@ -607,8 +607,8 @@ def post_scrobble(**keys):
 
 # standard-compliant scrobbling methods
 
-@dbserver.post("s/{path}")
-@dbserver.get("s/{path}")
+@dbserver.post("s/{path}",pass_headers=True)
+@dbserver.get("s/{path}",pass_headers=True)
 def sapi(path:Multi,**keys):
 	"""Scrobbles according to a standardized protocol.
 
