@@ -16,7 +16,7 @@ def entity_column(element,counting=[],image=None):
 		# track
 	#	html += "<td class='artists'>" + html_links(element["artists"]) + "</td>"
 	#	html += "<td class='title'>" + html_link(element) + "</td>"
-		html += "<td class='title'>" + html_links(element["artists"]) + " – " + html_link(element) + "</td>"
+		html += "<td class='track'><span class='artist_in_trackcolumn'>" + html_links(element["artists"]) + "</span> – " + html_link(element) + "</td>"
 	else:
 		# artist
 		html += "<td class='artist'>" + html_link(element)

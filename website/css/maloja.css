@@ -463,10 +463,14 @@ table.list td.icon div {
 	background-position:center;
 }
 
-table.list td.artists,td.artist,td.title {
+table.list td.artists,td.artist,td.title,td.track {
 	min-width:100px;
 
 
+}
+
+table.list td.track span.artist_in_trackcolumn {
+	color:#bbb;
 }
 
 
