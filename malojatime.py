@@ -66,6 +66,9 @@ class MRangeDescriptor:
 	def unlimited(self):
 		return False
 
+	def active(self):
+		return (self.last_stamp() > datetime.datetime.utcnow().timestamp())
+
 	# returns the description of the range including buttons to go back and forth
 	#def desc_interactive(self,**kwargs):
 	#	if self.next(1) is None:
@@ -99,7 +102,7 @@ class MTime(MRangeDescriptor):
 
 	# whether we currently live or will ever again live in this range
 	def active(self):
-		tod = datetime.date.today()
+		tod = datetime.datetime.utcnow().date()
 		if tod.year > self.year: return False
 		if self.precision == 1: return True
 		if tod.year == self.year:
@@ -235,13 +238,13 @@ class MTimeWeek(MRangeDescriptor):
 		return str(self)
 
 	# whether we currently live or will ever again live in this range
-	def active(self):
-		tod = datetime.date.today()
-		if tod.year > self.year: return False
-		if tod.year == self.year:
-			if tod.chrcalendar()[1] > self.week: return False
-
-		return True
+#	def active(self):
+#		tod = datetime.date.today()
+#		if tod.year > self.year: return False
+#		if tod.year == self.year:
+#			if tod.chrcalendar()[1] > self.week: return False
+#
+#		return True
 
 	def urikeys(self):
 		return {"in":str(self)}
