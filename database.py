@@ -1,14 +1,15 @@
 # server
 from bottle import request, response, FormsDict
 # rest of the project
-from cleanup import *
-from utilities import *
-from malojatime import *
+from cleanup import CleanerAgent, CollectorAgent
+import utilities
+from malojatime import register_scrobbletime, time_stamps, ranges
 from urihandler import uri_to_internal, internal_to_uri, compose_querystring
 import compliant_api
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
+from doreah import settings
 from doreah.caching import Cache, DeepCache
 try:
 	from doreah.persistence import DiskDict
@@ -27,7 +28,6 @@ from threading import Lock
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
-
 
 
 
@@ -868,10 +868,10 @@ def build_db():
 	# coa.updateIDs(ARTISTS)
 
 	#start regular tasks
-	update_medals()
+	utilities.update_medals()
 
 	global db_rulestate
-	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
+	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
 
 	log("Database fully built!")
 
@@ -904,7 +904,7 @@ def sync():
 	for e in entries:
 		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
-		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
+		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 
 
 	global lastsync
@@ -934,7 +934,7 @@ cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
 	global cache_query, cache_query_permanent
-	key = serialize(kwargs)
+	key = utilities.serialize(kwargs)
 	if "timerange" in kwargs and not kwargs["timerange"].active():
 		if key in cache_query_permanent:
 			#print("Hit")
@@ -959,7 +959,7 @@ else:
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
-	key = serialize(kwargs)
+	key = utilities.serialize(kwargs)
 	if "timerange" in kwargs and not kwargs["timerange"].active():
 		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
 		result = db_aggregate_full(**kwargs)
