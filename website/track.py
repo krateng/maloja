@@ -16,7 +16,7 @@ def instructions(keys):
 	imgurl = getTrackImage(track["artists"],track["title"],fast=True)
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
-	data = database.trackInfo(track["artists"],track["title"])
+	data = database.trackInfo(track)
 
 	scrobblesnum = str(data["scrobbles"])
 	pos = "#" + str(data["position"])

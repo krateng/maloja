@@ -511,14 +511,16 @@ def artistInfo_external(**keys):
 def artistInfo(artist):
 
 	charts = db_aggregate(by="ARTIST")
-	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
+	scrobbles = len(db_query(artists=[artist]))
+	#we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
 		position = c["rank"]
 		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
 	except:
-		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
+		# if the artist isnt in the charts, they are not being credited and we
+		# need to show information about the credited one
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
 		position = c["rank"]
@@ -529,21 +531,36 @@ def artistInfo(artist):
 
 
 @dbserver.get("trackinfo")
-def trackInfo_external(**keys):
+def trackInfo_external(artist:Multi[str],**keys):
+	# transform into a multidict so we can use our nomral uri_to_internal function
+	keys = FormsDict(keys)
+	for a in artist:
+		keys.append("artist",a)
 	k_filter, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
 	results = trackInfo(**ckeys)
 	return results
 
-def trackInfo(artists,title):
+def trackInfo(track):
 	charts = db_aggregate(by="TRACK")
 	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
-	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
+	#c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
+	c = [e for e in charts if e["track"] == track][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
+	cert = None
+	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_PLATINUM")
+	if scrobbles >= threshold_diamond: cert = "diamond"
+	elif scrobbles >= threshold_platinum: cert = "platinum"
+	elif scrobbles >= threshold_gold: cert = "gold"
 
-	return {"scrobbles":scrobbles,"position":position,"medals":MEDALS_TRACKS.get((frozenset(artists),title))}
+	return {
+		"scrobbles":scrobbles,
+		"position":position,
+		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
+		"certification":cert
+	}
 
 
 
