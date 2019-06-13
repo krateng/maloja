@@ -550,7 +550,7 @@ def trackInfo(track):
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
 	cert = None
-	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_PLATINUM")
+	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND")
 	if scrobbles >= threshold_diamond: cert = "diamond"
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"

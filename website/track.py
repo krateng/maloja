@@ -21,6 +21,9 @@ def instructions(keys):
 	scrobblesnum = str(data["scrobbles"])
 	pos = "#" + str(data["position"])
 
+	html_cert = ""
+	if data["certification"] is not None:
+		html_cert = "<img class='certrecord' src='/media/record_{cert}.png' title='This track has reached {certc} status' />".format(cert=data["certification"],certc=data["certification"].capitalize())
 
 	html_medals = ""
 	if "medals" in data and data["medals"] is not None:
@@ -61,6 +64,7 @@ def instructions(keys):
 		"KEY_IMAGEURL":imgurl,
 		"KEY_SCROBBLELINK":compose_querystring(keys),
 		"KEY_MEDALS":html_medals,
+		"KEY_CERTS":html_cert,
 		"KEY_SCROBBLELIST":html_scrobbles,
 		# pulse
 		"KEY_PULSE_MONTHS":html_pulse_months,
