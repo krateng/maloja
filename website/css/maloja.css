@@ -379,6 +379,10 @@ img.certrecord {
 	height:30px;
 	vertical-align: text-bottom;
 }
+img.certrecord_small {
+	height:20px;
+	vertical-align: text-bottom;
+}
 
 
 /*
