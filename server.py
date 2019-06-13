@@ -124,6 +124,7 @@ def static_image(pth):
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")
+@webserver.route("/<name:re:.*\\.txt>")
 def static(name):
 	response = static_file("website/" + name,root="")
 	response.set_header("Cache-Control", "public, max-age=3600")
@@ -214,7 +215,8 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-database.register_subroutes(webserver,"/api")
+#database.register_subroutes(webserver,"/api")
+database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
 run(webserver, host='::', port=MAIN_PORT, server='waitress')

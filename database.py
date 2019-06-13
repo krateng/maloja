@@ -1,19 +1,23 @@
 # server
 from bottle import request, response, FormsDict
 # rest of the project
-from cleanup import *
-from utilities import *
-from malojatime import *
+from cleanup import CleanerAgent, CollectorAgent
+import utilities
+from malojatime import register_scrobbletime, time_stamps, ranges
 from urihandler import uri_to_internal, internal_to_uri, compose_querystring
 import compliant_api
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
+from doreah import settings
 from doreah.caching import Cache, DeepCache
 try:
 	from doreah.persistence import DiskDict
 except: pass
 import doreah
+# nimrodel API
+from nimrodel import EAPI as API
+from nimrodel import Multi
 # technical
 import os
 import datetime
@@ -24,7 +28,6 @@ from threading import Lock
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
-
 
 
 
@@ -182,54 +185,13 @@ def getTrackID(artists,title):
 ########
 
 
-# silly patch to get old syntax working without dbserver
-
-# function to register all the functions to the real server
-def register_subroutes(server,path):
-	for subpath in dbserver.handlers_get:
-		func = dbserver.handlers_get[subpath]
-		decorator = server.get(path + subpath)
-		decorator(func)
-	for subpath in dbserver.handlers_post:
-		func = dbserver.handlers_post[subpath]
-		decorator = server.post(path + subpath)
-		decorator(func)
+dbserver = API(delay=True,path="api")
 
 
-# fake server
-class FakeBottle:
-	def __init__(self):
-		self.handlers_get = {}
-		self.handlers_post = {}
-
-	# these functions pretend that they're the bottle decorators, but only write
-	# down which functions asked for them so they can later report their names
-	# to the real bottle server
-	def get(self,path):
-		def register(func):
-			self.handlers_get[path] = func
-			return func
-		return register
-	def post(self,path):
-		def register(func):
-			self.handlers_post[path] = func
-			return func
-		return register
-
-	def route(self,path):
-		return self.get(path)
-
-
-dbserver = FakeBottle()
-
-
-
-
-@dbserver.route("/test")
-def test_server():
-	apikey = request.query.get("key")
+@dbserver.get("test")
+def test_server(key=None):
 	response.set_header("Access-Control-Allow-Origin","*")
-	if apikey is not None and not (checkAPIkey(apikey)):
+	if key is not None and not (checkAPIkey(key)):
 		response.status = 403
 		return "Wrong API key"
 
@@ -247,9 +209,8 @@ def test_server():
 
 ## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json
 
-@dbserver.route("/scrobbles")
-def get_scrobbles_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("scrobbles")
+def get_scrobbles_external(**keys):
 	k_filter, k_time, _, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
@@ -277,9 +238,8 @@ def get_scrobbles(**keys):
 #	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
 
 
-@dbserver.route("/numscrobbles")
-def get_scrobbles_num_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("numscrobbles")
+def get_scrobbles_num_external(**keys):
 	k_filter, k_time, _, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
@@ -342,9 +302,8 @@ def get_scrobbles_num(**keys):
 
 
 
-@dbserver.route("/tracks")
-def get_tracks_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("tracks")
+def get_tracks_external(**keys):
 	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -366,7 +325,7 @@ def get_tracks(artist=None):
 	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
 
 
-@dbserver.route("/artists")
+@dbserver.get("artists")
 def get_artists_external():
 	result = get_artists()
 	return {"list":result}
@@ -380,9 +339,8 @@ def get_artists():
 
 
 
-@dbserver.route("/charts/artists")
-def get_charts_artists_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("charts/artists")
+def get_charts_artists_external(**keys):
 	_, k_time, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
@@ -397,9 +355,8 @@ def get_charts_artists(**keys):
 
 
 
-@dbserver.route("/charts/tracks")
-def get_charts_tracks_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("charts/tracks")
+def get_charts_tracks_external(**keys):
 	k_filter, k_time, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
@@ -417,9 +374,8 @@ def get_charts_tracks(**keys):
 
 
 
-@dbserver.route("/pulse")
-def get_pulse_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("pulse")
+def get_pulse_external(**keys):
 	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -440,9 +396,8 @@ def get_pulse(**keys):
 
 
 
-@dbserver.route("/performance")
-def get_performance_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("performance")
+def get_performance_external(**keys):
 	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -480,10 +435,8 @@ def get_performance(**keys):
 
 
 
-@dbserver.route("/top/artists")
-def get_top_artists_external():
-
-	keys = FormsDict.decode(request.query)
+@dbserver.get("top/artists")
+def get_top_artists_external(**keys):
 	_, k_time, k_internal, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -513,9 +466,8 @@ def get_top_artists(**keys):
 
 
 
-@dbserver.route("/top/tracks")
-def get_top_tracks_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("top/tracks")
+def get_top_tracks_external(**keys):
 	_, k_time, k_internal, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -548,9 +500,8 @@ def get_top_tracks(**keys):
 
 
 
-@dbserver.route("/artistinfo")
-def artistInfo_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("artistinfo")
+def artistInfo_external(**keys):
 	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -560,14 +511,16 @@ def artistInfo_external():
 def artistInfo(artist):
 
 	charts = db_aggregate(by="ARTIST")
-	scrobbles = len(db_query(artists=[artist])) #we cant take the scrobble number from the charts because that includes all countas scrobbles
+	scrobbles = len(db_query(artists=[artist]))
+	#we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
 		position = c["rank"]
 		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
 	except:
-		# if the artist isnt in the charts, they are not being credited and we need to show information about the credited one
+		# if the artist isnt in the charts, they are not being credited and we
+		# need to show information about the credited one
 		artist = coa.getCredited(artist)
 		c = [e for e in charts if e["artist"] == artist][0]
 		position = c["rank"]
@@ -577,23 +530,37 @@ def artistInfo(artist):
 
 
 
-@dbserver.route("/trackinfo")
-def trackInfo_external():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("trackinfo")
+def trackInfo_external(artist:Multi[str],**keys):
+	# transform into a multidict so we can use our nomral uri_to_internal function
+	keys = FormsDict(keys)
+	for a in artist:
+		keys.append("artist",a)
 	k_filter, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
 	results = trackInfo(**ckeys)
 	return results
 
-def trackInfo(artists,title):
+def trackInfo(track):
 	charts = db_aggregate(by="TRACK")
 	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
-	c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
+	#c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
+	c = [e for e in charts if e["track"] == track][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
+	cert = None
+	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND")
+	if scrobbles >= threshold_diamond: cert = "diamond"
+	elif scrobbles >= threshold_platinum: cert = "platinum"
+	elif scrobbles >= threshold_gold: cert = "gold"
 
-	return {"scrobbles":scrobbles,"position":position,"medals":MEDALS_TRACKS.get((frozenset(artists),title))}
+	return {
+		"scrobbles":scrobbles,
+		"position":position,
+		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
+		"certification":cert
+	}
 
 
 
@@ -601,9 +568,8 @@ def trackInfo(artists,title):
 
 
 
-@dbserver.get("/newscrobble")
-def pseudo_post_scrobble():
-	keys = FormsDict.decode(request.query) # The Dal★Shabet handler
+@dbserver.get("newscrobble")
+def pseudo_post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
@@ -626,9 +592,8 @@ def pseudo_post_scrobble():
 
 	return {"status":"success","track":trackdict}
 
-@dbserver.post("/newscrobble")
-def post_scrobble():
-	keys = FormsDict.decode(request.forms) # The Dal★Shabet handler
+@dbserver.post("newscrobble")
+def post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
@@ -659,28 +624,26 @@ def post_scrobble():
 
 # standard-compliant scrobbling methods
 
-@dbserver.post("/s/<path:path>")
-@dbserver.get("/s/<path:path>")
-def sapi(path):
-	path = path.split("/")
+@dbserver.post("s/{path}",pass_headers=True)
+@dbserver.get("s/{path}",pass_headers=True)
+def sapi(path:Multi,**keys):
+	"""Scrobbles according to a standardized protocol.
+
+	:param string path: Path according to the scrobble protocol
+	:param string keys: Query keys according to the scrobble protocol
+	"""
 	path = list(filter(None,path))
-	headers = request.headers
-	if request.get_header("Content-Type") is not None and "application/json" in request.get_header("Content-Type"):
-		keys = request.json
-	else:
-		keys = FormsDict.decode(request.params)
-	auth = request.auth
-	return compliant_api.handle(path,keys,headers,auth)
+	return compliant_api.handle(path,keys)
 
 
 
 
-@dbserver.route("/sync")
+@dbserver.get("sync")
 def abouttoshutdown():
 	sync()
 	#sys.exit()
 
-@dbserver.post("/newrule")
+@dbserver.post("newrule")
 def newrule():
 	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
@@ -691,7 +654,7 @@ def newrule():
 		db_rulestate = False
 
 
-@dbserver.route("/issues")
+@dbserver.get("issues")
 def issues_external(): #probably not even needed
 	return issues()
 
@@ -787,7 +750,7 @@ def issues():
 	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
 
 
-@dbserver.post("/importrules")
+@dbserver.post("importrules")
 def import_rulemodule():
 	keys = FormsDict.decode(request.forms)
 	apikey = keys.pop("key",None)
@@ -807,7 +770,7 @@ def import_rulemodule():
 
 
 
-@dbserver.post("/rebuild")
+@dbserver.post("rebuild")
 def rebuild():
 
 	keys = FormsDict.decode(request.forms)
@@ -827,9 +790,8 @@ def rebuild():
 
 
 
-@dbserver.get("/search")
-def search():
-	keys = FormsDict.decode(request.query)
+@dbserver.get("search")
+def search(**keys):
 	query = keys.get("query")
 	max_ = keys.get("max")
 	if max_ is not None: max_ = int(max_)
@@ -923,10 +885,10 @@ def build_db():
 	# coa.updateIDs(ARTISTS)
 
 	#start regular tasks
-	update_medals()
+	utilities.update_medals()
 
 	global db_rulestate
-	db_rulestate = consistentRulestate("scrobbles",cla.checksums)
+	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
 
 	log("Database fully built!")
 
@@ -959,7 +921,7 @@ def sync():
 	for e in entries:
 		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
-		combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
+		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 
 
 	global lastsync
@@ -989,7 +951,7 @@ cacheday = (0,0,0)
 def db_query(**kwargs):
 	check_cache_age()
 	global cache_query, cache_query_permanent
-	key = serialize(kwargs)
+	key = utilities.serialize(kwargs)
 	if "timerange" in kwargs and not kwargs["timerange"].active():
 		if key in cache_query_permanent:
 			#print("Hit")
@@ -1014,7 +976,7 @@ else:
 def db_aggregate(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
-	key = serialize(kwargs)
+	key = utilities.serialize(kwargs)
 	if "timerange" in kwargs and not kwargs["timerange"].active():
 		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
 		result = db_aggregate_full(**kwargs)

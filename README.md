@@ -19,7 +19,9 @@ Also neat: You can use your **custom artist or track images**.
 * [python3](https://www.python.org/) - [GitHub](https://github.com/python/cpython)
 * [bottle.py](https://bottlepy.org/) - [GitHub](https://github.com/bottlepy/bottle)
 * [waitress](https://docs.pylonsproject.org/projects/waitress/) - [GitHub](https://github.com/Pylons/waitress)
-* [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.7.2)
+* [doreah](https://pypi.org/project/doreah/) - [GitHub](https://github.com/krateng/doreah) (at least Version 0.9.1)
+* [nimrodel](https://pypi.org/project/nimrodel/) - [GitHub](https://github.com/krateng/nimrodel) (at least Version 0.4.9)
+* [setproctitle](https://pypi.org/project/setproctitle/) - [GitHub](https://github.com/dvarrazzo/py-setproctitle)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
@@ -28,13 +30,15 @@ Also neat: You can use your **custom artist or track images**.
 
 		./maloja install
 
-2) Start the server with
+2) Install required packages with
+
+		pip3 install -r requirements.txt
+
+3) Start the server with
 
 		maloja start
 
-	If you're missing packages, the console output will tell you so. Install them.
-
-2) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
 
 ## How to use
 
@@ -58,13 +62,15 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 
 3) Various folders have `.info` files with more information on how to use their associated features.
 
+4) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
+
 ## How to scrobble
 
 ### Native API
 
 If you use Plex Web or Youtube Music on Chromium, you can use the included extension (also available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh)). Make sure to enter the random key Maloja generates on first startup in the extension settings.
 
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key`.
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key` - either as from-data or json.
 
 ### Standard-compliant API
 

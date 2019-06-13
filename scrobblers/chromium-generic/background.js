@@ -202,7 +202,8 @@ class Controller {
 			// Already played full song
 			while (this.alreadyPlayed > this.currentLength) {
 				this.alreadyPlayed = this.alreadyPlayed - this.currentLength
-				scrobble(this.currentArtist,this.currentTitle,this.currentLength)
+				var secondsago = this.alreadyPlayed
+				scrobble(this.currentArtist,this.currentTitle,this.currentLength,secondsago)
 			}
 
 			this.setUpdate()
@@ -248,7 +249,8 @@ class Controller {
 		// Already played full song
 		while (this.alreadyPlayed > this.currentLength) {
 			this.alreadyPlayed = this.alreadyPlayed - this.currentLength
-			scrobble(this.currentArtist,this.currentTitle,this.currentLength)
+			var secondsago = this.alreadyPlayed
+			scrobble(this.currentArtist,this.currentTitle,this.currentLength,secondsago)
 		}
 
 		this.currentlyPlaying = false
@@ -282,17 +284,22 @@ class Controller {
 
 
 
-function scrobble(artist,title,seconds) {
-	console.log("Scrobbling " + artist + " - " + title + "; " + seconds + " seconds playtime")
-	artiststring = encodeURIComponent(artist)
-	titlestring = encodeURIComponent(title)
+function scrobble(artist,title,seconds,secondsago=0) {
+	console.log("Scrobbling " + artist + " - " + title + "; " + seconds + " seconds playtime, " + secondsago + " seconds ago")
+	var artiststring = encodeURIComponent(artist)
+	var titlestring = encodeURIComponent(title)
+	var d = new Date()
+	var time = Math.floor(d.getTime()/1000) - secondsago
+	//console.log("Time: " + time)
+	var requestbody = "artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds + "&time=" + time
 	chrome.storage.local.get("apikey",function(result) {
 		APIKEY = result["apikey"]
 		chrome.storage.local.get("serverurl",function(result) {
 			URL = result["serverurl"]
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST",URL + "/api/newscrobble",true);
-			xhttp.send("artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds + "&key=" + APIKEY)
+			xhttp.send(requestbody + "&key=" + APIKEY)
+			//console.log("Sent: " + requestbody)
 		});
 	});
 

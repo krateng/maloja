@@ -46,6 +46,9 @@ replacetitle	종이 심장 (Paper Heart)			Paper Heart
 replacetitle	나비 (Butterfly)			Butterfly
 replacetitle	Déjà vu					Déjà Vu
 replacetitle	라차타 (LA chA TA)			LA chA TA
+replacetitle	여우 같은 내 친구 (No More)		No More
+replacetitle	시그널 (Signal)			Signal
+replacetitle	미행 (그림자 : Shadow)		Shadow
 
 # Stellar
 replaceartist	STELLAR					Stellar
@@ -111,6 +114,7 @@ replacetitle	음오아예 (Um Oh Ah Yeh) (Um Oh Ah Yeh)	Um Oh Ah Yeh
 replacetitle	따끔 (a little bit)			A Little Bit
 
 # Hello Venus
+replaceartist	HELLOVENUS				Hello Venus
 replaceartist	Hello/Venus				Hello Venus
 
 # BESTie
