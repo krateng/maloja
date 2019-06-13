@@ -5,7 +5,7 @@
 	<!-- query keys -->
 	<pyhp save="filterkeys.get('track')" as="track" />
 	<!-- DB calls -->
-	<pyhp save="db.trackInfo(track['artists'],track['title'])" as="info" />
+	<pyhp save="db.trackInfo(track)" as="info" />
 	<!-- preprocessing -->
 	<pyhp save="'#' + str(info.get('position'))" as="positionstring" />
 	<pyhp save="'months'" as="initialrange" />
@@ -29,7 +29,7 @@
 				</td>
 				<td class="text">
 					<span><pyhp echo="htmlgenerators.artistLinks(track['artists'])" /></span><br/>
-					<h1><pyhp echo="track['title']" /></h1> <span class="rank"><a href="/charts_tracks?max=100"><pyhp echo="positionstring" /></a></span>
+					<h1><pyhp echo="track['title']" /></h1> <pyhp if="info['certification'] is not None"><img class="certrecord" src="/media/record_{info['certification']}.png" title="This track has reached {info['certification'].capitalize()} status" /></pyhp> <span class="rank"><a href="/charts_tracks?max=100"><pyhp echo="positionstring" /></a></span>
 
 					<p class="stats"><a href="/scrobbles?{encodedtrack}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
 
