@@ -308,7 +308,7 @@ def module_toptracks(pictures=True,**kwargs):
 			if pictures:
 				html += "<td><div></div></td>"
 			html += "<td class='stats'>" + "No scrobbles" + "</td>"
-			html += "<td>" + "" + "</td>"
+			#html += "<td>" + "" + "</td>"
 			html += "<td class='amount'>" + "0" + "</td>"
 			html += "<td class='bar'>" + "" + "</td>"
 		else:
