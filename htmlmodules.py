@@ -66,7 +66,7 @@ def module_scrobblelist(page=0,perpage=100,max_=None,pictures=False,shortTimeDes
 
 	html += "</table>"
 
-	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+	if max_ is None: html += module_paginate(page=page,pages=pages,perpage=perpage,**kwargs)
 
 	return (html,len(scrobbles),representative)
 
@@ -109,7 +109,7 @@ def module_pulse(page=0,perpage=100,max_=None,**kwargs):
 		html += "</tr>"
 	html += "</table>"
 
-	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+	if max_ is None: html += module_paginate(page=page,pages=pages,perpage=perpage,**kwargs)
 
 	return html
 
@@ -153,7 +153,7 @@ def module_performance(page=0,perpage=100,max_=None,**kwargs):
 		html += "</tr>"
 	html += "</table>"
 
-	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+	if max_ is None: html += module_paginate(page=page,pages=pages,perpage=perpage,**kwargs)
 
 	return html
 
@@ -230,7 +230,7 @@ def module_trackcharts(page=0,perpage=100,max_=None,**kwargs):
 		prev = e
 	html += "</table>"
 
-	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+	if max_ is None: html += module_paginate(page=page,pages=pages,perpage=perpage,**kwargs)
 
 	return (html,representative)
 
@@ -309,7 +309,7 @@ def module_artistcharts(page=0,perpage=100,max_=None,**kwargs):
 
 	html += "</table>"
 
-	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+	if max_ is None: html += module_paginate(page=page,pages=pages,perpage=perpage,**kwargs)
 
 	return (html, representative)
 
@@ -528,9 +528,9 @@ def module_trackcharts_tiles(**kwargs):
 
 
 
-def module_paginate(page,pages,**keys):
+def module_paginate(page,pages,perpage,**keys):
 
-	unchangedkeys = internal_to_uri({**keys})
+	unchangedkeys = internal_to_uri({**keys,"perpage":perpage})
 
 	html = "<div class='paginate'>"
 
