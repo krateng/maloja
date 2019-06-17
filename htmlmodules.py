@@ -18,11 +18,13 @@ import math
 #			result.append(element.get("image"))
 
 
-# artist=None,track=None,since=None,to=None,within=None,associated=False,max_=None,pictures=False
-def module_scrobblelist(page=0,perpage=100,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
+#max_ indicates that no pagination should occur (because this is not the primary module)
+def module_scrobblelist(page=0,perpage=100,max_=None,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
+
+	if max_ is not None: perpage,page=max_,0
 
 	firstindex = page * perpage
 	lastindex = firstindex + perpage
@@ -36,6 +38,8 @@ def module_scrobblelist(page=0,perpage=100,pictures=False,shortTimeDesc=False,ea
 		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
 		#scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
 		scrobbleimages = [getTrackImage(t["artists"],t["title"],fast=True) for t in scrobbleswithpictures]
+
+	pages = math.ceil(len(scrobbles) / perpage)
 
 	representative = scrobbles[0] if len(scrobbles) is not 0 else None
 
@@ -62,15 +66,19 @@ def module_scrobblelist(page=0,perpage=100,pictures=False,shortTimeDesc=False,ea
 
 	html += "</table>"
 
+	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+
 	return (html,len(scrobbles),representative)
 
 
-def module_pulse(page=0,perpage=100,**kwargs):
+def module_pulse(page=0,perpage=100,max_=None,**kwargs):
 
 	from doreah.timing import clock, clockp
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
 	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
+
+	if max_ is not None: perpage,page=max_,0
 
 	firstindex = page * perpage
 	lastindex = firstindex + perpage
@@ -78,6 +86,7 @@ def module_pulse(page=0,perpage=100,**kwargs):
 
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
 
+	pages = math.ceil(len(ranges) / perpage)
 
 	ranges = ranges[firstindex:lastindex]
 
@@ -100,20 +109,25 @@ def module_pulse(page=0,perpage=100,**kwargs):
 		html += "</tr>"
 	html += "</table>"
 
+	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
 
 	return html
 
 
 
-def module_performance(page=0,perpage=100,**kwargs):
+def module_performance(page=0,perpage=100,max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track")
 	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
+
+	if max_ is not None: perpage,page=max_,0
 
 	firstindex = page * perpage
 	lastindex = firstindex + perpage
 
 	ranges = database.get_performance(**kwargs_time,**kwargs_filter)
+
+	pages = math.ceil(len(ranges) / perpage)
 
 	ranges = ranges[firstindex:lastindex]
 
@@ -139,20 +153,25 @@ def module_performance(page=0,perpage=100,**kwargs):
 		html += "</tr>"
 	html += "</table>"
 
+	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
 
 	return html
 
 
 
-def module_trackcharts(page=0,perpage=100,**kwargs):
+def module_trackcharts(page=0,perpage=100,max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
+
+	if max_ is not None: perpage,page=max_,0
 
 	firstindex = page * perpage
 	lastindex = firstindex + perpage
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)
+
+	pages = math.ceil(len(tracks) / perpage)
 
 	# last time range (to compare)
 	try:
@@ -211,18 +230,24 @@ def module_trackcharts(page=0,perpage=100,**kwargs):
 		prev = e
 	html += "</table>"
 
+	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
+
 	return (html,representative)
 
 
-def module_artistcharts(page=0,perpage=100,**kwargs):
+def module_artistcharts(page=0,perpage=100,max_=None,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
+
+	if max_ is not None: perpage,page=max_,0
 
 	firstindex = page * perpage
 	lastindex = firstindex + perpage
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)
+
+	pages = math.ceil(len(artists) / perpage)
 
 	# last time range (to compare)
 	try:
@@ -282,6 +307,8 @@ def module_artistcharts(page=0,perpage=100,**kwargs):
 		prev = e
 
 	html += "</table>"
+
+	if max_ is None: html += module_paginate(page=page,pages=pages,**kwargs)
 
 	return (html, representative)
 
@@ -499,6 +526,44 @@ def module_trackcharts_tiles(**kwargs):
 	return html
 
 
+
+def module_paginate(page,pages,**keys):
+
+	unchangedkeys = internal_to_uri({**keys})
+
+	html = "<div class='paginate'>"
+
+	if page > 1:
+		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"page":0})) + "'><span class='stat_selector'>" + "1" + "</span></a>"
+		html += " | "
+
+	if page > 2:
+		html += " ... | "
+
+	if page > 0:
+		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"page":page-1})) + "'><span class='stat_selector'>" + str(page) + "</span></a>"
+		html += " « "
+
+	html += "<span style='opacity:0.5;' class='stat_selector'>" + str(page+1) + "</span>"
+
+	if page < pages-1:
+		html += " » "
+		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"page":page+1})) + "'><span class='stat_selector'>" + str(page+2) + "</span></a>"
+
+	if page < pages-3:
+		html += " | ... "
+
+	if page < pages-2:
+		html += " | "
+		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"page":pages-1})) + "'><span class='stat_selector'>" + str(pages) + "</span></a>"
+
+
+	html += "</div>"
+
+	return html
+
+
+
 # THIS FUNCTION USES THE ORIGINAL URI KEYS!!!
 def module_filterselection(keys,time=True,delimit=False):
 
@@ -509,6 +574,7 @@ def module_filterselection(keys,time=True,delimit=False):
 	if not delimit: delimitkeys = {}
 
 	html = ""
+
 
 	if time:
 		# all other keys that will not be changed by clicking another filter
