@@ -391,6 +391,7 @@ def time_fix(t):
 	if isinstance(t,MRangeDescriptor): return t
 
 	if isinstance(t, str):
+		if t in ["alltime"]: return None
 		tod = datetime.datetime.utcnow()
 		months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
 		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
