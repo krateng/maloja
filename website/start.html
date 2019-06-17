@@ -4,10 +4,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>Maloja</title>
-		<script src="javascript/rangeselect.js"></script>
+
 		<script>document.addEventListener('DOMContentLoaded',function() {
 			KEY_JS_INIT_RANGES
 		})</script>
+		<script src="javascript/cookies.js"></script>
+		<script src="javascript/rangeselect.js"></script>
 	</head>
 
 
@@ -23,10 +25,10 @@
 
 
 
-		<span onclick="showRange('topartists','week')" class="stat_selector_topartists selector_topartists_week">This Week</span>
-      			| <span onclick="showRange('topartists','month')" class="stat_selector_topartists selector_topartists_month">This Month</span>
-      			| <span onclick="showRange('topartists','year')" class="stat_selector_topartists selector_topartists_year">This Year</span>
-      			| <span onclick="showRange('topartists','alltime')" class="stat_selector_topartists selector_topartists_alltime" style="opacity:0.5;">All Time</span>
+		<span onclick="showRangeManual('topartists','week')" class="stat_selector_topartists selector_topartists_week">This Week</span>
+      			| <span onclick="showRangeManual('topartists','month')" class="stat_selector_topartists selector_topartists_month">This Month</span>
+      			| <span onclick="showRangeManual('topartists','year')" class="stat_selector_topartists selector_topartists_year">This Year</span>
+      			| <span onclick="showRangeManual('topartists','alltime')" class="stat_selector_topartists selector_topartists_alltime" style="opacity:0.5;">All Time</span>
 
 		<br/><br/>
 
@@ -42,9 +44,9 @@
 
 
 		<span onclick="showRange('toptracks','week')" class="stat_selector_toptracks selector_toptracks_week">This Week</span>
-      			| <span onclick="showRange('toptracks','month')" class="stat_selector_toptracks selector_toptracks_month">This Month</span>
-      			| <span onclick="showRange('toptracks','year')" class="stat_selector_toptracks selector_toptracks_year">This Year</span>
-      			| <span onclick="showRange('toptracks','alltime')" class="stat_selector_toptracks selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
+      			| <span onclick="showRangeManual('toptracks','month')" class="stat_selector_toptracks selector_toptracks_month">This Month</span>
+      			| <span onclick="showRangeManual('toptracks','year')" class="stat_selector_toptracks selector_toptracks_year">This Year</span>
+      			| <span onclick="showRangeManual('toptracks','alltime')" class="stat_selector_toptracks selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
 
 		<br/><br/>
 
@@ -81,10 +83,10 @@
       			<a href="/pulse?step=year&trail=1">Years</a>
       			-->
 
-      			<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
-      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
-      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
-      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
+      			<span onclick="showRangeManual('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
+      			| <span onclick="showRangeManual('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
+      			| <span onclick="showRangeManual('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
+      			| <span onclick="showRangeManual('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
       			<!--
       			### this is for extra views of the current canonical week / month / year
       			<br/>

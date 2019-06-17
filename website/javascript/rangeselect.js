@@ -25,4 +25,21 @@ function showRange(identifier,unit) {
 	for (var i=0;i<reactivate.length;i++) {
 		reactivate[i].setAttribute("style","opacity:0.5;")
 	}
+
 }
+
+function showRangeManual(identifier,unit) {
+	showRange(identifier,unit);
+	setCookie("rangeselect_" + identifier,unit);
+}
+
+
+
+document.addEventListener('DOMContentLoaded',function() {
+	getCookies();
+	for (c in cookies) {
+		if (c.startsWith("rangeselect_")) {
+			showRange(c.slice(12),cookies[c]);
+		}
+	}
+})

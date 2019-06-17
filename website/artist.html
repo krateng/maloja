@@ -4,7 +4,8 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>Maloja - KEY_ARTISTNAME</title>
-		<script src="javascript/rangeselect.js" async></script>
+		<script src="javascript/cookies.js"></script>
+		<script src="javascript/rangeselect.js"></script>
 	</head>
 
 	<body>
@@ -35,10 +36,10 @@
 					<h2><a href='/pulse?artist=KEY_ENC_ARTISTNAME&step=year&trail=1'>Pulse</a></h2>
 
 
-					<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
-		      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
-		      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
-		      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
+					<span onclick="showRangeManual('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
 
 		      			<br/><br/>
 
@@ -50,10 +51,10 @@
 				<td>
 					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
 					<h2><a href='/performance?artist=KEY_ENC_CREDITEDARTISTNAME&step=year&trail=1'>Performance</a></h2>
-					<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
-		      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
-		      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
-		      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
+					<span onclick="showRangeManual('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
 
 		      			<br/><br/>
 
