@@ -103,8 +103,11 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 
 	#4
-	resultkeys4 = {"max_":300}
-	if "max" in keys: resultkeys4["max_"] = int(keys["max"])
+	resultkeys4 = {"page":0,"perpage":100}
+#	if "max" in keys: resultkeys4["max_"] = int(keys["max"])
+	if "max" in keys: resultkeys4["page"],resultkeys4["perpage"] = 0, int(keys["max"])
+	if "page" in keys: resultkeys4["page"] = int(keys["page"])
+	if "perpage" in keys: resultkeys4["perpage"] = int(keys["perpage"])
 
 
 	return resultkeys1, resultkeys2, resultkeys3, resultkeys4
@@ -148,6 +151,10 @@ def internal_to_uri(keys):
 	# stuff
 	if "max_" in keys:
 		urikeys.append("max",str(keys["max_"]))
+	if "page" in keys:
+		urikeys.append("page",str(keys["page"]))
+	if "perpage" in keys:
+		urikeys.append("perpage",str(keys["perpage"]))
 
 
 	return urikeys

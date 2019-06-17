@@ -19,18 +19,20 @@ import math
 
 
 # artist=None,track=None,since=None,to=None,within=None,associated=False,max_=None,pictures=False
-def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
+def module_scrobblelist(page=0,perpage=100,pictures=False,shortTimeDesc=False,earlystop=False,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
 
+	firstindex = page * perpage
+	lastindex = firstindex + perpage
 
 	# if earlystop, we don't care about the actual amount and only request as many from the db
 	# without, we request everything and filter on site
-	maxkey = {"max_":max_} if earlystop else {}
+	maxkey = {"max_":lastindex} if earlystop else {}
 	scrobbles = database.get_scrobbles(**kwargs_time,**kwargs_filter,**maxkey)
 	if pictures:
-		scrobbleswithpictures = scrobbles if max_ is None else scrobbles[:max_]
+		scrobbleswithpictures = [""] * firstindex + scrobbles[firstindex:lastindex]
 		#scrobbleimages = [e.get("image") for e in getTracksInfo(scrobbleswithpictures)] #will still work with scrobble objects as they are a technically a subset of track objects
 		#scrobbleimages = ["/image?title=" + urllib.parse.quote(t["title"]) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in t["artists"]])  for t in scrobbleswithpictures]
 		scrobbleimages = [getTrackImage(t["artists"],t["title"],fast=True) for t in scrobbleswithpictures]
@@ -41,6 +43,9 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 	i = 0
 	html = "<table class='list'>"
 	for s in scrobbles:
+		if i<firstindex:
+			i += 1
+			continue
 
 		html += "<tr>"
 		html += "<td class='time'>" + timestamp_desc(s["time"],short=shortTimeDesc) + "</td>"
@@ -48,12 +53,10 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 			img = scrobbleimages[i]
 		else: img = None
 		html += entity_column(s,image=img)
-		# Alternative way: Do it in one cell
-		#html += "<td class='title'><span>" + artistLinks(s["artists"]) + "</span> — " + trackLink({"artists":s["artists"],"title":s["title"]}) + "</td>"
 		html += "</tr>"
 
 		i += 1
-		if max_ is not None and i>=max_:
+		if i>=lastindex:
 			break
 
 
@@ -62,18 +65,21 @@ def module_scrobblelist(max_=None,pictures=False,shortTimeDesc=False,earlystop=F
 	return (html,len(scrobbles),representative)
 
 
-def module_pulse(max_=None,**kwargs):
+def module_pulse(page=0,perpage=100,**kwargs):
 
 	from doreah.timing import clock, clockp
 
 	kwargs_filter = pickKeys(kwargs,"artist","track","associated")
 	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
 
+	firstindex = page * perpage
+	lastindex = firstindex + perpage
+
 
 	ranges = database.get_pulse(**kwargs_time,**kwargs_filter)
 
 
-	if max_ is not None: ranges = ranges[:max_]
+	ranges = ranges[firstindex:lastindex]
 
 	# if time range not explicitly specified, only show from first appearance
 #	if "since" not in kwargs:
@@ -99,14 +105,17 @@ def module_pulse(max_=None,**kwargs):
 
 
 
-def module_performance(max_=None,**kwargs):
+def module_performance(page=0,perpage=100,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","track")
 	kwargs_time = pickKeys(kwargs,"since","to","within","timerange","step","stepn","trail")
 
+	firstindex = page * perpage
+	lastindex = firstindex + perpage
+
 	ranges = database.get_performance(**kwargs_time,**kwargs_filter)
 
-	if max_ is not None: ranges = ranges[:max_]
+	ranges = ranges[firstindex:lastindex]
 
 	# if time range not explicitly specified, only show from first appearance
 #	if "since" not in kwargs:
@@ -135,10 +144,13 @@ def module_performance(max_=None,**kwargs):
 
 
 
-def module_trackcharts(max_=None,**kwargs):
+def module_trackcharts(page=0,perpage=100,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"artist","associated")
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
+
+	firstindex = page * perpage
+	lastindex = firstindex + perpage
 
 	tracks = database.get_charts_tracks(**kwargs_filter,**kwargs_time)
 
@@ -167,13 +179,16 @@ def module_trackcharts(max_=None,**kwargs):
 	i = 0
 	html = "<table class='list'>"
 	for e in tracks:
+		if i<firstindex:
+			i += 1
+			continue
 		i += 1
-		if max_ is not None and i>max_:
+		if i>lastindex:
 			break
 		html += "<tr>"
 		# rank
-		if i == 1 or e["scrobbles"] < prev["scrobbles"]:
-			html += "<td class='rank'>#" + str(i) + "</td>"
+		if i == firstindex+1 or e["scrobbles"] < prev["scrobbles"]:
+			html += "<td class='rank'>#" + str(e["rank"]) + "</td>"
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
@@ -199,10 +214,13 @@ def module_trackcharts(max_=None,**kwargs):
 	return (html,representative)
 
 
-def module_artistcharts(max_=None,**kwargs):
+def module_artistcharts(page=0,perpage=100,**kwargs):
 
 	kwargs_filter = pickKeys(kwargs,"associated") #not used right now
 	kwargs_time = pickKeys(kwargs,"timerange","since","to","within")
+
+	firstindex = page * perpage
+	lastindex = firstindex + perpage
 
 	artists = database.get_charts_artists(**kwargs_filter,**kwargs_time)
 
@@ -231,13 +249,16 @@ def module_artistcharts(max_=None,**kwargs):
 	i = 0
 	html = "<table class='list'>"
 	for e in artists:
+		if i<firstindex:
+			i += 1
+			continue
 		i += 1
-		if max_ is not None and i>max_:
+		if i>lastindex:
 			break
 		html += "<tr>"
 		# rank
-		if i == 1 or e["scrobbles"] < prev["scrobbles"]:
-			html += "<td class='rank'>#" + str(i) + "</td>"
+		if i == firstindex+1 or e["scrobbles"] < prev["scrobbles"]:
+			html += "<td class='rank'>#" + str(e["rank"]) + "</td>"
 		else:
 			html += "<td class='rank'></td>"
 		# rank change
