@@ -225,7 +225,22 @@ def get_scrobbles(**keys):
 	#	return r
 	return r
 
+# info for comparison
+@dbserver.get("info")
+def info_external(**keys):
+	result = info()
+	return result
 
+def info():
+	totalscrobbles = get_scrobbles_num()
+	artists = {}
+
+	return {
+		"name":settings.get_settings("NAME"),
+		"artists":{
+			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
+		for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0.001}
+	}
 
 
 
