@@ -249,6 +249,7 @@ def module_artistcharts(page=0,perpage=100,max_=None,**kwargs):
 
 	pages = math.ceil(len(artists) / perpage)
 
+
 	# last time range (to compare)
 	try:
 	#from malojatime import _get_next
