@@ -1,6 +1,9 @@
 import urllib
 import database
 import json
+from htmlgenerators import artistLink
+from utilities import getArtistImage
+
 
 def instructions(keys):
 
@@ -27,9 +30,7 @@ def instructions(keys):
 		artists[a]["other"] -= common
 		artists[a]["common"] = common
 
-	best = sorted((a for a in artists),key=lambda x: artists[x.lower()]["common"],reverse=True)
-
-
+	best = sorted((artists[a]["name"] for a in artists),key=lambda x: artists[x.lower()]["common"],reverse=True)
 
 	result = {
 		"unique_self":sum(artists[a]["self"] for a in artists if artists[a]["common"] == 0),
@@ -67,7 +68,8 @@ def instructions(keys):
 	pixel_fullmatch = fullmatch * 2.5
 	pixel_partialmatch = (fullmatch+partialmatch) * 2.5
 
-	matchcolor = format(int(min(1,match/50)*255),"x") * 2 + format(int(max(0,match/50-1)*255),"x")
+	matchcolor = format(int(min(1,match/50)*255),"02x") * 2 + format(int(max(0,match/50-1)*255),"02x")
+
 
 	return {
 		"KEY_CIRCLE_CSS":",".join(css),
@@ -77,4 +79,6 @@ def instructions(keys):
 		"KEY_PARTIALMATCH":str(int(pixel_partialmatch)),
 		"KEY_NAME_SELF":owninfo["name"],
 		"KEY_NAME_OTHER":strangerinfo["name"],
+		"KEY_BESTARTIST_LINK":artistLink(best[0]),
+		"KEY_BESTARTIST_IMAGE":getArtistImage(best[0])
 	},[]
