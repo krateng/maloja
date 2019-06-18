@@ -239,7 +239,7 @@ def info():
 		"name":settings.get_settings("NAME"),
 		"artists":{
 			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
-		for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0.001}
+		for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0}
 	}
 
 
