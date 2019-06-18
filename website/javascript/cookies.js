@@ -38,13 +38,16 @@ function saveCookies() {
 function insertAPIKeyFromCookie() {
 	getCookies();
 	key = cookies["apikey"];
-	document.getElementById("apikey").value = key;
-	checkAPIkey()
+	if (key != null && key != undefined) {
+		document.getElementById("apikey").value = key;
+		checkAPIkey();
+	}
+
 }
 
 function saveAPIkey() {
-	key = APIkey()
-	setCookie("apikey",key)
+	key = APIkey();
+	setCookie("apikey",key);
 }
 
 
@@ -57,6 +60,7 @@ function checkAPIkey() {
 		if (this.readyState == 4 && (this.status == 204 || this.status == 205)) {
 			document.getElementById("apikey").style.backgroundColor = "lawngreen"
 			apikeycorrect = true
+			saveAPIkey();
 		}
 		else {
 			document.getElementById("apikey").style.backgroundColor = "red"
@@ -70,9 +74,6 @@ function checkAPIkey() {
 	catch (e) {
 		document.getElementById("apikey").style.backgroundColor = "red"
 		apikeycorrect = false
-	}
-	if (apikeycorrect) {
-		saveAPIkey();
 	}
 }
 
