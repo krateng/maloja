@@ -166,6 +166,16 @@ def static_html(name):
 	return html
 	#return static_file("website/" + name + ".html",root="")
 
+
+# Shortlinks
+
+@webserver.get("/artist/<artist>")
+def redirect_artist(artist):
+	redirect("/artist?artist=" + artist)
+@webserver.get("/track/<artists:path>/<title>")
+def redirect_track(artists,title):
+	redirect("/track?title=" + title + "&" + "&".join("artist=" + artist for artist in artists.split("/")))
+
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
 signal.signal(signal.SIGTERM, graceful_exit)
@@ -175,7 +185,6 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-#database.register_subroutes(webserver,"/api")
 database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
