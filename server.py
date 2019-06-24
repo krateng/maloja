@@ -7,7 +7,7 @@ import waitress
 import monkey
 # rest of the project
 import database
-from utilities import *
+from utilities import resolveImage
 from urihandler import uri_to_internal, remove_identical
 # doreah toolkit
 from doreah import settings
@@ -19,10 +19,6 @@ import sys
 import signal
 import os
 import setproctitle
-# url handling
-import urllib.request
-import urllib.parse
-from urllib.error import *
 
 
 
