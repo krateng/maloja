@@ -64,9 +64,13 @@ def instructions(keys):
 
 	fullmatch = percentages["common"]
 	partialmatch = percentages["more_self"] + percentages["more_other"]
+
 	match = fullmatch + (partialmatch)/2
 	pixel_fullmatch = fullmatch * 2.5
 	pixel_partialmatch = (fullmatch+partialmatch) * 2.5
+
+	match = min(match,100)
+
 
 	matchcolor = format(int(min(1,match/50)*255),"02x") * 2 + format(int(max(0,match/50-1)*255),"02x")
 
