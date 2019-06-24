@@ -36,14 +36,21 @@ function saveCookies() {
 
 
 function insertAPIKeyFromCookie() {
-	getCookies();
-	key = cookies["apikey"];
-	if (key != null && key != undefined) {
-		document.getElementById("apikey").value = key;
-		checkAPIkey();
+	element = document.getElementById("apikey")
+	if (element != null && element != undefined) {
+		getCookies();
+		key = cookies["apikey"];
+		if (key != null && key != undefined) {
+			element.value = key;
+			checkAPIkey();
+		}
 	}
 
+
 }
+
+window.addEventListener("load",insertAPIKeyFromCookie);
+
 
 function saveAPIkey() {
 	key = APIkey();
