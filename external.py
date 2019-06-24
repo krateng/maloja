@@ -4,6 +4,7 @@ import base64
 from doreah.settings import get_settings
 from doreah.logging import log
 import hashlib
+import xml.etree.ElementTree as ET
 
 ### PICTURES
 
@@ -173,3 +174,9 @@ def proxy_scrobble(artists,title,timestamp):
 	for api in apis_scrobble:
 		response = urllib.request.urlopen(api["scrobbleurl"],data=utf(api["requestbody"](artists,title,timestamp)))
 		xml = response.read()
+		data = ET.fromstring(xml)
+		if data.attrib.get("status") == "ok":
+			if data.find("scrobbles").attrib.get("ignored") == "0":
+				log(api["name"] + ": Scrobble accepted: " + "/".join(artists) + " - " + title)
+			else:
+				log(api["name"] + ": Scrobble not accepted: " + "/".join(artists) + " - " + title)

@@ -119,7 +119,6 @@ def createScrobble(artists,title,time,volatile=False):
 
 	proxy_scrobble(artists,title,time)
 
-
 	return get_track_dict(TRACKS[obj.track])
 
 

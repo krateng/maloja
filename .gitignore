@@ -13,7 +13,6 @@ nohup.out
 
 # currently not using
 /screenshot*.png
-/proxyscrobble.py
 
 # only for development, normally external
 /doreah
