@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # server stuff
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse
 import waitress
 # monkey patching
 import monkey
@@ -140,7 +140,11 @@ def static_html(name):
 	if os.path.exists("website/" + name + ".py"):
 		#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
 		try:
-			txt_keys,resources = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
+			content = SourceFileLoader(name,"website/" + name + ".py").load_module().instructions(keys)
+			if isinstance(content,str): redirect(content)
+			txt_keys, resources = content
+		except HTTPResponse as e:
+			raise
 		except Exception as e:
 			log("Error in website generation: " + str(sys.exc_info()),module="error")
 			raise
