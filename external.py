@@ -151,7 +151,7 @@ def lfmbuild(parameters):
 	m.update(utf("".join(str(k) + str(parameters[k]) for k in keys)))
 	m.update(utf(get_settings("LASTFM_API_SECRET")))
 	sig = m.hexdigest()
-	return "&".join(str(k) + "=" + str(parameters[k]) for k in parameters) + "&api_sig=" + sig
+	return urllib.parse.urlencode(parameters) + "&api_sig=" + sig
 
 def utf(st):
 	return st.encode(encoding="UTF-8")
