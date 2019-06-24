@@ -6,6 +6,7 @@ import utilities
 from malojatime import register_scrobbletime, time_stamps, ranges
 from urihandler import uri_to_internal, internal_to_uri, compose_querystring
 import compliant_api
+from external import proxy_scrobble
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -115,6 +116,9 @@ def createScrobble(artists,title,time,volatile=False):
 	register_scrobbletime(time)
 	invalidate_caches()
 	dblock.release()
+
+	proxy_scrobble(artists,title,time)
+
 
 	return get_track_dict(TRACKS[obj.track])
 

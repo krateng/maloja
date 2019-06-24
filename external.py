@@ -3,6 +3,9 @@ import json
 import base64
 from doreah.settings import get_settings
 from doreah.logging import log
+import hashlib
+
+### PICTURES
 
 
 apis_artists = []
@@ -130,3 +133,43 @@ def api_request_track(track):
 			pass
 
 	return None
+
+
+
+
+
+
+
+
+### SCROBBLING
+
+# creates signature and returns full query string
+def lfmbuild(parameters):
+	m = hashlib.md5()
+	keys = sorted(str(k) for k in parameters)
+	m.update(utf("".join(str(k) + str(parameters[k]) for k in keys)))
+	m.update(utf(get_settings("LASTFM_API_SECRET")))
+	sig = m.hexdigest()
+	return "&".join(str(k) + "=" + str(parameters[k]) for k in parameters) + "&api_sig=" + sig
+
+def utf(st):
+	return st.encode(encoding="UTF-8")
+
+
+
+apis_scrobble = []
+
+if get_settings("LASTFM_API_SK") not in [None,"ASK"] and get_settings("LASTFM_API_SECRET") not in [None,"ASK"] and get_settings("LASTFM_API_KEY") not in [None,"ASK"]:
+	apis_scrobble.append({
+		"name":"LastFM",
+		"scrobbleurl":"http://ws.audioscrobbler.com/2.0/",
+		"requestbody":lambda artists,title,timestamp: lfmbuild({"method":"track.scrobble","artist[0]":", ".join(artists),"track[0]":title,"timestamp":timestamp,"api_key":get_settings("LASTFM_API_KEY"),"sk":get_settings("LASTFM_API_SK")})
+	})
+
+
+
+
+def proxy_scrobble(artists,title,timestamp):
+	for api in apis_scrobble:
+		response = urllib.request.urlopen(api["scrobbleurl"],data=utf(api["requestbody"](artists,title,timestamp)))
+		xml = response.read()
