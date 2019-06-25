@@ -34,6 +34,12 @@ pages = {
 			"bandcamp.com"
 		],
 		"script":"bandcamp.js"
+	},
+	"Soundcloud":{
+		"patterns":[
+			"https://soundcloud.com"
+		],
+		"script":"soundcloud.js"
 	}
 
 }
