@@ -28,6 +28,12 @@ pages = {
 			"https://open.spotify.com"
 		],
 		"script":"spotify.js"
+	},
+	"Bandcamp":{
+		"patterns":[
+			"bandcamp.com"
+		],
+		"script":"bandcamp.js"
 	}
 
 }
@@ -51,7 +57,7 @@ function onTabUpdated(tabId, changeInfo, tab) {
 		patterns = pages[page]["patterns"];
 		//console.log("Page was managed by a " + page + " manager")
 		for (var i=0;i<patterns.length;i++) {
-			if (tab.url.startsWith(patterns[i])) {
+			if (tab.url.includes(patterns[i])) {
 				//console.log("Still on same page!")
 				tabManagers[tabId].update();
 
@@ -67,7 +73,7 @@ function onTabUpdated(tabId, changeInfo, tab) {
 		if (pages.hasOwnProperty(key)) {
 			patterns = pages[key]["patterns"];
 			for (var i=0;i<patterns.length;i++) {
-				if (tab.url.startsWith(patterns[i])) {
+				if (tab.url.includes(patterns[i])) {
 					console.log("New page on tab " + tabId + " will be handled by new " + key + " manager!");
 					tabManagers[tabId] = new Controller(tabId,key);
 					updateTabNum();

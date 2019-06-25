@@ -65,12 +65,24 @@ else {
 
 
 	control = bar.xpath(maloja_scrobbler_selector_control, XPathResult.STRING_TYPE);
-	if (control == "Play") {
+	try {
+		label_playing = maloja_scrobbler_label_playing
+	}
+	catch {
+		label_playing = "Pause"
+	}
+	try {
+		label_paused = maloja_scrobbler_label_paused
+	}
+	catch {
+		label_paused = "Play"
+	}
+	if (control == label_paused) {
 		console.log("Not playing right now");
 		chrome.runtime.sendMessage({type:"stopPlayback",time:Math.floor(Date.now()),artist:artist,title:title});
 		//stopPlayback()
 	}
-	else if (control == "Pause") {
+	else if (control == label_playing) {
 		console.log("Playing " + artist + " - " + title + " (" + durationSeconds + " sec)");
 		chrome.runtime.sendMessage({type:"startPlayback",time:Math.floor(Date.now()),artist:artist,title:title,duration:durationSeconds});
 		//startPlayback(artist,title,durationSeconds)
