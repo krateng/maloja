@@ -620,6 +620,8 @@ def thismonth():
 def thisyear():
 	tod = datetime.datetime.utcnow()
 	return MTime(tod.year)
+def alltime():
+	return MRange(None,None)
 
 #def _get_start_of(timestamp,unit):
 #	date = datetime.datetime.utcfromtimestamp(timestamp)

@@ -579,7 +579,6 @@ def module_filterselection(keys,time=True,delimit=False):
 
 	if time:
 		# all other keys that will not be changed by clicking another filter
-		#keystr = "?" + compose_querystring(keys,exclude=["since","to","in"])
 		unchangedkeys = internal_to_uri({**filterkeys,**delimitkeys,**extrakeys})
 
 
@@ -601,28 +600,10 @@ def module_filterselection(keys,time=True,delimit=False):
 #		html += "to <input id='dateselect_to' onchange='datechange()' type='date' value='" + "-".join(todate) + "'/>"
 #		html += "</div>"
 
-		from malojatime import today, thisweek, thismonth, thisyear
-
-		### temp!!! this will not allow weekly rank changes
-	#	weekday = ((now.isoweekday()) % 7)
-	#	weekbegin = now - datetime.timedelta(days=weekday)
-	#	weekend = weekbegin + datetime.timedelta(days=6)
-	#	weekbegin = [weekbegin.year,weekbegin.month,weekbegin.day]
-	#	weekend = [weekend.year,weekend.month,weekend.day]
-	#	weekbeginstr = "/".join((str(num) for num in weekbegin))
-	#	weekendstr = "/".join((str(num) for num in weekend))
-
-
+		from malojatime import today, thisweek, thismonth, thisyear, alltime
 
 		# relative to current range
-
 		html += "<div>"
-	#	if timekeys.get("timerange").next(-1) is not None:
-	#		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":timekeys.get("timerange").next(-1)})) + "'><span class='stat_selector'>«</span></a>"
-	#	if timekeys.get("timerange").next(-1) is not None or timekeys.get("timerange").next(1) is not None:
-	#		html += " " + timekeys.get("timerange").desc() + " "
-	#	if timekeys.get("timerange").next(1) is not None:
-	#		html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":timekeys.get("timerange").next(1)})) + "'><span class='stat_selector'>»</span></a>"
 
 		if timekeys.get("timerange").next(-1) is not None:
 			prevrange = timekeys.get("timerange").next(-1)
@@ -639,101 +620,78 @@ def module_filterselection(keys,time=True,delimit=False):
 
 
 		# predefined ranges
+		delimit_ranges = {
+			"Today":today(),
+			"This Week":thisweek(),
+			"This Month":thismonth(),
+			"This Year":thisyear(),
+			"All Time":alltime()
+		}
 
-		html += "<div>"
-		if timekeys.get("timerange") == today():
-			html += "<span class='stat_selector' style='opacity:0.5;'>Today</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"today"}) + "'><span class='stat_selector'>Today</span></a>"
-		html += " | "
+		optionlist = []
+		for option in delimit_ranges:
+			value = delimit_ranges[option]
+			link = "?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":value}))
 
-		if timekeys.get("timerange") == thisweek():
-			html += "<span class='stat_selector' style='opacity:0.5;'>This Week</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"week"}) + "'><span class='stat_selector'>This Week</span></a>"
-		html += " | "
+			if timekeys.get("timerange") == value:
+				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
+			else:
+				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
 
-		if timekeys.get("timerange") == thismonth():
-			html += "<span class='stat_selector' style='opacity:0.5;'>This Month</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"month"}) + "'><span class='stat_selector'>This Month</span></a>"
-		html += " | "
+		html += "<div>" + " | ".join(optionlist) + "</div>"
 
-		if timekeys.get("timerange") == thisyear():
-			html += "<span class='stat_selector' style='opacity:0.5;'>This Year</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,{"in":"year"}) + "'><span class='stat_selector'>This Year</span></a>"
-		html += " | "
-
-		if timekeys.get("timerange") is None or timekeys.get("timerange").unlimited():
-			html += "<span class='stat_selector' style='opacity:0.5;'>All Time</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys) + "'><span class='stat_selector'>All Time</span></a>"
-
-		html += "</div>"
 
 	if delimit:
 
-		#keystr = "?" + compose_querystring(keys,exclude=["step","stepn"])
 		unchangedkeys = internal_to_uri({**filterkeys,**timekeys,**extrakeys})
 
+		# STEP
 		# only for this element (delimit selector consists of more than one)
 		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k not in ["step","stepn"]})
 
-		html += "<div>"
-		if delimitkeys.get("step") == "day" and delimitkeys.get("stepn") == 1:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Daily</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"day"}) + "'><span class='stat_selector'>Daily</span></a>"
-		html += " | "
+		delimit_steps = {
+			"Daily":{"step":"day","stepn":1},
+			"Weekly":{"step":"week","stepn":1},
+			"Fortnightly":{"step":"week","stepn":2},
+			"Monthly":{"step":"month","stepn":1},
+			"Quarterly":{"step":"month","stepn":3},
+			"Yearly":{"step":"year","stepn":1}
+		}
 
-		if delimitkeys.get("step") == "week" and delimitkeys.get("stepn") == 1:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Weekly</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"week"}) + "'><span class='stat_selector'>Weekly</span></a>"
-		html += " | "
+		optionlist = []
+		for option in delimit_steps:
+			values = delimit_steps[option]
+			link = "?" + compose_querystring(unchangedkeys,unchangedkeys_sub,internal_to_uri(values))
 
-		if delimitkeys.get("step") == "month" and delimitkeys.get("stepn") == 1:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Monthly</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"month"}) + "'><span class='stat_selector'>Monthly</span></a>"
-		html += " | "
+			if delimitkeys.get("step") == values["step"] and delimitkeys.get("stepn") == values["stepn"]:
+				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
+			else:
+				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
 
-		if delimitkeys.get("step") == "year" and delimitkeys.get("stepn") == 1:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Yearly</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"step":"year"}) + "'><span class='stat_selector'>Yearly</span></a>"
-
-		html += "</div>"
+		html += "<div>" + " | ".join(optionlist) + "</div>"
 
 
-
+		# TRAIL
 		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k != "trail"})
 
-		html += "<div>"
-		if delimitkeys.get("trail") == 1:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Standard</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"1"}) + "'><span class='stat_selector'>Standard</span></a>"
-		html += " | "
+		delimit_trails = {
+			"Standard":1,
+			"Trailing":2,
+			"Long Trailing":3,
+			"Inert":10,
+			"Cumulative":math.inf
+		}
 
-		if delimitkeys.get("trail") == 2:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Trailing</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"2"}) + "'><span class='stat_selector'>Trailing</span></a>"
-		html += " | "
+		optionlist = []
+		for option in delimit_trails:
+			value = delimit_trails[option]
+			link = "?" + compose_querystring(unchangedkeys,unchangedkeys_sub,internal_to_uri({"trail":value}))
 
-		if delimitkeys.get("trail") == 3:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Long Trailing</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"trail":"3"}) + "'><span class='stat_selector'>Long Trailing</span></a>"
-		html += " | "
+			if delimitkeys.get("trail") == value:
+				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
+			else:
+				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
 
-		if delimitkeys.get("trail") == math.inf:
-			html += "<span class='stat_selector' style='opacity:0.5;'>Cumulative</span>"
-		else:
-			html += "<a href='?" + compose_querystring(unchangedkeys,unchangedkeys_sub,{"cumulative":"yes"}) + "'><span class='stat_selector'>Cumulative</span></a>"
-
-		html += "</div>"
+		html += "<div>" + " | ".join(optionlist) + "</div>"
 
 	return html

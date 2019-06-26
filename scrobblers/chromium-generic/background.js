@@ -178,8 +178,13 @@ class Controller {
 	actuallyupdate() {
 		this.messageID++;
 		//console.log("Update! Our page is " + this.page + ", our tab id " + this.tabId)
-		chrome.tabs.executeScript(this.tabId,{"file":"sites/" + pages[this.page]["script"]});
-		chrome.tabs.executeScript(this.tabId,{"file":"sitescript.js"});
+		try {
+			chrome.tabs.executeScript(this.tabId,{"file":"sites/" + pages[this.page]["script"]});
+			chrome.tabs.executeScript(this.tabId,{"file":"sitescript.js"});
+		}
+		catch (e) {
+			console.log("Could not run site script. Tab probably closed or something idk.")
+		}
 
 		this.alreadyQueued = false;
 	}
