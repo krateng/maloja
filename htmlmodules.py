@@ -568,19 +568,18 @@ def module_paginate(page,pages,perpage,**keys):
 # THIS FUNCTION USES THE ORIGINAL URI KEYS!!!
 def module_filterselection(keys,time=True,delimit=False):
 
-	filterkeys, timekeys, delimitkeys, extrakeys = uri_to_internal(keys)
-	internalkeys = {**filterkeys,**timekeys,**delimitkeys,**extrakeys}
+	from malojatime import today, thisweek, thismonth, thisyear, alltime
 
+	filterkeys, timekeys, delimitkeys, extrakeys = uri_to_internal(keys)
 	# drop keys that are not relevant so they don't clutter the URI
 	if not time: timekeys = {}
 	if not delimit: delimitkeys = {}
+	internalkeys = {**filterkeys,**timekeys,**delimitkeys,**extrakeys}
 
 	html = ""
 
 
 	if time:
-		# all other keys that will not be changed by clicking another filter
-		unchangedkeys = internal_to_uri({**filterkeys,**delimitkeys,**extrakeys})
 
 		# wonky selector for precise date range
 
@@ -600,21 +599,27 @@ def module_filterselection(keys,time=True,delimit=False):
 #		html += "to <input id='dateselect_to' onchange='datechange()' type='date' value='" + "-".join(todate) + "'/>"
 #		html += "</div>"
 
-		from malojatime import today, thisweek, thismonth, thisyear, alltime
-
 		# relative to current range
 		html += "<div>"
 
-		if timekeys.get("timerange").next(-1) is not None:
-			prevrange = timekeys.get("timerange").next(-1)
-			html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":prevrange})) + "'><span class='stat_selector'>" + prevrange.desc() + "</span></a>"
+		thisrange = timekeys.get("timerange")
+		prevrange = thisrange.next(-1)
+		nextrange = thisrange.next(1)
+
+		if prevrange is not None:
+			link = compose_querystring(internal_to_uri({**internalkeys,"timerange":prevrange}))
+			html += "<a href='?" + link + "'><span class='stat_selector'>" + prevrange.desc() + "</span></a>"
 			html += " « "
-		if timekeys.get("timerange").next(-1) is not None or timekeys.get("timerange").next(1) is not None:
-			html += "<span class='stat_selector' style='opacity:0.5;'>" + timekeys.get("timerange").desc() + "</span>"
-		if timekeys.get("timerange").next(1) is not None:
+		if prevrange is not None or nextrange is not None:
+			html += "<span class='stat_selector' style='opacity:0.5;'>" + thisrange.desc() + "</span>"
+		if nextrange is not None:
 			html += " » "
-			nextrange = timekeys.get("timerange").next(1)
-			html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":nextrange})) + "'><span class='stat_selector'>" + nextrange.desc() + "</span></a>"
+			link = compose_querystring(internal_to_uri({**internalkeys,"timerange":nextrange}))
+			html += "<a href='?" + link + "'><span class='stat_selector'>" + nextrange.desc() + "</span></a>"
+
+		html += "</div>"
+
+
 
 
 	categories = [
