@@ -569,6 +569,7 @@ def module_paginate(page,pages,perpage,**keys):
 def module_filterselection(keys,time=True,delimit=False):
 
 	filterkeys, timekeys, delimitkeys, extrakeys = uri_to_internal(keys)
+	internalkeys = {**filterkeys,**timekeys,**delimitkeys,**extrakeys}
 
 	# drop keys that are not relevant so they don't clutter the URI
 	if not time: timekeys = {}
@@ -580,7 +581,6 @@ def module_filterselection(keys,time=True,delimit=False):
 	if time:
 		# all other keys that will not be changed by clicking another filter
 		unchangedkeys = internal_to_uri({**filterkeys,**delimitkeys,**extrakeys})
-
 
 		# wonky selector for precise date range
 
@@ -616,82 +616,56 @@ def module_filterselection(keys,time=True,delimit=False):
 			nextrange = timekeys.get("timerange").next(1)
 			html += "<a href='?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":nextrange})) + "'><span class='stat_selector'>" + nextrange.desc() + "</span></a>"
 
-		html += "</div>"
 
-
-		# predefined ranges
-		delimit_ranges = {
-			"Today":today(),
-			"This Week":thisweek(),
-			"This Month":thismonth(),
-			"This Year":thisyear(),
-			"All Time":alltime()
+	categories = [
+		{
+			"active":time,
+			"options":{
+				"Today":{"timerange":today()},
+				"This Week":{"timerange":thisweek()},
+				"This Month":{"timerange":thismonth()},
+				"This Year":{"timerange":thisyear()},
+				"All Time":{"timerange":alltime()}
+			}
+		},
+		{
+			"active":delimit,
+			"options":{
+				"Daily":{"step":"day","stepn":1},
+				"Weekly":{"step":"week","stepn":1},
+				"Fortnightly":{"step":"week","stepn":2},
+				"Monthly":{"step":"month","stepn":1},
+				"Quarterly":{"step":"month","stepn":3},
+				"Yearly":{"step":"year","stepn":1}
+			}
+		},
+		{
+			"active":delimit,
+			"options":{
+				"Standard":{"trail":1},
+				"Trailing":{"trail":2},
+				"Long Trailing":{"trail":3},
+				"Inert":{"trail":10},
+				"Cumulative":{"trail":math.inf}
+			}
 		}
 
-		optionlist = []
-		for option in delimit_ranges:
-			value = delimit_ranges[option]
-			link = "?" + compose_querystring(unchangedkeys,internal_to_uri({"timerange":value}))
+	]
 
-			if timekeys.get("timerange") == value:
-				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
-			else:
-				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
+	for c in categories:
 
-		html += "<div>" + " | ".join(optionlist) + "</div>"
+		if c["active"]:
 
+			optionlist = []
+			for option in c["options"]:
+				values = c["options"][option]
+				link = "?" + compose_querystring(internal_to_uri({**internalkeys,**values}))
 
-	if delimit:
+				if all(internalkeys.get(k) == values[k] for k in values):
+					optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
+				else:
+					optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
 
-		unchangedkeys = internal_to_uri({**filterkeys,**timekeys,**extrakeys})
-
-		# STEP
-		# only for this element (delimit selector consists of more than one)
-		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k not in ["step","stepn"]})
-
-		delimit_steps = {
-			"Daily":{"step":"day","stepn":1},
-			"Weekly":{"step":"week","stepn":1},
-			"Fortnightly":{"step":"week","stepn":2},
-			"Monthly":{"step":"month","stepn":1},
-			"Quarterly":{"step":"month","stepn":3},
-			"Yearly":{"step":"year","stepn":1}
-		}
-
-		optionlist = []
-		for option in delimit_steps:
-			values = delimit_steps[option]
-			link = "?" + compose_querystring(unchangedkeys,unchangedkeys_sub,internal_to_uri(values))
-
-			if delimitkeys.get("step") == values["step"] and delimitkeys.get("stepn") == values["stepn"]:
-				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
-			else:
-				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
-
-		html += "<div>" + " | ".join(optionlist) + "</div>"
-
-
-		# TRAIL
-		unchangedkeys_sub = internal_to_uri({k:delimitkeys[k] for k in delimitkeys if k != "trail"})
-
-		delimit_trails = {
-			"Standard":1,
-			"Trailing":2,
-			"Long Trailing":3,
-			"Inert":10,
-			"Cumulative":math.inf
-		}
-
-		optionlist = []
-		for option in delimit_trails:
-			value = delimit_trails[option]
-			link = "?" + compose_querystring(unchangedkeys,unchangedkeys_sub,internal_to_uri({"trail":value}))
-
-			if delimitkeys.get("trail") == value:
-				optionlist.append("<span class='stat_selector' style='opacity:0.5;'>" + option + "</span>")
-			else:
-				optionlist.append("<a href='" + link + "'><span class='stat_selector'>" + option + "</span></a>")
-
-		html += "<div>" + " | ".join(optionlist) + "</div>"
+			html += "<div>" + " | ".join(optionlist) + "</div>"
 
 	return html
