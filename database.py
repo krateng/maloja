@@ -535,7 +535,14 @@ def artistInfo(artist):
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
 		position = c["rank"]
-		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
+		performance = get_performance(artist=artist,step="week")
+		return {
+			"scrobbles":scrobbles,
+			"position":position,
+			"associated":others,
+			"medals":MEDALS.get(artist),
+			"topweeks":len([p for p in performance if p["rank"] == 1])
+		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
 		# need to show information about the credited one
@@ -567,6 +574,7 @@ def trackInfo(track):
 	c = [e for e in charts if e["track"] == track][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
+	performance = get_performance(track=track,step="week")
 	cert = None
 	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND")
 	if scrobbles >= threshold_diamond: cert = "diamond"
@@ -577,7 +585,8 @@ def trackInfo(track):
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
-		"certification":cert
+		"certification":cert,
+		"topweeks":len([p for p in performance if p["rank"] == 1])
 	}
 
 

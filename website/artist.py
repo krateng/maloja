@@ -41,6 +41,13 @@ def instructions(keys):
 			html_cert += "<a href='{link}'><img class='certrecord_small' src='{img}' title='{tooltip}' /></a>".format(tooltip=tooltip,img=img,link=tracklink)
 
 
+	html_topweeks = ""
+	if data.get("topweeks") not in [0,None]:
+		link = "/performance?artist=" + urllib.parse.quote(keys["artist"]) + "&trail=1&step=week"
+		title = str(data["topweeks"]) + " weeks on #1"
+		html_topweeks = "<a title='" + title + "' href='" + link + "'><img class='star' src='/media/star.png' />" + str(data["topweeks"]) + "</a>"
+
+
 	credited = data.get("replace")
 	includestr = " "
 	if credited is not None:
@@ -81,6 +88,7 @@ def instructions(keys):
 		"KEY_ASSOCIATED":includestr,
 		"KEY_MEDALS":html_medals,
 		"KEY_CERTS":html_cert,
+		"KEY_TOPWEEKS":html_topweeks,
 		# tracks
 		"KEY_TRACKLIST":html_tracks,
 		# pulse

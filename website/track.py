@@ -37,6 +37,12 @@ def instructions(keys):
 			for y in data["medals"]["bronze"]:
 				html_medals += "<a title='Third Best Track in " + str(y) + "' class='hidelink medal shiny bronze' href='/charts_tracks?in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 
+	html_topweeks = ""
+	if data.get("topweeks") not in [0,None]:
+		link = "/performance?" + compose_querystring(keys) + "&trail=1&step=week"
+		title = str(data["topweeks"]) + " weeks on #1"
+		html_topweeks = "<a title='" + title + "' href='" + link + "'><img class='star' src='/media/star.png' />" + str(data["topweeks"]) + "</a>"
+
 
 
 	html_scrobbles, _, _ = module_scrobblelist(track=track,max_=10,earlystop=True)	 # we have the number already from the trackinfo
@@ -65,6 +71,7 @@ def instructions(keys):
 		"KEY_SCROBBLELINK":compose_querystring(keys),
 		"KEY_MEDALS":html_medals,
 		"KEY_CERTS":html_cert,
+		"KEY_TOPWEEKS":html_topweeks,
 		"KEY_SCROBBLELIST":html_scrobbles,
 		# pulse
 		"KEY_PULSE_MONTHS":html_pulse_months,
