@@ -472,15 +472,19 @@ def update_medals():
 @daily
 def update_weekly():
 
-	from database import WEEKLY_TOPTRACKS, WEEKLY_TOPARTISTS, get_top_artists, get_top_tracks
+	from database import WEEKLY_TOPTRACKS, WEEKLY_TOPARTISTS, get_charts_artists, get_charts_tracks
+	from malojatime import ranges, thisweek
 
-	topartists = get_top_artists(step="week")
-	toptracks = get_top_tracks(step="week")
-
-	WEEKLY_TOPTRACKS.clear()
-	WEEKLY_TOPTRACKS += [t["track"] for t in toptracks][:-1]
 
 	WEEKLY_TOPARTISTS.clear()
-	WEEKLY_TOPARTISTS += [t["artist"] for t in topartists][:-1]
+	WEEKLY_TOPTRACKS.clear()
 
-	#print(WEEKLY_TOPTRACKS)
+	for week in ranges(step="week"):
+		if week == thisweek(): break
+		for a in get_charts_artists(timerange=week):
+			artist = a["artist"]
+			if a["rank"] == 1: WEEKLY_TOPARTISTS[artist] = WEEKLY_TOPARTISTS.setdefault(artist,0) + 1
+
+		for t in get_charts_tracks(timerange=week):
+			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
+			if t["rank"] == 1: WEEKLY_TOPTRACKS[track] = WEEKLY_TOPTRACKS.setdefault(track,0) + 1

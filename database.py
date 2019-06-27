@@ -53,8 +53,8 @@ TRACK_SET = set()
 
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
-WEEKLY_TOPTRACKS = []
-WEEKLY_TOPARTISTS = []
+WEEKLY_TOPTRACKS = {}
+WEEKLY_TOPARTISTS = {}
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -544,7 +544,7 @@ def artistInfo(artist):
 			"position":position,
 			"associated":others,
 			"medals":MEDALS.get(artist),
-			"topweeks":len([a for a in WEEKLY_TOPARTISTS if a == artist])
+			"topweeks":WEEKLY_TOPARTISTS.get(artist,0)
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -589,7 +589,7 @@ def trackInfo(track):
 		"position":position,
 		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
 		"certification":cert,
-		"topweeks":len([t for t in WEEKLY_TOPTRACKS if t == track])
+		"topweeks":WEEKLY_TOPTRACKS.get(((frozenset(track["artists"]),track["title"])),0)
 	}
 
 
