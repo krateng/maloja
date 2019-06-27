@@ -468,3 +468,19 @@ def update_medals():
 			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
 			elif t["rank"] == 3: MEDALS_TRACKS.setdefault(track,{}).setdefault("bronze",[]).append(year)
 			else: break
+
+@daily
+def update_weekly():
+
+	from database import WEEKLY_TOPTRACKS, WEEKLY_TOPARTISTS, get_top_artists, get_top_tracks
+
+	topartists = get_top_artists(step="week")
+	toptracks = get_top_tracks(step="week")
+
+	WEEKLY_TOPTRACKS.clear()
+	WEEKLY_TOPTRACKS += [t["track"] for t in toptracks][:-1]
+
+	WEEKLY_TOPARTISTS.clear()
+	WEEKLY_TOPARTISTS += [t["artist"] for t in topartists][:-1]
+
+	#print(WEEKLY_TOPTRACKS)

@@ -50,8 +50,11 @@ TRACKS_LOWER = []
 ARTISTS_LOWER = []
 ARTIST_SET = set()
 TRACK_SET = set()
+
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
+WEEKLY_TOPTRACKS = []
+WEEKLY_TOPARTISTS = []
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -541,7 +544,7 @@ def artistInfo(artist):
 			"position":position,
 			"associated":others,
 			"medals":MEDALS.get(artist),
-			"topweeks":len([p for p in performance if p["rank"] == 1])
+			"topweeks":len([a for a in WEEKLY_TOPARTISTS if a == artist])
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -574,19 +577,19 @@ def trackInfo(track):
 	c = [e for e in charts if e["track"] == track][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
-	performance = get_performance(track=track,step="week")
 	cert = None
 	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND")
 	if scrobbles >= threshold_diamond: cert = "diamond"
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
+
 	return {
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
 		"certification":cert,
-		"topweeks":len([p for p in performance if p["rank"] == 1])
+		"topweeks":len([t for t in WEEKLY_TOPTRACKS if t == track])
 	}
 
 
@@ -913,6 +916,7 @@ def build_db():
 
 	#start regular tasks
 	utilities.update_medals()
+	utilities.update_weekly()
 
 	global db_rulestate
 	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
