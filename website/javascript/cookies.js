@@ -14,9 +14,17 @@ function getCookies() {
 // always on document load, but call specifically when needed early
 document.addEventListener("load",getCookies);
 
-function setCookie(key,val) {
+function setCookie(key,val,session=true) {
 	cookies[key] = val;
-	document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(val);
+	if (!session) {
+		var d = new Date();
+ 		d.setTime(d.getTime() + (500*24*60*60*1000));
+		expirestr = "expires=" + d.toUTCString();
+	}
+	else {
+		expirestr = ""
+	}
+	document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(val) + ";" + expirestr;
 }
 function saveCookies() {
 	for (var c in cookies) {
@@ -54,7 +62,7 @@ window.addEventListener("load",insertAPIKeyFromCookie);
 
 function saveAPIkey() {
 	key = APIkey();
-	setCookie("apikey",key);
+	setCookie("apikey",key,false);
 }
 
 
