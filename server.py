@@ -25,6 +25,7 @@ import setproctitle
 #settings.config(files=["settings/default.ini","settings/settings.ini"])
 #settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT = settings.get_settings("WEB_PORT")
+HOST = settings.get_settings("HOST")
 
 
 webserver = Bottle()
@@ -192,4 +193,4 @@ database.start_db()
 database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
-run(webserver, host='::', port=MAIN_PORT, server='waitress')
+run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
