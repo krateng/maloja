@@ -930,6 +930,7 @@ def sync():
 
 	# all entries by file collected
 	# so we don't open the same file for every entry
+	log("Syncing",module="debug")
 	entries = {}
 
 	for idx in range(len(SCROBBLES)):
@@ -949,10 +950,14 @@ def sync():
 
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 
+	log("Sorted into months",module="debug")
+
 	for e in entries:
 		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
+
+	log("Written files",module="debug")
 
 
 	global lastsync

@@ -68,7 +68,11 @@ def customerror(error):
 
 def graceful_exit(sig=None,frame=None):
 	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
-	database.sync()
+	log("Received signal to shutdown")
+	try:
+		database.sync()
+	except Exception as e:
+		log("Error while shutting down!",e)
 	log("Server shutting down...")
 	os._exit(42)
 
