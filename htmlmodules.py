@@ -574,6 +574,7 @@ def module_filterselection(keys,time=True,delimit=False):
 	# drop keys that are not relevant so they don't clutter the URI
 	if not time: timekeys = {}
 	if not delimit: delimitkeys = {}
+	if "page" in extrakeys: del extrakeys["page"]
 	internalkeys = {**filterkeys,**timekeys,**delimitkeys,**extrakeys}
 
 	html = ""
