@@ -107,9 +107,18 @@ def get_track_dict(o):
 
 def createScrobble(artists,title,time,volatile=False):
 	dblock.acquire()
+
+	i = getTrackID(artists,title)
+
+	# idempotence
+	if time in SCROBBLESDICT:
+		if i == SCROBBLESDICT[time].track:
+			dblock.release()
+			return get_track_dict(TRACKS[i])
+	# timestamp as unique identifier
 	while (time in SCROBBLESDICT):
 		time += 1
-	i = getTrackID(artists,title)
+
 	obj = Scrobble(i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
 	# immediately insert scrobble correctly so we can guarantee sorted list
