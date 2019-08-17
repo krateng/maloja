@@ -99,14 +99,11 @@ def consistentRulestate(folder,checksums):
 		if (scrobblefile.endswith(".tsv")):
 
 			try:
-				f = open(folder + "/" + scrobblefile + ".rulestate","r")
-				if f.read() != checksums:
-					return False
-
+				with open(folder + "/" + scrobblefile + ".rulestate","r") as f:
+					if f.read() != checksums:
+						return False
 			except:
 				return False
-			finally:
-				f.close()
 
 	return True
 
