@@ -442,8 +442,12 @@ def update_medals():
 
 	from database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
 
-	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
 	currentyear = datetime.datetime.utcnow().year
+	try:
+		firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
+	except:
+		firstyear = currentyear
+
 
 	MEDALS.clear()
 	for year in range(firstyear,currentyear):
