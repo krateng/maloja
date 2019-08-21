@@ -2,7 +2,7 @@
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
-~~You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.~~ (Currently offline for a few days)
+You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
 
 ## Why not Last.fm / Libre.fm / GNU FM?
 
