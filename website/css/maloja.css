@@ -493,7 +493,10 @@ table.list td.track span.artist_in_trackcolumn {
 	color:#bbb;
 }
 
-
+table.list td.track a.trackProviderSearch {
+	margin-right: 5px;
+	padding: 0 10px;
+}
 
 
 

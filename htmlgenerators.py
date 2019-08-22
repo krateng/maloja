@@ -2,6 +2,8 @@ import urllib
 from bottle import FormsDict
 import datetime
 from urihandler import compose_querystring
+import urllib.parse
+from doreah.settings import get_settings
 
 
 # returns the proper column(s) for an artist or track
@@ -16,7 +18,10 @@ def entity_column(element,counting=[],image=None):
 		# track
 	#	html += "<td class='artists'>" + html_links(element["artists"]) + "</td>"
 	#	html += "<td class='title'>" + html_link(element) + "</td>"
-		html += "<td class='track'><span class='artist_in_trackcolumn'>" + html_links(element["artists"]) + "</span> – " + html_link(element) + "</td>"
+		html += "<td class='track'><span class='artist_in_trackcolumn'>"
+		if get_settings("TRACK_SEARCH_PROVIDER") not in [None,"ASK", ""]:
+			html += trackSearchLink(element)
+		html += html_links(element["artists"]) + "</span> – " + html_link(element) + "</td>"
 	else:
 		# artist
 		html += "<td class='artist'>" + html_link(element)
@@ -73,6 +78,31 @@ def trackLink(track):
 	return html_link(track)
 	#artists,title = track["artists"],track["title"]
 	#return "<a href='/track?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists]) + "'>" + title + "</a>"
+
+def trackSearchLink(track):
+	searchProvider = get_settings("TRACK_SEARCH_PROVIDER")
+	link = "<a class='trackProviderSearch' href='"
+	if searchProvider == "YouTube":
+		link += "https://www.youtube.com/results?search_query="
+	elif searchProvider == "YouTube Music":
+		link += "https://music.youtube.com/search?q="
+	elif searchProvider == "Google Play Music":
+		link += "https://play.google.com/music/listen#/srs/"
+	elif searchProvider == "Spotify":
+		link += "https://open.spotify.com/search/results/"
+	elif searchProvider == "Tidal":
+		link += "https://listen.tidal.com/search/tracks?q="
+	elif searchProvider == "SoundCloud":
+		link += "https://soundcloud.com/search?q="
+	elif searchProvider == "Amazon Music":
+		link += "https://music.amazon.com/search/"
+	elif searchProvider == "Deezer":
+		link += "https://www.deezer.com/search/"
+	else:
+		link += "https://www.google.com/search?q=" # ¯\_(ツ)_/¯
+
+	link += urllib.parse.quote(", ".join(track["artists"]) + " - " + track["title"]) + "'>&#127925;</a>"
+	return link
 
 #def scrobblesTrackLink(artists,title,timekeys,amount=None,pixels=None):
 def scrobblesTrackLink(track,timekeys,amount=None,percent=None):
