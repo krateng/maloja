@@ -77,7 +77,12 @@ def loadAPIkeys():
 	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
 def checkAPIkey(k):
-	return (k in [k for [k,d] in clients])
+	#return (k in [k for [k,d] in clients])
+	for key, identifier in clients:
+		if key == k: return identifier
+
+	return False
+
 def allAPIkeys():
 	return [k for [k,d] in clients]
 
@@ -612,13 +617,16 @@ def pseudo_post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
-	if not (checkAPIkey(apikey)):
+	client = checkAPIkey(apikey)
+	if client == False: # empty string allowed!
 		response.status = 403
 		return ""
 	try:
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -629,6 +637,8 @@ def pseudo_post_scrobble(**keys):
 	if (time - lastsync) > 3600:
 		sync()
 
+
+
 	return {"status":"success","track":trackdict}
 
 @dbserver.post("newscrobble")
@@ -636,7 +646,8 @@ def post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
-	if not (checkAPIkey(apikey)):
+	client = checkAPIkey(apikey)
+	if client == False: # empty string allowed!
 		response.status = 403
 		return ""
 
@@ -644,6 +655,8 @@ def post_scrobble(**keys):
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")	
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -655,6 +668,7 @@ def post_scrobble(**keys):
 	#	sync()
 	sync()
 	#always sync, one filesystem access every three minutes shouldn't matter
+
 
 
 	return {"status":"success","track":trackdict}
