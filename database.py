@@ -959,19 +959,19 @@ def sync():
 
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 
-	log("Sorted into months",module="debug")
+	#log("Sorted into months",module="debug")
 
 	for e in entries:
 		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 
-	log("Written files",module="debug")
+	#log("Written files",module="debug")
 
 
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	log("Database saved to disk.")
+	#log("Database saved to disk.")
 
 	# save cached images
 	#saveCache()
