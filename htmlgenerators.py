@@ -19,8 +19,7 @@ def entity_column(element,counting=[],image=None):
 	#	html += "<td class='artists'>" + html_links(element["artists"]) + "</td>"
 	#	html += "<td class='title'>" + html_link(element) + "</td>"
 		html += "<td class='track'><span class='artist_in_trackcolumn'>"
-		if get_settings("TRACK_SEARCH_PROVIDER") not in [None,"ASK", ""]:
-			html += trackSearchLink(element)
+		html += trackSearchLink(element)
 		html += html_links(element["artists"]) + "</span> – " + html_link(element) + "</td>"
 	else:
 		# artist
@@ -81,6 +80,8 @@ def trackLink(track):
 
 def trackSearchLink(track):
 	searchProvider = get_settings("TRACK_SEARCH_PROVIDER")
+	if searchProvider is None: return ""
+
 	link = "<a class='trackProviderSearch' href='"
 	if searchProvider == "YouTube":
 		link += "https://www.youtube.com/results?search_query="
@@ -101,7 +102,7 @@ def trackSearchLink(track):
 	else:
 		link += "https://www.google.com/search?q=" # ¯\_(ツ)_/¯
 
-	link += urllib.parse.quote(", ".join(track["artists"]) + " - " + track["title"]) + "'>&#127925;</a>"
+	link += urllib.parse.quote(", ".join(track["artists"]) + " " + track["title"]) + "'>&#127925;</a>"
 	return link
 
 #def scrobblesTrackLink(artists,title,timekeys,amount=None,pixels=None):

@@ -656,7 +656,7 @@ def post_scrobble(**keys):
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")	
+	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -953,7 +953,7 @@ def sync():
 
 	# all entries by file collected
 	# so we don't open the same file for every entry
-	log("Syncing",module="debug")
+	#log("Syncing",module="debug")
 	entries = {}
 
 	for idx in range(len(SCROBBLES)):
