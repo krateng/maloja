@@ -111,6 +111,10 @@ def get_track_dict(o):
 
 
 def createScrobble(artists,title,time,volatile=False):
+
+	if len(artists) == 0 or title == "":
+		return {}
+
 	dblock.acquire()
 
 	i = getTrackID(artists,title)

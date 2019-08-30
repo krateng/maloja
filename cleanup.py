@@ -1,6 +1,6 @@
 import re
 import utilities
-from doreah import tsv
+from doreah import tsv, settings
 
 # need to do this as a class so it can retain loaded settings from file
 # apparently this is not true
@@ -51,6 +51,9 @@ class CleanerAgent:
 	delimiters_formal = ["; ",";","/"]
 
 	def parseArtists(self,a):
+
+		if a.strip() in settings.get_settings("INVALID_ARTISTS"):
+			return []
 
 		if a.strip() == "":
 			return []
