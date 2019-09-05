@@ -23,9 +23,7 @@ def instructions(keys):
 
 	html_charts, rep = module_trackcharts(**amountkeys,**timekeys,**filterkeys)
 
-	toptracks = ""
-	if get_settings("CHARTS_DISPLAY_TILES"):
-		toptracks = module_trackcharts_tiles(timerange=timekeys["timerange"])
+
 
 
 	if filterkeys.get("artist") is not None:
@@ -36,9 +34,12 @@ def instructions(keys):
 	else:
 		imgurl = ""
 
+	toptracks = ""
 	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 	if get_settings("CHARTS_DISPLAY_TILES"):
-		imgdiv = ""
+		toptracks = module_trackcharts_tiles(timerange=timekeys["timerange"])
+		imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
+
 
 	limitstring += " " + timekeys["timerange"].desc(prefix=True)
 

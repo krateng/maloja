@@ -15,9 +15,7 @@ def instructions(keys):
 
 	html_filterselector = module_filterselection(keys)
 
-	topartists = ""
-	if get_settings("CHARTS_DISPLAY_TILES"):
-		topartists = module_artistcharts_tiles(timerange=timekeys["timerange"])
+
 
 
 	html_charts, rep = module_artistcharts(**amountkeys,**timekeys)
@@ -27,9 +25,13 @@ def instructions(keys):
 	else:
 		imgurl = ""
 
+	topartists = ""
 	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 	if get_settings("CHARTS_DISPLAY_TILES"):
-		imgdiv = ""
+		topartists = module_artistcharts_tiles(timerange=timekeys["timerange"])
+		imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
+
+
 
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
