@@ -16,6 +16,7 @@ class CleanerAgent:
 		self.rules_notanartist = [b for [a,b,c] in raw if a=="notanartist"]
 		self.rules_replacetitle = {b.lower():c for [a,b,c] in raw if a=="replacetitle"}
 		self.rules_replaceartist = {b.lower():c for [a,b,c] in raw if a=="replaceartist"}
+		self.rules_ignoreartist = [b.lower() for [a,b,c] in raw if a=="ignoreartist"]
 
 		# we always need to be able to tell if our current database is made with the current rules
 		self.checksums = utilities.checksumTSV("rules")
@@ -53,6 +54,9 @@ class CleanerAgent:
 	def parseArtists(self,a):
 
 		if a.strip() in settings.get_settings("INVALID_ARTISTS"):
+			return []
+
+		if a.strip().lower() in self.rules_ignoreartist:
 			return []
 
 		if a.strip() == "":
