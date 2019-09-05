@@ -226,13 +226,9 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 **
 */
 
-table.top_info td.image {
-	padding:20px;
-	padding-left:0px;
-	padding-top:0px;
-}
-
 table.top_info td.image div {
+	margin-right:20px;
+	margin-bottom:20px;
 	background-size:cover;
 	background-position:center;
 	height:174px;
@@ -241,7 +237,6 @@ table.top_info td.image div {
 
 table.top_info td.text {
 	vertical-align: top;
-    	padding-left: 30px;
 }
 
 table.top_info td.text h1 {
@@ -257,7 +252,10 @@ p.desc a {
 	background-image:url("https://www.last.fm/static/images/lastfm_avatar_twitter.66cd2c48ce03.png");
 }
 
-
+table.top_info + .stat_module_topartists table,
+table.top_info + .stat_module_toptracks table {
+	margin:15px 0;
+}
 
 /*
 **
