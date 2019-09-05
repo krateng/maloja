@@ -232,7 +232,7 @@ def restart():
 def stop():
 	pid_sv = getInstanceSupervisor()
 	if pid_sv is not None:
-		os.kill(pid,signal.SIGTERM)
+		os.kill(pid_sv,signal.SIGTERM)
 
 	pid = getInstance()
 	if pid is None:
