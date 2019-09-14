@@ -29,16 +29,16 @@ def instructions(keys):
 	if filterkeys.get("artist") is not None:
 		imgurl = getArtistImage(filterkeys.get("artist"))
 		limitstring = "by " + artistLink(filterkeys.get("artist"))
+		toptracks = ""
+		imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 	elif rep is not None:
 		imgurl = getTrackImage(rep["artists"],rep["title"])
+		if get_settings("CHARTS_DISPLAY_TILES"):
+			toptracks = module_trackcharts_tiles(timerange=timekeys["timerange"])
+			imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
 	else:
 		imgurl = ""
 
-	toptracks = ""
-	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
-	if get_settings("CHARTS_DISPLAY_TILES"):
-		toptracks = module_trackcharts_tiles(timerange=timekeys["timerange"])
-		imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
 
 
 	limitstring += " " + timekeys["timerange"].desc(prefix=True)
