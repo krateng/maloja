@@ -587,10 +587,11 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 	d_start = d_start.next(stepn-1) #last part of first included range
 	i = 0
 	current_end = d_start
+	current_start = current_end.next((stepn*trail-1)*-1)
 	#ranges = []
-	while current_end.first_stamp() <= lastincluded and (max_ is None or i < max_):
+	while current_start.first_stamp() < lastincluded and (max_ is None or i < max_):
 
-		current_start = current_end.next((stepn*trail-1)*-1)
+
 		if current_start == current_end:
 			yield current_start
 			#ranges.append(current_start)
@@ -598,6 +599,7 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 			yield MRange(current_start,current_end)
 			#ranges.append(MRange(current_start,current_end))
 		current_end = current_end.next(stepn)
+		current_start = current_end.next((stepn*trail-1)*-1)
 
 		i += 1
 
