@@ -25,19 +25,22 @@ def instructions(keys):
 
 
 
+	html_tiles = ""
 
 	if filterkeys.get("artist") is not None:
 		imgurl = getArtistImage(filterkeys.get("artist"))
 		limitstring = "by " + artistLink(filterkeys.get("artist"))
-		toptracks = ""
-		imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 	elif rep is not None:
 		imgurl = getTrackImage(rep["artists"],rep["title"])
-		if get_settings("CHARTS_DISPLAY_TILES"):
-			toptracks = module_trackcharts_tiles(timerange=timekeys["timerange"])
-			imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
 	else:
 		imgurl = ""
+
+	html_tiles = ""
+	if get_settings("CHARTS_DISPLAY_TILES"):
+		html_tiles = module_trackcharts_tiles(timerange=timekeys["timerange"])
+		imgurl = "favicon.png"
+
+	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 
 
 
@@ -49,7 +52,7 @@ def instructions(keys):
 
 	replace = {
 		"KEY_TOPARTIST_IMAGEDIV":imgdiv,
-		"KEY_TRACKCHART":toptracks,
+		"KEY_TRACKCHART":html_tiles,
 		"KEY_TRACKLIST":html_charts,
 		"KEY_LIMITS":limitstring,
 		"KEY_FILTERSELECTOR":html_filterselector,

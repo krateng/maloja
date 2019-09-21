@@ -25,22 +25,23 @@ def instructions(keys):
 	else:
 		imgurl = ""
 
-	topartists = ""
-	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
+	html_tiles = ""
 	if get_settings("CHARTS_DISPLAY_TILES"):
-		topartists = module_artistcharts_tiles(timerange=timekeys["timerange"])
-		imgdiv = """<div style="background-image:url('favicon.png')"></div>"""
+		html_tiles = module_artistcharts_tiles(timerange=timekeys["timerange"])
+		imgurl = "favicon.png"
 
+	imgdiv = '<div style="background-image:url('+imgurl+')"></div>'
 
 
 	pushresources = [{"file":imgurl,"type":"image"}] if imgurl.startswith("/") else []
 
 
 	replace = {
-	"KEY_TOPARTIST_IMAGEDIV":imgdiv,
-	"KEY_ARTISTCHART":topartists,
-	"KEY_ARTISTLIST":html_charts,
-	"KEY_RANGE":limitstring,
-	"KEY_FILTERSELECTOR":html_filterselector}
+		"KEY_TOPARTIST_IMAGEDIV":imgdiv,
+		"KEY_ARTISTCHART":html_tiles,
+		"KEY_ARTISTLIST":html_charts,
+		"KEY_RANGE":limitstring,
+		"KEY_FILTERSELECTOR":html_filterselector
+	}
 
 	return (replace,pushresources)
