@@ -589,7 +589,7 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 	current_end = d_start
 	current_start = current_end.next((stepn*trail-1)*-1)
 	#ranges = []
-	while current_start.first_stamp() < lastincluded and (max_ is None or i < max_):
+	while current_end.first_stamp() < lastincluded and (max_ is None or i < max_):
 
 
 		if current_start == current_end:
