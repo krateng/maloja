@@ -1,4 +1,10 @@
-logging.logfolder = logs
-settings.files = [ "settings/default.ini" , "settings/settings.ini" ]
-caching.folder = "cache/"
-regular.autostart = false
+logging:
+   logfolder: "logs"
+settings:
+   files:
+   - "settings/default.ini"
+   - "settings/settings.ini"
+caching:
+   folder: "cache/"
+regular:
+   autostart: false
