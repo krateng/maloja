@@ -1,9 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 body {
-	background-color:#333337;
-	color:beige;
-	font-family:"Ubuntu";
 	padding:15px;
 	padding-bottom:35px;
 	/**
@@ -41,6 +37,9 @@ input[type="date"] {
 	font-size: inherit;
 
 }
+
+
+
 
 /**
 Header (unused)
@@ -218,31 +217,6 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 
 
 
-/*
-**
-**
-** TOP INFO TABLE
-**
-**
-*/
-
-table.top_info td.image div {
-	margin-right:20px;
-	margin-bottom:20px;
-	background-size:cover;
-	background-position:center;
-	height:174px;
-	width:174px
-}
-
-table.top_info td.text {
-	vertical-align: top;
-}
-
-table.top_info td.text h1 {
-	display:inline;
-	padding-right:5px;
-}
 
 p.desc a {
 	padding-left:20px;

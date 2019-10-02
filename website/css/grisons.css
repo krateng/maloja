@@ -1,0 +1,65 @@
+/**
+	COMMON STYLES FOR MALOJA, ALBULA AND POSSIBLY OTHERS
+**/
+
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+body {
+	background-color:#333337;
+	color:beige;
+	font-family:"Ubuntu";
+}
+
+/* TOP INFO TABLE */
+
+table.top_info td.image div {
+	margin-right:20px;
+	margin-bottom:20px;
+	background-size:cover;
+	background-position:center;
+	height:174px;
+	width:174px
+}
+
+table.top_info td.text {
+	vertical-align: top;
+}
+
+table.top_info td.text h1 {
+	display:inline;
+	padding-right:5px;
+}
+
+
+table.top_info td.text table.image_row td {
+	height:50px;
+	width:50px;
+	background-size:cover;
+	background-position:center;
+	background-repeat: no-repeat;
+	opacity:0.5;
+	filter: grayscale(80%);
+}
+table.top_info td.text table.image_row td:hover {
+	opacity:1;
+	filter: grayscale(0%);
+}
+
+
+
+
+/** SCROLLBAR **/
+
+::-webkit-scrollbar {
+  width: 8px;
+  cursor: pointer;
+}
+::-webkit-scrollbar-track {
+  background: grey;
+  background-color:rgba(0,255,255,0.1);
+}
+::-webkit-scrollbar-thumb {
+background-color:rgba(103,85,0,0.7);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: gold;
+}
