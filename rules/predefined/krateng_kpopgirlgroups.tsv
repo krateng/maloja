@@ -58,6 +58,7 @@ replacetitle	찔려 Sting				Sting
 
 # Red Velvet
 countas		Seulgi					Red Velvet
+countas		Joy						Red Velvet
 replacetitle	러시안 룰렛 Russian Roulette		Russian Roulette
 replacetitle	피카부 Peek-a-Boo			Peek-A-Boo
 replacetitle	빨간 맛 Red Flavor			Red Flavor
@@ -81,6 +82,7 @@ replacetitle	CHEER UP				Cheer Up
 replacetitle	OOH-AHH하게 Like OOH-AHH		Like Ooh-Ahh
 replacetitle	OOH-AHH					Like Ooh-Ahh
 replacetitle	LIKEY					Likey
+countas			Tzuyu					TWICE
 
 # AOA
 countas		AOA Black	AOA

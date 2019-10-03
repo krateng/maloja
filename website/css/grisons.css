@@ -63,3 +63,10 @@ background-color:rgba(103,85,0,0.7);
 ::-webkit-scrollbar-thumb:hover {
   background: gold;
 }
+
+
+
+
+[onclick]:hover, a:hover {
+	cursor: pointer;
+}
