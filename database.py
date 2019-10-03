@@ -701,8 +701,7 @@ def abouttoshutdown():
 	#sys.exit()
 
 @dbserver.post("newrule")
-def newrule():
-	keys = FormsDict.decode(request.forms)
+def newrule(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
 		tsv.add_entry("rules/webmade.tsv",[k for k in keys])
@@ -808,8 +807,7 @@ def issues():
 
 
 @dbserver.post("importrules")
-def import_rulemodule():
-	keys = FormsDict.decode(request.forms)
+def import_rulemodule(**keys):
 	apikey = keys.pop("key",None)
 
 	if (checkAPIkey(apikey)):
@@ -828,9 +826,7 @@ def import_rulemodule():
 
 
 @dbserver.post("rebuild")
-def rebuild():
-
-	keys = FormsDict.decode(request.forms)
+def rebuild(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
 		log("Database rebuild initiated!")
