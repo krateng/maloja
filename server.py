@@ -116,6 +116,7 @@ def static_image(pth):
 #@webserver.route("/<name:re:.*\\.html>")
 @webserver.route("/<name:re:.*\\.js>")
 @webserver.route("/<name:re:.*\\.css>")
+@webserver.route("/<name:re:.*\\.less>")
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")

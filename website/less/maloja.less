@@ -1,3 +1,4 @@
+@import "grisons";
 
 body {
 	padding:15px;
@@ -11,21 +12,6 @@ body {
 */
 }
 
-a {
-	color:inherit;
-	text-decoration:none;
-}
-
-a.textlink {
-	color:gold;
-}
-a.hidelink:hover {
-	text-decoration:none;
-}
-
-a:hover {
-	text-decoration:underline;
-}
 
 
 input[type="date"] {
@@ -75,7 +61,7 @@ div.footer {
 	position:fixed;
 	height:20px;
 	/**width:100%;**/
-	background-color:rgba(10,10,10,0.9);
+	background-color:fadeout(@BASE_COLOR_DARK,10%);
 	bottom:0px;
 	left:0px;
 	right:0px;
@@ -184,7 +170,7 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 		position:fixed;
 		/*height:30px;*/
 		/**width:100%;**/
-		background-color:rgba(10,10,10,0.9);
+		background-color:fadeout(@BASE_COLOR_DARK,10%);
 		bottom:0px;
 		left:0px;
 		right:0px;
@@ -248,14 +234,14 @@ table.top_info + .stat_module_toptracks table {
 
 
 .stats {
-	color:grey;
+	color:@TEXT_COLOR_TERTIARY;
 }
 .rank {
 	text-align:right;
-	color:grey;
+	color:@TEXT_COLOR_TERTIARY;
 }
 .extra {
-	color:gray; /*sue me*/
+	color:@TEXT_COLOR_TERTIARY;
 	font-size:80%;
 }
 
@@ -269,14 +255,14 @@ input#apikey {
 
 input.simpleinput {
 	font-family:'Ubuntu';
-	color:beige;
+	color:@TEXT_COLOR;
 	outline:none;
 	border-top: 0px solid;
 	border-left: 0px solid;
 	border-right: 0px solid;
 	padding:2px;
 	background-color:inherit;
-	border-bottom: 1px solid beige;
+	border-bottom: 1px solid @TEXT_COLOR;
 }
 
 
@@ -416,7 +402,7 @@ table.list tr:hover {
 
 table.list td.time {
 	width:11%;
-	color:gray;
+	color:@TEXT_COLOR_TERTIARY;
 }
 
 
@@ -462,7 +448,7 @@ table.list td.artists,td.artist,td.title,td.track {
 }
 
 table.list td.track span.artist_in_trackcolumn {
-	color:#bbb;
+	color:@TEXT_COLOR_SECONDARY;
 }
 
 table.list td.track a.trackProviderSearch {
@@ -508,23 +494,23 @@ table.list td.amount {
 }
 table.list td.bar {
 	width:500px;
-	background-color:#333337;
+	background-color:@BASE_COLOR;
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
 table.list td.bar div {
-	background-color:beige;
+	background-color:@TEXT_COLOR;
 	height:20px; /* can only do this absolute apparently */
 	position:relative;
 }
 table.list tr:hover td.bar div {
-	background-color:yellow;
+	background-color:@FOCUS_COLOR;
 	cursor:pointer;
 }
 
 table.list td.chart {
 	width:500px;
-	background-color:#333337;
+	background-color:@BASE_COLOR;
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
@@ -570,8 +556,14 @@ table.list tr td.button {
 
 
 table.list td.button div {
-	background-color:yellow;
-	color:#333337;
+	background-color:@BUTTON_BG_COLOR;
+	color:@BUTTON_FG_COLOR;
+	padding:3px;
+	border-radius:4px;
+}
+table.list td.button div:hover {
+	background-color:@BUTTON_FOCUS_BG_COLOR;
+	color:@BUTTON_FOCUS_FG_COLOR;
 	padding:3px;
 	border-radius:4px;
 }
