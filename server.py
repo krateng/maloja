@@ -31,6 +31,16 @@ HOST = settings.get_settings("HOST")
 webserver = Bottle()
 
 
+import lesscpy
+css = ""
+for f in os.listdir("website/less"):
+	css += lesscpy.compile("website/less/" + f)
+
+os.makedirs("website/css",exist_ok=True)
+with open("website/css/style.css","w") as f:
+	f.write(css)
+
+
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
@@ -128,7 +138,7 @@ def static(name):
 
 @webserver.route("/<name>")
 def static_html(name):
-	linkheaders = ["</css/maloja.css>; rel=preload; as=style"]
+	linkheaders = ["</css/style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	with open("website/" + name + ".html") as htmlfile:

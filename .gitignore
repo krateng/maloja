@@ -10,6 +10,7 @@ nohup.out
 *.tsv
 *.rulestate
 *.log
+*.css
 
 # currently not using
 /screenshot*.png
