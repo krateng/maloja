@@ -1,6 +1,7 @@
 # generic temporary / dev files
 *.pyc
 *.sh
+!/update_requirements.sh
 *.note
 *.xcf
 nohup.out
