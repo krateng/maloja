@@ -296,9 +296,10 @@ def update():
 	print("Done!")
 
 	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
+	os.chmod("./update_requirements.sh",os.stat("./update_requirements.sh").st_mode | stat.S_IXUSR)
 
 	try:
-		returnval = os.system("bash update_requirements.sh")
+		returnval = os.system("./update_requirements.sh")
 		assert returnval == 0
 	except:
 		print("Make sure to update required modules! (" + yellow("bash update_requirements.sh") + ")")
