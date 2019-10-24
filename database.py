@@ -638,8 +638,7 @@ def pseudo_post_scrobble(**keys):
 
 	trackdict = createScrobble(artists,title,time)
 
-	if (time - lastsync) > 3600:
-		sync()
+	sync()
 
 
 
@@ -668,8 +667,6 @@ def post_scrobble(**keys):
 
 	trackdict = createScrobble(artists,title,time)
 
-	#if (time - lastsync) > 3600:
-	#	sync()
 	sync()
 	#always sync, one filesystem access every three minutes shouldn't matter
 
