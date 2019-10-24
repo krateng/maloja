@@ -1,6 +1,7 @@
 # generic temporary / dev files
 *.pyc
 *.sh
+!/update_requirements.sh
 *.note
 *.xcf
 nohup.out
@@ -10,10 +11,10 @@ nohup.out
 *.tsv
 *.rulestate
 *.log
+*.css
 
 # currently not using
 /screenshot*.png
-/proxyscrobble.py
 
 # only for development, normally external
 /doreah

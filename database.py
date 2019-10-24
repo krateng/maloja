@@ -6,6 +6,7 @@ import utilities
 from malojatime import register_scrobbletime, time_stamps, ranges
 from urihandler import uri_to_internal, internal_to_uri, compose_querystring
 import compliant_api
+from external import proxy_scrobble
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -49,8 +50,11 @@ TRACKS_LOWER = []
 ARTISTS_LOWER = []
 ARTIST_SET = set()
 TRACK_SET = set()
+
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
+WEEKLY_TOPTRACKS = {}
+WEEKLY_TOPARTISTS = {}
 
 cla = CleanerAgent()
 coa = CollectorAgent()
@@ -73,7 +77,12 @@ def loadAPIkeys():
 	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
 def checkAPIkey(k):
-	return (k in [k for [k,d] in clients])
+	#return (k in [k for [k,d] in clients])
+	for key, identifier in clients:
+		if key == k: return identifier
+
+	return False
+
 def allAPIkeys():
 	return [k for [k,d] in clients]
 
@@ -102,10 +111,23 @@ def get_track_dict(o):
 
 
 def createScrobble(artists,title,time,volatile=False):
+
+	if len(artists) == 0 or title == "":
+		return {}
+
 	dblock.acquire()
+
+	i = getTrackID(artists,title)
+
+	# idempotence
+	if time in SCROBBLESDICT:
+		if i == SCROBBLESDICT[time].track:
+			dblock.release()
+			return get_track_dict(TRACKS[i])
+	# timestamp as unique identifier
 	while (time in SCROBBLESDICT):
 		time += 1
-	i = getTrackID(artists,title)
+
 	obj = Scrobble(i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
 	# immediately insert scrobble correctly so we can guarantee sorted list
@@ -115,6 +137,8 @@ def createScrobble(artists,title,time,volatile=False):
 	register_scrobbletime(time)
 	invalidate_caches()
 	dblock.release()
+
+	proxy_scrobble(artists,title,time)
 
 	return get_track_dict(TRACKS[obj.track])
 
@@ -225,7 +249,22 @@ def get_scrobbles(**keys):
 	#	return r
 	return r
 
+# info for comparison
+@dbserver.get("info")
+def info_external(**keys):
+	result = info()
+	return result
 
+def info():
+	totalscrobbles = get_scrobbles_num()
+	artists = {}
+
+	return {
+		"name":settings.get_settings("NAME"),
+		"artists":{
+			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
+		for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0}
+	}
 
 
 
@@ -517,7 +556,14 @@ def artistInfo(artist):
 		c = [e for e in charts if e["artist"] == artist][0]
 		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
 		position = c["rank"]
-		return {"scrobbles":scrobbles,"position":position,"associated":others,"medals":MEDALS.get(artist)}
+		performance = get_performance(artist=artist,step="week")
+		return {
+			"scrobbles":scrobbles,
+			"position":position,
+			"associated":others,
+			"medals":MEDALS.get(artist),
+			"topweeks":WEEKLY_TOPARTISTS.get(artist,0)
+		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
 		# need to show information about the credited one
@@ -555,11 +601,13 @@ def trackInfo(track):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
+
 	return {
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
-		"certification":cert
+		"certification":cert,
+		"topweeks":WEEKLY_TOPTRACKS.get(((frozenset(track["artists"]),track["title"])),0)
 	}
 
 
@@ -573,13 +621,16 @@ def pseudo_post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
-	if not (checkAPIkey(apikey)):
+	client = checkAPIkey(apikey)
+	if client == False: # empty string allowed!
 		response.status = 403
 		return ""
 	try:
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -587,8 +638,9 @@ def pseudo_post_scrobble(**keys):
 
 	trackdict = createScrobble(artists,title,time)
 
-	if (time - lastsync) > 3600:
-		sync()
+	sync()
+
+
 
 	return {"status":"success","track":trackdict}
 
@@ -597,7 +649,8 @@ def post_scrobble(**keys):
 	artists = keys.get("artist")
 	title = keys.get("title")
 	apikey = keys.get("key")
-	if not (checkAPIkey(apikey)):
+	client = checkAPIkey(apikey)
+	if client == False: # empty string allowed!
 		response.status = 403
 		return ""
 
@@ -605,6 +658,8 @@ def post_scrobble(**keys):
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -612,10 +667,9 @@ def post_scrobble(**keys):
 
 	trackdict = createScrobble(artists,title,time)
 
-	#if (time - lastsync) > 3600:
-	#	sync()
 	sync()
 	#always sync, one filesystem access every three minutes shouldn't matter
+
 
 
 	return {"status":"success","track":trackdict}
@@ -644,8 +698,7 @@ def abouttoshutdown():
 	#sys.exit()
 
 @dbserver.post("newrule")
-def newrule():
-	keys = FormsDict.decode(request.forms)
+def newrule(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
 		tsv.add_entry("rules/webmade.tsv",[k for k in keys])
@@ -751,8 +804,7 @@ def issues():
 
 
 @dbserver.post("importrules")
-def import_rulemodule():
-	keys = FormsDict.decode(request.forms)
+def import_rulemodule(**keys):
 	apikey = keys.pop("key",None)
 
 	if (checkAPIkey(apikey)):
@@ -771,9 +823,7 @@ def import_rulemodule():
 
 
 @dbserver.post("rebuild")
-def rebuild():
-
-	keys = FormsDict.decode(request.forms)
+def rebuild(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
 		log("Database rebuild initiated!")
@@ -886,6 +936,7 @@ def build_db():
 
 	#start regular tasks
 	utilities.update_medals()
+	utilities.update_weekly()
 
 	global db_rulestate
 	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
@@ -899,6 +950,7 @@ def sync():
 
 	# all entries by file collected
 	# so we don't open the same file for every entry
+	#log("Syncing",module="debug")
 	entries = {}
 
 	for idx in range(len(SCROBBLES)):
@@ -918,15 +970,19 @@ def sync():
 
 			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
 
+	#log("Sorted into months",module="debug")
+
 	for e in entries:
 		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
 
+	#log("Written files",module="debug")
+
 
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	log("Database saved to disk.")
+	#log("Database saved to disk.")
 
 	# save cached images
 	#saveCache()

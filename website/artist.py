@@ -5,7 +5,7 @@ from malojatime import today,thisweek,thismonth,thisyear
 
 def instructions(keys):
 	from utilities import getArtistImage
-	from htmlgenerators import artistLink, artistLinks
+	from htmlgenerators import artistLink, artistLinks, link_address
 	from urihandler import compose_querystring, uri_to_internal
 	from htmlmodules import module_pulse, module_performance, module_trackcharts, module_scrobblelist
 
@@ -22,13 +22,31 @@ def instructions(keys):
 	if "medals" in data and data["medals"] is not None:
 		if "gold" in data["medals"]:
 			for y in data["medals"]["gold"]:
-				html_medals += "<a  title='Best Artist in " + str(y) + "' class='hidelink medal shiny gold' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+				html_medals += "<a  title='Best Artist in " + str(y) + "' class='hidelink medal shiny gold' href='/charts_artists?in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 		if "silver" in data["medals"]:
 			for y in data["medals"]["silver"]:
-				html_medals += "<a title='Second Best Artist in " + str(y) + "' class='hidelink medal shiny silver' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+				html_medals += "<a title='Second Best Artist in " + str(y) + "' class='hidelink medal shiny silver' href='/charts_artists?in=" + str(y) + "'><span>" + str(y) + "</span></a>"
 		if "bronze" in data["medals"]:
 			for y in data["medals"]["bronze"]:
-				html_medals += "<a title='Third Best Artist in " + str(y) + "' class='hidelink medal shiny bronze' href='/charts_artists?max=50&in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+				html_medals += "<a title='Third Best Artist in " + str(y) + "' class='hidelink medal shiny bronze' href='/charts_artists?in=" + str(y) + "'><span>" + str(y) + "</span></a>"
+
+	html_cert = ""
+	for track in database.get_tracks(artist=artist):
+		info = database.trackInfo(track)
+		if info.get("certification") is not None:
+			img = "/media/record_{cert}.png".format(cert=info["certification"])
+			trackname = track["title"].replace("'","&#39;")
+			tracklink = link_address(track)
+			tooltip = "{title} has reached {cert} status".format(title=trackname,cert=info["certification"].capitalize())
+			html_cert += "<a href='{link}'><img class='certrecord_small' src='{img}' title='{tooltip}' /></a>".format(tooltip=tooltip,img=img,link=tracklink)
+
+
+	html_topweeks = ""
+	if data.get("topweeks") not in [0,None]:
+		link = "/performance?artist=" + urllib.parse.quote(keys["artist"]) + "&trail=1&step=week"
+		title = str(data["topweeks"]) + " weeks on #1"
+		html_topweeks = "<a title='" + title + "' href='" + link + "'><img class='star' src='/media/star.png' />" + str(data["topweeks"]) + "</a>"
+
 
 	credited = data.get("replace")
 	includestr = " "
@@ -69,6 +87,8 @@ def instructions(keys):
 		"KEY_POSITION":pos,
 		"KEY_ASSOCIATED":includestr,
 		"KEY_MEDALS":html_medals,
+		"KEY_CERTS":html_cert,
+		"KEY_TOPWEEKS":html_topweeks,
 		# tracks
 		"KEY_TRACKLIST":html_tracks,
 		# pulse

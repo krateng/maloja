@@ -1,6 +1,7 @@
 bottle>=0.12.16
 waitress>=1.3
-doreah>=0.9.1
+doreah>=1.1.7
 nimrodel>=0.4.9
 setproctitle>=1.1.10
 wand>=0.5.4
+lesscpy>=0.13

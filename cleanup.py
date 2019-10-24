@@ -1,6 +1,6 @@
 import re
 import utilities
-from doreah import tsv
+from doreah import tsv, settings
 
 # need to do this as a class so it can retain loaded settings from file
 # apparently this is not true
@@ -11,11 +11,16 @@ class CleanerAgent:
 		self.updateRules()
 
 	def updateRules(self):
-		raw = tsv.parse_all("rules","string","string","string")
-		self.rules_belongtogether = [b for [a,b,c] in raw if a=="belongtogether"]
-		self.rules_notanartist = [b for [a,b,c] in raw if a=="notanartist"]
-		self.rules_replacetitle = {b.lower():c for [a,b,c] in raw if a=="replacetitle"}
-		self.rules_replaceartist = {b.lower():c for [a,b,c] in raw if a=="replaceartist"}
+		raw = tsv.parse_all("rules","string","string","string","string")
+		self.rules_belongtogether = [b for [a,b,c,d] in raw if a=="belongtogether"]
+		self.rules_notanartist = [b for [a,b,c,d] in raw if a=="notanartist"]
+		self.rules_replacetitle = {b.lower():c for [a,b,c,d] in raw if a=="replacetitle"}
+		self.rules_replaceartist = {b.lower():c for [a,b,c,d] in raw if a=="replaceartist"}
+		self.rules_ignoreartist = [b.lower() for [a,b,c,d] in raw if a=="ignoreartist"]
+		self.rules_addartists = {c.lower():(b.lower(),d) for [a,b,c,d] in raw if a=="addartists"}
+		#self.rules_regexartist = [[b,c] for [a,b,c,d] in raw if a=="regexartist"]
+		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
+		# TODO
 
 		# we always need to be able to tell if our current database is made with the current rules
 		self.checksums = utilities.checksumTSV("rules")
@@ -27,6 +32,12 @@ class CleanerAgent:
 		title = self.parseTitle(self.removespecial(title))
 		(title,moreartists) = self.parseTitleForArtists(title)
 		artists += moreartists
+		if title.lower() in self.rules_addartists:
+			reqartists, allartists = self.rules_addartists[title.lower()]
+			reqartists = reqartists.split("␟")
+			allartists = allartists.split("␟")
+			if set(reqartists).issubset(set(a.lower() for a in artists)):
+				artists += allartists
 		artists = list(set(artists))
 		artists.sort()
 
@@ -51,6 +62,12 @@ class CleanerAgent:
 	delimiters_formal = ["; ",";","/"]
 
 	def parseArtists(self,a):
+
+		if a.strip() in settings.get_settings("INVALID_ARTISTS"):
+			return []
+
+		if a.strip().lower() in self.rules_ignoreartist:
+			return []
 
 		if a.strip() == "":
 			return []

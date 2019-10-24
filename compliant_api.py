@@ -68,6 +68,7 @@ def handle(path,keys):
 
 def scrobbletrack(artiststr,titlestr,timestamp):
 	try:
+		log("Incoming scrobble (compliant API): ARTISTS: " + artiststr + ", TRACK: " + titlestr,module="debug")	
 		(artists,title) = cla.fullclean(artiststr,titlestr)
 		database.createScrobble(artists,title,timestamp)
 		database.sync()

@@ -9,4 +9,4 @@ maloja_scrobbler_selector_artist = "./text()"
 maloja_scrobbler_selector_duration = ".//div[@class='playback-bar__progress-time'][2]/text()"
 
 
-maloja_scrobbler_selector_control = ".//div[contains(@class,'player-controls__buttons')]/button[3]/@title"
+maloja_scrobbler_selector_control = ".//div[contains(@class,'player-controls__buttons')]/div[3]/button/@title"

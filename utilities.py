@@ -99,14 +99,11 @@ def consistentRulestate(folder,checksums):
 		if (scrobblefile.endswith(".tsv")):
 
 			try:
-				f = open(folder + "/" + scrobblefile + ".rulestate","r")
-				if f.read() != checksums:
-					return False
-
+				with open(folder + "/" + scrobblefile + ".rulestate","r") as f:
+					if f.read() != checksums:
+						return False
 			except:
 				return False
-			finally:
-				f.close()
 
 	return True
 
@@ -442,8 +439,12 @@ def update_medals():
 
 	from database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
 
-	firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
 	currentyear = datetime.datetime.utcnow().year
+	try:
+		firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
+	except:
+		firstyear = currentyear
+
 
 	MEDALS.clear()
 	for year in range(firstyear,currentyear):
@@ -468,3 +469,23 @@ def update_medals():
 			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
 			elif t["rank"] == 3: MEDALS_TRACKS.setdefault(track,{}).setdefault("bronze",[]).append(year)
 			else: break
+
+@daily
+def update_weekly():
+
+	from database import WEEKLY_TOPTRACKS, WEEKLY_TOPARTISTS, get_charts_artists, get_charts_tracks
+	from malojatime import ranges, thisweek
+
+
+	WEEKLY_TOPARTISTS.clear()
+	WEEKLY_TOPTRACKS.clear()
+
+	for week in ranges(step="week"):
+		if week == thisweek(): break
+		for a in get_charts_artists(timerange=week):
+			artist = a["artist"]
+			if a["rank"] == 1: WEEKLY_TOPARTISTS[artist] = WEEKLY_TOPARTISTS.setdefault(artist,0) + 1
+
+		for t in get_charts_tracks(timerange=week):
+			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
+			if t["rank"] == 1: WEEKLY_TOPTRACKS[track] = WEEKLY_TOPTRACKS.setdefault(track,0) + 1

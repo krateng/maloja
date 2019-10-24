@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 # server stuff
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse
 import waitress
 # monkey patching
 import monkey
 # rest of the project
 import database
-import utilities
 import htmlmodules
 import htmlgenerators
 import malojatime
-from utilities import *
+import utilities
+from utilities import resolveImage
 from urihandler import uri_to_internal, remove_identical
 import urihandler
 # doreah toolkit
@@ -26,18 +26,26 @@ import os
 import setproctitle
 # url handling
 import urllib
-import urllib.request
-import urllib.parse
-from urllib.error import *
 
 
 
 #settings.config(files=["settings/default.ini","settings/settings.ini"])
 #settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT = settings.get_settings("WEB_PORT")
+HOST = settings.get_settings("HOST")
 
 
 webserver = Bottle()
+
+
+import lesscpy
+css = ""
+for f in os.listdir("website/less"):
+	css += lesscpy.compile("website/less/" + f)
+
+os.makedirs("website/css",exist_ok=True)
+with open("website/css/style.css","w") as f:
+	f.write(css)
 
 
 @webserver.route("")
@@ -77,7 +85,11 @@ def customerror(error):
 
 def graceful_exit(sig=None,frame=None):
 	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
-	database.sync()
+	log("Received signal to shutdown")
+	try:
+		database.sync()
+	except Exception as e:
+		log("Error while shutting down!",e)
 	log("Server shutting down...")
 	os._exit(42)
 
@@ -121,6 +133,7 @@ def static_image(pth):
 #@webserver.route("/<name:re:.*\\.html>")
 @webserver.route("/<name:re:.*\\.js>")
 @webserver.route("/<name:re:.*\\.css>")
+@webserver.route("/<name:re:.*\\.less>")
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
 @webserver.route("/<name:re:.*\\.ico>")
@@ -132,7 +145,7 @@ def static(name):
 
 @webserver.route("/<name>")
 def static_html(name):
-	linkheaders = ["</css/maloja.css>; rel=preload; as=style"]
+	linkheaders = ["</css/style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	# if a pyhp file exists, use this
@@ -206,6 +219,16 @@ def static_html(name):
 		return html
 		#return static_file("website/" + name + ".html",root="")
 
+
+# Shortlinks
+
+@webserver.get("/artist/<artist>")
+def redirect_artist(artist):
+	redirect("/artist?artist=" + artist)
+@webserver.get("/track/<artists:path>/<title>")
+def redirect_track(artists,title):
+	redirect("/track?title=" + title + "&" + "&".join("artist=" + artist for artist in artists.split("/")))
+
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
 signal.signal(signal.SIGTERM, graceful_exit)
@@ -215,8 +238,7 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-#database.register_subroutes(webserver,"/api")
 database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
-run(webserver, host='::', port=MAIN_PORT, server='waitress')
+run(webserver, host=HOST, port=MAIN_PORT, server='waitress')

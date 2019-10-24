@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Compare</title>
+		<style>
+			.comparecircle {
+				height:500px;
+				width:500px;
+				border-radius:250px;
+				border: 1px solid rgba(245,245,220,0.3);
+				margin:auto;
+				margin-top:100px;
+				text-align:center;
+				line-height:500px;
+				font-size:60px;
+				color:black;
+				/* background-image: linear-gradient(to right,KEY_CIRCLE_CSS); */
+				background-image: radial-gradient(#KEY_CICLE_COLOR KEY_FULLMATCHpx, transparent KEY_PARTIALMATCHpx);
+			}
+
+			table tr td:first-child {
+				text-align: left;
+				padding:10px;
+				width:33%;
+			}
+			table tr td {
+				text-align: center;
+				padding:10px;
+			}
+
+			table tr td:last-child {
+				text-align: right;
+				padding:10px;
+				width:33%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<table style="width:99%;">
+			<tr>
+				<td><h1>KEY_NAME_SELF</h1></td>
+				<td>
+
+					<div class="comparecircle">
+						KEY_MATCH%
+
+					</div>
+				</td>
+				<td><h1>KEY_NAME_OTHER</h1></td>
+
+			</tr>
+			<tr>
+				<td></td>
+				<td style="font-size:70%;color:grey;">
+					The size of the circle shows matching music taste.
+					The fuzziness of its border indicates differences in quantity.
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<span>Common Favorite</span>
+					<h2 style="margin:7px;">KEY_BESTARTIST_LINK</h2>
+					<img src="KEY_BESTARTIST_IMAGE" style="width:80px;" />
+				</td>
+				<td></td>
+			</tr>
+		</table>
+
+
+
+
+	</body>
+</html>

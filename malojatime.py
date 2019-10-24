@@ -391,6 +391,7 @@ def time_fix(t):
 	if isinstance(t,MRangeDescriptor): return t
 
 	if isinstance(t, str):
+		if t in ["alltime"]: return None
 		tod = datetime.datetime.utcnow()
 		months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
 		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
@@ -545,9 +546,8 @@ def time_stamps(since=None,to=None,within=None,range=None):
 
 def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
-	if stepn is not 1: txt += _num(stepn) + "-"
+	if stepn is not 1: txt += str(stepn) + "-"
 	txt += {"year":"Yearly","month":"Monthly","week":"Weekly","day":"Daily"}[step.lower()]
-	#if trail is not 1: txt += " " + _num(trail) + "-Trailing"
 	if trail is math.inf: txt += " Cumulative"
 	elif trail is not 1: txt += " Trailing" #we don't need all the info in the title
 
@@ -587,10 +587,11 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 	d_start = d_start.next(stepn-1) #last part of first included range
 	i = 0
 	current_end = d_start
+	current_start = current_end.next((stepn*trail-1)*-1)
 	#ranges = []
-	while current_end.first_stamp() <= lastincluded and (max_ is None or i < max_):
+	while current_end.first_stamp() < lastincluded and (max_ is None or i < max_):
 
-		current_start = current_end.next((stepn*trail-1)*-1)
+
 		if current_start == current_end:
 			yield current_start
 			#ranges.append(current_start)
@@ -598,6 +599,7 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 			yield MRange(current_start,current_end)
 			#ranges.append(MRange(current_start,current_end))
 		current_end = current_end.next(stepn)
+		current_start = current_end.next((stepn*trail-1)*-1)
 
 		i += 1
 
@@ -619,6 +621,8 @@ def thismonth():
 def thisyear():
 	tod = datetime.datetime.utcnow()
 	return MTime(tod.year)
+def alltime():
+	return MRange(None,None)
 
 #def _get_start_of(timestamp,unit):
 #	date = datetime.datetime.utcfromtimestamp(timestamp)

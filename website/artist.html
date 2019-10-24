@@ -4,7 +4,8 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>Maloja - KEY_ARTISTNAME</title>
-		<script src="javascript/rangeselect.js" async></script>
+		<script src="javascript/cookies.js"></script>
+		<script src="javascript/rangeselect.js"></script>
 	</head>
 
 	<body>
@@ -15,13 +16,13 @@
 				</td>
 				<td class="text">
 					<h1>KEY_ARTISTNAME</h1>
-						<span class="rank"><a href="/charts_artists?max=100">KEY_POSITION</a></span>
+						<span class="rank"><a href="/charts_artists">KEY_POSITION</a></span>
 						<br/>
 					<span>KEY_ASSOCIATED</span>
 					<p class="stats"><a href="/scrobbles?artist=KEY_ENC_ARTISTNAME">KEY_SCROBBLES Scrobbles</a></p>
 
 					<p class="desc">KEY_DESCRIPTION</p>
-					<span>KEY_MEDALS</span>
+					<span>KEY_MEDALS</span> <span>KEY_TOPWEEKS</span> <span>KEY_CERTS</span>
 				</td>
 			</tr>
 		</table>
@@ -32,35 +33,35 @@
 		<table class="twopart">
 			<tr>
 				<td>
-					<h2><a href='/pulse?artist=KEY_ENC_ARTISTNAME&step=year&trail=1'>Pulse</a></h2>
+					<h2><a class="stat_link_pulse" href='/pulse?artist=KEY_ENC_ARTISTNAME&trail=1&step=month'>Pulse</a></h2>
 
 
-					<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
-		      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
-		      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
-		      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
+					<span onclick="showRangeManual('pulse','day')" class="stat_selector_pulse selector_pulse_day">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','week')" class="stat_selector_pulse selector_pulse_week">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','month')" class="stat_selector_pulse selector_pulse_month" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','year')" class="stat_selector_pulse selector_pulse_year">10 years</span>
 
 		      			<br/><br/>
 
-		      			<span class="stat_module_pulse pulse_months">KEY_PULSE_MONTHS</span>
-		      			<span class="stat_module_pulse pulse_days" style="display:none;">KEY_PULSE_DAYS</span>
-		      			<span class="stat_module_pulse pulse_years" style="display:none;">KEY_PULSE_YEARS</span>
-		      			<span class="stat_module_pulse pulse_weeks" style="display:none;">KEY_PULSE_WEEKS</span>
+		      			<span class="stat_module_pulse pulse_month">KEY_PULSE_MONTHS</span>
+		      			<span class="stat_module_pulse pulse_day" style="display:none;">KEY_PULSE_DAYS</span>
+		      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PULSE_YEARS</span>
+		      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PULSE_WEEKS</span>
 				</td>
 				<td>
 					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-					<h2><a href='/performance?artist=KEY_ENC_CREDITEDARTISTNAME&step=year&trail=1'>Performance</a></h2>
-					<span onclick="showRange('pulse','days')" class="stat_selector_pulse selector_pulse_days">7 days</span>
-		      			| <span onclick="showRange('pulse','weeks')" class="stat_selector_pulse selector_pulse_weeks">12 weeks</span>
-		      			| <span onclick="showRange('pulse','months')" class="stat_selector_pulse selector_pulse_months" style="opacity:0.5;">12 months</span>
-		      			| <span onclick="showRange('pulse','years')" class="stat_selector_pulse selector_pulse_years">10 years</span>
+					<h2><a class="stat_link_pulse" href='/performance?artist=KEY_ENC_CREDITEDARTISTNAME&trail=1&step=month'>Performance</a></h2>
+					<span onclick="showRangeManual('pulse','day')" class="stat_selector_pulse selector_pulse_day">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','week')" class="stat_selector_pulse selector_pulse_week">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','month')" class="stat_selector_pulse selector_pulse_month" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','year')" class="stat_selector_pulse selector_pulse_year">10 years</span>
 
 		      			<br/><br/>
 
-		      			<span class="stat_module_pulse pulse_months">KEY_PERFORMANCE_MONTHS</span>
-		      			<span class="stat_module_pulse pulse_days" style="display:none;">KEY_PERFORMANCE_DAYS</span>
-		      			<span class="stat_module_pulse pulse_years" style="display:none;">KEY_PERFORMANCE_YEARS</span>
-		      			<span class="stat_module_pulse pulse_weeks" style="display:none;">KEY_PERFORMANCE_WEEKS</span>
+		      			<span class="stat_module_pulse pulse_month">KEY_PERFORMANCE_MONTHS</span>
+		      			<span class="stat_module_pulse pulse_day" style="display:none;">KEY_PERFORMANCE_DAYS</span>
+		      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PERFORMANCE_YEARS</span>
+		      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PERFORMANCE_WEEKS</span>
 				</td>
 			</tr>
 		</table>

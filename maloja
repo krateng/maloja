@@ -183,12 +183,21 @@ def getInstance():
 	except:
 		return None
 
+def getInstanceSupervisor():
+	try:
+		output = subprocess.check_output(["pidof","maloja_supervisor"])
+		pid = int(output)
+		return pid
+	except:
+		return None
+
 def start():
 	if install():
 
 		if gotodir():
 			setup()
 			p = subprocess.Popen(["python3","server.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+			p = subprocess.Popen(["python3","supervisor.py"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(green("Maloja started!") + " PID: " + str(p.pid))
 
 			from doreah import settings
@@ -221,8 +230,12 @@ def restart():
 	return wasrunning
 
 def stop():
+	pid_sv = getInstanceSupervisor()
+	if pid_sv is not None:
+		os.kill(pid_sv,signal.SIGTERM)
+
 	pid = getInstance()
-	if pid == None:
+	if pid is None:
 		print("Server is not running")
 		return False
 	else:
@@ -283,8 +296,13 @@ def update():
 	print("Done!")
 
 	os.chmod("./maloja",os.stat("./maloja").st_mode | stat.S_IXUSR)
+	os.chmod("./update_requirements.sh",os.stat("./update_requirements.sh").st_mode | stat.S_IXUSR)
 
-	print("Make sure to update required modules! (" + yellow("pip3 install -r requirements.txt --upgrade --no-cache-dir") + ")")
+	try:
+		returnval = os.system("./update_requirements.sh")
+		assert returnval == 0
+	except:
+		print("Make sure to update required modules! (" + yellow("./update_requirements.sh") + ")")
 
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 

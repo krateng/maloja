@@ -16,6 +16,10 @@ The first column defines the type of the rule:
 			This will not change the separation in the database and all effects of this rule will disappear as soon as it is no longer active.
 			Second column is the artist
 			Third column the replacement artist / grouping label
+	addartists	Defines a certain combination of artists and song title that should always have other artists added.
+			Second column is artists that need to be already present for this rule to apply
+			Third column is the song title
+			Fourth column are artists that shoud be added, separated by ␟
 
 Rules in non-tsv files are ignored. '#' is used for comments. Additional columns are ignored. To have a '#' in a name, use '\num'
 Comments are not supported in scrobble lists, but you probably never edit these manually anyway.
@@ -30,3 +34,4 @@ replacetitle	첫 사랑니 (Rum Pum Pum Pum)	Rum Pum Pum Pum
 replaceartist	Dal Shabet			Dal★Shabet
 replaceartist	Mr FijiWiji, AgNO3		Mr FijiWiji␟AgNO3			# one artist is replaced by two artists
 countas		Trouble Maker			HyunA
+addartists		HyunA				Change			Jun Hyung

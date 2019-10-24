@@ -9,11 +9,11 @@ def instructions(keys):
 	from htmlmodules import module_pulse, module_filterselection
 	from malojatime import range_desc, delimit_desc
 
-	filterkeys, timekeys, delimitkeys, _ = uri_to_internal(keys)
+	filterkeys, timekeys, delimitkeys, paginatekeys = uri_to_internal(keys)
 
 	#equivalent performance chart if we're not looking at the overall pulse
 	if len(filterkeys) != 0:
-		performancelink_keys = internal_to_uri({**filterkeys,**timekeys,**delimitkeys})
+		performancelink_keys = internal_to_uri({**filterkeys,**timekeys,**delimitkeys,**paginatekeys})
 		performancelink = "/performance?" + compose_querystring(performancelink_keys)
 
 		performancelink = "<a href=\"" + performancelink + "\"><span>View Rankings</span></a>"
@@ -57,7 +57,7 @@ def instructions(keys):
 
 
 
-	html_pulse = module_pulse(**filterkeys,**timekeys,**delimitkeys)
+	html_pulse = module_pulse(**filterkeys,**timekeys,**delimitkeys,**paginatekeys)
 
 	replace = {
 	"KEY_RANKINGS_LINK":performancelink,

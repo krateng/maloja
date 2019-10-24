@@ -12,7 +12,7 @@ def instructions(keys):
 	# commands to execute on load for default ranges
 	js_command = "showRange('topartists','" + get_settings("DEFAULT_RANGE_CHARTS_ARTISTS") + "');"
 	js_command += "showRange('toptracks','" + get_settings("DEFAULT_RANGE_CHARTS_TRACKS") + "');"
-	js_command += "showRange('pulse','" + get_settings("DEFAULT_RANGE_PULSE") + "');"
+	js_command += "showRange('pulse','" + get_settings("DEFAULT_STEP_PULSE") + "');"
 
 
 	clock()
