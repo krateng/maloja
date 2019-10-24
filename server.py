@@ -149,15 +149,8 @@ def static_html(name):
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	# if a pyhp file exists, use this
-	if os.path.exists("website/" + name + ".pyhp"):
+	if os.path.exists("website/" + name + ".pyhp") and settings.get_settings("USE_PYHP"):
 		from doreah.pyhp import file
-		#try:
-		#	d = SourceFileLoader(name,"website/" + name + ".py").load_module().pyhp(keys)
-		#	print("loaded dict")
-		#except:
-		#	d = {}
-		#	print("error")
-		#	raise
 		environ = {} #things we expose to the pyhp pages
 
 		# maloja
