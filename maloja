@@ -302,7 +302,7 @@ def update():
 		returnval = os.system("./update_requirements.sh")
 		assert returnval == 0
 	except:
-		print("Make sure to update required modules! (" + yellow("bash update_requirements.sh") + ")")
+		print("Make sure to update required modules! (" + yellow("./update_requirements.sh") + ")")
 
 	if stop(): start() #stop returns whether it was running before, in which case we restart it
 
