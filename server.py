@@ -149,8 +149,13 @@ def static_html(name):
 	linkheaders = ["</css/style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
+	pyhp_file = os.path.exists("website/" + name + ".pyhp")
+	html_file = os.path.exists("website/" + name + ".html")
+	pyhp_pref = settings.get_settings("USE_PYHP")
+
+
 	# if a pyhp file exists, use this
-	if os.path.exists("website/" + name + ".pyhp") and settings.get_settings("USE_PYHP"):
+	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
 		from doreah.pyhp import file
 		environ = {} #things we expose to the pyhp pages
 
