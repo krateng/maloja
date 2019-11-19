@@ -12,14 +12,24 @@
 		<script>
 			neo.xhttprequest("https://maloja.krateng.ch/api/serverinfo",{},"GET",json=true).then((response)=>{
 				result = JSON.parse(response.responseText);
-				document.getElementById("latestversion").innerHTML = result.version.join(".");
-				if (document.getElementById("latestversion").innerHTML.trim() == document.getElementById("currentversion").innerHTML.trim()) {
-					document.getElementById("currentversion").style.color = "green";
-				}
-				else {
-					document.getElementById("currentversion").style.color = "red";
-					document.getElementById("updatestatus").innerHTML = "Consider updating to take advantage of new features";
-				}
+				latestvers = result.version;
+
+				neo.xhttprequest("/api/serverinfo",{},"GET",json=true).then((response)=>{
+
+					result = JSON.parse(response.responseText);
+					thisvers = result.version;
+
+					document.getElementById("latestversion").innerHTML = latestvers.join(".");
+					document.getElementById("currentversion").innerHTML = thisvers.join(".");
+
+					if (latestvers <= thisvers) {
+						document.getElementById("currentversion").style.color = "green";
+					}
+					else {
+						document.getElementById("currentversion").style.color = "red";
+						document.getElementById("updatestatus").innerHTML = "Consider updating to take advantage of new features";
+					}
+				});
 			});
 		</script>
 	</head>
@@ -44,8 +54,8 @@
 
 		<h2>Update</h2>
 
-		Currently installed Maloja version: <span id="currentversion"><pyhp echo="'.'.join(str(n) for n in info.version)" /></span><br/>
-		Latest Maloja version: <span id="latestversion">Loading...</span><br/>
+		Currently installed Maloja version: <span id="currentversion">Loading...</span><br/>
+		Latest recommended Maloja version: <span id="latestversion">Loading...</span><br/>
 		<span id="updatestatus"></span>
 
 
