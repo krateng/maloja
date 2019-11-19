@@ -8,3 +8,5 @@ caching:
    folder: "cache/"
 regular:
    autostart: false
+pyhp:
+   version: 2
