@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja</title>
+		<script src="javascript/cookies.js"></script>
+
+		<pyhp include="common/header.html" />
+
+		<script>
+			neo.xhttprequest("https://maloja.krateng.ch/api/serverinfo",{},"GET",json=true).then((response)=>{
+				result = JSON.parse(response.responseText);
+				document.getElementById("latestversion").innerHTML = result.version.join(".");
+				if (document.getElementById("latestversion").innerHTML.trim() == document.getElementById("currentversion").innerHTML.trim()) {
+					document.getElementById("currentversion").style.color = "green";
+				}
+				else {
+					document.getElementById("currentversion").style.color = "red";
+					document.getElementById("updatestatus").innerHTML = "Consider updating to take advantage of new features";
+				}
+			});
+		</script>
+	</head>
+
+	<body>
+
+
+
+
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Maloja</h1><br/>
+
+					<p class="desc">Welcome to your own Maloja server!</p>
+				</td>
+			</tr>
+		</table>
+
+		<h2>Update</h2>
+
+		Currently installed Maloja version: <span id="currentversion"><pyhp echo="'.'.join(str(n) for n in info.version)" /></span><br/>
+		Latest Maloja version: <span id="latestversion">Loading...</span><br/>
+		<span id="updatestatus"></span>
+
+
+		<h2>Admin Mode</h2>
+
+		Activate admin mode to manually scrobble from various places on the website
+
+		<h2>Links</h2>
+
+		<a class="textlink" href="/setup">Server Setup</a><br/>
+		<a class="textlink" href="/manual">Manual Scrobbling</a>
+
+		<pyhp include="common/footer.html" />
+	</body>
+</html>

@@ -230,6 +230,17 @@ def test_server(key=None):
 	# 205	Database server is up, but DB is not fully built or is inconsistent
 	# 403	Database server is up, but provided API key is not valid
 
+@dbserver.get("serverinfo")
+def server_info():
+	import info
+
+	response.set_header("Access-Control-Allow-Origin","*")
+	response.set_header("Content-Type","application/json")
+
+	return {
+		"name":settings.get_settings("NAME"),
+		"version":info.version
+	}
 
 ## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json
 

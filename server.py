@@ -14,6 +14,7 @@ import utilities
 from utilities import resolveImage
 from urihandler import uri_to_internal, remove_identical
 import urihandler
+import info
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -160,6 +161,7 @@ def static_html(name):
 		environ["malojatime"] = malojatime
 		environ["utilities"] = utilities
 		environ["urihandler"] = urihandler
+		environ["info"] = info
 		# external
 		environ["urllib"] = urllib
 		# request
