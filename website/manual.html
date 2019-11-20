@@ -119,7 +119,7 @@
 						track.innerHTML = "<a href='" + tracklink + "'>" +  trackstr + "</a>";
 						row = document.createElement("tr")
 						col1 = document.createElement("td")
-						col1.className = "scrobblebutton"
+						col1.className = "button"
 						col1.innerHTML = "Scrobble!"
 						col1.onclick = function(){ scrobble(t["artists"],t["title"])};
 						col2 = document.createElement("td")
@@ -134,22 +134,7 @@
 			}
 		</script>
 
-		<style>
-			.scrobblebutton {
-				padding:3px;
-				padding-right:6px;
-				padding-left:6px;
-				background-color:beige;
-				color:black;
-				cursor:pointer;
-			}
-			.scrobblebutton:hover {
-				background-color:gold;
-			}
-			.scrobblebutton:active {
-				background-color:orange;
-			}
-		</style>
+
 	</head>
 
 
@@ -192,7 +177,7 @@
 
 		<br/>
 
-		<span class="scrobblebutton" onclick="scrobbleNew(event)">Scrobble!</span>
+		<span class="button" onclick="scrobbleNew(event)">Scrobble!</span>
 
 		<br/>
 
