@@ -1,53 +1,12 @@
 apikeycorrect = false;
 
-var cookies = {};
-
-function getCookies() {
-	cookiestrings = decodeURIComponent(document.cookie).split(';');
-	for(var i = 0; i <cookiestrings.length; i++) {
-		cookiestrings[i] = cookiestrings[i].trim();
-		[key,value] = cookiestrings[i].split("=");
-		cookies[key] = value;
-	}
-}
-
-// always on document load, but call specifically when needed early
-document.addEventListener("load",getCookies);
-
-function setCookie(key,val,session=true) {
-	cookies[key] = val;
-	if (!session) {
-		var d = new Date();
- 		d.setTime(d.getTime() + (500*24*60*60*1000));
-		expirestr = "expires=" + d.toUTCString();
-	}
-	else {
-		expirestr = ""
-	}
-	document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(val) + ";" + expirestr;
-}
-function saveCookies() {
-	for (var c in cookies) {
-		document.cookie = encodeURIComponent(c) + "=" + encodeURIComponent(cookies[c]);
-	}
-}
-
-
-
-/// RANGE SELECTORS
-
-// in rangeselect.js
 
 
 /// API KEY
-
-
-
 function insertAPIKeyFromCookie() {
 	element = document.getElementById("apikey")
 	if (element != null && element != undefined) {
-		getCookies();
-		key = cookies["apikey"];
+		var key = neo.getCookie("apikey");
 		if (key != null && key != undefined) {
 			element.value = key;
 			checkAPIkey();
@@ -62,7 +21,7 @@ window.addEventListener("load",insertAPIKeyFromCookie);
 
 function saveAPIkey() {
 	key = APIkey();
-	setCookie("apikey",key,false);
+	neo.setCookie("apikey",key,false);
 }
 
 

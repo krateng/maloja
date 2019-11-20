@@ -38,16 +38,16 @@ function showRange(identifier,unit) {
 
 function showRangeManual(identifier,unit) {
 	showRange(identifier,unit);
-	setCookie("rangeselect_" + identifier,unit);
+	neo.setCookie("rangeselect_" + identifier,unit);
 }
 
 
 
 document.addEventListener('DOMContentLoaded',function() {
-	getCookies();
-	for (c in cookies) {
-		if (c.startsWith("rangeselect_")) {
-			showRange(c.slice(12),cookies[c]);
+	for (let type of ["topartists","toptracks","pulse"]) {
+		var val = neo.getCookie("rangeselect_" + type);
+		if (val != undefined) {
+			showRange(type,val);
 		}
 	}
 })
