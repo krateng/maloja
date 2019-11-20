@@ -67,7 +67,7 @@ function saveAPIkey() {
 
 
 
-function checkAPIkey() {
+function checkAPIkey(extrafunc=null) {
 
 	url = "/api/test?key=" + APIkey()
 	var xhttp = new XMLHttpRequest();
@@ -81,6 +81,11 @@ function checkAPIkey() {
 			document.getElementById("apikey").style.backgroundColor = "red"
 			apikeycorrect = false
 		}
+
+		if (extrafunc != null) {
+			extrafunc();
+		}
+
 	};
 	try {
 		xhttp.open("GET",url,true);
@@ -89,6 +94,9 @@ function checkAPIkey() {
 	catch (e) {
 		document.getElementById("apikey").style.backgroundColor = "red"
 		apikeycorrect = false
+		if (extrafunc != null) {
+			extrafunc();
+		}
 	}
 }
 

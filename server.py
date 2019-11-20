@@ -153,11 +153,15 @@ def static_html(name):
 	html_file = os.path.exists("website/" + name + ".html")
 	pyhp_pref = settings.get_settings("USE_PYHP")
 
+	adminmode = request.cookies.get("adminmode") == "true" and database.checkAPIkey(request.cookies.get("apikey")) is not False
+
 
 	# if a pyhp file exists, use this
 	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
 		from doreah.pyhp import file
 		environ = {} #things we expose to the pyhp pages
+
+		environ["adminmode"] = adminmode
 
 		# maloja
 		environ["db"] = database

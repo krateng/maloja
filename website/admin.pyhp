@@ -31,7 +31,55 @@
 					}
 				});
 			});
+
+
+			function activate() {
+				neo.setCookie("adminmode","true");
+				window.location.reload(true);
+			}
+			function deactivate() {
+				neo.setCookie("adminmode","false");
+				window.location.reload(true);
+			}
+
+			function buttonlock() {
+				button = document.getElementById("adminmodebutton")
+				if (apikeycorrect) {
+					button.classList.remove("locked");
+					if (button.innerHTML == "Activate") { button.onclick = activate; }
+					else { button.onclick = deactivate; }
+					// ugh
+				}
+				else {
+					button.classList.add("locked");
+					button.onclick = null;
+				}
+			}
+
+			window.addEventListener("load",function(){checkAPIkey(buttonlock)});
+			// we do this twice, but this one ensures that the button is correctly locked / unlocked after the api key has been checked
 		</script>
+		<style>
+			.button {
+				padding:3px;
+				padding-right:6px;
+				padding-left:6px;
+				background-color:beige;
+				color:black;
+				cursor:pointer;
+			}
+			.button:hover {
+				background-color:gold;
+			}
+			.button:active {
+				background-color:orange;
+			}
+			.button.locked {
+				background-color:grey;
+				color:black;
+				cursor:not-allowed;
+			}
+		</style>
 	</head>
 
 	<body>
@@ -45,9 +93,10 @@
 					<div style="background-image:url('/favicon.png')"></div>
 				</td>
 				<td class="text">
-					<h1>Maloja</h1><br/>
+					<h1>Admin Panel</h1><br/>
+					<br/><br/>
+					API Key: <input id='apikey' onchange='checkAPIkey(buttonlock);' style='width:300px;'/><br/><br/>
 
-					<p class="desc">Welcome to your own Maloja server!</p>
 				</td>
 			</tr>
 		</table>
@@ -61,7 +110,9 @@
 
 		<h2>Admin Mode</h2>
 
-		Activate admin mode to manually scrobble from various places on the website (Coming soon)
+		Admin Mode allows you to manually scrobble from various places on the web interface instead of just the dedicated page.<br/><br/>
+		<pyhp if="adminmode"><span id="adminmodebutton" class="button locked">Deactivate</span></pyhp>
+		<pyhp if="not adminmode"><span id="adminmodebutton" class="button locked">Activate</span></pyhp>
 
 		<h2>Links</h2>
 
