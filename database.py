@@ -572,7 +572,7 @@ def artistInfo(artist):
 			"scrobbles":scrobbles,
 			"position":position,
 			"associated":others,
-			"medals":MEDALS.get(artist),
+			"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS.get(artist,{})},
 			"topweeks":WEEKLY_TOPARTISTS.get(artist,0)
 		}
 	except:
@@ -616,7 +616,7 @@ def trackInfo(track):
 	return {
 		"scrobbles":scrobbles,
 		"position":position,
-		"medals":MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"])),
+		"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"]),{})},
 		"certification":cert,
 		"topweeks":WEEKLY_TOPTRACKS.get(((frozenset(track["artists"]),track["title"])),0)
 	}
