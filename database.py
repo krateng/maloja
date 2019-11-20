@@ -628,8 +628,8 @@ def trackInfo(track):
 
 
 @dbserver.get("newscrobble")
-def pseudo_post_scrobble(**keys):
-	artists = keys.get("artist")
+def pseudo_post_scrobble(artist:Multi,**keys):
+	artists = "/".join(artist)
 	title = keys.get("title")
 	apikey = keys.get("key")
 	client = checkAPIkey(apikey)
@@ -656,8 +656,8 @@ def pseudo_post_scrobble(**keys):
 	return {"status":"success","track":trackdict}
 
 @dbserver.post("newscrobble")
-def post_scrobble(**keys):
-	artists = keys.get("artist")
+def post_scrobble(artist:Multi,**keys):
+	artists = "/".join(artist)
 	title = keys.get("title")
 	apikey = keys.get("key")
 	client = checkAPIkey(apikey)
