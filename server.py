@@ -18,6 +18,7 @@ import info
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
+from doreah.timing import Clock
 # technical
 from importlib.machinery import SourceFileLoader
 import _thread
@@ -155,6 +156,9 @@ def static_html(name):
 
 	adminmode = request.cookies.get("adminmode") == "true" and database.checkAPIkey(request.cookies.get("apikey")) is not False
 
+	clock = Clock()
+	clock.start()
+
 	# if a pyhp file exists, use this
 	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
 		from doreah.pyhp import file
@@ -177,7 +181,9 @@ def static_html(name):
 		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
 
 		#response.set_header("Content-Type","application/xhtml+xml")
-		return file("website/" + name + ".pyhp",environ)
+		res = file("website/" + name + ".pyhp",environ)
+		log("Generated page " + name + " in " + str(clock.stop()) + "s (PYHP)",module="debug")
+		return res
 
 	# if not, use the old way
 	else:
@@ -219,7 +225,7 @@ def static_html(name):
 
 
 		response.set_header("Link",",".join(linkheaders))
-
+		log("Generated page " + name + " in " + str(clock.stop()) + "s (Python+HTML)",module="debug")
 		return html
 		#return static_file("website/" + name + ".html",root="")
 

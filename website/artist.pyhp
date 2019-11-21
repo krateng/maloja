@@ -70,9 +70,9 @@
 					</pyhp></span>
 
 					<!-- CERTS -->
-					<pyhp for="track" in="db.get_tracks(artist=artist)"><pyhp if="db.trackInfo(track).get('certification') is not None"><a href='{htmlgenerators.link_address(track)}'><img 	class="certrecord_small"
-										src="/media/record_{db.trackInfo(track)['certification']}.png"
-										title="{track['title']} has reached {db.trackInfo(track)['certification'].capitalize()} status"
+					<pyhp for="track" in="db.get_tracks(artist=artist)"><pyhp save="db.trackInfo(track)" as="info" /><pyhp if="info.get('certification') is not None"><a href='{htmlgenerators.link_address(track)}'><img 	class="certrecord_small"
+										src="/media/record_{info['certification']}.png"
+										title="{track['title']} has reached {info['certification'].capitalize()} status"
 								/></a></pyhp></pyhp>
 
 
