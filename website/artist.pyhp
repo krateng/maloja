@@ -48,7 +48,8 @@
 		<table class="top_info">
 			<tr>
 				<td class="image">
-					<div style="background-image:url('{utilities.getArtistImage(artist=artist,fast=True)}');"></div>
+					<pyhp if="adminmode"><div class="changeable-image" data-uploader="b64=>upload('{encodedartist}','{apikey}',b64)" style="background-image:url('{utilities.getArtistImage(artist=artist,fast=True)}');"></div></pyhp>
+					<pyhp if="not adminmode"><div style="background-image:url('{utilities.getArtistImage(artist=artist,fast=True)}');"></div></pyhp>
 				</td>
 				<td class="text">
 					<h1><pyhp echo="artist" /></h1>

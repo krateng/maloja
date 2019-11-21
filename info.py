@@ -5,6 +5,6 @@ author = {
 	"email":"maloja@krateng.dev",
 	"github": "krateng"
 }
-version = 1,5,14
+version = 1,5,15
 versionstr = ".".join(str(n) for n in version)
 dev = os.path.exists("./.dev")

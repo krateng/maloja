@@ -8,6 +8,7 @@ import urllib
 import datetime
 import random
 import itertools
+import base64
 from doreah import settings
 from doreah import caching
 from doreah.logging import log
@@ -144,10 +145,10 @@ track_cache = caching.Cache(name="imgcache_tracks",maxage=cacheage,maxage_negati
 def clean(name):
 	return "".join(c for c in name if c.isalnum() or c in []).strip()
 
-def local_files(artist=None,artists=None,title=None):
-
+def get_all_possible_filenames(artist=None,artists=None,title=None):
 	# check if we're dealing with a track or artist, then clean up names
 	# (only remove non-alphanumeric, allow korean and stuff)
+
 	if title is not None and artists is not None:
 		track = True
 		title, artists = clean(title), [clean(a) for a in artists]
@@ -203,20 +204,27 @@ def local_files(artist=None,artists=None,title=None):
 		filenames = list(set(filenames))
 		if len(filenames) == 0: filenames.append(str(hash(artist)))
 
+	return [superfolder + name for name in filenames]
+
+def local_files(artist=None,artists=None,title=None):
+
+
+	filenames = get_all_possible_filenames(artist,artists,title)
+
 	images = []
 
 	for purename in filenames:
 		# direct files
 		for ext in ["png","jpg","jpeg","gif"]:
 			#for num in [""] + [str(n) for n in range(0,10)]:
-			if os.path.exists(superfolder + purename + "." + ext):
-				images.append("/" + superfolder + purename + "." + ext)
+			if os.path.exists(purename + "." + ext):
+				images.append("/" + purename + "." + ext)
 
 		# folder
 		try:
-			for f in os.listdir(superfolder + purename + "/"):
+			for f in os.listdir(purename + "/"):
 				if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
-					images.append("/" + superfolder + purename + "/" + f)
+					images.append("/" + purename + "/" + f)
 		except:
 			pass
 
@@ -416,8 +424,32 @@ def resolveImage(artist=None,track=None):
 
 
 
+def set_image(b64,**keys):
+	track = "title" in keys
 
+	regex = r"data:image/(\w+);base64,(.+)"
+	type,b64 = re.fullmatch(regex,b64).groups()
+	print(b64[:40])
+	b64 = base64.b64decode(b64)
+	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
+	for folder in get_all_possible_filenames(**keys):
+		if os.path.exists(folder):
+			with open(os.path.join(folder,filename),"wb") as f:
+				f.write(b64)
 
+			# set as current picture in rotation
+			if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join(folder,filename))
+			else: local_artist_cache.add(keys["artist"],os.path.join(folder,filename))
+			return
+
+	folder = get_all_possible_filenames(**keys)[0]
+	os.makedirs(folder)
+	with open(os.path.join(folder,filename),"wb") as f:
+		f.write(b64)
+
+	# set as current picture in rotation
+	if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join(folder,filename))
+	else: local_artist_cache.add(keys["artist"],os.path.join(folder,filename))
 
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # server stuff
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest
 import waitress
 # monkey patching
 import monkey
@@ -35,6 +35,8 @@ import urllib
 #settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT = settings.get_settings("WEB_PORT")
 HOST = settings.get_settings("HOST")
+THREADS = 12
+BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 
 webserver = Bottle()
@@ -251,4 +253,5 @@ database.start_db()
 database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
-run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)

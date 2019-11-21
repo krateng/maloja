@@ -885,6 +885,18 @@ def search(**keys):
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
 
+
+@dbserver.post("addpicture")
+def add_picture(b64,key,artist:Multi=[],title=None):
+	if (checkAPIkey(key)):
+		keys = FormsDict()
+		for a in artist:
+			keys.append("artist",a)
+		if title is not None: keys.append("title",title)
+		k_filter, _, _, _ = uri_to_internal(keys)
+		if "track" in k_filter: k_filter = k_filter["track"]
+		utilities.set_image(b64,**k_filter)
+
 ####
 ## Server operation
 ####
