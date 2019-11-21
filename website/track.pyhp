@@ -19,6 +19,11 @@
 
 		<pyhp include="common/header.html" />
 		<script src="javascript/rangeselect.js"></script>
+		<script>
+			function scrobble(encodedtrack,apikey) {
+				neo.xhttprequest('/api/newscrobble?' + encodedtrack + "key=" + apikey).then(response=>{window.location.reload()});
+			}
+		</script>
 	</head>
 
 	<body>
@@ -31,7 +36,7 @@
 					<span><pyhp echo="htmlgenerators.artistLinks(track['artists'])" /></span><br/>
 					<h1><pyhp echo="track['title']" /></h1> <pyhp if="info['certification'] is not None"><img class="certrecord" src="/media/record_{info['certification']}.png" title="This track has reached {info['certification'].capitalize()} status" /></pyhp> <span class="rank"><a href="/charts_tracks?max=100"><pyhp echo="positionstring" /></a></span>
 
-					<p class="stats"><pyhp if="adminmode"><span onclick="neo.xhttprequest('/api/newscrobble?{encodedtrack}key={apikey}').then(response=>{window.location.reload()});" class="button">Scrobble now</span>  </pyhp><a href="/scrobbles?{encodedtrack}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
+					<p class="stats"><pyhp if="adminmode"><span onclick="scrobble('{encodedtrack}','{apikey}')" class="button">Scrobble now</span>  </pyhp><a href="/scrobbles?{encodedtrack}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
 
 
 					<pyhp for="year" in="info['medals']['gold']"><a title="Best Artist in {year}" class="hidelink medal shiny gold" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
