@@ -37,6 +37,12 @@
 					<pyhp for="year" in="info['medals']['gold']"><a title="Best Artist in {year}" class="hidelink medal shiny gold" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
 					<pyhp for="year" in="info['medals']['silver']"><a title="Second best Artist in {year}" class="hidelink medal shiny silver" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
 					<pyhp for="year" in="info['medals']['bronze']"><a title="Third best Artist in {year}" class="hidelink medal shiny bronze" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+
+					<span><pyhp if="info.get('topweeks') not in [0,None]">
+						<a title="{str(info['topweeks'])} weeks on #1" href="/performance?{encodedtrack}">
+							<img class="star" src="/media/star.png" /><pyhp echo="info['topweeks']" />
+						</a>
+					</pyhp></span>
 				</td>
 			</tr>
 		</table>
