@@ -1,17 +1,15 @@
 # generic temporary / dev files
 *.pyc
 *.sh
-!/update_requirements.sh
 *.note
 *.xcf
 nohup.out
-/.dev
+/maloja.egg-info
 
 # user files
 *.tsv
 *.rulestate
 *.log
-*.css
 
 # currently not using
 /screenshot*.png
