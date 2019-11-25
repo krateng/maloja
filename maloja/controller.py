@@ -22,6 +22,7 @@ def yellow(txt): return "\033[93m" + txt + "\033[0m"
 
 
 
+origpath = os.getcwd()
 os.chdir(DATA_DIR)
 
 def copy_initial_local_files():
@@ -131,11 +132,10 @@ def stop():
 		return True
 
 
-def loadlastfm():
+def loadlastfm(filename):
 
 	try:
-		filename = sys.argv[2]
-		filename = os.path.abspath(filename)
+		filename = os.path.join(origpath,filename)
 	except:
 		print("Please specify a file!")
 		return
@@ -147,19 +147,27 @@ def loadlastfm():
 		else:
 			return
 	print("Please wait...")
-	os.system("python3 ./lastfmconverter.py " + filename + " ./scrobbles/lastfmimport.tsv")
+	os.system("python3 -m maloja.lastfmconverter " + filename + " ./scrobbles/lastfmimport.tsv")
 	print("Successfully imported your Last.FM scrobbles!")
 
+def direct():
+	from . import server
 
+from doreah.control import mainfunction
 
-def main():
-	if sys.argv[1] == "start": restart()
-	elif sys.argv[1] == "restart": restart()
-	elif sys.argv[1] == "stop": stop()
-	#elif sys.argv[1] == "update": update()
-	elif sys.argv[1] == "import": loadlastfm()
-	#elif sys.argv[1] == "install": installhere()
-	else: print("Valid commands: start restart stop import")
+@mainfunction({},shield=True)
+def main(action,*args,**kwargs):
+	actions = {
+		"start":restart,
+		"restart":restart,
+		"stop":stop,
+		"import":loadlastfm,
+		"debug":direct
+	}
+	if action in actions: actions[action](*args,**kwargs)
+	else: print("Valid commands: " + " ".join(a for a in actions))
+	
+	return True
 
-if __name__ == "__main__":
-	main()
+#if __name__ == "__main__":
+#	main()

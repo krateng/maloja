@@ -17,29 +17,20 @@ Also neat: You can use your **custom artist or track images**.
 ## Requirements
 
 * Python 3
-* Pip packages specified in `requirements.txt`
+* Several Pip packages (automatically downloaded)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
 
-1) Either install Maloja with the [debian package](https://github.com/krateng/maloja/raw/master/packages/maloja.deb), or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with `./`. You can also only download the file `maloja` instead of the whole repository and fetch the rest with
+1) Download Maloja with the command `pip install maloja`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine server (e.g. in Proxmox).
 
-		./maloja install
-
-2) Install required packages with
-
-		pip3 install -r requirements.txt
-
-3) Start the server with
+2) Start the server with
 
 		maloja start
 
-4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+3) (Recommended) Put your server behind a reverse proxy for SSL encryption.
 
 ## How to use
-
-If you didn't install Maloja from the package (and therefore don't have it in `/opt/maloja`), every command needs to be executed from the Maloja directory and led with `./`. Otherwise, all commands work in any location and without the prefix.
-
 
 1) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
 
@@ -52,13 +43,12 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 		maloja stop
 		maloja restart
 		maloja start
-		maloja update
 
-	The `update` command will always fetch the latest version, while packages are only offered for release versions.
+3) Update Maloja with `pip install maloja --upgrade --no-cache-dir`
 
-3) Various folders have `.info` files with more information on how to use their associated features.
+4) Various folders have `.info` files with more information on how to use their associated features.
 
-4) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
+5) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
 
 ## How to scrobble
 
