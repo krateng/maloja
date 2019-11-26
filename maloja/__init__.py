@@ -17,3 +17,7 @@ resources = [
 	"data_files/*/*",
 	"data_files/.doreah"
 ]
+
+commands = {
+	"maloja":"controller:main"
+}

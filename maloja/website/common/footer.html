@@ -9,7 +9,17 @@
 		<span><input id="searchinput" placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
 	</div>
 
-	<span id="resultwrap"></span>
+	<span id="resultwrap" class="hide">
+		<div class="searchresults">
+			<span>Artists</span>
+			<table class="searchresults_artists" id="searchresults_artists">
+			</table>
+			<br/><br/>
+			<span>Tracks</span>
+			<table class="searchresults_tracks" id="searchresults_tracks">
+			</table>
+		</div>
+	</span>
 </div>
 
 <a href="/admin"><div title="Server Administration" id="settingsicon">

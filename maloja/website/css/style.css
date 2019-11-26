@@ -669,3 +669,6 @@ a.hidelink:hover {
 a:hover {
  text-decoration: underline;
 }
+.hide {
+	display:none;
+}

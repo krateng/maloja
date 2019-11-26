@@ -9,6 +9,7 @@ from distutils import dir_util
 import stat
 import pathlib
 import pkg_resources
+from doreah.control import mainfunction
 
 from .info import DATA_DIR
 
@@ -153,7 +154,7 @@ def loadlastfm(filename):
 def direct():
 	from . import server
 
-from doreah.control import mainfunction
+
 
 @mainfunction({},shield=True)
 def main(action,*args,**kwargs):
@@ -166,7 +167,7 @@ def main(action,*args,**kwargs):
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
-	
+
 	return True
 
 #if __name__ == "__main__":

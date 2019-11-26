@@ -28,7 +28,8 @@ setuptools.setup(
 	include_package_data=True,
 	entry_points = {
 		"console_scripts":[
-			"maloja = maloja.controller:main"
+			cmd + " = " + module.name + "." + module.commands[cmd]
+			for cmd in module.commands
 		]
 	}
 )
