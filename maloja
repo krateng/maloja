@@ -39,6 +39,34 @@ def yellow(txt): return "\033[93m" + txt + "\033[0m"
 ## LOADLASTFM		GOTODIR - imports csv data
 ## INSTALLHERE		makes this directory valid - UPDATE - INSTALL - SETUP
 
+
+
+def update_version_2():
+	if gotodir():
+		try:
+			DATA_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
+			assert os.path.exists(DATA_DIR)
+		except:
+			DATA_DIR = os.path.join(os.environ["HOME"],".local/share/")
+
+		DATA_DIR = os.path.join(DATA_DIR,"maloja")
+		os.makedirs(DATA_DIR,exist_ok=True)
+
+		print(yellow("With version 2.0, Maloja has been refactored into a python package. The updater will attempt to make this transition smooth."))
+		print("Relocating user data...")
+
+		import shutil
+		for folder in ["clients","images","logs","rules","scrobbles","settings"]:
+			shutil.copytree(folder,os.path.join(DATA_DIR,folder))
+
+		print("Installing pip package...")
+
+		os.system("pip3 install maloja --upgrade --no-cache-dir")
+
+		print(yellow("Maloja may now be started from any directory with the command"),blue("maloja start"))
+		print(yellow("Updates will continue to work with ") + blue("maloja update") + yellow(", but you may also use pip directly"))
+		print(yellow("Please test your new server installation. If it works correctly with all your scrobbles, rules, settings and custom images, you can delete your old Maloja directory."))
+
 def gotodir():
 	if os.path.exists("./server.py"):
 		return True
@@ -347,4 +375,5 @@ if __name__ == "__main__":
 	elif sys.argv[1] == "update": update()
 	elif sys.argv[1] == "import": loadlastfm()
 	elif sys.argv[1] == "install": installhere()
+	elif sys.argv[1] == "update_v2": update_version_2()
 	else: print("Valid commands: start restart stop update import install")

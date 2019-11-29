@@ -4,6 +4,12 @@ Simple self-hosted music scrobble database to create personal listening statisti
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
 
+## **IMPORTANT NOTICE**
+
+**Update to Version 2**
+
+With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. I will keep this repository on the old version for a while so that users with regular updates have a chance to load the transition script. If you have any trouble with updating, simply install Maloja as described below, then manually copy all your user data to your `~/.local/share/maloja` folder.
+
 ## Why not Last.fm / Libre.fm / GNU FM?
 
 Maloja is **self-hosted**. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can **follow your own tagging schema** or even **group associated artists together** in your charts.
@@ -22,24 +28,17 @@ Also neat: You can use your **custom artist or track images**.
 
 ## How to install
 
-1) Either install Maloja with the [debian package](https://github.com/krateng/maloja/raw/master/packages/maloja.deb), or download the repository to some arbitrary location. If you pick the manual installation, every command needs to be executed from the Maloja directory and led with `./`. You can also only download the file `maloja` instead of the whole repository and fetch the rest with
+1) Install Maloja with
 
-		./maloja install
+		pip3 install maloja
 
-2) Install required packages with
-
-		pip3 install -r requirements.txt
-
-3) Start the server with
+2) Start the server with
 
 		maloja start
 
-4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+3) (Recommended) Put your server behind a reverse proxy for SSL encryption.
 
 ## How to use
-
-If you didn't install Maloja from the package (and therefore don't have it in `/opt/maloja`), every command needs to be executed from the Maloja directory and led with `./`. Otherwise, all commands work in any location and without the prefix.
-
 
 1) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
 
@@ -53,8 +52,6 @@ If you didn't install Maloja from the package (and therefore don't have it in `/
 		maloja restart
 		maloja start
 		maloja update
-
-	The `update` command will always fetch the latest version, while packages are only offered for release versions.
 
 3) Various folders have `.info` files with more information on how to use their associated features.
 
