@@ -46,7 +46,7 @@ MAIN_PORT = settings.get_settings("WEB_PORT")
 HOST = settings.get_settings("HOST")
 THREADS = 12
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
-WEBFOLDER = pkg_resources.resource_filename(__name__,"website")
+WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
 
 
 webserver = Bottle()
@@ -58,8 +58,8 @@ pthjoin = os.path.join
 #for f in os.listdir(pthjoin(WEBFOLDER,"less")):
 #	css += lesscpy.compile(pthjoin(WEBFOLDER,"less",f))
 
-#os.makedirs("website/css",exist_ok=True)
-#with open("website/css/style.css","w") as f:
+#os.makedirs("web/css",exist_ok=True)
+#with open("web/css/style.css","w") as f:
 #	f.write(css)
 
 
@@ -215,9 +215,9 @@ def static_html(name):
 
 		# If a python file exists, it provides the replacement dict for the html file
 		if os.path.exists(pthjoin(WEBFOLDER,name + ".py")):
-			#txt_keys = SourceFileLoader(name,"website/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+			#txt_keys = SourceFileLoader(name,"web/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
 			try:
-				module = importlib.import_module(".website." + name,package="maloja")
+				module = importlib.import_module(".web." + name,package="maloja")
 				txt_keys,resources = module.instructions(keys)
 			except Exception as e:
 				log("Error in website generation: " + str(sys.exc_info()),module="error")
@@ -242,7 +242,7 @@ def static_html(name):
 		response.set_header("Link",",".join(linkheaders))
 		log("Generated page " + name + " in " + str(clock.stop()) + "s (Python+HTML)",module="debug")
 		return html
-		#return static_file("website/" + name + ".html",root="")
+		#return static_file("web/" + name + ".html",root="")
 
 
 # Shortlinks

@@ -12,8 +12,8 @@ requires = [
 	"lesscpy>=0.13"
 ]
 resources = [
-	"website/*/*",
-	"website/*",
+	"web/*/*",
+	"web/*",
 	"data_files/*/*",
 	"data_files/.doreah"
 ]
