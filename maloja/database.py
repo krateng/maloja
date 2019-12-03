@@ -7,7 +7,7 @@ from .malojatime import register_scrobbletime, time_stamps, ranges
 from .urihandler import uri_to_internal, internal_to_uri, compose_querystring
 from . import compliant_api
 from .external import proxy_scrobble
-from . import info
+from .__init__ import version
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -240,7 +240,7 @@ def server_info():
 
 	return {
 		"name":settings.get_settings("NAME"),
-		"version":info.version
+		"version":version
 	}
 
 ## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json

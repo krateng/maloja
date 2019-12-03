@@ -11,7 +11,7 @@ import pathlib
 import pkg_resources
 from doreah.control import mainfunction
 
-from .info import DATA_DIR
+from .__init__ import DATA_DIR
 
 
 

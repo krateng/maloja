@@ -11,7 +11,7 @@ setuptools.setup(
     version=".".join(str(n) for n in module.version),
     author=module.author["name"],
     author_email=module.author["email"],
-    description="Self-hosted music scrobble database",
+    description=module.desc,
 	license="GPLv3",
     long_description=long_description,
     long_description_content_type="text/markdown",

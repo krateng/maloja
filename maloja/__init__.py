@@ -1,6 +1,15 @@
-name = "maloja"
+### PACKAGE DATA
 
-from .info import author,version,versionstr
+name = "maloja"
+desc = "Self-hosted music scrobble database"
+author = {
+	"name":"Johannes Krattenmacher",
+	"email":"maloja@krateng.dev",
+	"github": "krateng"
+}
+version = 2,0,3
+versionstr = ".".join(str(n) for n in version)
+
 
 requires = [
 	"bottle>=0.12.16",
@@ -22,6 +31,8 @@ commands = {
 	"maloja":"controller:main"
 }
 
+### DOREAH CONFIGURATION
+
 from doreah import config
 config(
 	logging={
@@ -40,3 +51,17 @@ config(
 		"autostart": False
 	}
 )
+
+
+### USER DATA FOLDER
+
+
+import os
+try:
+	DATA_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
+	assert os.path.exists(DATA_DIR)
+except:
+	DATA_DIR = os.path.join(os.environ["HOME"],".local/share/")
+
+DATA_DIR = os.path.join(DATA_DIR,"maloja")
+os.makedirs(DATA_DIR,exist_ok=True)

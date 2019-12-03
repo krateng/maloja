@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from .info import DATA_DIR
+from .__init__ import DATA_DIR
 os.chdir(DATA_DIR)
 
 
