@@ -7,7 +7,7 @@ author = {
 	"email":"maloja@krateng.dev",
 	"github": "krateng"
 }
-version = 2,0,3
+version = 2,0,4
 versionstr = ".".join(str(n) for n in version)
 
 
@@ -23,6 +23,7 @@ requires = [
 resources = [
 	"web/*/*",
 	"web/*",
+	"static/*/*",
 	"data_files/*/*",
 	"data_files/.doreah"
 ]

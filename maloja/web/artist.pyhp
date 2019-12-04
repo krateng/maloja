@@ -37,7 +37,7 @@
 		<title>Maloja - <pyhp echo="artist" /></title>
 
 		<pyhp include="common/header.html" />
-		<script src="javascript/rangeselect.js"></script>
+		<script src="/rangeselect.js"></script>
 	</head>
 
 	<body>

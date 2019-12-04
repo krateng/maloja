@@ -45,8 +45,9 @@ MAIN_PORT = settings.get_settings("WEB_PORT")
 HOST = settings.get_settings("HOST")
 THREADS = 12
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
-WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
 
+WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
+STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
 
 webserver = Bottle()
 
@@ -56,8 +57,8 @@ def generate_css():
 	import lesscpy
 	from io import StringIO
 	less = ""
-	for f in os.listdir(pthjoin(WEBFOLDER,"less")):
-		with open(pthjoin(WEBFOLDER,"less",f),"r") as lessf:
+	for f in os.listdir(pthjoin(STATICFOLDER,"less")):
+		with open(pthjoin(STATICFOLDER,"less",f),"r") as lessf:
 			less += lessf.read()
 
 	css = lesscpy.compile(StringIO(less),minify=True)
@@ -153,27 +154,30 @@ def static_image(pth):
 	return response
 
 
-@webserver.route("/css/style.css")
+@webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
 	return css
 
-#@webserver.route("/<name:re:.*\\.html>")
-@webserver.route("/<name:re:.*\\.js>")
-@webserver.route("/<name:re:.*\\.less>")
-@webserver.route("/<name:re:.*\\.png>")
-@webserver.route("/<name:re:.*\\.jpeg>")
-@webserver.route("/<name:re:.*\\.ico>")
-@webserver.route("/<name:re:.*\\.txt>")
-def static(name):
-	response = static_file(name,root=WEBFOLDER)
+
+@webserver.route("/<name>.<ext>")
+def static(name,ext):
+	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
+	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
+	response.set_header("Cache-Control", "public, max-age=3600")
+	return response
+
+@webserver.route("/media/<name>.<ext>")
+def static(name,ext):
+	assert ext in ["ico","jpeg","jpg","png"]
+	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
 
 @webserver.route("/<name>")
 def static_html(name):
-	linkheaders = ["</css/style.css>; rel=preload; as=style"]
+	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	pyhp_file = os.path.exists(pthjoin(WEBFOLDER,name + ".pyhp"))

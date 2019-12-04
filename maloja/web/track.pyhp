@@ -18,7 +18,7 @@
 		<title>Maloja - <pyhp echo="track['title']" /></title>
 
 		<pyhp include="common/header.html" />
-		<script src="javascript/rangeselect.js"></script>
+		<script src="/rangeselect.js"></script>
 		<script>
 			function scrobble(encodedtrack,apikey) {
 				neo.xhttprequest('/api/newscrobble?' + encodedtrack + "key=" + apikey).then(response=>{window.location.reload()});
