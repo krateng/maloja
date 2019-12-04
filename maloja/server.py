@@ -18,7 +18,6 @@ from . import utilities
 from .utilities import resolveImage
 from .urihandler import uri_to_internal, remove_identical
 from . import urihandler
-from . import info
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -53,10 +52,18 @@ webserver = Bottle()
 
 pthjoin = os.path.join
 
-#import lesscpy
-#css = ""
-#for f in os.listdir(pthjoin(WEBFOLDER,"less")):
-#	css += lesscpy.compile(pthjoin(WEBFOLDER,"less",f))
+def generate_css():
+	import lesscpy
+	from io import StringIO
+	less = ""
+	for f in os.listdir(pthjoin(WEBFOLDER,"less")):
+		with open(pthjoin(WEBFOLDER,"less",f),"r") as lessf:
+			less += lessf.read()
+
+	css = lesscpy.compile(StringIO(less),minify=True)
+	return css
+
+css = generate_css()
 
 #os.makedirs("web/css",exist_ok=True)
 #with open("web/css/style.css","w") as f:
@@ -145,9 +152,14 @@ def static_image(pth):
 	response.set_header("Cache-Control", "public, max-age=86400")
 	return response
 
+
+@webserver.route("/css/style.css")
+def get_css():
+	response.content_type = 'text/css'
+	return css
+
 #@webserver.route("/<name:re:.*\\.html>")
 @webserver.route("/<name:re:.*\\.js>")
-@webserver.route("/<name:re:.*\\.css>")
 @webserver.route("/<name:re:.*\\.less>")
 @webserver.route("/<name:re:.*\\.png>")
 @webserver.route("/<name:re:.*\\.jpeg>")
@@ -188,7 +200,7 @@ def static_html(name):
 		environ["malojatime"] = malojatime
 		environ["utilities"] = utilities
 		environ["urihandler"] = urihandler
-		environ["info"] = info
+		#environ["info"] = info
 		# external
 		environ["urllib"] = urllib
 		# request
