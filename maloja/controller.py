@@ -78,6 +78,13 @@ def setup():
 			pass
 
 
+	if settings.get_settings("NAME") is None:
+		print("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.")
+		name = input()
+		if name == "": name = "Generic Maloja User"
+		settings.update_settings("settings/settings.ini",{"NAME":name},create_new=True)
+
+
 def getInstance():
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
