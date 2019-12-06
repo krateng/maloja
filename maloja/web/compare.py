@@ -15,6 +15,8 @@ def instructions(keys):
 
 	owninfo = database.info()
 
+	database.add_known_server(compareto)
+
 	artists = {}
 
 	for a in owninfo["artists"]:

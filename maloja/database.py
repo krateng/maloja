@@ -27,6 +27,7 @@ import sys
 import unicodedata
 from collections import namedtuple
 from threading import Lock
+import yaml
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
@@ -65,6 +66,18 @@ lastsync = 0
 
 # rulestate that the entire current database was built with, or False if the database was built from inconsistent scrobble files
 db_rulestate = False
+
+try:
+	with open("known_servers.yml","r") as f:
+		KNOWN_SERVERS = set(yaml.safe_load(f))
+except:
+	KNOWN_SERVERS = set()
+
+
+def add_known_server(url):
+	KNOWN_SERVERS.add(url)
+	with open("known_servers.yml","w") as f:
+		f.write(yaml.dump(list(KNOWN_SERVERS)))
 
 
 
@@ -264,6 +277,10 @@ def get_scrobbles(**keys):
 # info for comparison
 @dbserver.get("info")
 def info_external(**keys):
+
+	response.set_header("Access-Control-Allow-Origin","*")
+	response.set_header("Content-Type","application/json")
+	
 	result = info()
 	return result
 
@@ -275,7 +292,9 @@ def info():
 		"name":settings.get_settings("NAME"),
 		"artists":{
 			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
-		for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0}
+			for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0
+		},
+		"known_servers":list(KNOWN_SERVERS)
 	}
 
 
