@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+import os
+from .__init__ import DATA_DIR
+os.chdir(DATA_DIR)
 
 import subprocess
 import time
 import setproctitle
 import signal
 from doreah.logging import log
+from doreah.settings import get_settings
 
 
 setproctitle.setproctitle("maloja_supervisor")
@@ -19,6 +23,12 @@ while True:
 		log("Maloja is running, PID " + str(pid),module="supervisor")
 	except:
 		log("Maloja is not running, restarting...",module="supervisor")
+		if get_settings("UPDATE_AFTER_CRASH"):
+			log("Updating first...",module="supervisor")
+			try:
+				os.system("pip3 install maloja --upgrade --no-cache-dir")
+			except:
+				log("Could not update.",module="supervisor")
 		try:
 			p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 		except e:
