@@ -1,7 +1,7 @@
 # generic temporary / dev files
 *.pyc
 *.sh
-!/alpine_install.sh
+!/install_*.sh
 *.note
 *.xcf
 nohup.out

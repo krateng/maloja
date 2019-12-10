@@ -27,7 +27,7 @@ Also neat: You can use your **custom artist or track images**.
 
 ## How to install
 
-1) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine server (e.g. in Proxmox).
+1) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine or Ubuntu server / container.
 
 2) Start the server with
 
