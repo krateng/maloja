@@ -29,7 +29,7 @@ os.chdir(DATA_DIR)
 def copy_initial_local_files():
 	folder = pkg_resources.resource_filename(__name__,"data_files")
 	#shutil.copy(folder,DATA_DIR)
-	dir_util.copy_tree(folder,DATA_DIR)
+	dir_util.copy_tree(folder,DATA_DIR,update=False)
 
 
 def setup():

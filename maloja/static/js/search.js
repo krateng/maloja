@@ -1,3 +1,5 @@
+
+
 function search(searchfield) {
 	txt = searchfield.value;
 	if (txt == "") {
@@ -18,10 +20,15 @@ function html_to_fragment(html) {
 	return template.content;
 }
 
+var results_artists;
+var results_tracks;
+var searchresultwrap;
 
-const results_artists = document.getElementById("searchresults_artists");
-const results_tracks = document.getElementById("searchresults_tracks");
-const searchresultwrap = document.getElementById("resultwrap");
+window.addEventListener("DOMContentLoaded",function(){
+	results_artists = document.getElementById("searchresults_artists");
+	results_tracks = document.getElementById("searchresults_tracks");
+	searchresultwrap = document.getElementById("resultwrap");
+});
 
 var resulthtml = `
 <tr>
@@ -57,7 +64,7 @@ function searchresult() {
 			image = artists[i]["image"];
 
 			var node = oneresult.cloneNode(true);
-			node.setAttribute("onclick","goto(" + link + ")");
+			node.setAttribute("onclick","goto('" + link + "')");
 			node.children[0].style.backgroundImage = "url('" + image + "')";
 			node.children[1].children[0].innerHTML = name;
 
@@ -71,7 +78,7 @@ function searchresult() {
 			image = tracks[i]["image"];
 
 			var node = oneresult.cloneNode(true);
-			node.setAttribute("onclick","goto(" + link + ")");
+			node.setAttribute("onclick","goto('" + link + "')");
 			node.children[0].style.backgroundImage = "url('" + image + "')";
 			node.children[1].children[0].innerHTML = artists;
 			node.children[1].children[2].innerHTML = title;

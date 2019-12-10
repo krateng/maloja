@@ -22,7 +22,6 @@ Also neat: You can use your **custom artist or track images**.
 ## Requirements
 
 * Python 3.5 or higher
-* Several Pip packages (automatically downloaded)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 
 ## How to install
@@ -54,6 +53,14 @@ Also neat: You can use your **custom artist or track images**.
 4) Various folders have `.info` files with more information on how to use their associated features.
 
 5) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
+
+6) To backup your data, run
+
+		maloja backup
+
+or, to only backup essential data (no artwork etc)
+
+		maloja backup -l minimal
 
 ## How to scrobble
 
