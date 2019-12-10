@@ -21,7 +21,7 @@ Also neat: You can use your **custom artist or track images**.
 
 ## Requirements
 
-* Python 3
+* Python 3.5 or higher
 * Several Pip packages (automatically downloaded)
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/). These are free of charge!
 

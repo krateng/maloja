@@ -5,7 +5,6 @@
 *.note
 *.xcf
 nohup.out
-*.egg-info
 
 # currently not using
 /screenshot*.png

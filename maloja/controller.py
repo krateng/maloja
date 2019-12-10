@@ -161,16 +161,51 @@ def loadlastfm(filename):
 def direct():
 	from . import server
 
+def backup(level="full"):
+	import tarfile
+	from datetime import date
+	import glob
 
 
-@mainfunction({},shield=True)
+
+	user_files = {
+		"minimal":[
+			"rules/*.tsv",
+			"scrobbles"
+		],
+		"full":[
+			"clients/authenticated_machines.tsv",
+			"images/artists",
+			"images/tracks",
+			"settings/settings.ini"
+		]
+	}
+
+	user_files = user_files["minimal"] if level == "minimal" else user_files["minimal"] + user_files["full"]
+	real_files = []
+	for g in user_files:
+		real_files += glob.glob(g)
+
+	today = date.today()
+	datestr = "-".join((str(today.year),str(today.month),str(today.day)))
+	filename = "maloja_backup_" + datestr + ".tar.gz"
+	archivefile = os.path.join(origpath,filename)
+	assert not os.path.exists(archivefile)
+	with tarfile.open(name=archivefile,mode="x:gz") as archive:
+		for f in real_files:
+			archive.add(f)
+
+
+
+@mainfunction({"l":"level"},shield=True)
 def main(action,*args,**kwargs):
 	actions = {
 		"start":restart,
 		"restart":restart,
 		"stop":stop,
 		"import":loadlastfm,
-		"debug":direct
+		"debug":direct,
+		"backup":backup
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
