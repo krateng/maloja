@@ -5,3 +5,4 @@ nimrodel>=0.4.9
 setproctitle>=1.1.10
 wand>=0.5.4
 lesscpy>=0.13
+pip>=19.3

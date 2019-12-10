@@ -30,7 +30,7 @@ Also neat: You can use your **custom artist or track images**.
 
 1) Install Maloja with
 
-		pip3 install maloja
+		pip3 install malojaserver
 
 2) Start the server with
 

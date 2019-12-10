@@ -42,6 +42,9 @@ def yellow(txt): return "\033[93m" + txt + "\033[0m"
 
 
 def update_version_2():
+
+
+
 	if gotodir():
 		try:
 			DATA_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
@@ -61,11 +64,13 @@ def update_version_2():
 
 		print("Installing pip package...")
 
-		os.system("pip3 install maloja --upgrade --no-cache-dir")
+		os.system("pip3 install malojaserver --upgrade --no-cache-dir")
 
 		print(yellow("Maloja may now be started from any directory with the command"),blue("maloja start"))
 		print(yellow("Updates will continue to work with ") + blue("maloja update") + yellow(", but you may also use pip directly"))
 		print(yellow("Please test your new server installation. If it works correctly with all your scrobbles, rules, settings and custom images, you can delete your old Maloja directory."))
+
+		if stop(): os.system("maloja start")
 
 def gotodir():
 	if os.path.exists("./server.py"):
@@ -372,8 +377,7 @@ if __name__ == "__main__":
 	if sys.argv[1] == "start": restart()
 	elif sys.argv[1] == "restart": restart()
 	elif sys.argv[1] == "stop": stop()
-	elif sys.argv[1] == "update": update()
+	elif sys.argv[1] == "update": update_version_2()
 	elif sys.argv[1] == "import": loadlastfm()
 	elif sys.argv[1] == "install": installhere()
-	elif sys.argv[1] == "update_v2": update_version_2()
 	else: print("Valid commands: start restart stop update import install")
