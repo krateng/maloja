@@ -568,7 +568,7 @@ def module_paginate(page,pages,perpage,**keys):
 # THIS FUNCTION USES THE ORIGINAL URI KEYS!!!
 def module_filterselection(keys,time=True,delimit=False):
 
-	from malojatime import today, thisweek, thismonth, thisyear, alltime
+	from .malojatime import today, thisweek, thismonth, thisyear, alltime
 
 	filterkeys, timekeys, delimitkeys, extrakeys = uri_to_internal(keys)
 	# drop keys that are not relevant so they don't clutter the URI
