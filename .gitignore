@@ -5,12 +5,7 @@
 *.note
 *.xcf
 nohup.out
-/maloja.egg-info
-
-# user files
-*.tsv
-*.rulestate
-*.log
+*.egg-info
 
 # currently not using
 /screenshot*.png
