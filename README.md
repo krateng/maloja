@@ -58,7 +58,7 @@ Also neat: You can use your **custom artist or track images**.
 
 		maloja backup
 
-or, to only backup essential data (no artwork etc)
+	or, to only backup essential data (no artwork etc)
 
 		maloja backup -l minimal
 

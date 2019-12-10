@@ -195,7 +195,8 @@ def backup(level="full"):
 		for f in real_files:
 			archive.add(f)
 
-
+def update():
+	os.system("pip3 install malojaserver --upgrade --no-cache-dir")
 
 @mainfunction({"l":"level"},shield=True)
 def main(action,*args,**kwargs):
@@ -205,7 +206,8 @@ def main(action,*args,**kwargs):
 		"stop":stop,
 		"import":loadlastfm,
 		"debug":direct,
-		"backup":backup
+		"backup":backup,
+		"update":update
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
