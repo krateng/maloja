@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name=module.name,
+    name="malojaserver",
     version=".".join(str(n) for n in module.version),
     author=module.author["name"],
     author_email=module.author["email"],

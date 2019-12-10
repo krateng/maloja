@@ -22,7 +22,7 @@ Also neat: You can use your **custom artist or track images**.
 
 ## How to install
 
-1) Download Maloja with the command `pip install maloja`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine server (e.g. in Proxmox).
+1) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine server (e.g. in Proxmox).
 
 2) Start the server with
 
@@ -44,7 +44,7 @@ Also neat: You can use your **custom artist or track images**.
 		maloja restart
 		maloja start
 
-3) Update Maloja with `pip install maloja --upgrade --no-cache-dir`
+3) Update Maloja with `pip install malojaserver --upgrade --no-cache-dir`
 
 4) Various folders have `.info` files with more information on how to use their associated features.
 
