@@ -1,5 +1,9 @@
 # Maloja
 
+[![](https://img.shields.io/pypi/v/malojaserver?style=for-the-badge)
+![](https://img.shields.io/pypi/dm/malojaserver?style=for-the-badge)](https://pypi.org/project/malojaserver/)
+[![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
+
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.

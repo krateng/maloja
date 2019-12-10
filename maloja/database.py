@@ -253,7 +253,8 @@ def server_info():
 
 	return {
 		"name":settings.get_settings("NAME"),
-		"version":version
+		"version":version,
+		"versionstring":".".join(str(n) for n in version)
 	}
 
 ## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json
@@ -280,7 +281,7 @@ def info_external(**keys):
 
 	response.set_header("Access-Control-Allow-Origin","*")
 	response.set_header("Content-Type","application/json")
-	
+
 	result = info()
 	return result
 
