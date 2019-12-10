@@ -239,11 +239,6 @@ local_track_cache = caching.Cache(maxage=local_cache_age)
 
 def getTrackImage(artists,title,fast=False):
 
-#	obj = (frozenset(artists),title)
-#	filename = "-".join([re.sub("[^a-zA-Z0-9]","",artist) for artist in sorted(artists)]) + "_" + re.sub("[^a-zA-Z0-9]","",title)
-#	if filename == "": filename = str(hash(obj))
-#	filepath = "images/tracks/" + filename
-
 	if settings.get_settings("USE_LOCAL_IMAGES"):
 
 		try:
@@ -255,21 +250,6 @@ def getTrackImage(artists,title,fast=False):
 				res = random.choice(images)
 				local_track_cache.add((frozenset(artists),title),res)
 				return urllib.parse.quote(res)
-
-
-	# check if custom image exists
-#	if os.path.exists(filepath + ".png"):
-#		imgurl = "/" + filepath + ".png"
-#		return imgurl
-#	elif os.path.exists(filepath + ".jpg"):
-#		imgurl = "/" + filepath + ".jpg"
-#		return imgurl
-#	elif os.path.exists(filepath + ".jpeg"):
-#		imgurl = "/" + filepath + ".jpeg"
-#		return imgurl
-#	elif os.path.exists(filepath + ".gif"):
-#		imgurl = "/" + filepath + ".gif"
-#		return imgurl
 
 
 	try:
@@ -313,17 +293,13 @@ def getTrackImage(artists,title,fast=False):
 
 def getArtistImage(artist,fast=False):
 
-#	obj = artist
-#	filename = re.sub("[^a-zA-Z0-9]","",artist)
-#	if filename == "": filename = str(hash(obj))
-#	filepath = "images/artists/" + filename
-#	#filepath_cache = "info/artists_cache/" + filename
-
 	if settings.get_settings("USE_LOCAL_IMAGES"):
 
 		try:
 			return local_artist_cache.get(artist)
+			# Local cached image
 		except:
+			# Get all local images, select one if present
 			images = local_files(artist=artist)
 			if len(images) != 0:
 				#return random.choice(images)
@@ -332,35 +308,22 @@ def getArtistImage(artist,fast=False):
 				return urllib.parse.quote(res)
 
 
-	# check if custom image exists
-#	if os.path.exists(filepath + ".png"):
-#		imgurl = "/" + filepath + ".png"
-#		return imgurl
-#	elif os.path.exists(filepath + ".jpg"):
-#		imgurl = "/" + filepath + ".jpg"
-#		return imgurl
-#	elif os.path.exists(filepath + ".jpeg"):
-#		imgurl = "/" + filepath + ".jpeg"
-#		return imgurl
-#	elif os.path.exists(filepath + ".gif"):
-#		imgurl = "/" + filepath + ".gif"
-#		return imgurl
-
-
+	# if no local images (or setting to not use them)
 	try:
-		#result = cachedArtists[artist]
-		result = artist_cache.get(artist) #artist_from_cache(artist)
+		# check cache for foreign image
+		result = artist_cache.get(artist)
 		if result is not None: return result
 		else: return ""
+		# none means non-existence is cached, return empty
 	except:
 		pass
+		# no cache entry, go on
 
 
 
 	# do we have an api key?
 #	apikey = settings.get_settings("LASTFM_API_KEY")
 #	if apikey is None: return "" # DO NOT CACHE THAT
-
 
 
 	# fast request only retuns cached and local results, generates redirect link for rest

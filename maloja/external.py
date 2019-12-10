@@ -85,7 +85,9 @@ def api_request_artist(artist):
 						for node in step[1]:
 							var = var[node]
 				assert isinstance(var,str) and var != ""
-			except:
+			except Exception as e:
+				log("Error while getting artist image from " + api["name"],module="external")
+				log(str(e),module="external")
 				continue
 
 			return var
