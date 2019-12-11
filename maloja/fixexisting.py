@@ -7,6 +7,7 @@ from .cleanup import CleanerAgent
 from doreah.logging import log
 import difflib
 import datetime
+from .controller import backup
 
 wendigo = CleanerAgent()
 
@@ -16,6 +17,8 @@ pthj = os.path.join
 
 
 def fix():
+
+	backup(level="minimal",folder=pthj(DATA_DIR,"backups"))
 
 	now = datetime.datetime.utcnow()
 	nowstr = now.strftime("%Y_%m_%d_%H_%M_%S")

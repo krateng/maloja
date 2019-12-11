@@ -161,9 +161,9 @@ def loadlastfm(filename):
 def direct():
 	from . import server
 
-def backup(level="full"):
+def backup(level="full",folder=origpath):
 	import tarfile
-	from datetime import date
+	from datetime import datetime
 	import glob
 
 
@@ -186,10 +186,10 @@ def backup(level="full"):
 	for g in user_files:
 		real_files += glob.glob(g)
 
-	today = date.today()
-	datestr = "-".join((str(today.year),str(today.month),str(today.day)))
-	filename = "maloja_backup_" + datestr + ".tar.gz"
-	archivefile = os.path.join(origpath,filename)
+	now = datetime.utcnow()
+	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")
+	filename = "maloja_backup_" + timestr + ".tar.gz"
+	archivefile = os.path.join(folder,filename)
 	assert not os.path.exists(archivefile)
 	with tarfile.open(name=archivefile,mode="x:gz") as archive:
 		for f in real_files:
