@@ -10,9 +10,20 @@
 		<pyhp include="common/header.html" />
 
 		<script>
-			neo.xhttprequest("https://maloja.krateng.ch/api/serverinfo",{},"GET",json=true).then((response)=>{
+
+			function versioncompare(a,b) {
+				for (var pos=0;pos<3;pos++) {
+					var v1 = parseInt(a[pos]) || 0;
+					var v2 = parseInt(b[pos]) || 0;
+					if (v1 > v2) { return 1;}
+					if (v1 < v2) { return -1;}
+				}
+
+				return 0;
+			}
+			neo.xhttprequest("https://pypi.org/pypi/malojaserver/json",{},"GET",json=true).then((response)=>{
 				result = JSON.parse(response.responseText);
-				latestvers = result.version;
+				latestvers = result.info.version.split(".");
 
 				neo.xhttprequest("/api/serverinfo",{},"GET",json=true).then((response)=>{
 
@@ -22,7 +33,7 @@
 					document.getElementById("latestversion").innerHTML = latestvers.join(".");
 					document.getElementById("currentversion").innerHTML = thisvers.join(".");
 
-					if (latestvers <= thisvers) {
+					if (versioncompare(latestvers,thisvers) <= 0) {
 						document.getElementById("currentversion").style.color = "green";
 					}
 					else {
