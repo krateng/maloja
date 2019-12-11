@@ -18,6 +18,7 @@ class CleanerAgent:
 		self.rules_replaceartist = {b.lower():c for [a,b,c,d] in raw if a=="replaceartist"}
 		self.rules_ignoreartist = [b.lower() for [a,b,c,d] in raw if a=="ignoreartist"]
 		self.rules_addartists = {c.lower():(b.lower(),d) for [a,b,c,d] in raw if a=="addartists"}
+		self.rules_artistintitle = {b.lower():c for [a,b,c,d] in raw if a=="artistintitle"}
 		#self.rules_regexartist = [[b,c] for [a,b,c,d] in raw if a=="regexartist"]
 		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
 		# TODO
@@ -137,7 +138,10 @@ class CleanerAgent:
 				artists += self.parseArtists(re.sub(r"(.*) " + d + " (.*).*",r"\2",t))
 				return (title,artists)
 
-		return (t,[])
+		artists = []
+		for st in self.rules_artistintitle:
+			if st in t.lower(): artists += self.rules_artistintitle[st].split("␟")
+		return (t,artists)
 
 
 
