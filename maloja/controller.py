@@ -198,6 +198,10 @@ def backup(level="full"):
 def update():
 	os.system("pip3 install malojaserver --upgrade --no-cache-dir")
 
+def fixdb():
+	from .fixexisting import fix
+	fix()
+
 @mainfunction({"l":"level"},shield=True)
 def main(action,*args,**kwargs):
 	actions = {
@@ -207,7 +211,8 @@ def main(action,*args,**kwargs):
 		"import":loadlastfm,
 		"debug":direct,
 		"backup":backup,
-		"update":update
+		"update":update,
+		"fix":fixdb
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
