@@ -3,7 +3,8 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<title>Maloja - Error ERROR_CODE</title>
+		<title>Maloja - Error <pyhp echo="errorcode" /></title>
+		<pyhp include="../common/header.html" />
 	</head>
 
 	<body>
@@ -13,7 +14,7 @@
 					<div style="background-image:url('/favicon.png')"></div>
 				</td>
 				<td class="text">
-					<h1>Error ERROR_CODE</h1><br/>
+					<h1>Error <pyhp echo="errorcode" /></h1><br/>
 
 
 					<p>That did not work. Don't ask me why.</p>

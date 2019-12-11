@@ -22,6 +22,7 @@ from . import urihandler
 from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
+from doreah.pyhp import file as pyhpfile
 # technical
 #from importlib.machinery import SourceFileLoader
 import importlib
@@ -88,21 +89,10 @@ def customerror(error):
 	code = int(str(error).split(",")[0][1:])
 	log("HTTP Error: " + str(code),module="error")
 
-	if os.path.exists(pthjoin(WEBFOLDER,"errors",str(code) + ".html")):
-		return static_file(pthjoin(WEBFOLDER,"errors",str(code) + ".html"),root="")
+	if os.path.exists(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp")):
+		return pyhpfile(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp"),{"errorcode":code})
 	else:
-		with open(pthjoin(WEBFOLDER,"errors/generic.html")) as htmlfile:
-			html = htmlfile.read()
-
-		# apply global substitutions
-		with open(pthjoin(WEBFOLDER,"common/footer.html")) as footerfile:
-			footerhtml = footerfile.read()
-		with open(pthjoin(WEBFOLDER,"common/header.html")) as headerfile:
-			headerhtml = headerfile.read()
-		html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
-
-		html = html.replace("ERROR_CODE",str(code))
-		return html
+		return pyhpfile(pthjoin(WEBFOLDER,"errors","generic.pyhp"),{"errorcode":code})
 
 
 
@@ -191,7 +181,6 @@ def static_html(name):
 
 	# if a pyhp file exists, use this
 	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
-		from doreah.pyhp import file
 		environ = {} #things we expose to the pyhp pages
 
 		environ["adminmode"] = adminmode
@@ -211,7 +200,7 @@ def static_html(name):
 		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
 
 		#response.set_header("Content-Type","application/xhtml+xml")
-		res = file(pthjoin(WEBFOLDER,name + ".pyhp"),environ)
+		res = pyhpfile(pthjoin(WEBFOLDER,name + ".pyhp"),environ)
 		log("Generated page " + name + " in " + str(clock.stop()) + "s (PYHP)",module="debug")
 		return res
 
