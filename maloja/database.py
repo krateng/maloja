@@ -862,7 +862,8 @@ def rebuild(**keys):
 		global db_rulestate
 		db_rulestate = False
 		sync()
-		os.system("python3 fixexisting.py")
+		from .fixexisting import fix
+		fix()
 		global cla, coa
 		cla = CleanerAgent()
 		coa = CollectorAgent()

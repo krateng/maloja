@@ -97,6 +97,7 @@
 
 		<a class="textlink" href="/setup">Server Setup</a><br/>
 		<a class="textlink" href="/manual">Manual Scrobbling</a>
+		<a class="textlink" href="/issues">Database Maintenance</a>
 
 		<pyhp include="common/footer.html" />
 	</body>

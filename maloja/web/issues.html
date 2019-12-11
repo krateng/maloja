@@ -43,7 +43,7 @@
 
 
 				var xhttp = new XMLHttpRequest();
-				xhttp.open("POST","/db/newrule?", true);
+				xhttp.open("POST","/api/newrule?", true);
 				xhttp.send(keys);
 				e = arguments[0]
 				line = e.parentNode
@@ -56,7 +56,7 @@
 				apikey = document.getElementById("apikey").value
 
 				var xhttp = new XMLHttpRequest();
-				xhttp.open("POST","/db/rebuild", true);
+				xhttp.open("POST","/api/rebuild", true);
 				xhttp.send("key=" + encodeURIComponent(apikey))
 				window.location = "/wait";
 			}
