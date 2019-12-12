@@ -7,7 +7,7 @@ author = {
 	"email":"maloja@krateng.dev",
 	"github": "krateng"
 }
-version = 2,1,2
+version = 2,1,3
 versionstr = ".".join(str(n) for n in version)
 
 

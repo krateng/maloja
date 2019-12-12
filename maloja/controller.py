@@ -84,6 +84,15 @@ def setup():
 		if name == "": name = "Generic Maloja User"
 		settings.update_settings("settings/settings.ini",{"NAME":name},create_new=True)
 
+	if settings.get_settings("SEND_STATS") is None:
+		print("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)? [Y/n]")
+		answer = input()
+		if answer.lower() in ["y","yes","yea","1","positive","true",""]:
+			settings.update_settings("settings/settings.ini",{"SEND_STATS":True},create_new=True)
+			settings.update_settings("settings/settings.ini",{"PUBLIC_URL":None},create_new=True)
+		else:
+			settings.update_settings("settings/settings.ini",{"SEND_STATS":False},create_new=True)
+
 
 def getInstance():
 	try:

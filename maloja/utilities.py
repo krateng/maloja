@@ -15,6 +15,7 @@ from doreah.logging import log
 from doreah.regular import yearly, daily
 
 from .external import api_request_track, api_request_artist
+from .__init__ import version
 
 
 
@@ -484,3 +485,29 @@ def update_weekly():
 		for t in get_charts_tracks(timerange=week):
 			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
 			if t["rank"] == 1: WEEKLY_TOPTRACKS[track] = WEEKLY_TOPTRACKS.setdefault(track,0) + 1
+
+
+@daily
+def send_stats():
+	if settings.get_settings("SEND_STATS"):
+
+		log("Sending daily stats report...")
+
+		from .database import ARTISTS, TRACKS, SCROBBLES
+
+		keys = {
+			"url":"https://myrcella.krateng.ch/malojastats",
+			"method":"POST",
+			"headers":{"Content-Type": "application/json"},
+			"data":json.dumps({
+				"name":settings.get_settings("NAME"),
+				"url":settings.get_settings("PUBLIC_URL"),
+				"version":".".join(str(d) for d in version),
+				"artists":len(ARTISTS),
+				"tracks":len(TRACKS),
+				"scrobbles":len(SCROBBLES)
+			}).encode("utf-8")
+		}
+		req = urllib.request.Request(**keys)
+		response = urllib.request.urlopen(req)
+		log("Sent daily report!")

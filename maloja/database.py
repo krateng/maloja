@@ -982,6 +982,7 @@ def build_db():
 	#start regular tasks
 	utilities.update_medals()
 	utilities.update_weekly()
+	utilities.send_stats()
 
 	global db_rulestate
 	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
