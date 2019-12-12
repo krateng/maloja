@@ -18,6 +18,7 @@ from . import utilities
 from .utilities import resolveImage
 from .urihandler import uri_to_internal, remove_identical
 from . import urihandler
+from . import globalconf
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -120,6 +121,10 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.png>")
 @webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
+	if globalconf.USE_THUMBOR:
+		return static_file("images/" + pth,root="")
+
+	type = pth.split(".")[-1]
 	small_pth = pth + "-small"
 	if os.path.exists("images/" + small_pth):
 		response = static_file("images/" + small_pth,root="")
@@ -141,6 +146,7 @@ def static_image(pth):
 
 	#response = static_file("images/" + pth,root="")
 	response.set_header("Cache-Control", "public, max-age=86400")
+	response.set_header("Content-Type", "image/" + type)
 	return response
 
 

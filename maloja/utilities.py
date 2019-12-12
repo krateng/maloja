@@ -16,6 +16,7 @@ from doreah.regular import yearly, daily
 
 from .external import api_request_track, api_request_artist
 from .__init__ import version
+from . import globalconf
 
 
 
@@ -126,10 +127,20 @@ def consistentRulestate(folder,checksums):
 #####
 
 
+if globalconf.USE_THUMBOR:
+	def thumborize(url):
+		if url.startswith("/"): url = globalconf.OWNURL + url
+		encrypted_url = globalconf.THUMBOR_GENERATOR.generate(
+		    width=300,
+		    height=300,
+		    smart=True,
+		    image_url=url
+		)
+		return globalconf.THUMBOR_SERVER + encrypted_url
 
-
-
-
+else:
+	def thumborize(url):
+		return url
 
 
 
@@ -297,7 +308,7 @@ def getArtistImage(artist,fast=False):
 	if settings.get_settings("USE_LOCAL_IMAGES"):
 
 		try:
-			return local_artist_cache.get(artist)
+			return thumborize(local_artist_cache.get(artist))
 			# Local cached image
 		except:
 			# Get all local images, select one if present
@@ -306,14 +317,14 @@ def getArtistImage(artist,fast=False):
 				#return random.choice(images)
 				res = random.choice(images)
 				local_artist_cache.add(artist,res)
-				return urllib.parse.quote(res)
+				return thumborize(urllib.parse.quote(res))
 
 
 	# if no local images (or setting to not use them)
 	try:
 		# check cache for foreign image
 		result = artist_cache.get(artist)
-		if result is not None: return result
+		if result is not None: return thumborize(result)
 		else: return ""
 		# none means non-existence is cached, return empty
 	except:
@@ -337,7 +348,7 @@ def getArtistImage(artist,fast=False):
 	#cachedArtists[artist] = result
 	artist_cache.add(artist,result) #cache_artist(artist,result)
 
-	if result is not None: return result
+	if result is not None: return thumborize(result)
 	else: return ""
 
 def getTrackImages(trackobjectlist,fast=False):
