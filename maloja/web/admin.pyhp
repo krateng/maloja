@@ -110,6 +110,10 @@
 		<a class="textlink" href="/manual">Manual Scrobbling</a><br/>
 		<a class="textlink" href="/issues">Database Maintenance</a>
 
+		<h2>External</h2>
+
+		<a class="textlink" href="https://github.com/krateng/maloja/issues/new">Report Issue</a><br/>
+
 		<pyhp include="common/footer.html" />
 	</body>
 </html>
