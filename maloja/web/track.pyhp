@@ -45,7 +45,7 @@
 					<pyhp for="year" in="info['medals']['bronze']"><a title="Third best Track in {year}" class="hidelink medal shiny bronze" href='/charts_tracks?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
 
 					<span><pyhp if="info.get('topweeks') not in [0,None]">
-						<a title="{str(info['topweeks'])} weeks on #1" href="/performance?{encodedtrack}">
+						<a title="{str(info['topweeks'])} weeks on #1" href="/performance?{encodedtrack}&step=week">
 							<img class="star" src="/media/star.png" /><pyhp echo="info['topweeks']" />
 						</a>
 					</pyhp></span>
@@ -71,24 +71,18 @@
 					<h2><a href='/pulse?{encodedtrack}&amp;step=year&amp;trail=1'>Pulse</a></h2>
 
 					<pyhp for="range" in="ranges" separator = " | ">
-						<pyhp if="initialrange==range[0]">
-							<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="opacity:0.5;"><pyhp echo="range[1]" /></span>
-						</pyhp>
-						<pyhp if="initialrange!=range[0]">
-							<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}"><pyhp echo="range[1]" /></span>
-						</pyhp>
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
 					</pyhp>
 
 		      			<br/><br/>
 
 					<pyhp for="range" in="ranges">
-						<pyhp if="initialrange==range[0]">
-							<span class="stat_module_pulse pulse_{range[0]}"><pyhp echo="htmlmodules.module_pulse(track=track,max_=range[4],since=range[2],step=range[3],trail=1)" /></span>
-						</pyhp>
-						<pyhp if="initialrange!=range[0]">
 
-							<span class="stat_module_pulse pulse_{range[0]}" style="display:none;"><pyhp echo="htmlmodules.module_pulse(track=track,max_=range[4],since=range[2],step=range[3],trail=1)" /></span>
-						</pyhp>
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<pyhp with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
+								<pyhp include="partial/pulse.pyhp" />
+							</pyhp>
+						</span>
 
 					</pyhp>
 				</td>
@@ -97,24 +91,17 @@
 					<h2><a href='/performance?{encodedtrack}&amp;step=year&amp;trail=1'>Performance</a></h2>
 
 					<pyhp for="range" in="ranges" separator = " | ">
-						<pyhp if="initialrange==range[0]">
-							<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="opacity:0.5;"><pyhp echo="range[1]" /></span>
-						</pyhp>
-						<pyhp if="initialrange!=range[0]">
-							<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}"><pyhp echo="range[1]" /></span>
-						</pyhp>
-
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
 					</pyhp>
 
 		      			<br/><br/>
 
 					<pyhp for="range" in="ranges">
-						<pyhp if="initialrange==range[0]">
-							<span class="stat_module_pulse pulse_{range[0]}"><pyhp echo="htmlmodules.module_performance(track=track,max_=range[4],since=range[2],step=range[3],trail=1)" /></span>
-						</pyhp>
-						<pyhp if="initialrange!=range[0]">
-							<span class="stat_module_pulse pulse_{range[0]}" style="display:none;"><pyhp echo="htmlmodules.module_performance(track=track,max_=range[4],since=range[2],step=range[3],trail=1)" /></span>
-						</pyhp>
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<pyhp with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
+								<pyhp include="partial/performance.pyhp" />
+							</pyhp>
+						</span>
 
 					</pyhp>
 				</td>
