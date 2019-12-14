@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from .__init__ import DATA_DIR
+from .globalconf import DATA_DIR
 os.chdir(DATA_DIR)
 
 import subprocess

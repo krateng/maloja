@@ -12,7 +12,7 @@ import pkg_resources
 from doreah.control import mainfunction
 from doreah.io import col
 
-from .__init__ import DATA_DIR
+from .globalconf import DATA_DIR
 from .backup import backup
 
 
