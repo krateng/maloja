@@ -10,16 +10,10 @@ import stat
 import pathlib
 import pkg_resources
 from doreah.control import mainfunction
+from doreah.io import col
 
 from .__init__ import DATA_DIR
-
-
-
-def blue(txt): return "\033[94m" + txt + "\033[0m"
-def green(txt): return "\033[92m" + txt + "\033[0m"
-def yellow(txt): return "\033[93m" + txt + "\033[0m"
-
-
+from .backup import backup
 
 
 
@@ -71,7 +65,7 @@ def setup():
 			key = ""
 			for i in range(64):
 				key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
-			print("Your API Key: " + yellow(key))
+			print("Your API Key: " + col["yellow"](key))
 			with open("./clients/authenticated_machines.tsv","w") as keyfile:
 				keyfile.write(key + "\t" + "Default Generated Key")
 		elif answer.lower() in ["n","no","nay","0","negative","false"]:
@@ -115,15 +109,15 @@ def start():
 	try:
 		p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,cwd=DATA_DIR)
 		sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,cwd=DATA_DIR)
-		print(green("Maloja started!") + " PID: " + str(p.pid))
+		print(col["green"]("Maloja started!") + " PID: " + str(p.pid))
 
 		from doreah import settings
 		port = settings.get_settings("WEB_PORT")
 
 		print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /setup to get started.")
 		print("If you're installing this on your local machine, these links should get you there:")
-		print("\t" + blue("http://localhost:" + str(port)))
-		print("\t" + blue("http://localhost:" + str(port) + "/setup"))
+		print("\t" + col["blue"]("http://localhost:" + str(port)))
+		print("\t" + col["blue"]("http://localhost:" + str(port) + "/setup"))
 		return True
 	except:
 		print("Error while starting Maloja.")
@@ -170,39 +164,8 @@ def loadlastfm(filename):
 def direct():
 	from . import server
 
-def backup(level="full",folder=origpath):
-	import tarfile
-	from datetime import datetime
-	import glob
-
-
-
-	user_files = {
-		"minimal":[
-			"rules/*.tsv",
-			"scrobbles"
-		],
-		"full":[
-			"clients/authenticated_machines.tsv",
-			"images/artists",
-			"images/tracks",
-			"settings/settings.ini"
-		]
-	}
-
-	user_files = user_files["minimal"] if level == "minimal" else user_files["minimal"] + user_files["full"]
-	real_files = []
-	for g in user_files:
-		real_files += glob.glob(g)
-
-	now = datetime.utcnow()
-	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")
-	filename = "maloja_backup_" + timestr + ".tar.gz"
-	archivefile = os.path.join(folder,filename)
-	assert not os.path.exists(archivefile)
-	with tarfile.open(name=archivefile,mode="x:gz") as archive:
-		for f in real_files:
-			archive.add(f)
+def backuphere():
+	backup(folder=origpath)
 
 def update():
 	os.system("pip3 install malojaserver --upgrade --no-cache-dir")
@@ -219,7 +182,7 @@ def main(action,*args,**kwargs):
 		"stop":stop,
 		"import":loadlastfm,
 		"debug":direct,
-		"backup":backup,
+		"backup":backuphere,
 		"update":update,
 		"fix":fixdb
 	}

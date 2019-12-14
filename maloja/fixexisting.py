@@ -7,7 +7,7 @@ from .cleanup import CleanerAgent
 from doreah.logging import log
 import difflib
 import datetime
-from .controller import backup
+from .backup import backup
 
 wendigo = CleanerAgent()
 

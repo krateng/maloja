@@ -35,5 +35,4 @@ setuptools.setup(
 )
 
 import os
-
 os.system("git tag v" + ".".join(str(n) for n in module.version))
