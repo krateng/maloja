@@ -121,6 +121,10 @@ class CleanerAgent:
 		t = re.sub(r" \(originally by .*?\)","",t)
 		t = re.sub(r" \(.*?Remaster.*?\)","",t)
 
+		for s in settings.get_settings("REMOVE_FROM_TITLE"):
+			if s in t:
+				t = t.replace(s,"").strip()
+
 		return t.strip()
 
 	def parseTitleForArtists(self,t):
