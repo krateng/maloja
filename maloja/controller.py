@@ -144,10 +144,8 @@ def stop():
 
 def loadlastfm(filename):
 
-	try:
-		filename = os.path.join(origpath,filename)
-	except:
-		print("Please specify a file!")
+	if not os.path.exists(filename):
+		print("File could not be found.")
 		return
 
 	if os.path.exists(datadir("scrobbles/lastfmimport.tsv")):
@@ -157,7 +155,9 @@ def loadlastfm(filename):
 		else:
 			return
 	print("Please wait...")
-	os.system("python3 -m maloja.lastfmconverter " + filename + " " + datadir("scrobbles/lastfmimport.tsv"))
+	from .lastfmconverter import convert
+	convert(filename,datadir("scrobbles/lastfmimport.tsv"))
+	#os.system("python3 -m maloja.lastfmconverter " + filename + " " + datadir("scrobbles/lastfmimport.tsv"))
 	print("Successfully imported your Last.FM scrobbles!")
 
 def direct():

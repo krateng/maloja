@@ -25,8 +25,17 @@ class CleanerAgent:
 		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
 		# TODO
 
+		#self.plugin_artistparsers = []
+		#self.plugin_titleparsers = []
+		#if settings.get_settings("USE_PARSE_PLUGINS"):
+		#	for ep in pkg_resources.iter_entry_points(group='maloja.artistparsers'):
+		#		self.plugin_artistparsers.append(ep.load())
+		#	for ep in pkg_resources.iter_entry_points(group='maloja.titleparsers'):
+		#		self.plugin_titleparsers.append(ep.load())
+
+
 		# we always need to be able to tell if our current database is made with the current rules
-		self.checksums = utilities.checksumTSV("rules")
+		self.checksums = utilities.checksumTSV(datadir("rules"))
 
 
 
@@ -125,9 +134,12 @@ class CleanerAgent:
 
 		for s in settings.get_settings("REMOVE_FROM_TITLE"):
 			if s in t:
-				t = t.replace(s,"").strip()
+				t = t.replace(s,"")
 
-		return t.strip()
+		t = t.strip()
+		#for p in self.plugin_titleparsers:
+		#	t = p(t).strip()
+		return t
 
 	def parseTitleForArtists(self,t):
 		for d in self.delimiters_feat:
