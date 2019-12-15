@@ -171,7 +171,7 @@ def get_all_possible_filenames(artist=None,artists=None,title=None):
 	else: return []
 
 
-	superfolder = datadir("images/tracks/") if track else datadir("images/artists/")
+	superfolder = "images/tracks/" if track else "images/artists/"
 
 	filenames = []
 
@@ -230,12 +230,12 @@ def local_files(artist=None,artists=None,title=None):
 		# direct files
 		for ext in ["png","jpg","jpeg","gif"]:
 			#for num in [""] + [str(n) for n in range(0,10)]:
-			if os.path.exists(purename + "." + ext):
+			if os.path.exists(datadir(purename + "." + ext)):
 				images.append("/" + purename + "." + ext)
 
 		# folder
 		try:
-			for f in os.listdir(purename + "/"):
+			for f in os.listdir(datadir(purename)):
 				if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
 					images.append("/" + purename + "/" + f)
 		except:
