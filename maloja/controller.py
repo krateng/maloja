@@ -17,7 +17,6 @@ from .backup import backup
 
 
 
-origpath = os.getcwd()
 
 def copy_initial_local_files():
 	folder = pkg_resources.resource_filename(__name__,"data_files")
@@ -106,8 +105,8 @@ def start():
 	setup()
 	try:
 		with open(datadir("logs/stderr.log"),"w") as logf:
-			p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=logf,cwd=DATA_DIR)
-			sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=logf,cwd=DATA_DIR)
+			p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=logf)
+			sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=logf)
 		print(col["green"]("Maloja started!") + " PID: " + str(p.pid))
 
 		from doreah import settings
@@ -164,7 +163,7 @@ def direct():
 	from . import server
 
 def backuphere():
-	backup(folder=origpath)
+	backup(folder=os.getcwd())
 
 def update():
 	os.system("pip3 install malojaserver --upgrade --no-cache-dir")

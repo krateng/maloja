@@ -49,7 +49,7 @@ BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
 STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
-DATAFOLDER = DATADIR
+DATAFOLDER = DATA_DIR
 
 webserver = Bottle()
 
