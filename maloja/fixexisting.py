@@ -1,7 +1,5 @@
 import os
-from .globalconf import DATA_DIR
-os.chdir(DATA_DIR)
-
+from .globalconf import datadir
 import re
 from .cleanup import CleanerAgent
 from doreah.logging import log
@@ -13,29 +11,28 @@ wendigo = CleanerAgent()
 
 exp = r"([0-9]*)(\t+)([^\t]+?)(\t+)([^\t]+)(\t*)([^\t]*)\n"
 
-pthj = os.path.join
 
 
 def fix():
 
-	backup(level="minimal",folder=pthj(DATA_DIR,"backups"))
+	backup(level="minimal",folder=datadir("backups"))
 
 	now = datetime.datetime.utcnow()
 	nowstr = now.strftime("%Y_%m_%d_%H_%M_%S")
 	datestr = now.strftime("%Y/%m/%d")
 	timestr = now.strftime("%H:%M:%S")
 
-	with open(pthj(DATA_DIR,"logs","dbfix",nowstr + ".log"),"a") as logfile:
+	with open(datadir("logs","dbfix",nowstr + ".log"),"a") as logfile:
 
 		logfile.write("Database fix initiated on " + datestr + " " + timestr + " UTC")
 		logfile.write("\n\n")
 
-		for filename in os.listdir(pthj(DATA_DIR,"scrobbles")):
+		for filename in os.listdir(datadir("scrobbles")):
 			if filename.endswith(".tsv"):
 				filename_new = filename + "_new"
 
-				with open(pthj(DATA_DIR,"scrobbles",filename_new),"w") as newfile:
-					with open(pthj(DATA_DIR,"scrobbles",filename),"r") as oldfile:
+				with open(datadir("scrobbles",filename_new),"w") as newfile:
+					with open(datadir("scrobbles",filename),"r") as oldfile:
 
 						for l in oldfile:
 
@@ -50,8 +47,8 @@ def fix():
 
 
 				#os.system("diff " + "scrobbles/" + fn + "_new" + " " + "scrobbles/" + fn)
-				with open(pthj(DATA_DIR,"scrobbles",filename_new),"r") as newfile:
-					with open(pthj(DATA_DIR,"scrobbles",filename),"r") as oldfile:
+				with open(datadir("scrobbles",filename_new),"r") as newfile:
+					with open(datadir("scrobbles",filename),"r") as oldfile:
 
 						diff = difflib.unified_diff(oldfile.read().split("\n"),newfile.read().split("\n"),lineterm="")
 						diff = list(diff)[2:]
@@ -61,7 +58,7 @@ def fix():
 						logfile.write(output)
 						logfile.write("\n")
 
-				os.rename(pthj(DATA_DIR,"scrobbles",filename_new),pthj(DATA_DIR,"scrobbles",filename))
+				os.rename(datadir("scrobbles",filename_new),datadir("scrobbles",filename))
 
-				with open(pthj(DATA_DIR,"scrobbles",filename + ".rulestate"),"w") as checkfile:
+				with open(datadir("scrobbles",filename + ".rulestate"),"w") as checkfile:
 					checkfile.write(wendigo.checksums)

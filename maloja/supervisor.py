@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import os
-from .globalconf import DATA_DIR
-os.chdir(DATA_DIR)
 
 import subprocess
 import time

@@ -12,18 +12,17 @@ import pkg_resources
 from doreah.control import mainfunction
 from doreah.io import col
 
-from .globalconf import DATA_DIR
+from .globalconf import datadir
 from .backup import backup
 
 
 
 origpath = os.getcwd()
-os.chdir(DATA_DIR)
 
 def copy_initial_local_files():
 	folder = pkg_resources.resource_filename(__name__,"data_files")
 	#shutil.copy(folder,DATA_DIR)
-	dir_util.copy_tree(folder,DATA_DIR,update=False)
+	dir_util.copy_tree(folder,datadir(),update=False)
 
 
 def setup():
@@ -49,13 +48,13 @@ def setup():
 			print("\t" + "Please enter your " + apikeys[k] + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = input()
 			if key == "": key = None
-			settings.update_settings("settings/settings.ini",{k:key},create_new=True)
+			settings.update_settings(datadir("settings/settings.ini"),{k:key},create_new=True)
 		else:
 			print("\t" + apikeys[k] + " found.")
 
 
 	# OWN API KEY
-	if os.path.exists("./clients/authenticated_machines.tsv"):
+	if os.path.exists(datadir("clients/authenticated_machines.tsv")):
 		pass
 	else:
 		print("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database. [Y/n]")
@@ -66,7 +65,7 @@ def setup():
 			for i in range(64):
 				key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
 			print("Your API Key: " + col["yellow"](key))
-			with open("./clients/authenticated_machines.tsv","w") as keyfile:
+			with open(datadir("clients/authenticated_machines.tsv"),"w") as keyfile:
 				keyfile.write(key + "\t" + "Default Generated Key")
 		elif answer.lower() in ["n","no","nay","0","negative","false"]:
 			pass
@@ -76,16 +75,15 @@ def setup():
 		print("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.")
 		name = input()
 		if name == "": name = "Generic Maloja User"
-		settings.update_settings("settings/settings.ini",{"NAME":name},create_new=True)
+		settings.update_settings(datadir("settings/settings.ini"),{"NAME":name},create_new=True)
 
 	if settings.get_settings("SEND_STATS") is None:
 		print("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)? [Y/n]")
 		answer = input()
 		if answer.lower() in ["y","yes","yea","1","positive","true",""]:
-			settings.update_settings("settings/settings.ini",{"SEND_STATS":True},create_new=True)
-			settings.update_settings("settings/settings.ini",{"PUBLIC_URL":None},create_new=True)
+			settings.update_settings(datadir("settings/settings.ini"),{"SEND_STATS":True,"PUBLIC_URL":None},create_new=True)
 		else:
-			settings.update_settings("settings/settings.ini",{"SEND_STATS":False},create_new=True)
+			settings.update_settings(datadir("settings/settings.ini"),{"SEND_STATS":False},create_new=True)
 
 
 def getInstance():
@@ -107,7 +105,7 @@ def getInstanceSupervisor():
 def start():
 	setup()
 	try:
-		with open("logs/stderr.log","w") as logf:
+		with open(datadir("logs/stderr.log"),"w") as logf:
 			p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=logf,cwd=DATA_DIR)
 			sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=logf,cwd=DATA_DIR)
 		print(col["green"]("Maloja started!") + " PID: " + str(p.pid))
@@ -152,14 +150,14 @@ def loadlastfm(filename):
 		print("Please specify a file!")
 		return
 
-	if os.path.exists("./scrobbles/lastfmimport.tsv"):
+	if os.path.exists(datadir("scrobbles/lastfmimport.tsv")):
 		print("Already imported Last.FM data. Overwrite? [y/N]")
 		if input().lower() in ["y","yes","yea","1","positive","true"]:
 			pass
 		else:
 			return
 	print("Please wait...")
-	os.system("python3 -m maloja.lastfmconverter " + filename + " ./scrobbles/lastfmimport.tsv")
+	os.system("python3 -m maloja.lastfmconverter " + filename + " " + datadir("scrobbles/lastfmimport.tsv"))
 	print("Successfully imported your Last.FM scrobbles!")
 
 def direct():

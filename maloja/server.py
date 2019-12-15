@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
-from .globalconf import DATA_DIR
-os.chdir(DATA_DIR)
+from .globalconf import datadir, DATA_DIR
 
 
 # server stuff
@@ -50,6 +49,7 @@ BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
 STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
+DATAFOLDER = DATADIR
 
 webserver = Bottle()
 
@@ -122,27 +122,27 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
 	if globalconf.USE_THUMBOR:
-		return static_file("images/" + pth,root="")
+		return static_file(pthjoin("images",pth),root=DATAFOLDER)
 
 	type = pth.split(".")[-1]
 	small_pth = pth + "-small"
-	if os.path.exists("images/" + small_pth):
-		response = static_file("images/" + small_pth,root="")
+	if os.path.exists(datadir("images",small_pth)):
+		response = static_file(pthjoin("images",small_pth),root=DATAFOLDER)
 	else:
 		try:
 			from wand.image import Image
-			img = Image(filename="images/" + pth)
+			img = Image(filename=datadir("images",pth))
 			x,y = img.size[0], img.size[1]
 			smaller = min(x,y)
 			if smaller > 300:
 				ratio = 300/smaller
 				img.resize(int(ratio*x),int(ratio*y))
-				img.save(filename="images/" + small_pth)
-				response = static_file("images/" + small_pth,root="")
+				img.save(filename=datadir("images",small_pth))
+				response = static_file(pthjoin("images",small_pth),root=DATAFOLDER)
 			else:
-				response = static_file("images/" + pth,root="")
+				response = static_file(pthjoin("images",pth),root=DATAFOLDER)
 		except:
-			response = static_file("images/" + pth,root="")
+			response = static_file(pthjoin("images",pth),root=DATAFOLDER)
 
 	#response = static_file("images/" + pth,root="")
 	response.set_header("Cache-Control", "public, max-age=86400")

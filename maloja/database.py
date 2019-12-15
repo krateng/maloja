@@ -8,6 +8,7 @@ from .urihandler import uri_to_internal, internal_to_uri, compose_querystring
 from . import compliant_api
 from .external import proxy_scrobble
 from .__init__ import version
+from .globalconf import datadir
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -68,7 +69,7 @@ lastsync = 0
 db_rulestate = False
 
 try:
-	with open("known_servers.yml","r") as f:
+	with open(datadir("known_servers.yml"),"r") as f:
 		KNOWN_SERVERS = set(yaml.safe_load(f))
 except:
 	KNOWN_SERVERS = set()
@@ -76,7 +77,7 @@ except:
 
 def add_known_server(url):
 	KNOWN_SERVERS.add(url)
-	with open("known_servers.yml","w") as f:
+	with open(datadir("known_servers.yml"),"w") as f:
 		f.write(yaml.dump(list(KNOWN_SERVERS)))
 
 
@@ -84,9 +85,9 @@ def add_known_server(url):
 ### symmetric keys are fine for now since we hopefully use HTTPS
 def loadAPIkeys():
 	global clients
-	tsv.create("clients/authenticated_machines.tsv")
+	tsv.create(datadir("clients/authenticated_machines.tsv"))
 	#createTSV("clients/authenticated_machines.tsv")
-	clients = tsv.parse("clients/authenticated_machines.tsv","string","string")
+	clients = tsv.parse(datadir("clients/authenticated_machines.tsv"),"string","string")
 	#clients = parseTSV("clients/authenticated_machines.tsv","string","string")
 	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
@@ -847,10 +848,10 @@ def import_rulemodule(**keys):
 
 		if remove:
 			log("Deactivating predefined rulefile " + filename)
-			os.remove("rules/" + filename + ".tsv")
+			os.remove(datadir("rules/" + filename + ".tsv"))
 		else:
 			log("Importing predefined rulefile " + filename)
-			os.symlink("predefined/" + filename + ".tsv","rules/" + filename + ".tsv")
+			os.symlink(datadir("predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
 
 
 
@@ -951,7 +952,7 @@ def build_db():
 
 
 	# parse files
-	db = tsv.parse_all("scrobbles","int","string","string",comments=False)
+	db = tsv.parse_all(datadir("scrobbles"),"int","string","string",comments=False)
 	#db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
@@ -985,7 +986,7 @@ def build_db():
 	utilities.send_stats()
 
 	global db_rulestate
-	db_rulestate = utilities.consistentRulestate("scrobbles",cla.checksums)
+	db_rulestate = utilities.consistentRulestate(datadir("scrobbles"),cla.checksums)
 
 	log("Database fully built!")
 
@@ -1019,9 +1020,9 @@ def sync():
 	#log("Sorted into months",module="debug")
 
 	for e in entries:
-		tsv.add_entries("scrobbles/" + e + ".tsv",entries[e],comments=False)
+		tsv.add_entries(datadir("scrobbles/" + e + ".tsv"),entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
-		utilities.combineChecksums("scrobbles/" + e + ".tsv",cla.checksums)
+		utilities.combineChecksums(datadir("scrobbles/" + e + ".tsv"),cla.checksums)
 
 	#log("Written files",module="debug")
 
@@ -1046,7 +1047,7 @@ import copy
 
 cache_query = {}
 if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
-	cache_query_permanent = DiskDict(name="dbquery",folder="cache",maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+	cache_query_permanent = DiskDict(name="dbquery",folder=datadir("cache"),maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
 else:
 	cache_query_permanent = Cache(maxmemory=1024*1024*500)
 cacheday = (0,0,0)

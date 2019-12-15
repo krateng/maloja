@@ -17,6 +17,7 @@ from doreah.regular import yearly, daily
 from .external import api_request_track, api_request_artist
 from .__init__ import version
 from . import globalconf
+from .globalconf import datadir
 
 
 
@@ -170,7 +171,7 @@ def get_all_possible_filenames(artist=None,artists=None,title=None):
 	else: return []
 
 
-	superfolder = "images/tracks/" if track else "images/artists/"
+	superfolder = datadir("images/tracks/") if track else datadir("images/artists/")
 
 	filenames = []
 

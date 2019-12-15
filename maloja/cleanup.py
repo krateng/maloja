@@ -1,6 +1,8 @@
 import re
 from . import utilities
 from doreah import tsv, settings
+from .globalconf import datadir
+import pkg_resources
 
 # need to do this as a class so it can retain loaded settings from file
 # apparently this is not true
@@ -11,7 +13,7 @@ class CleanerAgent:
 		self.updateRules()
 
 	def updateRules(self):
-		raw = tsv.parse_all("rules","string","string","string","string")
+		raw = tsv.parse_all(datadir("rules"),"string","string","string","string")
 		self.rules_belongtogether = [b for [a,b,c,d] in raw if a=="belongtogether"]
 		self.rules_notanartist = [b for [a,b,c,d] in raw if a=="notanartist"]
 		self.rules_replacetitle = {b.lower():c for [a,b,c,d] in raw if a=="replacetitle"}
@@ -160,7 +162,7 @@ class CollectorAgent:
 	# rules_include			dict: credited artist -> all real artists
 
 	def updateRules(self):
-		raw = tsv.parse_all("rules","string","string","string")
+		raw = tsv.parse_all(datadir("rules"),"string","string","string")
 		self.rules_countas = {b:c for [a,b,c] in raw if a=="countas"}
 		self.rules_countas_id = {}
 		self.rules_include = {} #Twice the memory, double the performance!

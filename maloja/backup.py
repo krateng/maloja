@@ -2,6 +2,7 @@ import tarfile
 from datetime import datetime
 import glob
 import os
+from globalconf import datadir
 
 
 user_files = {
@@ -22,7 +23,7 @@ def backup(folder,level="full"):
 	selected_files = user_files["minimal"] if level == "minimal" else user_files["minimal"] + user_files["full"]
 	real_files = []
 	for g in selected_files:
-		real_files += glob.glob(g)
+		real_files += glob.glob(datadir(g))
 
 	now = datetime.utcnow()
 	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")

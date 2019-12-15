@@ -1,4 +1,5 @@
 import os
+from ..globalconf import datadir
 
 def instructions(keys):
 
@@ -8,7 +9,7 @@ def instructions(keys):
 
 
     validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    for f in os.listdir("rules/predefined"):
+    for f in os.listdir(datadir("rules/predefined")):
         if f.endswith(".tsv"):
 
             rawf = f.replace(".tsv","")
@@ -22,7 +23,7 @@ def instructions(keys):
             if not "_" in rawf: continue
 
             try:
-                with open("rules/predefined/" + f) as tsvfile:
+                with open(datadir("rules/predefined",f)) as tsvfile:
                     line1 = tsvfile.readline()
                     line2 = tsvfile.readline()
 
@@ -39,7 +40,7 @@ def instructions(keys):
 
             html += "<tr>"
 
-            if os.path.exists("rules/" + f):
+            if os.path.exists(datadir("rules",f)):
                 html += "<td class='interaction' onclick=deactivateRuleModule(this,'" + rawf + "')><a class='textlink'>Remove:</a></td>"
             else:
                 html += "<td class='interaction' onclick=activateRuleModule(this,'" + rawf + "')><a class='textlink'>Add:</a></td>"

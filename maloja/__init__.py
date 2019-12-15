@@ -33,23 +33,4 @@ commands = {
 	"maloja":"controller:main"
 }
 
-### DOREAH CONFIGURATION
-
-from doreah import config
-config(
-	logging={
-		"logfolder": "logs"
-	},
-	settings={
-		"files":[
-			"settings/default.ini",
-			"settings/settings.ini"
-		]
-	},
-	caching={
-		"folder": "cache/"
-	},
-	regular={
-		"autostart": False
-	}
-)
+from . import globalconf

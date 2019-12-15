@@ -1,5 +1,50 @@
-from doreah.settings import get_settings
 import os
+
+
+# data folder
+# must be determined first because getting settings relies on it
+
+try:
+	DATA_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
+	assert os.path.exists(DATA_DIR)
+except:
+	DATA_DIR = os.path.join(os.environ["HOME"],".local/share/")
+
+DATA_DIR = os.path.join(DATA_DIR,"maloja")
+os.makedirs(DATA_DIR,exist_ok=True)
+
+def datadir(*args):
+	return os.path.join(DATA_DIR,*args)
+
+
+
+### DOREAH CONFIGURATION
+
+from doreah import config
+
+config(
+	logging={
+		"logfolder": datadir("logs")
+	},
+	settings={
+		"files":[
+			datadir("settings/default.ini"),
+			datadir("settings/settings.ini")
+		]
+	},
+	caching={
+		"folder": datadir("cache")
+	},
+	regular={
+		"autostart": False
+	}
+)
+
+
+
+from doreah.settings import get_settings
+
+# thumbor
 
 THUMBOR_SERVER, THUMBOR_SECRET = get_settings("THUMBOR_SERVER","THUMBOR_SECRET")
 try:
@@ -12,15 +57,3 @@ try:
 except:
 	USE_THUMBOR = False
 	log("Thumbor could not be initialized. Is libthumbor installed?")
-
-
-
-
-try:
-	DATA_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
-	assert os.path.exists(DATA_DIR)
-except:
-	DATA_DIR = os.path.join(os.environ["HOME"],".local/share/")
-
-DATA_DIR = os.path.join(DATA_DIR,"maloja")
-os.makedirs(DATA_DIR,exist_ok=True)
