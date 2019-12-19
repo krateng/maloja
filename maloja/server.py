@@ -199,11 +199,12 @@ def static_html(name):
 		environ["malojatime"] = malojatime
 		environ["utilities"] = utilities
 		environ["urihandler"] = urihandler
-		#environ["info"] = info
+		environ["settings"] = settings.get_settings
 		# external
 		environ["urllib"] = urllib
 		# request
 		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
+		environ["_urikeys"] = keys #temporary!
 
 		#response.set_header("Content-Type","application/xhtml+xml")
 		res = pyhpfile(pthjoin(WEBFOLDER,name + ".pyhp"),environ)
