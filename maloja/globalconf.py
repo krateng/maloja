@@ -23,6 +23,9 @@ def datadir(*args):
 from doreah import config
 
 config(
+	pyhp={
+		"version": 2
+	},
 	logging={
 		"logfolder": datadir("logs")
 	},

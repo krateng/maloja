@@ -187,28 +187,29 @@ def static_html(name):
 
 	# if a pyhp file exists, use this
 	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
-		environ = {} #things we expose to the pyhp pages
 
-		environ["adminmode"] = adminmode
-		if adminmode: environ["apikey"] = request.cookies.get("apikey")
-
-		# maloja
-		environ["db"] = database
-		environ["htmlmodules"] = htmlmodules
-		environ["htmlgenerators"] = htmlgenerators
-		environ["malojatime"] = malojatime
-		environ["utilities"] = utilities
-		environ["urihandler"] = urihandler
-		environ["settings"] = settings.get_settings
-		# external
-		environ["urllib"] = urllib
+		#things we expose to the pyhp pages
+		environ = {
+			"adminmode":adminmode,
+			"apikey":request.cookies.get("apikey") if adminmode else None,
+			# maloja
+			"db": database,
+			"htmlmodules": htmlmodules,
+			"htmlgenerators": htmlgenerators,
+			"malojatime": malojatime,
+			"utilities": utilities,
+			"urihandler": urihandler,
+			"settings": settings.get_settings,
+			# external
+			"urllib": urllib
+		}
 		# request
 		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
 		environ["_urikeys"] = keys #temporary!
 
 		#response.set_header("Content-Type","application/xhtml+xml")
 		res = pyhpfile(pthjoin(WEBFOLDER,name + ".pyhp"),environ)
-		log("Generated page " + name + " in " + str(clock.stop()) + "s (PYHP)",module="debug")
+		log("Generated page {name} in {time}s (PYHP)".format(name=name,time=clock.stop()),module="debug")
 		return res
 
 	# if not, use the old way
