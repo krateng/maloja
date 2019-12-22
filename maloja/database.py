@@ -49,10 +49,10 @@ Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
 STAMPS = []		# sorted
 #STAMPS_SET = set()	# as set for easier check if exists # we use the scrobbles dict for that now
-TRACKS_LOWER = []
-ARTISTS_LOWER = []
-ARTIST_SET = set()
-TRACK_SET = set()
+TRACKS_NORMALIZED = []
+ARTISTS_NORMALIZED = []
+ARTISTS_NORMALIZED_SET = set()
+TRACKS_NORMALIZED_SET = set()
 
 MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
@@ -173,16 +173,16 @@ def readScrobble(artists,title,time):
 def getArtistID(name):
 
 	obj = name
-	objlower = name.lower().replace("'","")
+	obj_normalized = normalize_name(name)
 
-	if objlower in ARTIST_SET:
-		return ARTISTS_LOWER.index(objlower)
+	if obj_normalized in ARTISTS_NORMALIZED_SET:
+		return ARTISTS_NORMALIZED.index(obj_normalized)
 
 	else:
 		i = len(ARTISTS)
 		ARTISTS.append(obj)
-		ARTIST_SET.add(objlower)
-		ARTISTS_LOWER.append(objlower)
+		ARTISTS_NORMALIZED_SET.add(obj_normalized)
+		ARTISTS_NORMALIZED.append(obj_normalized)
 
 		# with a new artist added, we might also get new artists that they are credited as
 		cr = coa.getCredited(name)
@@ -197,20 +197,22 @@ def getTrackID(artists,title):
 	for a in artists:
 		artistset.add(getArtistID(name=a))
 	obj = Track(artists=frozenset(artistset),title=title)
-	objlower = Track(artists=frozenset(artistset),title=title.lower().replace("'",""))
+	obj_normalized = Track(artists=frozenset(artistset),title=normalize_name(title))
 
-	if objlower in TRACK_SET:
-		return TRACKS_LOWER.index(objlower)
+	if obj_normalized in TRACKS_NORMALIZED_SET:
+		return TRACKS_NORMALIZED.index(obj_normalized)
 	else:
 		i = len(TRACKS)
 		TRACKS.append(obj)
-		TRACK_SET.add(objlower)
-		TRACKS_LOWER.append(objlower)
+		TRACKS_NORMALIZED_SET.add(obj_normalized)
+		TRACKS_NORMALIZED.append(obj_normalized)
 		return i
 
 
-
-
+# function to turn the name into a representation that can be easily compared, ignoring minor differences
+remove_symbols = ["'","`","’"]
+def normalize_name(name):
+	return "".join(char for char in name.lower() if char not in remove_symbols)
 
 
 
