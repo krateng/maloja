@@ -853,7 +853,7 @@ def import_rulemodule(**keys):
 			os.remove(datadir("rules/" + filename + ".tsv"))
 		else:
 			log("Importing predefined rulefile " + filename)
-			os.symlink(datadir("predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
+			os.symlink(datadir("rules/predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
 
 
 
