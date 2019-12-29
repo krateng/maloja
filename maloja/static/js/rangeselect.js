@@ -1,3 +1,5 @@
+localStorage = window.localStorage;
+
 function showRange(identifier,unit) {
 	// Make all modules disappear
 	modules = document.getElementsByClassName("stat_module_" + identifier);
@@ -38,16 +40,25 @@ function showRange(identifier,unit) {
 
 function showRangeManual(identifier,unit) {
 	showRange(identifier,unit);
-	neo.setCookie("rangeselect_" + identifier,unit);
+	//neo.setCookie("rangeselect_" + identifier,unit);
+	localStorage.setItem("rangeselect_" + identifier,unit);
 }
 
 
 
 document.addEventListener('DOMContentLoaded',function() {
 	for (let type of ["topartists","toptracks","pulse"]) {
-		var val = neo.getCookie("rangeselect_" + type);
-		if (val != undefined) {
+		var val = localStorage.getItem("rangeselect_" + type);
+		if (val != null) {
 			showRange(type,val);
 		}
+		else {
+			var val = neo.getCookie("rangeselect_" + type);
+			if (val != undefined) {
+				showRangeManual(type,val);	//sets local storage
+			}
+		}
+
+
 	}
 })
