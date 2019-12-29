@@ -20,6 +20,7 @@ class CleanerAgent:
 		self.rules_replaceartist = {b.lower():c for [a,b,c,d] in raw if a=="replaceartist"}
 		self.rules_ignoreartist = [b.lower() for [a,b,c,d] in raw if a=="ignoreartist"]
 		self.rules_addartists = {c.lower():(b.lower(),d) for [a,b,c,d] in raw if a=="addartists"}
+		self.rules_fixartists = {c.lower():b for [a,b,c,d] in raw if a=="fixartists"}
 		self.rules_artistintitle = {b.lower():c for [a,b,c,d] in raw if a=="artistintitle"}
 		#self.rules_regexartist = [[b,c] for [a,b,c,d] in raw if a=="regexartist"]
 		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
@@ -38,7 +39,6 @@ class CleanerAgent:
 		self.checksums = utilities.checksumTSV(datadir("rules"))
 
 
-
 	def fullclean(self,artist,title):
 		artists = self.parseArtists(self.removespecial(artist))
 		title = self.parseTitle(self.removespecial(title))
@@ -50,6 +50,11 @@ class CleanerAgent:
 			allartists = allartists.split("␟")
 			if set(reqartists).issubset(set(a.lower() for a in artists)):
 				artists += allartists
+		elif title.lower() in self.rules_fixartists:
+			allartists = self.rules_fixartists[title.lower()]
+			allartists = allartists.split("␟")
+			if len(set(a.lower() for a in allartists) & set(a.lower() for a in artists)) > 0:
+				artists = allartists
 		artists = list(set(artists))
 		artists.sort()
 

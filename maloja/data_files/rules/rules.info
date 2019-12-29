@@ -20,6 +20,9 @@ The first column defines the type of the rule:
 			Second column is artists that need to be already present for this rule to apply
 			Third column is the song title
 			Fourth column are artists that shoud be added, separated by ␟
+	fixartists	Similar as above, but simply specifies that if any of the given artists is present, all (and no others) should be present
+			Second column is correct artists
+			Third column is the song title
 	artistintitle	Defines title strings that imply the presence of another artist.
 			Second column is the string
 			Third column is the artist or artists
