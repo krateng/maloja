@@ -25,8 +25,7 @@ resources = [
 	"web/*",
 	"static/*/*",
 	"data_files/*/*",
-	"data_files/*/*/*",
-	"data_files/.doreah"
+	"data_files/*/*/*"
 ]
 
 commands = {

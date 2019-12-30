@@ -112,9 +112,9 @@
 
 						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
 							<!--<pyhp echo="htmlmodules.module_pulse(artist=artist,max_=range[4],since=range[2],step=range[3],trail=1)" />-->
-							<pyhp with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
-								<pyhp include="partial/pulse.pyhp" />
-							</pyhp>
+
+							<pyhp include="partial/pulse.pyhp" with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}" />
+
 						</span>
 
 					</pyhp>
@@ -133,9 +133,7 @@
 
 						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
 							<!--<pyhp echo="htmlmodules.module_performance(artist=credited,max_=range[4],since=range[2],step=range[3],trail=1)" />-->
-							<pyhp with="{'filterkeys':{'artist':credited},'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
-								<pyhp include="partial/performance.pyhp" />
-							</pyhp>
+							<pyhp include="partial/performance.pyhp" with="{'filterkeys':{'artist':credited},'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}" />
 						</span>
 
 					</pyhp>

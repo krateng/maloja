@@ -1,5 +1,5 @@
 <pyhp>
-	if amountkeys["max_"] is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
+	if amountkeys.get("max_") is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
 	firstindex = amountkeys["page"] * amountkeys["perpage"]
 	lastindex = firstindex + amountkeys["perpage"]
 
@@ -23,3 +23,9 @@
 		</tr>
 	</pyhp>
 </table>
+
+
+<pyhp if="amountkeys.get('max_') is None">
+	<pyhp include="pagination.pyhp" />
+<!--	<pyhp echo="htmlmodules.module_paginate(page=amountkeys['page'],pages=pages,perpage=amountkeys['perpage'],**_urikeys)" />-->
+</pyhp>

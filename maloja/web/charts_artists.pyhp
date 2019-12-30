@@ -36,7 +36,9 @@
 			</pyhp>
 		</span>
 
-		<pyhp echo="html_charts" />
+		<pyhp include="partial/charts_artists.pyhp" />
+
+		<pyhp include="common/footer.html" />
 
 	</body>
 </html>
