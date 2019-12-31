@@ -10,15 +10,21 @@
 	</head>
 
 	<pyhp>
-		# this is temporary! all modules need to be converted into partials at some point
-		html_charts, rep = htmlmodules.module_trackcharts(**amountkeys,**limitkeys)
+		try:
+			try:
+				img = utilities.getArtistImage(filterkeys['artist'])
+			except:
+				top = db.get_charts_tracks(**filterkeys,**limitkeys)[0]["track"]
+				img = utilities.getTrackImage(**top)
+		except:
+			img = ""
 	</pyhp>
 
 	<body>
 		<table class="top_info">
 			<tr>
 				<td class="image">
-					<div style="background-image:url('{utilities.getArtistImage(filterkeys.get('artist')) if filterkeys.get('artist') is not None else (utilities.getTrackImage(rep) if rep is not None else 0)}')"></div>
+					<div style="background-image:url('{img}')"></div>
 				</td>
 				<td class="text">
 					<h1>Track Charts</h1><a href="/top_tracks"><span>View #1 Tracks</span></a><br/>
@@ -35,8 +41,9 @@
 
 		<span class="stat_module_toptracks">
 			<pyhp if="settings('CHARTS_DISPLAY_TILES')">
-				<pyhp echo="htmlmodules.module_trackcharts_tiles(timerange=limitkeys['timerange'])" />
+				<pyhp include="partial/charts_tracks_tiles.pyhp" />
 			</pyhp>
+
 		</span>
 
 		<pyhp include="partial/charts_tracks.pyhp" />

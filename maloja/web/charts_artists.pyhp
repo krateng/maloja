@@ -10,15 +10,18 @@
 	</head>
 
 	<pyhp>
-		# this is temporary! all modules need to be converted into partials at some point
-		html_charts, rep = htmlmodules.module_artistcharts(**amountkeys,**limitkeys)
+		try:
+			top = db.get_charts_artists(**filterkeys,**limitkeys)[0]["artist"]
+			img = utilities.getArtistImage(top)
+		except:
+			img = ""
 	</pyhp>
 
 	<body>
 		<table class="top_info">
 			<tr>
 				<td class="image">
-					<div style="background-image:url('{utilities.getArtistImage(rep) if rep is not None else 0}')"></div>
+					<div style="background-image:url('{img}')"></div>
 				</td>
 				<td class="text">
 					<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
@@ -32,8 +35,9 @@
 
 		<span class="stat_module_topartists">
 			<pyhp if="settings('CHARTS_DISPLAY_TILES')">
-				<pyhp echo="htmlmodules.module_artistcharts_tiles(timerange=limitkeys['timerange'])" />
+				<pyhp include="partial/charts_artists_tiles.pyhp" />
 			</pyhp>
+
 		</span>
 
 		<pyhp include="partial/charts_artists.pyhp" />

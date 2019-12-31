@@ -1,0 +1,49 @@
+<pyhp>
+	num_levels = 3
+</pyhp>
+
+
+<pyhp import="math" />
+
+
+<pyhp save="db.get_charts_artists(**filterkeys,**limitkeys)" as="artists" />
+<pyhp save="iter(artists)" as="artists_iterator" />
+
+
+
+<table class="tiles_top">
+	<tr>
+		<pyhp for="level" in="range(1,num_levels+1)">
+			<td><table class="tiles_{level}x{level} tiles_sub">
+				<pyhp for="row" in="range(level)">
+					<tr>
+						<pyhp for="column" in="range(level)">
+							<pyhp>
+								try:
+									entry = next(artists_iterator)
+									artist = entry['artist']
+									rank = entry['rank']
+								except:
+									artist = None
+							</pyhp>
+							<pyhp if="artist is None">
+								<td><span class='stats'></span> <span></span></td>
+							</pyhp>
+							<pyhp if="artist is not None">
+								<td onclick='window.location.href="{htmlgenerators.link_address(artist)}"'
+									style='cursor:pointer;background-image:url("{utilities.getArtistImage(artist,fast=True)}");'>
+									<span class='stats'>
+										#<pyhp echo="rank" />
+									</span>
+									<span>
+										<pyhp echo="htmlgenerators.html_link(artist)" />
+									</span>
+								</td>
+							</pyhp>
+						</pyhp>
+					</tr>
+				</pyhp>
+			</table></td>
+		</pyhp>
+	</tr>
+</table>
