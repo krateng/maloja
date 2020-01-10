@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Summary</title>
+		<script src="/datechange.js" async></script>
+
+		<pyhp include="common/header.html" />
+	</head>
+
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Summary</h1><br/>
+					<span>
+						<pyhp echo="limitkeys['timerange'].desc(prefix=False)" />
+					</span>
+					<br/><br/>
+					<pyhp echo="htmlmodules.module_filterselection(_urikeys)" />
+
+				</td>
+			</tr>
+		</table>
+
+		<pyhp save="db.get_charts_artists(**filterkeys,**limitkeys)" as="artists" />
+		<pyhp save="db.get_charts_tracks(**filterkeys,**limitkeys)" as="tracks" />
+
+
+		<table class="twopart"><tr>
+			<pyhp for="type" in="(artists,tracks)">
+				<td>
+					<pyhp if="type is artists">
+						<h2><a href='/charts_artists'>Artists</a></h2>
+					</pyhp>
+					<pyhp if="type is tracks">
+						<h2><a href='/charts_tracks'>Tracks</a></h2>
+					</pyhp>
+				<pyhp for="r" in="range(min(3,len(type)))">
+					<pyhp>
+						entry = type[r]
+						isartist = type is artists
+						entity = entry["artist"] if isartist else entry["track"]
+						image = utilities.getArtistImage(entity,fast=True) if isartist else utilities.getTrackImage(entity['artists'],entity['title'],fast=True)
+						rank = entry["rank"]
+					</pyhp>
+
+
+
+					<div class="summary_rank summary_rank_{r+1}" onclick='window.location.href="{htmlgenerators.link_address(entity)}"'
+						style='cursor:pointer;background-image:url("{image}");'>
+
+					</div>
+					<!--
+					<span class='stats'>
+						#<pyhp echo="rank" />
+					</span>
+					<span>
+						<pyhp echo="htmlgenerators.html_link(entity)" />
+					</span>
+					-->
+
+				</pyhp>
+				</td>
+
+				<pyhp if="type is artists">
+					<pyhp include="partial/charts_artists.pyhp" with="{'max_':15}" />
+				</pyhp>
+				<pyhp if="type is tracks">
+					<pyhp include="partial/charts_tracks.pyhp" with="{'max_':15}" />
+				</pyhp>
+
+			</pyhp>
+		</tr></table>
+
+
+		<pyhp include="common/footer.html" />
+
+	</body>
+</html>

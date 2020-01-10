@@ -16,7 +16,7 @@ function search(searchfield) {
 
 function html_to_fragment(html) {
 	var template = document.createElement("template");
-	template.innerHTML = resulthtml;
+	template.innerHTML = html;
 	return template.content;
 }
 

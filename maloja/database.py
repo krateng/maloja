@@ -208,11 +208,13 @@ def getTrackID(artists,title):
 		TRACKS_NORMALIZED.append(obj_normalized)
 		return i
 
+import unicodedata
 
 # function to turn the name into a representation that can be easily compared, ignoring minor differences
 remove_symbols = ["'","`","’"]
 def normalize_name(name):
-	return "".join(char for char in name.lower() if char not in remove_symbols)
+	return "".join(char for char in unicodedata.normalize('NFD',name.lower())
+		if char not in remove_symbols and unicodedata.category(char) != 'Mn')
 
 
 
