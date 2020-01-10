@@ -104,9 +104,8 @@ def getInstanceSupervisor():
 def start():
 	setup()
 	try:
-		with open(datadir("logs/stderr.log"),"w") as logf:
-			p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=logf)
-			sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=logf)
+		p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+		sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 		print(col["green"]("Maloja started!") + " PID: " + str(p.pid))
 
 		from doreah import settings
