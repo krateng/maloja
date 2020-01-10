@@ -88,7 +88,6 @@ def mainpage():
 @webserver.error(505)
 def customerror(error):
 	code = int(str(error).split(",")[0][1:])
-	log("HTTP Error: " + str(code),module="error")
 
 	if os.path.exists(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp")):
 		return pyhpfile(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp"),{"errorcode":code})

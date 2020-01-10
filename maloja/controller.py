@@ -166,6 +166,7 @@ def backuphere():
 
 def update():
 	os.system("pip3 install malojaserver --upgrade --no-cache-dir")
+	restart()
 
 def fixdb():
 	from .fixexisting import fix

@@ -18,7 +18,6 @@ while True:
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
 		pid = int(output)
-		log("Maloja is running, PID " + str(pid),module="supervisor")
 	except:
 		log("Maloja is not running, restarting...",module="supervisor")
 		if get_settings("UPDATE_AFTER_CRASH"):
