@@ -63,7 +63,6 @@ if get_settings("SPOTIFY_API_ID") not in [None,"ASK"] and get_settings("SPOTIFY_
 def api_request_artist(artist):
 	for api in apis_artists:
 		if True:
-			log("API: " + api["name"] + "; Image request: " + artist,module="external")
 			try:
 				artiststring = urllib.parse.quote(artist)
 				var = artiststring
@@ -99,7 +98,6 @@ def api_request_track(track):
 	artists, title = track
 	for api in apis_tracks:
 		if True:
-			log("API: " + api["name"] + "; Image request: " + "/".join(artists) + " - " + title,module="external")
 			try:
 				artiststring = urllib.parse.quote(", ".join(artists))
 				titlestring = urllib.parse.quote(title)
