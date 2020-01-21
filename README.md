@@ -15,6 +15,13 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, simply install Maloja as described below, then manually copy all your user data to your `~/.local/share/maloja` folder.
 
+## Table of Contents
+* [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
+* [Requirements](#requirements)
+* [How to install](#how-to-install)
+* [How to use](#how-to-use)
+* [How to scrobble](#how-to-scrobble)
+
 ## Why not Last.fm / Libre.fm / GNU FM?
 
 Maloja is **self-hosted**. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can **follow your own tagging schema** or even **group associated artists together** in your charts.
