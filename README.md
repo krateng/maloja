@@ -9,18 +9,19 @@ Simple self-hosted music scrobble database to create personal listening statisti
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
 
-## **IMPORTANT NOTICE**
 
-**Update to Version 2**
-
-With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, simply install Maloja as described below, then manually copy all your user data to your `~/.local/share/maloja` folder.
+> **IMPORTANT**: With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, see [below](#update).
 
 ## Table of Contents
 * [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
-* [Requirements](#requirements)
 * [How to install](#how-to-install)
+	* [New Installation](#new-installation)
+	* [Update](#update)
 * [How to use](#how-to-use)
 * [How to scrobble](#how-to-scrobble)
+	* [Native API](#native-api)
+	* [Standard-compliant API](#standard-compliant-api)
+	* [Manual](#manual)
 
 ## Why not Last.fm / Libre.fm / GNU FM?
 
@@ -32,38 +33,41 @@ Maloja's database has one big advantage: It supports **multiple artists per trac
 
 Also neat: You can use your **custom artist or track images**.
 
-## Requirements
-
-* Python 3.5 or higher
-* If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/) (you need a project key, not a personal one). These are free of charge!
-
 ## How to install
 
-1) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary). I've provided a simple .sh file to get Maloja going on an Alpine or Ubuntu server / container.
+### New Installation
 
-2) Start the server with
+1) Make sure you have Python 3.5 or higher installed. You also need some basic packages that should be present on most systems, but I've provided simple shell scripts for Alpine and Ubuntu to get everything you need.
 
-		maloja start
+2) If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/) (you need a project key, not a personal one). These are free of charge!
 
-3) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+3) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary).
+
+4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+
+### Update
+
+* If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `~/.local/share/maloja` folder.
+* Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
 
 ## How to use
 
-1) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
+1) Start and stop the server with
+
+		maloja start
+		maloja stop
+		maloja restart
+
+
+2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
 
 		maloja import *filename*
 
 	to import the downloaded file into Maloja.
 
-2) You can interact with the server at any time with the commands
+3) Various folders have `.info` files with more information on how to use their associated features.
 
-		maloja stop
-		maloja restart
-		maloja start
-
-3) Update Maloja with `pip install malojaserver --upgrade --no-cache-dir`
-
-4) Various folders have `.info` files with more information on how to use their associated features.
+4) You can also have a look at the `settings.ini` file.
 
 5) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
 
