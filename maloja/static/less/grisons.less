@@ -1,0 +1,141 @@
+/**
+	COMMON STYLES FOR MALOJA, ALBULA AND POSSIBLY OTHERS
+**/
+
+
+@BASE_COLOR: #333337;
+@BASE_COLOR_DARK: #0a0a0a;
+@BASE_COLOR_LIGHT: #444447;
+
+@TEXT_COLOR: beige;
+@TEXT_COLOR_SELECTED: fadeout(@TEXT_COLOR,40%);
+@TEXT_COLOR_SECONDARY: #bbb;
+@TEXT_COLOR_TERTIARY: grey;
+@FOCUS_COLOR: yellow;
+
+@CONTROL_ELEMENT_BG_COLOR: rgba(0,255,255,0.1);
+@CONTROL_ELEMENT_FG_COLOR: rgba(103,85,0,0.7);
+@CONTROL_ELEMENT_FOCUS_COLOR: gold;
+
+@BUTTON_BG_COLOR: @TEXT_COLOR;
+@BUTTON_FOCUS_BG_COLOR: @FOCUS_COLOR;
+@BUTTON_FG_COLOR: @BASE_COLOR;
+@BUTTON_FOCUS_FG_COLOR: @BASE_COLOR;
+
+
+//@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+
+
+body {
+	background-color: @BASE_COLOR;
+	color: @TEXT_COLOR;
+	font-family:"Ubuntu";
+}
+
+/* TOP INFO TABLE */
+
+table.top_info td.image div {
+	margin-right:20px;
+	margin-bottom:20px;
+	background-size:cover;
+	background-position:center;
+	height:174px;
+	width:174px
+}
+
+table.top_info td.text {
+	vertical-align: top;
+}
+
+table.top_info td.text h1 {
+	display:inline;
+	padding-right:5px;
+}
+
+
+table.top_info td.text table.image_row td {
+	height:50px;
+	width:50px;
+	background-size:cover;
+	background-position:center;
+	background-repeat: no-repeat;
+	opacity:0.5;
+	filter: grayscale(80%);
+}
+table.top_info td.text table.image_row td:hover {
+	opacity:1;
+	filter: grayscale(0%);
+}
+
+
+
+
+/** SCROLLBAR **/
+
+::-webkit-scrollbar {
+  width: 8px;
+  cursor: pointer;
+}
+::-webkit-scrollbar-track {
+  background: grey;
+  background-color: @CONTROL_ELEMENT_BG_COLOR;
+}
+::-webkit-scrollbar-thumb {
+background-color: @CONTROL_ELEMENT_FG_COLOR;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: @CONTROL_ELEMENT_FOCUS_COLOR;
+}
+
+
+
+
+[onclick]:hover, a:hover {
+	cursor: pointer;
+}
+
+
+/** HOVERABLE LOAD/PROGRESS BAR **/
+
+
+div.grisons_bar {
+	background-color: @CONTROL_ELEMENT_BG_COLOR;
+}
+div.grisons_bar>div {
+	height:100%;
+	background-color: @CONTROL_ELEMENT_FG_COLOR;
+}
+div.grisons_bar:hover>div {
+	background-color: @CONTROL_ELEMENT_FOCUS_COLOR;
+}
+
+
+
+
+
+/** LINKS **/
+
+
+ a {
+ 	color:inherit;
+ 	text-decoration:none;
+ }
+
+// for links in running text
+ a.textlink {
+ 	color:@FOCUS_COLOR;
+ }
+ a.hidelink:hover {
+ 	text-decoration:none;
+ }
+
+ a:hover {
+ 	text-decoration:underline;
+ }
+
+
+
+
+.hide {
+	display:none;
+}

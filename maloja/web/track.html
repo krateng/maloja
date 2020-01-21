@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - KEY_TRACKTITLE</title>
+		<script src="/cookies.js" ></script>
+		<script src="/rangeselect.js"></script>
+	</head>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('KEY_IMAGEURL')"></div>
+				</td>
+				<td class="text">
+					<span>KEY_ARTISTS</span><br/>
+					<h1>KEY_TRACKTITLE</h1> KEY_CERTS <span class="rank"><a href="/charts_tracks">KEY_POSITION</a></span>
+
+					<p class="stats"><a href="/scrobbles?KEY_SCROBBLELINK">KEY_SCROBBLES Scrobbles</a></p>
+
+					<p class="desc"></p>
+					<span>KEY_MEDALS</span> <span>KEY_TOPWEEKS</span>
+				</td>
+			</tr>
+		</table>
+
+
+		<table class="twopart">
+			<tr>
+				<td>
+					<h2><a class="stat_link_pulse" href='/pulse?KEY_SCROBBLELINK&trail=1&step=month'>Pulse</a></h2>
+					<span onclick="showRangeManual('pulse','day')" class="stat_selector_pulse selector_pulse_day">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','week')" class="stat_selector_pulse selector_pulse_week">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','month')" class="stat_selector_pulse selector_pulse_month" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','year')" class="stat_selector_pulse selector_pulse_year">10 years</span>
+
+		      			<br/><br/>
+
+		      			<span class="stat_module_pulse pulse_month">KEY_PULSE_MONTHS</span>
+		      			<span class="stat_module_pulse pulse_day" style="display:none;">KEY_PULSE_DAYS</span>
+		      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PULSE_YEARS</span>
+		      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PULSE_WEEKS</span>
+				</td>
+				<td>
+					<h2><a class="stat_link_pulse" href='/performance?KEY_SCROBBLELINK&trail=1&step=month'>Performance</a></h2>
+					<span onclick="showRangeManual('pulse','day')" class="stat_selector_pulse selector_pulse_day">7 days</span>
+		      			| <span onclick="showRangeManual('pulse','week')" class="stat_selector_pulse selector_pulse_week">12 weeks</span>
+		      			| <span onclick="showRangeManual('pulse','month')" class="stat_selector_pulse selector_pulse_month" style="opacity:0.5;">12 months</span>
+		      			| <span onclick="showRangeManual('pulse','year')" class="stat_selector_pulse selector_pulse_year">10 years</span>
+
+		      			<br/><br/>
+
+		      			<span class="stat_module_pulse pulse_month">KEY_PERFORMANCE_MONTHS</span>
+		      			<span class="stat_module_pulse pulse_day" style="display:none;">KEY_PERFORMANCE_DAYS</span>
+		      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PERFORMANCE_YEARS</span>
+		      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PERFORMANCE_WEEKS</span>
+				</td>
+			</tr>
+		</table>
+
+
+		<h2><a href='/scrobbles?KEY_SCROBBLELINK'>Last Scrobbles</a></h2>
+		KEY_SCROBBLELIST
+
+
+
+	</body>
+</html>

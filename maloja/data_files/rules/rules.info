@@ -1,0 +1,44 @@
+This folder can have any number of tsv files to group your rules
+
+The first column defines the type of the rule:
+	notanartist	Defines strings that can appear behind "feat" in a song title, but denote additional information about the track instead of another artist.
+			Second column is the string
+	belongtogether	Defines an artist with an ampersand or other delimiter in their name. Otherwise, the artist string will be interpreted as two different artists (except when there are no spaces).
+			This artist will be accepted without further parsing. If you want to replace the spelling, you need a replaceartist entry instead
+			Second column is the full name of the artist
+	replacetitle	Defines an alternative spelling of a track title that should be replaced.
+			Second column is the 'wrong' spelling. Capitalization is ignored.
+			Third column the correct spelling
+	replaceartist	Defines and alternative spelling of an artist that should be replaced
+			Second column is the 'wrong' spelling. Capitalization is ignored.
+			Third column the correct spelling. Use ␟ if the spelling should correct to several artists
+	countas		Defines an artist that should be counted together with another artist for chart statistics etc.
+			This will not change the separation in the database and all effects of this rule will disappear as soon as it is no longer active.
+			Second column is the artist
+			Third column the replacement artist / grouping label
+	addartists	Defines a certain combination of artists and song title that should always have other artists added.
+			Second column is artists that need to be already present for this rule to apply
+			Third column is the song title
+			Fourth column are artists that shoud be added, separated by ␟
+	fixartists	Similar as above, but simply specifies that if any of the given artists is present, all (and no others) should be present
+			Second column is correct artists
+			Third column is the song title
+	artistintitle	Defines title strings that imply the presence of another artist.
+			Second column is the string
+			Third column is the artist or artists
+
+Rules in non-tsv files are ignored. '#' is used for comments. Additional columns are ignored. To have a '#' in a name, use '\num'
+Comments are not supported in scrobble lists, but you probably never edit these manually anyway.
+
+An example file could look like this:
+
+
+notanartist	In Dreams
+belongtogether	Darth & Vader
+belongtogether	AC/DC									# / and ; separate even when there are no spaces, so make sure to add artists with those symbols
+replacetitle	첫 사랑니 (Rum Pum Pum Pum)	Rum Pum Pum Pum
+replaceartist	Dal Shabet			Dal★Shabet
+replaceartist	Mr FijiWiji, AgNO3		Mr FijiWiji␟AgNO3			# one artist is replaced by two artists
+countas		Trouble Maker			HyunA
+addartists		HyunA				Change			Jun Hyung
+artistintitle	Areia Remix			Areia

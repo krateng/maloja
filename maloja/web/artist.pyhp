@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+
+	<!-- query keys -->
+	<pyhp save="filterkeys.get('artist')" as="artist" />
+	<!-- DB calls -->
+	<pyhp save="db.artistInfo(artist)" as="info" />
+	<!-- preprocessing -->
+	<pyhp save="info.get('replace')" as="credited" />
+	<pyhp save="info.get('associated')" as="included" />
+	<pyhp save="'#' + str(info.get('position'))" as="positionstring" />
+	<pyhp save="'month'" as="initialrange" />
+
+	<!-- includestring -->
+	<pyhp save="''" as="includestring" />
+	<pyhp if="credited is not None">
+		<pyhp save="'Competing under ' + htmlgenerators.artistLink(credited) + ' (' + positionstring + ')'" as="includestring" />
+		<pyhp save="''" as="positionstring" /> <!-- clear positionstring so it's not shown next to the artist -->
+	</pyhp>
+	<pyhp if="credited is None">
+		<pyhp save="artist" as="credited" />
+	</pyhp>
+
+	<pyhp if="included is not None and included != []">
+		<pyhp save="'associated: ' + htmlgenerators.artistLinks(included)" as="includestring" />
+	</pyhp>
+
+	<!-- url encode -->
+	<pyhp save="urihandler.compose_querystring(urihandler.internal_to_uri({'artist':artist}))" as="encodedartist" />
+	<pyhp save="urihandler.compose_querystring(urihandler.internal_to_uri({'artist':credited}))" as="encodedcredited" />
+
+
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - <pyhp echo="artist" /></title>
+
+		<pyhp include="common/header.html" />
+		<script src="/rangeselect.js"></script>
+	</head>
+
+	<body>
+
+
+
+
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<pyhp if="adminmode"><div class="changeable-image" data-uploader="b64=>upload('{encodedartist}','{apikey}',b64)" style="background-image:url('{utilities.getArtistImage(artist=artist,fast=True)}');"></div></pyhp>
+					<pyhp if="not adminmode"><div style="background-image:url('{utilities.getArtistImage(artist=artist,fast=True)}');"></div></pyhp>
+				</td>
+				<td class="text">
+					<h1><pyhp echo="artist" /></h1>
+						<span class="rank"><a href="/charts_artists?max=100"><pyhp echo="positionstring" /></a></span>
+						<br/>
+					<span><pyhp echo="includestring" /></span>
+					<p class="stats"><a href="/scrobbles?{encodedartist}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
+
+					<!-- MEDALS -->
+					<pyhp for="year" in="info['medals']['gold']"><a title="Best Artist in {year}" class="hidelink medal shiny gold" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+					<pyhp for="year" in="info['medals']['silver']"><a title="Second best Artist in {year}" class="hidelink medal shiny silver" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+					<pyhp for="year" in="info['medals']['bronze']"><a title="Third best Artist in {year}" class="hidelink medal shiny bronze" href='/charts_artists?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+
+					<!-- TOPWEEKS -->
+					<span><pyhp if="info.get('topweeks') not in [0,None]">
+						<a title="{str(info['topweeks'])} weeks on #1" href="/performance?{encodedartist}&step=week">
+							<img class="star" src="/media/star.png" /><pyhp echo="info['topweeks']" />
+						</a>
+					</pyhp></span>
+
+					<!-- CERTS -->
+					<pyhp for="track" in="db.get_tracks(artist=artist)"><pyhp save="db.trackInfo(track)" as="info" /><pyhp if="info.get('certification') is not None"><a href='{htmlgenerators.link_address(track)}'><img 	class="certrecord_small"
+										src="/media/record_{info['certification']}.png"
+										title="{track['title']} has reached {info['certification'].capitalize()} status"
+								/></a></pyhp></pyhp>
+
+
+				</td>
+			</tr>
+		</table>
+
+		<h2><a href='/charts_tracks?{encodedartist}'>Top Tracks</a></h2>
+
+		<pyhp echo="htmlmodules.module_trackcharts(**filterkeys,max_=15)[0]" />
+		<br/>
+
+		<table class="twopart">
+
+			<pyhp save="[
+				('day','7 days',malojatime.today().next(-6),'day',7),
+				('week','12 weeks',malojatime.thisweek().next(-11),'week',12),
+				('month','12 months',malojatime.thismonth().next(-11),'month',12),
+				('year','10 years',malojatime.thisyear().next(-9),'year',12)
+			]" as="ranges" />
+
+
+
+
+			<tr>
+				<td>
+					<h2><a href='/pulse?{encodedartist}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+
+					<pyhp for="range" in="ranges" separator = " | ">
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
+					</pyhp>
+
+		      			<br/><br/>
+
+					<pyhp for="range" in="ranges">
+
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<!--<pyhp echo="htmlmodules.module_pulse(artist=artist,max_=range[4],since=range[2],step=range[3],trail=1)" />-->
+
+							<pyhp include="partial/pulse.pyhp" with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}" />
+
+						</span>
+
+					</pyhp>
+				</td>
+				<td>
+					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
+					<h2><a href='/performance?{encodedcredited}&amp;step=year&amp;trail=1'>Performance</a></h2>
+
+					<pyhp for="range" in="ranges" separator = " | ">
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
+					</pyhp>
+
+		      			<br/><br/>
+
+					<pyhp for="range" in="ranges">
+
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<!--<pyhp echo="htmlmodules.module_performance(artist=credited,max_=range[4],since=range[2],step=range[3],trail=1)" />-->
+							<pyhp include="partial/performance.pyhp" with="{'filterkeys':{'artist':credited},'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}" />
+						</span>
+
+					</pyhp>
+				</td>
+			</tr>
+		</table>
+
+
+		<h2><a href='/scrobbles?{encodedartist}'>Last Scrobbles</a></h2>
+
+		<pyhp echo="htmlmodules.module_scrobblelist(**filterkeys,max_=10,earlystop=True)[0]" />
+
+		<pyhp include="common/footer.html" />
+	</body>
+</html>

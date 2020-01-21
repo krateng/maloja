@@ -1,0 +1,70 @@
+
+<pyhp>
+	if amountkeys.get("max_") is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
+	firstindex = amountkeys["page"] * amountkeys["perpage"]
+	lastindex = firstindex + amountkeys["perpage"]
+</pyhp>
+
+<pyhp import="math" />
+
+<pyhp save="db.get_charts_tracks(**filterkeys,**limitkeys)" as="tracks" />
+<pyhp save="math.ceil(len(tracks) / amountkeys['perpage'])" as="pages" />
+
+
+<pyhp>
+	try:
+		trackslast = db.get_charts_tracks(**kwargs_filter,timerange=kwargs_time["timerange"].next(step=-1))
+		# create rank association
+		lastrank = {}
+		for tl in trackslast:
+			lastrank[(*tl["track"]["artists"],tl["track"]["title"])] = tl["rank"]
+		for t in tracks:
+			try:
+				t["delta"] = lastrank[(*t["track"]["artists"],t["track"]["title"])] - t["rank"]
+			except:
+				t["delta"] = math.inf
+	except:
+		pass
+</pyhp>
+
+
+<pyhp save="tracks[0]['scrobbles'] if tracks != [] else 0" as="maxbar" />
+
+<table class='list'>
+	<pyhp save="True" as="first" />
+	<pyhp for="e" in="tracks[firstindex:lastindex]">
+		<tr>
+			<!-- Rank -->
+			<td class="rank"><pyhp if="first or e['scrobbles'] < prev['scrobbles']">#<pyhp echo="e['rank']"/></pyhp></td>
+			<pyhp save="False" as="first" />
+			<!-- Rank change -->
+			<pyhp if="e.get('delta') is not None">
+				<pyhp if="e.get('delta') is math.inf">
+					<td class='rankup' title='New'>🆕</td>
+				</pyhp>
+				<pyhp if="e.get('delta') > 0 and e.get('delta') is not math.inf">
+					<td class='rankup' title="up from #{e['rank']+e['delta']}">↗</td>
+				</pyhp>
+				<pyhp if="e.get('delta') < 0">
+					<td class='rankdown' title="down from #{e['rank']+e['delta']}">↘</td>
+				</pyhp>
+				<pyhp if="e.get('delta') == 0">
+					<td class='ranksame' title="Unchanged">➡</td>
+				</pyhp>
+			</pyhp>
+
+			<!-- artist -->
+			<pyhp echo="htmlgenerators.entity_column(e['track'])" />
+
+			<!-- scrobbles -->
+			<td class="amount"><pyhp echo="htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles'])" /></td>
+			<td class="bar"><pyhp echo="htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar)" /></td>
+		</tr>
+		<pyhp save="e" as="prev" />
+	</pyhp>
+</table>
+
+
+<pyhp if="amountkeys.get('max_') is None">
+	<pyhp include="pagination.pyhp" />
+</pyhp>

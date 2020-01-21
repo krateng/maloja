@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja</title>
+
+		<script>document.addEventListener('DOMContentLoaded',function() {
+			KEY_JS_INIT_RANGES
+		})</script>
+		<script src="/cookies.js"></script>
+		<script src="/rangeselect.js"></script>
+	</head>
+
+
+
+	<body>
+
+		<!--<div class="header"><h1>Maloja</h1>
+   		</div>-->
+
+
+		<h1><a class="stat_link_topartists" href="/charts_artists?in=alltime">Top Artists</a></h1>
+		<!--All Time | This Year | This Month | This Week-->
+
+
+
+		<span onclick="showRangeManual('topartists','week')" class="stat_selector_topartists selector_topartists_week">This Week</span>
+      			| <span onclick="showRangeManual('topartists','month')" class="stat_selector_topartists selector_topartists_month">This Month</span>
+      			| <span onclick="showRangeManual('topartists','year')" class="stat_selector_topartists selector_topartists_year">This Year</span>
+      			| <span onclick="showRangeManual('topartists','alltime')" class="stat_selector_topartists selector_topartists_alltime" style="opacity:0.5;">All Time</span>
+
+		<br/><br/>
+
+		<span class="stat_module_topartists topartists_week" style="display:none;">KEY_TOPARTISTS_WEEK</span>
+      		<span class="stat_module_topartists topartists_month" style="display:none;">KEY_TOPARTISTS_MONTH</span>
+      		<span class="stat_module_topartists topartists_year" style="display:none;">KEY_TOPARTISTS_YEAR</span>
+      		<span class="stat_module_topartists topartists_alltime">KEY_TOPARTISTS_TOTAL</span>
+
+
+
+
+		<h1><a class="stat_link_toptracks" href="/charts_tracks?in=alltime">Top Tracks</a></h1>
+
+
+		<span onclick="showRangeManual('toptracks','week')" class="stat_selector_toptracks selector_toptracks_week">This Week</span>
+      			| <span onclick="showRangeManual('toptracks','month')" class="stat_selector_toptracks selector_toptracks_month">This Month</span>
+      			| <span onclick="showRangeManual('toptracks','year')" class="stat_selector_toptracks selector_toptracks_year">This Year</span>
+      			| <span onclick="showRangeManual('toptracks','alltime')" class="stat_selector_toptracks selector_toptracks_alltime" style="opacity:0.5;">All Time</span>
+
+		<br/><br/>
+
+		<span class="stat_module_toptracks toptracks_week" style="display:none;">KEY_TOPTRACKS_WEEK</span>
+      		<span class="stat_module_toptracks toptracks_month" style="display:none;">KEY_TOPTRACKS_MONTH</span>
+      		<span class="stat_module_toptracks toptracks_year" style="display:none;">KEY_TOPTRACKS_YEAR</span>
+      		<span class="stat_module_toptracks toptracks_alltime">KEY_TOPTRACKS_TOTAL</span>
+
+
+
+
+
+
+		<div class="sidelist">
+      			<h1><a href="/scrobbles">Last Scrobbles</a></h1>
+      			<span class="stats">Today</span> KEY_SCROBBLE_NUM_TODAY
+			<span class="stats">This Week</span> KEY_SCROBBLE_NUM_WEEK
+      			<span class="stats">This Month</span> KEY_SCROBBLE_NUM_MONTH
+      			<span class="stats">This Year</span> KEY_SCROBBLE_NUM_YEAR
+      			<span class="stats">All Time</span> KEY_SCROBBLE_NUM_TOTAL
+      			<br/><br/>
+
+      			<span class="stat_module">KEY_SCROBBLES</span>
+
+
+      			<br/>
+
+
+      			<h1><a class="stat_link_pulse" href="/pulse?trail=1&step=month">Pulse</a></h1>
+      			<!--
+      			<a href="/pulse?step=day&trail=1">Days</a>
+      			<a href="/pulse?step=week&trail=1">Weeks</a>
+      			<a href="/pulse?step=month&trail=1">Months</a>
+      			<a href="/pulse?step=year&trail=1">Years</a>
+      			-->
+
+      			<span onclick="showRangeManual('pulse','day')" class="stat_selector_pulse selector_pulse_day">7 days</span>
+      			| <span onclick="showRangeManual('pulse','week')" class="stat_selector_pulse selector_pulse_week">12 weeks</span>
+      			| <span onclick="showRangeManual('pulse','month')" class="stat_selector_pulse selector_pulse_month" style="opacity:0.5;">12 months</span>
+      			| <span onclick="showRangeManual('pulse','year')" class="stat_selector_pulse selector_pulse_year">10 years</span>
+      			<!--
+      			### this is for extra views of the current canonical week / month / year
+      			<br/>
+      			<span onclick="showRange('pulse','week')" class="stat_selector_pulse selector_pulse_week">This Week</span>
+      			| <span onclick="showRange('pulse','month')" class="stat_selector_pulse selector_pulse_month">This Month</span>
+      			| <span onclick="showRange('pulse','year')" class="stat_selector_pulse selector_pulse_year"">This Year</span>
+      			-->
+      			<br/><br/>
+
+      			<span class="stat_module_pulse pulse_month">KEY_PULSE_MONTHS</span>
+      			<span class="stat_module_pulse pulse_day" style="display:none;">KEY_PULSE_DAYS</span>
+      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PULSE_YEARS</span>
+      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PULSE_WEEKS</span>
+      			<!--
+      			<span class="stat_module_pulse pulse_week" style="display:none;">KEY_PULSE_WEEK</span>
+      			<span class="stat_module_pulse pulse_month" style="display:none;">KEY_PULSE_MONTH</span>
+      			<span class="stat_module_pulse pulse_year" style="display:none;">KEY_PULSE_YEAR</span>
+      			-->
+   		</div>
+
+
+
+	</body>
+
+</html>

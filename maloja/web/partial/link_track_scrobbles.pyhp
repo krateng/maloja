@@ -1,0 +1,8 @@
+<a href='/scrobbles?{uri_query(track)}&{compose_querystring(timekeys)}'>
+	<pyhp if="amount is not None">
+		<pyhp echo="amount" />
+	</pyhp>
+	<pyhp if="amount is None">
+		<div style='width:{percent}%;'></div>
+	</pyhp>
+</a>

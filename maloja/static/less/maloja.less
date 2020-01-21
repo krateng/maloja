@@ -1,0 +1,776 @@
+body {
+	padding:15px;
+	padding-bottom:35px;
+	/**
+	padding-top:45px;
+	padding-bottom:25px;
+	**/
+/*
+	font-size:1.65vh;
+*/
+}
+
+
+
+input[type="date"] {
+	background-color:inherit;
+	color:inherit;
+	outline: none;
+	border:0px;
+	font-family: inherit;
+	font-size: inherit;
+
+}
+
+
+
+
+/**
+Header (unused)
+**/
+
+/**
+div.header {
+	position:fixed;
+	height:45px;
+	width:100%;
+	background-color:rgba(255,215,0,1);
+	top:0px;
+	left:0px;
+	padding:10px;
+	opacity:1;
+
+	color:black;
+
+	z-index:5;
+}
+
+div.header h1 {
+	margin:5px;
+}
+**/
+
+
+/**
+ settings icon
+**/
+
+div#settingsicon {
+	position:fixed;
+	right:30px;
+	top:30px;
+	fill:@TEXT_COLOR;
+}
+div#settingsicon:hover {
+	fill:@FOCUS_COLOR;
+}
+
+
+/**
+Footer
+**/
+
+div.footer {
+	position:fixed;
+	height:20px;
+	/**width:100%;**/
+	background-color:@BASE_COLOR_DARK;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	padding:10px;
+	opacity:1;
+}
+
+div.footer div:nth-child(1) {
+	display:inline-block;
+	width:40%;
+	text-align:left;
+}
+div.footer div:nth-child(2) {
+	display:inline-block;
+	width:19%;
+	text-align:center;
+	color:gold;
+	font-size:110%;
+}
+div.footer div:nth-child(3) {
+	display:inline-block;
+	width:40%;
+	text-align:right;
+}
+
+div.footer span a {
+	padding-left:20px;
+	background-repeat:no-repeat;
+	background-size:contain;
+	background-position:left;
+	background-image:url("https://github.com/favicon.ico");
+}
+
+div.footer input {
+	background-color:inherit;
+	border:0px;
+	border-bottom:1px solid beige;
+	color:beige;
+	font-size:90%;
+	width:70%;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:2px;
+	padding-bottom:2px;
+	font-family:"Ubuntu";
+}
+
+div.footer input:focus {
+	outline:none;
+	/**background-color:rgba(245,245,220,0.05);**/
+
+}
+
+div.searchresults {
+	position:fixed;
+	bottom:50px;
+	right:20px;
+	width:500px;
+	background-color:rgba(10,10,10,0.99);
+	padding:15px;
+}
+
+div.searchresults>span {
+	font-size:20px;
+	font-weight:bold;
+}
+
+div.searchresults table {
+	width:100%;
+	border-spacing:0px 4px;
+}
+
+div.searchresults tr {
+	background-color:rgba(5,5,5,1);
+	margin-top:5px;
+	margin-bottom:5px;
+	height:50px;
+	cursor:pointer;
+
+}
+div.searchresults tr:hover {
+	background-color:rgba(35,35,35,1);
+}
+
+div.searchresults tr td.image {
+	height:50px;
+	width:50px;
+	background-size:cover;
+	background-position:center;
+}
+
+div.searchresults tr td:nth-child(2) {
+	padding-left:10px;
+}
+
+div.searchresults table.searchresults_tracks td span:nth-child(1) {
+	font-size:12px;
+	color:grey;
+
+}
+
+
+@media (max-width: 1000px) {
+
+	div.footer {
+		position:fixed;
+		/*height:30px;*/
+		/**width:100%;**/
+		background-color:@BASE_COLOR_DARK;
+		bottom:0px;
+		left:0px;
+		right:0px;
+		padding:3px;
+		opacity:1;
+	}
+
+	div.footer div:nth-child(1) {
+		display:none;
+	}
+	div.footer div:nth-child(2) {
+		display:inline-block;
+		width:20%;
+		text-align:center;
+		color:gold;
+	}
+	div.footer div:nth-child(3) {
+		display:inline-block;
+		width:70%;
+		text-align:right;
+	}
+
+	div.footer input {
+
+		width:90%;
+	}
+
+
+}
+
+
+
+
+p.desc a {
+	padding-left:20px;
+	background-repeat:no-repeat;
+	background-size:contain;
+	background-position:left;
+	background-image:url("https://www.last.fm/static/images/lastfm_avatar_twitter.66cd2c48ce03.png");
+}
+
+table.top_info + .stat_module_topartists table,
+table.top_info + .stat_module_toptracks table {
+	margin:15px 0;
+}
+
+/*
+**
+**
+** SPECIAL TEXT BITS
+**
+**
+*/
+
+
+.paginate {
+	text-align: center;
+	padding:30px;
+}
+
+
+
+.stats {
+	color:@TEXT_COLOR_TERTIARY;
+}
+.rank {
+	text-align:right;
+	color:@TEXT_COLOR_TERTIARY;
+}
+.extra {
+	color:@TEXT_COLOR_TERTIARY;
+	font-size:80%;
+}
+
+
+input#apikey {
+	font-family:'Ubuntu';
+	outline:none;
+	border: 0px solid;
+	padding:2px;
+}
+
+input.simpleinput {
+	font-family:'Ubuntu';
+	color:@TEXT_COLOR;
+	outline:none;
+	border-top: 0px solid;
+	border-left: 0px solid;
+	border-right: 0px solid;
+	padding:2px;
+	background-color:inherit;
+	border-bottom: 1px solid @TEXT_COLOR;
+}
+
+
+a {
+	cursor:pointer;
+}
+
+
+
+span.stat_selector_pulse,span.stat_selector_topartists,span.stat_selector_toptracks {
+	cursor:pointer;
+}
+
+
+/* SHINY*/
+.medal {
+	top:5px;
+	font-size:80%;
+	padding:3px;
+	margin:2px;
+	border-radius:2px;
+}
+.shiny {
+	overflow: hidden;
+	position:relative;
+	display: inline-block;
+}
+
+.shiny:after {
+  content: "";
+  position: absolute;
+  top: -110%;
+  left: -210%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
+
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+}
+.shiny:hover:after {
+  opacity: 1;
+  top: -30%;
+  left: -30%;
+  transition-property: left, top, opacity;
+  transition-duration: 0.7s, 0.7s, 0.15s;
+  transition-timing-function: ease;
+}
+.shiny:active:after {
+  opacity: 0;
+}
+
+
+a.gold {
+	background-color:gold;
+	color:black;
+}
+a.silver {
+	background-color:silver;
+	color:black;
+}
+a.bronze {
+	background-color:#cd7f32;
+	color:black;
+}
+
+
+
+img.certrecord {
+	height:30px;
+	vertical-align: text-bottom;
+}
+img.certrecord_small {
+	height:20px;
+	vertical-align: text-bottom;
+}
+
+img.star {
+	height:20px;
+	vertical-align: text-bottom;
+}
+
+
+
+
+.button {
+	padding:3px;
+	padding-right:6px;
+	padding-left:6px;
+	background-color:@BUTTON_BG_COLOR;
+	color:@BUTTON_FG_COLOR;
+	cursor:pointer;
+}
+.button:hover {
+	background-color:@BUTTON_FOCUS_BG_COLOR;
+	color:@BUTTON_FOCUS_FG_COLOR;
+}
+.button.locked {
+	background-color:grey;
+	color:black;
+	cursor:not-allowed;
+}
+
+
+
+/*
+**
+**
+** LISTS
+**
+**
+*/
+
+table.twopart {
+	width:100%;
+}
+table.twopart>tbody>tr>td {
+	width:50%;
+}
+
+
+
+
+table.list {
+	border-collapse:collapse;
+
+}
+
+table.list tr td {
+	border-bottom:2px solid;
+	border-color:rgba(0,0,0,0);
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	padding-right:15px;
+	/*line-height: 140%;*/
+
+}
+
+table.list tr:nth-child(even) {
+	background-color:#37373B;
+}
+
+table.list tr:nth-child(5n) td {
+	border-color:rgba(120,120,120,0.2);
+
+}
+
+table.list tr:hover {
+	background-color:#404044;
+}
+
+table.list td.time {
+	width:11%;
+	color:@TEXT_COLOR_TERTIARY;
+}
+
+
+table.list tr td.rank {
+	padding-right: 4px;
+
+}
+
+table.list tr td.rankup {
+	color:green;
+	padding-right: 8px;
+	font-size: 80%;
+}
+table.list tr td.rankdown {
+	color:red;
+	padding-right: 8px;
+	font-size: 80%;
+}
+table.list tr td.ranksame {
+	color:grey;
+	padding-right: 8px;
+	font-size: 80%;
+}
+
+
+table.list tr td.icon {
+	padding:0px;
+	padding-right:5px;
+	width:20px;
+}
+
+table.list td.icon div {
+	width:20px;
+	height:20px;
+	background-size:cover;
+	background-position:center;
+}
+
+table.list td.artists,td.artist,td.title,td.track {
+	min-width:100px;
+
+
+}
+
+table.list td.track span.artist_in_trackcolumn {
+	color:@TEXT_COLOR_SECONDARY;
+}
+
+table.list td.track a.trackProviderSearch {
+	margin-right: 5px;
+	padding: 0 10px;
+}
+
+
+
+/*
+table td.artists div {
+	overflow:hidden;
+	z-index:1;
+	position:relative;
+}
+
+table tr td.artists div span {
+	//text-overflow:ellipsis;
+	z-index:-2;
+	position:relative;
+	white-space:nowrap;
+
+}
+table tr:hover td.artists div span {
+	animation: bounce 3s linear infinite alternate;
+}
+@keyframes bounce {
+	0% {
+
+	}
+	100% {
+		//transform: translateX(-60px);
+		//margin-left:-60px;
+		margin-left:-100%;
+	}
+}
+
+**/
+
+table.list td.amount {
+	width:50px;
+	text-align:right;
+}
+table.list td.bar {
+	width:500px;
+	background-color:@BASE_COLOR;
+	/* Remove 5er separators for bars */
+	/*border-color:rgba(0,0,0,0)!important;*/
+}
+table.list td.bar div {
+	background-color:@TEXT_COLOR;
+	height:20px; /* can only do this absolute apparently */
+	position:relative;
+	display:inline-block;
+	margin-bottom:-3px;
+}
+table.list tr:hover td.bar div {
+	background-color:@FOCUS_COLOR;
+	cursor:pointer;
+}
+
+table.list td.chart {
+	width:500px;
+	background-color:@BASE_COLOR;
+	/* Remove 5er separators for bars */
+	/*border-color:rgba(0,0,0,0)!important;*/
+}
+table.list td.chart div {
+	/*background-color:beige;
+	height:4px;
+	*/
+	height:20px;
+	background-color: rgba(0,0,0,0.1);
+	border-radius: 0px 30px 30px 0px;
+	background-image:url("/media/chartpos_normal.png");
+	background-position: right;
+	background-repeat:no-repeat;
+	background-size: auto 100%;
+	position:relative;
+
+
+}
+table.list tr:hover td.chart div {
+	cursor:pointer;
+}
+
+table.list tr td.chart div.gold {
+	/*background-color:gold;*/
+	background-image:url("/media/chartpos_gold.png");
+}
+table.list tr td.chart div.silver {
+	/*background-color:silver;*/
+	background-image:url("/media/chartpos_silver.png");
+}
+table.list tr td.chart div.bronze {
+	/*background-color:#cd7f32;*/
+	background-image:url("/media/chartpos_bronze.png");
+}
+
+
+
+table.list tr td.button {
+	width:200px;
+	cursor:pointer;
+	border-color:rgba(0,0,0,0)!important;
+}
+
+
+table.list td.button div {
+	background-color:@BUTTON_BG_COLOR;
+	color:@BUTTON_FG_COLOR;
+	padding:3px;
+	border-radius:4px;
+}
+table.list td.button div:hover {
+	background-color:@BUTTON_FOCUS_BG_COLOR;
+	color:@BUTTON_FOCUS_FG_COLOR;
+	padding:3px;
+	border-radius:4px;
+}
+
+td.button.important div {
+	background-color:red;
+	color:white;
+}
+
+
+table.misc {
+	margin-left:20px;
+}
+
+table.misc td {
+		padding-right:20px;
+		color:#bbbbaa;
+	}
+
+	table.misc th {
+		text-align: left;
+	}
+	table.misc td.interaction {
+		width:65px;
+	}
+
+
+
+/*
+**
+**
+** IMAGE TILES
+**
+**
+*/
+
+
+
+
+
+
+
+table.tiles_top td {
+	padding:0px;
+	border:0px;
+}
+
+table.tiles_top:hover td td {
+	opacity:0.5;
+	filter: grayscale(80%);
+}
+table.tiles_top:hover td td:hover {
+	opacity:1;
+	filter: grayscale(0%);
+}
+
+table.tiles_top, table.tiles_sub {
+	border-collapse: collapse;
+}
+
+
+
+table.tiles_top>tbody>tr>td {
+	height:300px;
+	width:300px;
+}
+
+table.tiles_sub {
+	height:100%;
+	width:100%;
+}
+
+table.tiles_top td {
+	background-size:cover;
+	background-position:center;
+	vertical-align:bottom;
+}
+
+table.tiles_top td span {
+	background-color:rgba(0,0,0,0.7);
+}
+
+table.tiles_1x1 td {
+	height:100%;
+	width:100%;
+	font-size:100%
+}
+table.tiles_2x2 td {
+	height:50%;
+	width:50%;
+	font-size:90%
+}
+table.tiles_3x3 td {
+	height:33.333%;
+	width:33.333%;
+	font-size:70%
+}
+table.tiles_4x4 td {
+	font-size:50%
+}
+table.tiles_5x5 td {
+	font-size:40%
+}
+
+
+.summary_rank {
+	background-size:cover;
+	background-position:center;
+	display: inline-block;
+}
+
+.summary_rank_1 {
+	width:300px;
+	height:300px;
+	border: 6px solid gold;
+}
+.summary_rank_2 {
+	width:250px;
+	height:250px;
+	border: 4px solid silver;
+}
+.summary_rank_3 {
+	width:240px;
+	height:240px;
+	border: 3px solid #cd7f32;
+}
+
+
+
+
+/*
+**
+**
+** Pulse / performance thingies
+**
+**
+*/
+
+span.stat_module_pulse, span.stat_module_topartists, span.stat_module_toptracks {
+	display: inline-block;
+	vertical-align: top;
+}
+
+/*
+**
+**
+** SIDE LIST ON START PAGE
+**
+**
+*/
+
+
+@media (min-width: 1600px) {
+div.sidelist {
+	position:absolute;
+	right:0px;
+	top:0px;
+	width:40%;
+	height:100%;
+	background-color:#444447;
+	padding-left:30px;
+	padding-right:30px;
+}
+}
+
+div.sidelist table {
+	width:100%;
+	table-layout:fixed;
+}
+
+div.sidelist table.list td.time {
+	width:17%;
+}

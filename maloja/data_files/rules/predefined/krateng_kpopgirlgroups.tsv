@@ -1,0 +1,163 @@
+# NAME: K-Pop Girl Groups
+# DESC: Fixes various different spellings, romanizes artist names and track titles and includes subgroups for some K-Pop Girl Groups
+
+# HyunA & 4Minute
+replaceartist	Kim Hyun-a				HyunA
+replaceartist	현아					HyunA
+replacetitle	빨개요					Red
+replacetitle	RED					Red
+replacetitle	Bubble Pop				Bubble Pop!
+replacetitle	Do it					Do It!
+replacetitle	How's This				How's This?
+replacetitle	How's this				How's This?
+replaceartist	HyunA(현아)				HyunA
+replacetitle	Cause I'm God Girl			Roll Deep
+#countas	HyunA					4Minute		# HyunA is too famous
+countas		2Yoon					4Minute
+replaceartist	4minute					4Minute
+replacetitle	미쳐					Crazy
+addartists		HyunA					Change		Jun Hyung
+
+# BLACKPINK
+countas		Jennie					BLACKPINK
+replacetitle	AS IF IT'S YOUR LAST			As If It's Your Last
+replacetitle	BOOMBAYAH				Boombayah
+replacetitle	WHISTLE					Whistle
+replacetitle	DDU-DU DDU-DU				Ddu-Du Ddu-Du
+replacetitle	PLAYING WITH FIRE			Playing with Fire
+replaceartist	BLΛƆKPIИK				BLACKPINK
+replaceartist	Jennie Kim				Jennie
+
+# Dal Shabet
+replaceartist	Dal Shabet				Dal★Shabet
+replaceartist	Dal shabet				Dal★Shabet
+replaceartist	Dalshabet				Dal★Shabet
+replaceartist	Dalshabet(달샤벳)			Dal★Shabet
+replaceartist	달샤벳(Dal★shabet) (Dalshabet)		Dal★Shabet
+replacetitle	JOKER (Inst.)				Joker (Instrumental)
+replacetitle	JOKER (Instrumental)			Joker (Instrumental)
+replacetitle	Joker (inst.)				Joker (Instrumental)
+replacetitle	Someone like U				Someone Like U
+replacetitle	Be Ambitious(내 다리를 봐)		Be Ambitious
+
+# f(x)
+replacetitle	When I’m Alone				When I'm Alone
+replacetitle	첫 사랑니 (Rum Pum Pum Pum)		Rum Pum Pum Pum
+replacetitle	종이 심장 (Paper Heart)			Paper Heart
+replacetitle	나비 (Butterfly)			Butterfly
+replacetitle	Déjà vu					Déjà Vu
+replacetitle	라차타 (LA chA TA)			LA chA TA
+replacetitle	여우 같은 내 친구 (No More)		No More
+replacetitle	시그널 (Signal)				Signal
+replacetitle	미행 (그림자 : Shadow)			Shadow
+
+# Stellar
+replaceartist	STELLAR					Stellar
+replaceartist	스텔라 Stellar				Stellar
+replaceartist	스텔라(Stellar) (Stellar)		Stellar
+replacetitle	찔려 Sting				Sting
+
+# Red Velvet
+countas		Seulgi					Red Velvet
+countas		Joy						Red Velvet
+replacetitle	러시안 룰렛 Russian Roulette		Russian Roulette
+replacetitle	피카부 Peek-a-Boo			Peek-A-Boo
+replacetitle	빨간 맛 Red Flavor			Red Flavor
+replacetitle	행복 (Happiness)			Happiness
+replacetitle	봐 Look					Look
+replacetitle	RBB (Really Bad Boy)			Really Bad Boy
+replacetitle	7월 7일 One Of These Nights		One Of These Nights
+
+# EXID
+countas		Dasoni					EXID
+countas		Junghwa					EXID
+countas		Hani					EXID
+countas		LE					EXID
+replacetitle	HOT PINK				Hot Pink
+replacetitle	AH YEAH					Ah Yeah
+replacetitle	WHOZ THAT GIRL				Whoz that girl
+replaceartist	Jeonghwa				Junghwa
+
+# TWICE
+replacetitle	CHEER UP				Cheer Up
+replacetitle	OOH-AHH하게 Like OOH-AHH		Like Ooh-Ahh
+replacetitle	OOH-AHH					Like Ooh-Ahh
+replacetitle	LIKEY					Likey
+countas			Tzuyu					TWICE
+countas			Momo					TWICE
+
+# AOA
+countas		AOA Black	AOA
+countas		AOA White	AOA
+countas		AOA Cream	AOA
+replaceartist	Ace of Angels				AOA
+replacetitle	사뿐사뿐 (Like a Cat)			Like a Cat
+replacetitle	Like A Cat (Japanese Version)		Like a Cat (Japanese Version)
+replacetitle	MOYA (inst)				Moya (instrumental)
+replacetitle	MOYA (instrumental)			Moya (instrumental)
+replacetitle	MOYA					Moya
+
+# Girl's Day
+replaceartist	Girl's Day(걸스데이)			Girl's Day
+replacetitle	DON'T FOR GET ME(나를 잊지마요)		Don't forget me
+replacetitle	Expect(기대해)				Expect
+replacetitle	EXPECT					Expect
+replacetitle	I'll be yours				I'll Be Yours
+replacetitle	FEMALE PRESIDENT(여자 대통령)		Female President
+replacetitle	여자 대통령				Female President
+
+# Mamamoo
+countas		Hwasa					Mamamoo
+countas		Moonbyul				Mamamoo
+replaceartist	Moon Byul			Moonbyul
+replaceartist	Hwa Sa					Hwasa
+replaceartist	MAMAMOO					Mamamoo
+replacetitle	Egotistic(너나 해)			Egotistic
+replacetitle	Mr.Ambiguous				Mr. Ambiguous
+replacetitle	Mr.애매모호 (Mr. Ambiguous)		Mr. Ambiguous
+replacetitle	AHH OOP! (아훕!) (AHH OOP!)		AHH OOP!
+replacetitle	음오아예 (Um Oh Ah Yeh) (Um Oh Ah Yeh)	Um Oh Ah Yeh
+replacetitle	따끔 (a little bit)			A Little Bit
+
+# Hello Venus
+replaceartist	HELLOVENUS				Hello Venus
+replaceartist	Hello/Venus				Hello Venus
+
+# BESTie
+replaceartist	BESTie(베스티)				BESTie
+replaceartist	BESTie(베스티 (BESTie))			BESTie
+
+# LABOUM
+replacetitle	PYONG PYONG (Shooting Love)		PYONG PYONG
+replacetitle	PYONG PYONG (Shooting Love) (inst)	PYONG PYONG (instrumental)
+
+# Bambino
+replaceartist	밤비노 (Bambino)			Bambino
+
+# Laysha
+replaceartist	LAYSHA					Laysha
+replacetitle	chocolate cream				Chocolate Cream
+
+# GFriend
+replaceartist	여자친구 GFriend			GFriend
+
+# Girl's Generation
+replaceartist	소녀시대				Girls' Generation
+
+# Apink
+replaceartist	A Pink					Apink
+replaceartist	A pink					Apink
+
+# Chungha & IOI
+replaceartist	CHUNG HA				Chungha
+replaceartist	청하 CHUNGHA				Chungha
+#countas	Chungha					I.O.I		# Chungha is too famous
+replacetitle	벌써 12시 Gotta Go			Gotta Go
+
+# ITZY
+replacetitle	달라달라 (DALLA DALLA)			Dalla Dalla
+
+
+# Popular Remixes
+artistintitle	Areia Remix				Areia
+artistintitle	Areia Kpop				Areia

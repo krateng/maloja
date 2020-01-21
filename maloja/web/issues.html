@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Issues</title>
+		<script src="/cookies.js"></script>
+	</head>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Possible Issues</h1><br/>
+					<span>with your library</span>
+					<p class="stats">KEY_ISSUES Issues</p>
+
+					<p>Maloja can identify possible problems with consistency or redundancy in your library. After making any changes, you should <a class="textlink" onclick='fullrebuild()'>rebuild your library</a>.<br/>
+					Your API key is required to make any changes to the server: <input id='apikey' onchange='checkAPIkey()' style='width:300px;'/></p>
+				</td>
+			</tr>
+		</table>
+
+		KEY_ISSUESLIST
+
+	</body>
+
+	<script>
+
+
+		function newrule() {
+			if (apikeycorrect) {
+				keys = ""
+				for (var i = 1; i < arguments.length; i++) {
+					keys += encodeURIComponent(arguments[i]) + "&"
+				}
+				apikey = document.getElementById("apikey").value
+				keys += "key=" + encodeURIComponent(apikey)
+				console.log(keys)
+
+
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST","/api/newrule?", true);
+				xhttp.send(keys);
+				e = arguments[0]
+				line = e.parentNode
+				line.parentNode.removeChild(line)
+			}
+		}
+
+		function fullrebuild() {
+			if (apikeycorrect) {
+				apikey = document.getElementById("apikey").value
+
+				var xhttp = new XMLHttpRequest();
+				xhttp.open("POST","/api/rebuild", true);
+				xhttp.send("key=" + encodeURIComponent(apikey))
+				window.location = "/wait";
+			}
+
+		}
+
+
+	</script>
+</html>

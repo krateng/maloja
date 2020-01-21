@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html>
+
+	<!-- query keys -->
+	<pyhp save="filterkeys.get('track')" as="track" />
+	<!-- DB calls -->
+	<pyhp save="db.trackInfo(track)" as="info" />
+	<!-- preprocessing -->
+	<pyhp save="'#' + str(info.get('position'))" as="positionstring" />
+	<pyhp save="'month'" as="initialrange" />
+	<!-- url encode -->
+	<pyhp save="urihandler.compose_querystring(urihandler.internal_to_uri({'track':track}))" as="encodedtrack" />
+
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - <pyhp echo="track['title']" /></title>
+
+		<pyhp include="common/header.html" />
+		<script src="/rangeselect.js"></script>
+		<script>
+			function scrobble(encodedtrack,apikey) {
+				neo.xhttprequest('/api/newscrobble?' + encodedtrack + "key=" + apikey).then(response=>{window.location.reload()});
+			}
+		</script>
+	</head>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<pyhp if="adminmode"><div class="changeable-image" data-uploader="b64=>upload('{encodedtrack}','{apikey}',b64)" style="background-image:url('{utilities.getTrackImage(track['artists'],track['title'],fast=True)}')"></div></pyhp>
+					<pyhp if="not adminmode"><div style="background-image:url('{utilities.getTrackImage(track['artists'],track['title'],fast=True)}')"></div></pyhp>
+				</td>
+				<td class="text">
+					<span><pyhp echo="htmlgenerators.artistLinks(track['artists'])" /></span><br/>
+					<h1><pyhp echo="track['title']" /></h1> <pyhp if="info['certification'] is not None"><img class="certrecord" src="/media/record_{info['certification']}.png" title="This track has reached {info['certification'].capitalize()} status" /></pyhp> <span class="rank"><a href="/charts_tracks?max=100"><pyhp echo="positionstring" /></a></span>
+
+					<p class="stats"><pyhp if="adminmode"><span onclick="scrobble('{encodedtrack}','{apikey}')" class="button">Scrobble now</span>  </pyhp><a href="/scrobbles?{encodedtrack}"><pyhp echo="info['scrobbles']" /> Scrobbles</a></p>
+
+
+					<pyhp for="year" in="info['medals']['gold']"><a title="Best Track in {year}" class="hidelink medal shiny gold" href='/charts_tracks?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+					<pyhp for="year" in="info['medals']['silver']"><a title="Second best Track in {year}" class="hidelink medal shiny silver" href='/charts_tracks?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+					<pyhp for="year" in="info['medals']['bronze']"><a title="Third best Track in {year}" class="hidelink medal shiny bronze" href='/charts_tracks?max=50&amp;in={str(year)}'><span><pyhp echo="year" /></span></a></pyhp>
+
+					<span><pyhp if="info.get('topweeks') not in [0,None]">
+						<a title="{str(info['topweeks'])} weeks on #1" href="/performance?{encodedtrack}&step=week">
+							<img class="star" src="/media/star.png" /><pyhp echo="info['topweeks']" />
+						</a>
+					</pyhp></span>
+				</td>
+			</tr>
+		</table>
+
+
+		<table class="twopart">
+
+			<pyhp save="[
+				('day','7 days',malojatime.today().next(-6),'day',7),
+				('week','12 weeks',malojatime.thisweek().next(-11),'week',12),
+				('month','12 months',malojatime.thismonth().next(-11),'month',12),
+				('year','10 years',malojatime.thisyear().next(-9),'year',12)
+			]" as="ranges" />
+
+
+
+
+			<tr>
+				<td>
+					<h2><a href='/pulse?{encodedtrack}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+
+					<pyhp for="range" in="ranges" separator = " | ">
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
+					</pyhp>
+
+		      			<br/><br/>
+
+					<pyhp for="range" in="ranges">
+
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<pyhp with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
+								<pyhp include="partial/pulse.pyhp" />
+							</pyhp>
+						</span>
+
+					</pyhp>
+				</td>
+				<td>
+					<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
+					<h2><a href='/performance?{encodedtrack}&amp;step=year&amp;trail=1'>Performance</a></h2>
+
+					<pyhp for="range" in="ranges" separator = " | ">
+						<span onclick="showRangeManual('pulse','{range[0]}')" class="stat_selector_pulse selector_pulse_{range[0]}" style="{'opacity:0.5;' if initialrange==range[0] else ''}"><pyhp echo="range[1]" /></span>
+					</pyhp>
+
+		      			<br/><br/>
+
+					<pyhp for="range" in="ranges">
+						<span class="stat_module_pulse pulse_{range[0]}" style="{'display:none;' if initialrange==range[0] else ''}">
+							<pyhp with="{'amountkeys':{'max_':range[4]},'limitkeys':{'since':range[2]},'delimitkeys':{'step':range[3],'trail':1}}">
+								<pyhp include="partial/performance.pyhp" />
+							</pyhp>
+						</span>
+
+					</pyhp>
+				</td>
+			</tr>
+		</table>
+
+
+		<h2><a href='/scrobbles?{encodedtrack}'>Last Scrobbles</a></h2>
+
+		<pyhp echo="htmlmodules.module_scrobblelist(**filterkeys,max_=10,earlystop=True)[0]" />
+
+		<pyhp include="common/footer.html" />
+
+
+
+	</body>
+</html>

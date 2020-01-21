@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Proxyscrobble</title>
+		<script src="/cookies.js"></script>
+
+		<script>
+			window.addEventListener("load",function(){
+				try {
+					document.getElementById("lastfmlink").href += window.location.href;
+				}
+				catch (e) {
+				}
+
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Proxyscrobble</h1>
+
+					<p class="desc">Duplicate your scrobbles to another service.
+					Your API key is required to make any changes to the server: <input id='apikey' onchange='checkAPIkey()' style='width:300px;'/></p>
+				</td>
+			</tr>
+		</table>
+
+		<table class="list">
+			<tr>
+				<td>Last.fm</td>
+				KEY_STATUS_LASTFM
+			</tr>
+		</table>
+
+
+	</body>
+</html>

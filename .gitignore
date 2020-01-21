@@ -1,17 +1,10 @@
 # generic temporary / dev files
 *.pyc
 *.sh
-!/update_requirements.sh
+!/install_*.sh
 *.note
 *.xcf
 nohup.out
-/.dev
-
-# user files
-*.tsv
-*.rulestate
-*.log
-*.css
 
 # currently not using
 /screenshot*.png

@@ -1,0 +1,31 @@
+<pyhp>
+	if amountkeys["max_"] is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
+	firstindex = amountkeys["page"] * amountkeys["perpage"]
+	lastindex = firstindex + amountkeys["perpage"]
+</pyhp>
+
+<pyhp import="math" />
+
+<pyhp save="db.get_performance(**limitkeys,**delimitkeys,**filterkeys)" as="allranges" />
+<pyhp save="math.ceil(len(allranges) / amountkeys['perpage'])" as="pages" />
+<pyhp save="allranges[firstindex:lastindex]" as="displayranges" />
+
+<pyhp>
+	minrank = 80
+	for t in displayranges:
+		if t["rank"] is not None and t["rank"]+20 > minrank: minrank = t["rank"]+20
+</pyhp>
+
+</pyhp>
+
+<table class="list">
+	<pyhp for="t" in="displayranges">
+		<pyhp save="t['range']" as="thisrange" />
+		<tr>
+			<td><pyhp echo="thisrange.desc()" /></td>
+			<td class='rank'><pyhp echo="'#' + str(t['rank']) if t['rank'] is not None else 'n/a'" /></td>
+			<pyhp save="(minrank+1-t['rank'])*100/minrank if t['rank'] is not None else 0" as="prct" />
+			<td class='chart'><pyhp echo="htmlgenerators.rankLink(thisrange.urikeys(),percent=prct,**filterkeys,medal=t['rank'])" /></td>
+		</tr>
+	</pyhp>
+</table>

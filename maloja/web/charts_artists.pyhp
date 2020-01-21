@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Artist Charts</title>
+		<script src="/datechange.js" async></script>
+
+		<pyhp include="common/header.html" />
+	</head>
+
+	<pyhp>
+		try:
+			top = db.get_charts_artists(**filterkeys,**limitkeys)[0]["artist"]
+			img = utilities.getArtistImage(top)
+		except:
+			img = ""
+	</pyhp>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('{img}')"></div>
+				</td>
+				<td class="text">
+					<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
+					<span><pyhp echo="limitkeys['timerange'].desc(prefix=True)" /></span>
+					<br/><br/>
+					<pyhp echo="htmlmodules.module_filterselection(_urikeys)" />
+
+				</td>
+			</tr>
+		</table>
+
+		<span class="stat_module_topartists">
+			<pyhp if="settings('CHARTS_DISPLAY_TILES')">
+				<pyhp include="partial/charts_artists_tiles.pyhp" />
+			</pyhp>
+
+		</span>
+
+		<pyhp include="partial/charts_artists.pyhp" />
+
+		<pyhp include="common/footer.html" />
+
+	</body>
+</html>

@@ -1,0 +1,36 @@
+<pyhp save="{'perpage':amountkeys['perpage'],**filterkeys,**limitkeys,**delimitkeys}" as="unchanged" />
+
+<pyhp save="amountkeys['page']" as="page" />
+
+<pyhp save="urihandler.compose_querystring" as="compose" />
+<pyhp save="urihandler.internal_to_uri" as="touri" />
+
+<div class='paginate'>
+
+	<pyhp if="pages > 1">
+		<pyhp if="page > 1">
+			<a href='?{compose(touri(dict(**unchanged,page=0)))}'><span class='stat_selector'>1</span></a> |
+		</pyhp>
+
+		<pyhp if="page > 2"> ... | </pyhp>
+
+		<pyhp if="page > 0">
+			<a href='?{compose(touri(dict(**unchanged,page=page-1)))}'><span class='stat_selector'><pyhp echo="page" /></span></a> «
+		</pyhp>
+
+		<span style='opacity:0.5;' class='stat_selector'>
+			<pyhp echo="page+1" />
+		</span>
+
+		<pyhp if="page < pages - 1">
+			 » <a href='?{compose(touri(dict(**unchanged,page=page+1)))}'><span class='stat_selector'><pyhp echo="page+2" /></span></a>
+		</pyhp>
+
+		<pyhp if="page < pages - 3"> | ... </pyhp>
+
+		<pyhp if="page < pages - 2">
+			 | <a href='?{compose(touri(dict(**unchanged,page=pages-1)))}'><span class='stat_selector'><pyhp echo="pages" /></span></a>
+		</pyhp>
+	</pyhp>
+
+</div>

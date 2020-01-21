@@ -1,0 +1,29 @@
+# NAME: Mass Effect Soundtrack
+# DESC: Sets correct artists for the Mass Effect soundtracks
+
+# 1
+fixartists		Jack Wall␟Sam Hulick						Mass Effect Theme
+fixartists		Richard Jacques␟Jack Wall␟Sam Hulick		Spectre Induction
+fixartists		Richard Jacques␟Jack Wall␟Sam Hulick		The Citadel
+fixartists		Richard Jacques␟Jack Wall					The Thorian
+fixartists		Richard Jacques␟Jack Wall␟Sam Hulick		The Alien Queen
+fixartists		Jack Wall␟Sam Hulick						Breeding Ground
+fixartists		Jack Wall␟Sam Hulick						In Pursuit of Saren
+fixartists		David Kates␟Jack Wall␟Sam Hulick			Infusion
+fixartists		David Kates␟Jack Wall␟Sam Hulick			Final Assault
+
+# 2
+fixartists		Jack Wall␟David Kates						Thane
+fixartists		Jack Wall␟Sam Hulick						The Normandy Attacked
+fixartists		Jack Wall␟Brian DiDomenico					The Collector Base
+fixartists		Jack Wall␟Sam Hulick						New Worlds
+
+# 3
+fixartists		Sascha Dikiciyan␟Cris Velasco				The Ardat-Yakshi
+fixartists		Sascha Dikiciyan␟Cris Velasco				Rannoch
+fixartists		Sascha Dikiciyan␟Cris Velasco				I'm Sorry
+fixartists		Sascha Dikiciyan␟Cris Velasco				The Scientists
+fixartists		Sascha Dikiciyan␟Cris Velasco				Aralakh Company
+fixartists		Sascha Dikiciyan␟Cris Velasco				Prothean Beacon
+fixartists		Sascha Dikiciyan␟Cris Velasco				Reaper Chase
+fixartists		Clint Mansell␟Sam Hulick					An End, Once and For All

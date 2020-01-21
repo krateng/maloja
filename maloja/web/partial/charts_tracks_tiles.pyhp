@@ -1,0 +1,51 @@
+<pyhp>
+	num_levels = 3
+</pyhp>
+
+
+<pyhp import="math" />
+
+
+<pyhp save="db.get_charts_tracks(**filterkeys,**limitkeys)" as="tracks" />
+<pyhp save="iter(tracks)" as="tracks_iterator" />
+
+
+
+<table class="tiles_top">
+	<tr>
+		<pyhp for="level" in="range(1,num_levels+1)">
+			<td><table class="tiles_{level}x{level} tiles_sub">
+				<pyhp for="row" in="range(level)">
+					<tr>
+						<pyhp for="column" in="range(level)">
+							<pyhp>
+								try:
+									entry = next(tracks_iterator)
+									track = entry['track']
+									artists = track['artists']
+									title = track['title']
+									rank = entry['rank']
+								except:
+									track = None
+							</pyhp>
+							<pyhp if="track is None">
+								<td><span class='stats'></span> <span></span></td>
+							</pyhp>
+							<pyhp if="track is not None">
+								<td onclick='window.location.href="{htmlgenerators.link_address(track)}"'
+									style='cursor:pointer;background-image:url("{utilities.getTrackImage(artists,title,fast=True)}");'>
+									<span class='stats'>
+										#<pyhp echo="rank" />
+									</span>
+									<span>
+										<pyhp echo="htmlgenerators.html_link(track)" />
+									</span>
+								</td>
+							</pyhp>
+						</pyhp>
+					</tr>
+				</pyhp>
+			</table></td>
+		</pyhp>
+	</tr>
+</table>

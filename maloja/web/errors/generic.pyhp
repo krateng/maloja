@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja - Error <pyhp echo="errorcode" /></title>
+		<pyhp include="../common/header.html" />
+	</head>
+
+	<body>
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Error <pyhp echo="errorcode" /></h1><br/>
+
+
+					<p>That did not work. Don't ask me why.</p>
+				</td>
+			</tr>
+		</table>
+
+
+	</body>
+
+</html>

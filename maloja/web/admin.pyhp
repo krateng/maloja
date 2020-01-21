@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Maloja</title>
+		<script src="/cookies.js"></script>
+
+		<pyhp include="common/header.html" />
+
+		<script>
+
+			function versioncompare(a,b) {
+				for (var pos=0;pos<3;pos++) {
+					var v1 = parseInt(a[pos]) || 0;
+					var v2 = parseInt(b[pos]) || 0;
+					if (v1 > v2) { return 1;}
+					if (v1 < v2) { return -1;}
+				}
+
+				return 0;
+			}
+			neo.xhttprequest("https://pypi.org/pypi/malojaserver/json",{},"GET",json=true).then((response)=>{
+				result = JSON.parse(response.responseText);
+				latestvers = result.info.version.split(".");
+
+				neo.xhttprequest("/api/serverinfo",{},"GET",json=true).then((response)=>{
+
+					result = JSON.parse(response.responseText);
+					thisvers = result.version;
+
+					document.getElementById("latestversion").innerHTML = latestvers.join(".");
+					document.getElementById("currentversion").innerHTML = thisvers.join(".");
+
+					if (versioncompare(latestvers,thisvers) <= 0) {
+						document.getElementById("currentversion").style.color = "green";
+					}
+					else {
+						document.getElementById("currentversion").style.color = "red";
+						document.getElementById("updatestatus").innerHTML = "Consider updating to take advantage of new features";
+					}
+				});
+			});
+
+
+			function activate() {
+				neo.setCookie("adminmode","true");
+				window.location.reload(true);
+			}
+			function deactivate() {
+				neo.setCookie("adminmode","false");
+				window.location.reload(true);
+			}
+
+			function buttonlock() {
+				button = document.getElementById("adminmodebutton")
+				if (apikeycorrect) {
+					button.classList.remove("locked");
+					if (button.innerHTML == "Activate") { button.onclick = activate; }
+					else { button.onclick = deactivate; }
+					// ugh
+				}
+				else {
+					button.classList.add("locked");
+					button.onclick = null;
+				}
+			}
+
+			window.addEventListener("load",function(){checkAPIkey(buttonlock)});
+			// we do this twice, but this one ensures that the button is correctly locked / unlocked after the api key has been checked
+		</script>
+	</head>
+
+	<body>
+
+
+
+
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('/favicon.png')"></div>
+				</td>
+				<td class="text">
+					<h1>Admin Panel</h1><br/>
+					<br/><br/>
+					API Key: <input id='apikey' onchange='checkAPIkey(buttonlock);' style='width:300px;'/><br/><br/>
+
+				</td>
+			</tr>
+		</table>
+
+		<h2>Update</h2>
+
+		Currently installed Maloja version: <span id="currentversion">Loading...</span><br/>
+		Latest recommended Maloja version: <span id="latestversion">Loading...</span><br/>
+		<span id="updatestatus"></span>
+
+
+		<h2>Admin Mode</h2>
+
+		Admin Mode allows you to manually scrobble from various places on the web interface instead of just the dedicated page.<br/><br/>
+		<pyhp if="adminmode"><span id="adminmodebutton" class="button locked">Deactivate</span></pyhp>
+		<pyhp if="not adminmode"><span id="adminmodebutton" class="button locked">Activate</span></pyhp>
+
+		<h2>Links</h2>
+
+		<a class="textlink" href="/setup">Server Setup</a><br/>
+		<a class="textlink" href="/manual">Manual Scrobbling</a><br/>
+		<a class="textlink" href="/issues">Database Maintenance</a>
+
+		<h2>External</h2>
+
+		<a class="textlink" href="https://github.com/krateng/maloja/issues/new">Report Issue</a><br/>
+
+		<pyhp include="common/footer.html" />
+	</body>
+</html>

@@ -1,0 +1,76 @@
+
+<pyhp>
+	if amountkeys.get("max_") is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
+	firstindex = amountkeys["page"] * amountkeys["perpage"]
+	lastindex = firstindex + amountkeys["perpage"]
+</pyhp>
+
+<pyhp import="math" />
+
+<pyhp save="db.get_charts_artists(**filterkeys,**limitkeys)" as="artists" />
+<pyhp save="math.ceil(len(artists) / amountkeys['perpage'])" as="pages" />
+
+
+<pyhp>
+	try:
+		artistslast = db.get_charts_artists(**filterkeys,timerange=limitkeys["timerange"].next(step=-1))
+		# create rank association
+		lastrank = {}
+		for al in artistslast:
+			lastrank[al["artist"]] = al["rank"]
+		for a in artists:
+			try:
+				a["delta"] = lastrank[a["artist"]] - a["rank"]
+			except:
+				a["delta"] = math.inf
+	except:
+		pass
+</pyhp>
+
+<!--
+if artists != []:
+	maxbar = artists[0]["scrobbles"]
+	representative = artists[0]["artist"]
+else:
+	representative = None
+-->
+<pyhp save="artists[0]['scrobbles'] if artists != [] else 0" as="maxbar" />
+
+<table class='list'>
+	<pyhp save="True" as="first" />
+	<pyhp for="e" in="artists[firstindex:lastindex]">
+		<tr>
+			<!-- Rank -->
+			<td class="rank"><pyhp if="first or e['scrobbles'] < prev['scrobbles']">#<pyhp echo="e['rank']"/></pyhp></td>
+			<pyhp save="False" as="first" />
+			<!-- Rank change -->
+			<pyhp if="e.get('delta') is not None">
+				<pyhp if="e.get('delta') is math.inf">
+					<td class='rankup' title='New'>🆕</td>
+				</pyhp>
+				<pyhp if="e.get('delta') > 0 and e.get('delta') is not math.inf">
+					<td class='rankup' title="up from #{e['rank']+e['delta']}">↗</td>
+				</pyhp>
+				<pyhp if="e.get('delta') < 0">
+					<td class='rankdown' title="down from #{e['rank']+e['delta']}">↘</td>
+				</pyhp>
+				<pyhp if="e.get('delta') == 0">
+					<td class='ranksame' title="Unchanged">➡</td>
+				</pyhp>
+			</pyhp>
+
+			<!-- artist -->
+			<pyhp echo="htmlgenerators.entity_column(e['artist'],counting=e['counting'])" />
+
+			<!-- scrobbles -->
+			<td class="amount"><pyhp echo="htmlgenerators.scrobblesArtistLink(e['artist'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles'],associated=True)" /></td>
+			<td class="bar"><pyhp echo="htmlgenerators.scrobblesArtistLink(e['artist'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar,associated=True)" /></td>
+		</tr>
+		<pyhp save="e" as="prev" />
+	</pyhp>
+</table>
+
+
+<pyhp if="amountkeys.get('max_') is None">
+	<pyhp include="pagination.pyhp" />
+</pyhp>

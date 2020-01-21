@@ -1,0 +1,31 @@
+<pyhp>
+	if amountkeys.get("max_") is not None: amountkeys["perpage"],amountkeys["page"] = amountkeys["max_"],0
+	firstindex = amountkeys["page"] * amountkeys["perpage"]
+	lastindex = firstindex + amountkeys["perpage"]
+
+</pyhp>
+
+<pyhp import="math" />
+
+<pyhp save="db.get_pulse(**limitkeys,**delimitkeys,**filterkeys)" as="allranges" />
+<pyhp save="math.ceil(len(allranges) / amountkeys['perpage'])" as="pages" />
+<pyhp save="allranges[firstindex:lastindex]" as="displayranges" />
+
+<pyhp save="max(max([t['scrobbles'] for t in displayranges]),1)" as="maxbar" />
+
+<table class="list">
+	<pyhp for="t" in="displayranges">
+		<pyhp save="t['range']" as="thisrange" />
+		<tr>
+			<td><pyhp echo="thisrange.desc()" /></td>
+			<td class="amount"><pyhp echo="htmlgenerators.scrobblesLink(thisrange.urikeys(),amount=t['scrobbles'],**filterkeys)" /></td>
+			<td class="bar"><pyhp echo="htmlgenerators.scrobblesLink(thisrange.urikeys(),percent=t['scrobbles']*100/maxbar,**filterkeys)" /></td>
+		</tr>
+	</pyhp>
+</table>
+
+
+<pyhp if="amountkeys.get('max_') is None">
+	<pyhp include="pagination.pyhp" />
+<!--	<pyhp echo="htmlmodules.module_paginate(page=amountkeys['page'],pages=pages,perpage=amountkeys['perpage'],**_urikeys)" />-->
+</pyhp>
