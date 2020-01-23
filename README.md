@@ -62,15 +62,15 @@ Also neat: You can use your **custom artist or track images**.
 
 Start and stop the server with
 
-		maloja start
-		maloja stop
-		maloja restart
+	maloja start
+	maloja stop
+	maloja restart
 
-	If something is not working, you can try
+If something is not working, you can try
 
-		maloja debug
+	maloja debug
 
-	to run the server in the foreground.
+to run the server in the foreground.
 
 
 ### Data
