@@ -18,10 +18,14 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 	* [New Installation](#new-installation)
 	* [Update](#update)
 * [How to use](#how-to-use)
+	* [Basic control](#basic-control)
+	* [Data](#data)
+	* [Customization](#customization)
 * [How to scrobble](#how-to-scrobble)
 	* [Native API](#native-api)
 	* [Standard-compliant API](#standard-compliant-api)
 	* [Manual](#manual)
+* [How to extend](#how-to-extend)
 
 ## Why not Last.fm / Libre.fm / GNU FM?
 
@@ -32,6 +36,7 @@ Maloja also gets **rid of all the extra stuff**: social networking, radios, reco
 Maloja's database has one big advantage: It supports **multiple artists per track**. This means artists who are often just "featuring" in the track title get a place in your charts, and **collaborations between several artists finally get credited to all participants**. This allows you to get an actual idea of your artist preferences over time.
 
 Also neat: You can use your **custom artist or track images**.
+
 
 ## How to install
 
@@ -50,36 +55,44 @@ Also neat: You can use your **custom artist or track images**.
 * If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `~/.local/share/maloja` folder.
 * Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
 
+
 ## How to use
 
-1) Start and stop the server with
+### Basic control
+
+Start and stop the server with
 
 		maloja start
 		maloja stop
 		maloja restart
 
+	If something is not working, you can try
 
-2) If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command
+		maloja debug
 
-		maloja import *filename*
+	to run the server in the foreground.
 
-	to import the downloaded file into Maloja.
 
-3) Various folders have `.info` files with more information on how to use their associated features.
+### Data
 
-4) You can also have a look at the `settings.ini` file.
+* If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command `maloja import *filename*`	to import the downloaded file into Maloja.
 
-5) If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
+* To backup your data, run `maloja backup` or, to only backup essential data (no artwork etc), `maloja backup -l minimal`.
 
-6) To backup your data, run
+* To fix your database (e.g. after you've added new rules), use `maloja fix`.
 
-		maloja backup
+### Customization
 
-	or, to only backup essential data (no artwork etc)
+* Have a look at the `default.ini` file in the `~/.local/share/maloja/settings` folder to see what settings are available. Specify your own choices in `settings.ini`.
 
-		maloja backup -l minimal
+* If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `~/.local/share/maloja/images` folder.
+
+* To specify custom rules, consult the `rules.info` file in `~/.local/share/maloja/rules`. You can also apply some predefined rules on the `/setup` page of your server.
+
 
 ## How to scrobble
+
+You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `~/.local/share/maloja/clients` folder.
 
 ### Native API
 
@@ -110,3 +123,8 @@ It is recommended to define a different API key for every scrobbler you use in `
 ### Manual
 
 If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server.
+
+
+## How to extend
+
+If you'd like to implement anything on top of Maloja, visit `/api_explorer`.
