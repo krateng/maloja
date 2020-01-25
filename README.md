@@ -48,7 +48,7 @@ Also neat: You can use your **custom artist or track images**.
 
 3) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary).
 
-4) (Recommended) Put your server behind a reverse proxy for SSL encryption.
+4) (Recommended) Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4. If you're running Maloja in a container, make sure to expose port 32400 (or whichever port you have chosen in your settings).
 
 ### Update
 

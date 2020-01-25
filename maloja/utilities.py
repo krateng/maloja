@@ -409,8 +409,8 @@ def set_image(b64,**keys):
 	b64 = base64.b64decode(b64)
 	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
 	for folder in get_all_possible_filenames(**keys):
-		if os.path.exists(folder):
-			with open(os.path.join(folder,filename),"wb") as f:
+		if os.path.exists(datadir(folder)):
+			with open(datadir(folder,filename),"wb") as f:
 				f.write(b64)
 
 			# set as current picture in rotation
@@ -419,8 +419,8 @@ def set_image(b64,**keys):
 			return
 
 	folder = get_all_possible_filenames(**keys)[0]
-	os.makedirs(folder)
-	with open(os.path.join(folder,filename),"wb") as f:
+	os.makedirs(datadir(folder))
+	with open(datadir(folder,filename),"wb") as f:
 		f.write(b64)
 
 	# set as current picture in rotation
