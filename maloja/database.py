@@ -43,7 +43,9 @@ TRACKS = []	# Format: namedtuple(artists=frozenset(artist_ref,...),title=title)
 
 
 Track = namedtuple("Track",["artists","title"])
-Scrobble = namedtuple("Scrobble",["track","timestamp","saved"])
+Scrobble = namedtuple("Scrobble",["track","timestamp","album","duration","saved"])
+# album is saved in the scrobble because it's not actually authorative information about the track, just info
+# what was sent with this scrobble
 
 ### OPTIMIZATION
 SCROBBLESDICT = {}	# timestamps to scrobble mapping
@@ -108,7 +110,7 @@ def allAPIkeys():
 
 def get_scrobble_dict(o):
 	track = get_track_dict(TRACKS[o.track])
-	return {"artists":track["artists"],"title":track["title"],"time":o.timestamp}
+	return {"artists":track["artists"],"title":track["title"],"time":o.timestamp,"album":o.album,"duration":o.duration}
 
 def get_artist_dict(o):
 	return o
@@ -125,7 +127,7 @@ def get_track_dict(o):
 
 
 
-def createScrobble(artists,title,time,volatile=False):
+def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 
 	if len(artists) == 0 or title == "":
 		return {}
@@ -143,7 +145,7 @@ def createScrobble(artists,title,time,volatile=False):
 	while (time in SCROBBLESDICT):
 		time += 1
 
-	obj = Scrobble(i,time,volatile) # if volatile generated, we simply pretend we have already saved it to disk
+	obj = Scrobble(i,time,album,duration,volatile) # if volatile generated, we simply pretend we have already saved it to disk
 	#SCROBBLES.append(obj)
 	# immediately insert scrobble correctly so we can guarantee sorted list
 	index = insert(SCROBBLES,obj,key=lambda x:x[1])
@@ -163,7 +165,7 @@ def readScrobble(artists,title,time):
 	while (time in SCROBBLESDICT):
 		time += 1
 	i = getTrackID(artists,title)
-	obj = Scrobble(i,time,True)
+	obj = Scrobble(i,time,None,None,True)
 	SCROBBLES.append(obj)
 	SCROBBLESDICT[time] = obj
 	#STAMPS.append(time)
@@ -212,10 +214,13 @@ import unicodedata
 
 # function to turn the name into a representation that can be easily compared, ignoring minor differences
 remove_symbols = ["'","`","’"]
+replace_with_space = [" - ",": "]
 def normalize_name(name):
-	return "".join(char for char in unicodedata.normalize('NFD',name.lower())
+	for r in replace_with_space:
+		name = name.replace(r," ")
+	name = "".join(char for char in unicodedata.normalize('NFD',name.lower())
 		if char not in remove_symbols and unicodedata.category(char) != 'Mn')
-
+	return name
 
 
 
@@ -652,39 +657,13 @@ def trackInfo(track):
 
 
 
-
 @dbserver.get("newscrobble")
-def pseudo_post_scrobble(artist:Multi,**keys):
-	artists = "/".join(artist)
-	title = keys.get("title")
-	apikey = keys.get("key")
-	client = checkAPIkey(apikey)
-	if client == False: # empty string allowed!
-		response.status = 403
-		return ""
-	try:
-		time = int(keys.get("time"))
-	except:
-		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-
-	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
-	(artists,title) = cla.fullclean(artists,title)
-
-	## this is necessary for localhost testing
-	response.set_header("Access-Control-Allow-Origin","*")
-
-	trackdict = createScrobble(artists,title,time)
-
-	sync()
-
-
-
-	return {"status":"success","track":trackdict}
-
 @dbserver.post("newscrobble")
 def post_scrobble(artist:Multi,**keys):
 	artists = "/".join(artist)
 	title = keys.get("title")
+	album = keys.get("album")
+	duration = keys.get("seconds")
 	apikey = keys.get("key")
 	client = checkAPIkey(apikey)
 	if client == False: # empty string allowed!
@@ -702,7 +681,7 @@ def post_scrobble(artist:Multi,**keys):
 	## this is necessary for localhost testing
 	#response.set_header("Access-Control-Allow-Origin","*")
 
-	trackdict = createScrobble(artists,title,time)
+	trackdict = createScrobble(artists,title,time,album,duration)
 
 	sync()
 	#always sync, one filesystem access every three minutes shouldn't matter
@@ -1005,7 +984,7 @@ def sync():
 	entries = {}
 
 	for idx in range(len(SCROBBLES)):
-		if not SCROBBLES[idx][2]:
+		if not SCROBBLES[idx].saved:
 
 			t = get_scrobble_dict(SCROBBLES[idx])
 
@@ -1014,12 +993,16 @@ def sync():
 			artistss = "␟".join(artistlist)
 			timestamp = datetime.date.fromtimestamp(t["time"])
 
-			entry = [str(t["time"]),artistss,t["title"]]
+			album = t["album"] or "-"
+			duration = t["duration"] or "-"
+
+			entry = [str(t["time"]),artistss,t["title"],album,duration]
 
 			monthcode = str(timestamp.year) + "_" + str(timestamp.month)
 			entries.setdefault(monthcode,[]).append(entry) #i feckin love the setdefault function
 
-			SCROBBLES[idx] = (SCROBBLES[idx][0],SCROBBLES[idx][1],True)
+			SCROBBLES[idx] = Scrobble(*SCROBBLES[idx][:-1],True)
+			# save copy with last tuple entry set to true
 
 	#log("Sorted into months",module="debug")
 
