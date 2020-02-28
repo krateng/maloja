@@ -33,7 +33,8 @@ config(
 		"files":[
 			datadir("settings/default.ini"),
 			datadir("settings/settings.ini")
-		]
+		],
+		"environ_prefix":"MALOJA_"
 	},
 	caching={
 		"folder": datadir("cache")
