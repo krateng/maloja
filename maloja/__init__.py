@@ -7,14 +7,14 @@ author = {
 	"email":"maloja@krateng.dev",
 	"github": "krateng"
 }
-version = 2,3,0
+version = 2,3,1
 versionstr = ".".join(str(n) for n in version)
 
 
 requires = [
 	"bottle>=0.12.16",
 	"waitress>=1.3",
-	"doreah>=1.5.2",
+	"doreah>=1.5.3",
 	"nimrodel>=0.6.3",
 	"setproctitle>=1.1.10",
 	"wand>=0.5.4",
