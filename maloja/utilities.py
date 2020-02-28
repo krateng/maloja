@@ -520,6 +520,9 @@ def send_stats():
 				"scrobbles":len(SCROBBLES)
 			}).encode("utf-8")
 		}
-		req = urllib.request.Request(**keys)
-		response = urllib.request.urlopen(req)
-		log("Sent daily report!")
+		try:
+			req = urllib.request.Request(**keys)
+			response = urllib.request.urlopen(req)
+			log("Sent daily report!")
+		except:
+			log("Could not send daily report!")
