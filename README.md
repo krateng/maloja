@@ -50,6 +50,14 @@ Also neat: You can use your **custom artist or track images**.
 
 4) (Recommended) Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4. If you're running Maloja in a container, make sure to expose port 32400 (or whichever port you have chosen in your settings).
 
+5) (Recommended) Until I have a proper service implemented, I would recommend setting two cronjobs for maloja:
+
+```
+@reboot maloja start
+0 0 * * * maloja restart
+```
+
+
 ### Update
 
 * If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `~/.local/share/maloja` folder.
@@ -83,7 +91,7 @@ to run the server in the foreground.
 
 ### Customization
 
-* Have a look at the `default.ini` file in the `~/.local/share/maloja/settings` folder to see what settings are available. Specify your own choices in `settings.ini`.
+* Have a look at the `default.ini` file in the `~/.local/share/maloja/settings` folder to see what settings are available. Specify your own choices in `settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
 
 * If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `~/.local/share/maloja/images` folder.
 
