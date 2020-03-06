@@ -54,7 +54,7 @@ Also neat: You can use your **custom artist or track images**.
 
 ```
 @reboot maloja start
-0 0 * * * maloja restart
+42 0 * * * maloja restart
 ```
 
 
