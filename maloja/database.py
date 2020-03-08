@@ -7,7 +7,7 @@ from .malojatime import register_scrobbletime, time_stamps, ranges
 from .urihandler import uri_to_internal, internal_to_uri, compose_querystring
 from . import compliant_api
 from .external import proxy_scrobble
-from .__init__ import version
+from .__pkginfo__ import version
 from .globalconf import datadir
 # doreah toolkit
 from doreah.logging import log

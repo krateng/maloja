@@ -37,7 +37,7 @@ def setup():
 		"SPOTIFY_API_ID":"Spotify Client ID",
 		"SPOTIFY_API_SECRET":"Spotify Client Secret"
 	}
-	
+
 	SKIP = settings.get_settings("SKIP_SETUP")
 
 	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
@@ -101,9 +101,9 @@ def getInstanceSupervisor():
 def start():
 	setup()
 	try:
-		p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+		#p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 		sp = subprocess.Popen(["python3","-m","maloja.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-		print(col["green"]("Maloja started!") + " PID: " + str(p.pid))
+		print(col["green"]("Maloja started!"))
 
 		from doreah import settings
 		port = settings.get_settings("WEB_PORT")
@@ -126,14 +126,19 @@ def stop():
 	pid_sv = getInstanceSupervisor()
 	if pid_sv is not None:
 		os.kill(pid_sv,signal.SIGTERM)
+		return True
 
-	pid = getInstance()
-	if pid is None:
+	else:
 		print("Server is not running")
 		return False
-	else:
-		os.kill(pid,signal.SIGTERM)
-		print("Maloja stopped! PID: " + str(pid))
+
+#	pid = getInstance()
+#	if pid is None:
+#		print("Server is not running")
+#		return False
+#	else:
+#		os.kill(pid,signal.SIGTERM)
+#		print("Maloja stopped! PID: " + str(pid))
 		return True
 
 

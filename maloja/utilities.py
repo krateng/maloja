@@ -15,7 +15,7 @@ from doreah.logging import log
 from doreah.regular import yearly, daily
 
 from .external import api_request_track, api_request_artist
-from .__init__ import version
+from .__pkginfo__ import version
 from . import globalconf
 from .globalconf import datadir
 
