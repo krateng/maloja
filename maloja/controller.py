@@ -126,20 +126,25 @@ def stop():
 	pid_sv = getInstanceSupervisor()
 	if pid_sv is not None:
 		os.kill(pid_sv,signal.SIGTERM)
-		return True
+#		return True
 
-	else:
-		print("Server is not running")
-		return False
-
-#	pid = getInstance()
-#	if pid is None:
+#	else:
 #		print("Server is not running")
 #		return False
+
+
+	pid = getInstance()
+	if pid is not None:
+#		print("Server is not running")
+#		return False
+#		pass
 #	else:
-#		os.kill(pid,signal.SIGTERM)
+		os.kill(pid,signal.SIGTERM)
 #		print("Maloja stopped! PID: " + str(pid))
+	if pid is not None or pid_sv is not None:
 		return True
+	else:
+		return False
 
 
 def loadlastfm(filename):

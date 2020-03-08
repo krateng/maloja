@@ -31,7 +31,6 @@ def update():
 def start():
 	try:
 		p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-		log(p,module="supervisor")
 
 	except e:
 		log("Error starting Maloja: " + str(e),module="supervisor")
