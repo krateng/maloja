@@ -189,7 +189,8 @@ def main(action,*args,**kwargs):
 		"debug":direct,
 		"backup":backuphere,
 		"update":update,
-		"fix":fixdb
+		"fix":fixdb,
+		"run":direct
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
