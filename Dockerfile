@@ -9,4 +9,4 @@ RUN pip3 install malojaserver
 
 EXPOSE 42010
 
-ENTRYPOINT maloja start
+ENTRYPOINT maloja run
