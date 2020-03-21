@@ -166,6 +166,7 @@ def loadlastfm(filename):
 	print("Successfully imported your Last.FM scrobbles!")
 
 def direct():
+	setup()
 	from . import server
 
 def backuphere():
