@@ -1,6 +1,6 @@
 {
 	"name": "Maloja Scrobbler",
-	"version": "1.4",
+	"version": "1.5",
 	"description": "Scrobbles tracks from various sites to your Maloja server",
 	"manifest_version": 2,
 	"permissions": ["activeTab",
