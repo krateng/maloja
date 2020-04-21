@@ -9,7 +9,15 @@ from .backup import backup
 
 wendigo = CleanerAgent()
 
-exp = r"([0-9]*)(\t+)([^\t]+?)(\t+)([^\t]+)(\t*)([^\t]*)\n"
+exp = r"([0-9]*)(\t+)([^\t]+?)(\t+)([^\t]+)([^\n]*)\n"
+#        1       2    3        4    5       6
+# groups:
+# 1 - timestamp
+# 2 - sep
+# 3 - artists
+# 4 - sep
+# 5 - title
+# 6 - rest
 
 
 
@@ -38,7 +46,7 @@ def fix():
 					for l in oldfile:
 
 						a,t = re.sub(exp,r"\3",l), re.sub(exp,r"\5",l)
-						r1,r2,r3 = re.sub(exp,r"\1\2",l),re.sub(exp,r"\4",l),re.sub(exp,r"\6\7",l)
+						r1,r2,r3 = re.sub(exp,r"\1\2",l),re.sub(exp,r"\4",l),re.sub(exp,r"\6",l)
 
 						a = a.replace("␟",";")
 
