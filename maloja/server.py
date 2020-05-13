@@ -32,6 +32,7 @@ import signal
 import os
 import setproctitle
 import pkg_resources
+import math
 # url handling
 import urllib
 
@@ -170,22 +171,75 @@ def static(name,ext):
 	return response
 
 
+engine_prio = settings.get_settings("WEB_ENGINE_PRIORITY")
+engines = {
+	"python":{"filetypes":["html","py"],"folder":"python"},
+	"pyhp":{"filetypes":["pyhp"],"folder":"pyhp"},
+	"jinja":{"filetypes":[],"folder":"jinja"}
+}
+
+
+JINJA_CONTEXT = {
+	# maloja
+	"db": database,
+	"htmlmodules": htmlmodules,
+	"htmlgenerators": htmlgenerators,
+	"malojatime": malojatime,
+	"utilities": utilities,
+	"urihandler": urihandler,
+	"settings": settings.get_settings,
+	# external
+	"urllib": urllib,
+	"math":math,
+	# config
+	"ranges": [
+		('day','7 days',malojatime.today().next(-6),'day',7),
+		('week','12 weeks',malojatime.thisweek().next(-11),'week',12),
+		('month','12 months',malojatime.thismonth().next(-11),'month',12),
+		('year','10 years',malojatime.thisyear().next(-9),'year',12)
+	]
+}
+
+from jinja2 import Environment, PackageLoader, select_autoescape
+jinjaenv = Environment(
+	loader=PackageLoader('maloja', 'web/jinja'),
+	autoescape=select_autoescape(['html', 'xml'])
+)
+
 @webserver.route("/<name>")
 def static_html(name):
 	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
-	pyhp_file = os.path.exists(pthjoin(WEBFOLDER,name + ".pyhp"))
+
+	pyhp_file = os.path.exists(pthjoin(WEBFOLDER,"pyhp",name + ".pyhp"))
 	html_file = os.path.exists(pthjoin(WEBFOLDER,name + ".html"))
+	jinja_file = os.path.exists(pthjoin(WEBFOLDER,"jinja",name + ".jinja"))
 	pyhp_pref = settings.get_settings("USE_PYHP")
+	jinja_pref = settings.get_settings("USE_JINJA")
 
 	adminmode = request.cookies.get("adminmode") == "true" and database.checkAPIkey(request.cookies.get("apikey")) is not False
 
 	clock = Clock()
 	clock.start()
 
+	# if a jinja file exists, use this
+	if (jinja_file and jinja_pref) or (jinja_file and not html_file and not pyhp_file):
+		LOCAL_CONTEXT = {
+			"adminmode":adminmode,
+			"apikey":request.cookies.get("apikey") if adminmode else None,
+			"_urikeys":keys #temporary!
+		}
+		LOCAL_CONTEXT["filterkeys"], LOCAL_CONTEXT["limitkeys"], LOCAL_CONTEXT["delimitkeys"], LOCAL_CONTEXT["amountkeys"] = uri_to_internal(keys)
+
+		template = jinjaenv.get_template(name + '.jinja')
+
+		res = template.render(**JINJA_CONTEXT,**LOCAL_CONTEXT)
+		log("Generated page {name} in {time}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
+		return res
+
 	# if a pyhp file exists, use this
-	if (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
+	elif (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
 
 		#things we expose to the pyhp pages
 		environ = {
@@ -207,7 +261,7 @@ def static_html(name):
 		environ["_urikeys"] = keys #temporary!
 
 		#response.set_header("Content-Type","application/xhtml+xml")
-		res = pyhpfile(pthjoin(WEBFOLDER,name + ".pyhp"),environ)
+		res = pyhpfile(pthjoin(WEBFOLDER,"pyhp",name + ".pyhp"),environ)
 		log("Generated page {name} in {time}s (PYHP)".format(name=name,time=clock.stop()),module="debug")
 		return res
 
