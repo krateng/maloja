@@ -1,0 +1,153 @@
+{% extends "base.jinja" %}
+{% block title %}Maloja - {{ artist }}{% endblock %}
+
+{% block scripts %}
+	<script src="/rangeselect.js"></script>
+{% endblock %}
+
+{% set artist = filterkeys.artist %}
+{% set info = db.artistInfo(artist) %}
+
+{% set credited = info.get('replace') %}
+{% set included = info.get('associated') %}
+{% set initialrange ='month' %}
+
+
+{% if credited is not none %}
+	{% set competes = false %}
+{% else %}
+	{% set credited = artist %}
+	{% set competes = true %}
+{% endif %}
+
+
+{% set encodedartist = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':artist})) %}
+{% set encodedcredited = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':credited})) %}
+
+
+{% block content %}
+
+
+
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			{% if adminmode %}
+			<div
+				class="changeable-image" data-uploader="b64=>upload('{encodedartist}','{apikey}',b64)"
+				style="background-image:url('{{ utilities.getArtistImage(artist=artist,fast=True) }}');"
+			></div>
+			{% else %}
+			<div style="background-image:url('{{ utilities.getArtistImage(artist=artist,fast=True) }}');">
+			</div>
+			{% endif %}
+		</td>
+		<td class="text">
+			<h1>{{ artist }}</h1>
+				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">{{ positionstring }}</a></span>{% endif %}
+				<br/>
+				{% if competes and included %}
+					<span>associated: {{ htmlgenerators.artistLinks(included) }}</span>
+				{% elif not competes %}
+					<span>Competing under {{ htmlgenerators.artistLink(credited) }} ({{ positionstring }})</span>
+				{% endif %}
+
+			<p class="stats"><a href="/scrobbles?{{ encodedartist }}">{{ info['scrobbles'] }} Scrobbles</a></p>
+
+
+			{% import 'partials/awards.jinja' as awards %}
+
+			{% if competes %}
+				{{ awards.medals(info) }}
+				{{ awards.topweeks(info) }}
+			{% endif %}
+			{{ awards.certs(artist) }}
+
+
+		</td>
+	</tr>
+</table>
+
+<h2><a href='/charts_tracks?{{ encodedartist }}'>Top Tracks</a></h2>
+
+{# htmlmodules.module_trackcharts(**filterkeys,max_=15)[0] #}
+{% import 'partials/charts_tracks.jinja' as charts_tracks %}
+
+{{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,compare=false) }}
+
+<br/>
+
+<table class="twopart">
+
+	<tr>
+		<td>
+			<h2><a href='/pulse?{{ encodedartist }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+
+			{% for range in xranges %}
+			<span
+				onclick="showRangeManual('pulse','{{ range.identifier }}')"
+				class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
+				style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
+				{{ range.localisation }}
+			</span>
+			{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% import 'partials/pulse.jinja' as pulse %}
+			{% for range in xranges %}
+
+			<span
+				class="stat_module_pulse pulse_{{ range.identifier }}"
+				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				>
+
+			{{ pulse.pulse(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+			</span>
+
+			{% endfor %}
+		</td>
+		<td>
+			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
+			<h2><a href='/performance?{{ encodedcredited }}&amp;step=year&amp;trail=1'>Performance</a></h2>
+
+			{% for range in xranges %}
+				<span
+					onclick="showRangeManual('pulse','{{ range.identifier }}')"
+					class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
+					style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
+					{{ range.localisation }}
+				</span>
+				{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% import 'partials/performance.jinja' as performance %}
+			{% for range in xranges %}
+
+			<span
+				class="stat_module_pulse pulse_{{ range.identifier }}"
+				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				>
+
+			{{ performance.performance(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+
+			</span>
+
+			{% endfor %}
+
+		</td>
+	</tr>
+</table>
+
+
+<h2><a href='/scrobbles?{encodedartist}'>Last Scrobbles</a></h2>
+
+{% import 'partials/scrobbles.jinja' as scrobbles %}
+{{ scrobbles.scrobbles(filterkeys,limitkeys,{"perpage":15,"page":0}) }}
+
+
+{% endblock %}

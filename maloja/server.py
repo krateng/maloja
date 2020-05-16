@@ -171,17 +171,17 @@ def static(name,ext):
 	return response
 
 
-engine_prio = settings.get_settings("WEB_ENGINE_PRIORITY")
-engines = {
-	"python":{"filetypes":["html","py"],"folder":"python"},
-	"pyhp":{"filetypes":["pyhp"],"folder":"pyhp"},
-	"jinja":{"filetypes":[],"folder":"jinja"}
-}
 
+
+
+
+from . import database_packed
+dbp = database_packed.DB()
 
 JINJA_CONTEXT = {
 	# maloja
 	"db": database,
+	"dbp":dbp,
 	"htmlmodules": htmlmodules,
 	"htmlgenerators": htmlgenerators,
 	"malojatime": malojatime,
@@ -197,6 +197,12 @@ JINJA_CONTEXT = {
 		('week','12 weeks',malojatime.thisweek().next(-11),'week',12),
 		('month','12 months',malojatime.thismonth().next(-11),'month',12),
 		('year','10 years',malojatime.thisyear().next(-9),'year',12)
+	],
+	"xranges": [
+		{"identifier":"day","localisation":"14 days","firstrange":malojatime.today().next(-13),"amount":14},
+		{"identifier":"week","localisation":"14 weeks","firstrange":malojatime.thisweek().next(-13),"amount":14},
+		{"identifier":"month","localisation":"14 months","firstrange":malojatime.thismonth().next(-13),"amount":14},
+		{"identifier":"year","localisation":"14 years","firstrange":malojatime.thisyear().next(-13),"amount":14}
 	]
 }
 
@@ -205,6 +211,8 @@ jinjaenv = Environment(
 	loader=PackageLoader('maloja', 'web/jinja'),
 	autoescape=select_autoescape(['html', 'xml'])
 )
+jinjaenv.globals.update(JINJA_CONTEXT)
+
 
 @webserver.route("/<name>")
 def static_html(name):
@@ -228,13 +236,13 @@ def static_html(name):
 		LOCAL_CONTEXT = {
 			"adminmode":adminmode,
 			"apikey":request.cookies.get("apikey") if adminmode else None,
-			"_urikeys":keys #temporary!
+			"_urikeys":keys, #temporary!
 		}
 		LOCAL_CONTEXT["filterkeys"], LOCAL_CONTEXT["limitkeys"], LOCAL_CONTEXT["delimitkeys"], LOCAL_CONTEXT["amountkeys"] = uri_to_internal(keys)
 
 		template = jinjaenv.get_template(name + '.jinja')
 
-		res = template.render(**JINJA_CONTEXT,**LOCAL_CONTEXT)
+		res = template.render(**LOCAL_CONTEXT)
 		log("Generated page {name} in {time}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
 		return res
 

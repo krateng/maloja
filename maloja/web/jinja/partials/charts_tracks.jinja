@@ -1,0 +1,49 @@
+{% macro charts_tracks(filterkeys,limitkeys,amountkeys,compare=False) %}
+
+
+{% set tracks = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% if compare %}
+	{% if compare is true %}
+		{% set compare = limitkeys.timerange.next(step=-1) %}
+	{% endif %}
+	{% set prevtracks = dbp.get_charts_tracks(filterkeys,{'timerange':compare}) %}
+
+	{% set lastrank = {} %}
+	{% for t in tracks %}
+		{% if lastrank.update({(t.track.artists,t.track.title):t.rank}) %}{% endif %}
+	{% endfor %}
+
+	{% for t in tracks %}
+		{% if (t.track.artists,t.track.title) in lastrank %}
+			{% if t.update({'lastrank':lastrank[(t.track.artists,t.track.title)]}) %}{% endif %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+
+{% set maxbar = tracks[0]['scrobbles'] if tracks != [] else 0 %}
+
+<table class='list'>
+	{% for e in tracks %}
+		<tr>
+			<!-- Rank -->
+			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
+			<!-- Rank change -->
+			{% if false %}
+				{% if e not in prevtracks %}<td class='rankup' title='New'>🆕</td>{% endif %}
+
+			{% endif %}
+
+			<!-- artist -->
+			{{ htmlgenerators.entity_column(e['track']) }}
+
+			<!-- scrobbles -->
+			<td class="amount">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles']) }}</td>
+			<td class="bar">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar) }}</td>
+		</tr>
+	{% endfor %}
+</table>
+
+
+
+{%- endmacro %}

@@ -1,0 +1,65 @@
+{% macro medals(info) %}
+
+<!-- MEDALS -->
+{% for year in info.medals.gold -%}
+<a title="Best Artist in {{ year }}" class="hidelink medal shiny gold" href='/charts_artists?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.silver -%}
+<a title="Second best Artist in {{ year }}" class="hidelink medal shiny silver" href='/charts_artists?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.bronze -%}
+<a title="Third best Artist in {{ year }}" class="hidelink medal shiny bronze" href='/charts_artists?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+{% macro topweeks(info) %}
+
+
+<!-- TOPWEEKS -->
+<span>
+	{% if info.topweeks is not none %}
+	<a title="{{ info.topweeks }} weeks on #1" href="/performance?{{ encodedartist }}&step=week">
+		<img class="star" src="/media/star.png" />{{ info.topweeks }}
+	</a>
+	{% endif %}
+</span>
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+
+{% macro certs(artist) %}
+
+<!-- CERTS -->
+{% for track in db.get_tracks(artist=artist) %}
+	{% set info = db.trackInfo(track) %}
+	{% if info.certification is not none %}
+	<a href='{{ htmlgenerators.link_address(track) }}'>
+		<img class="certrecord_small"
+					src="/media/record_{{ info.certification }}.png"
+					title="{{ track.title }} has reached {{ info.certification.capitalize() }} status" />
+	</a>
+	{% endif %}
+{% endfor %}
+
+{%- endmacro %}

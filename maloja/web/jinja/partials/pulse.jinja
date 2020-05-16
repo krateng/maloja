@@ -1,0 +1,29 @@
+{% macro pulse(filterkeys,limitkeys,delimitkeys,amountkeys) %}
+
+{% set ranges = dbp.get_pulse(filterkeys,limitkeys,delimitkeys) %}
+
+{% set maxbar = 1 %}
+{% for r in ranges %}
+	{% if r.scrobbles > maxbar %}
+		{% set maxbar = r.scrobbles %}
+	{% endif %}
+{% endfor %}
+
+<table class="list">
+	{% for t in ranges %}
+
+	{% set thisrange = t.range %}
+	<tr>
+		<td>{{ thisrange.desc() }}</td>
+		<td class="amount">
+			{{ htmlgenerators.scrobblesLink(thisrange.urikeys(),amount=t.scrobbles,**filterkeys) }}
+		</td>
+		<td class="bar">
+			{{ htmlgenerators.scrobblesLink(thisrange.urikeys(),percent=t.scrobbles*100/maxbar,**filterkeys) }}
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+
+
+{%- endmacro %}

@@ -1,0 +1,24 @@
+{% macro scrobbles(filterkeys,limitkeys,amountkeys) %}
+
+{% set scrobbles = dbp.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
+
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
+
+<table class='list'>
+	{% for s in scrobbles %}
+		{% if loop.index0 > firstindex and loop.index0 < lastindex %}
+		<tr>
+			<td class='time'>
+
+			</td>
+			{{ entityrow.row(s) }}
+		</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+{%- endmacro %}

@@ -1,0 +1,34 @@
+{% macro performance(filterkeys,limitkeys,delimitkeys,amountkeys) %}
+
+{% set ranges = dbp.get_performance(filterkeys,limitkeys,delimitkeys) %}
+
+{% set minrank = 80 %}
+{% for r in ranges %}
+	{% if r.rank is not none and r.rank+20 > minrank %}
+		{% set minrank = r.rank+20 %}
+	{% endif %}
+{% endfor %}
+
+
+<table class="list">
+	{% for t in ranges %}
+
+	{% set thisrange = t.range %}
+	<tr>
+		<td>{{ thisrange.desc() }}</td>
+		<td class="rank">
+			{{ '#' + t.rank.__str__() if t.rank is not none else 'n/a' }}
+		</td>
+		<td class="chart">
+			{% set prct = ((minrank+1-t.rank)*100/minrank if t.rank is not none else 0) %}
+			{{ htmlgenerators.rankLink(thisrange.urikeys(),percent=prct,medal=t.rank,**filterkeys) }}
+		</td>
+
+
+		
+	</tr>
+	{% endfor %}
+</table>
+
+
+{%- endmacro %}
