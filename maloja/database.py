@@ -600,6 +600,7 @@ def artistInfo(artist):
 		position = c["rank"]
 		performance = get_performance(artist=artist,step="week")
 		return {
+			"artist":artist,
 			"scrobbles":scrobbles,
 			"position":position,
 			"associated":others,
@@ -645,6 +646,7 @@ def trackInfo(track):
 
 
 	return {
+		"track":track,
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"]),{})},

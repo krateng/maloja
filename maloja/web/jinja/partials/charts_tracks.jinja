@@ -20,11 +20,15 @@
 	{% endfor %}
 {% endif %}
 
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
 
 {% set maxbar = tracks[0]['scrobbles'] if tracks != [] else 0 %}
 
 <table class='list'>
 	{% for e in tracks %}
+		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
 		<tr>
 			<!-- Rank -->
 			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
@@ -41,6 +45,7 @@
 			<td class="amount">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles']) }}</td>
 			<td class="bar">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar) }}</td>
 		</tr>
+		{% endif %}
 	{% endfor %}
 </table>
 

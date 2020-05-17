@@ -6,6 +6,8 @@ from .globalconf import datadir, DATA_DIR
 # server stuff
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest
 import waitress
+# templating
+from jinja2 import Environment, PackageLoader, select_autoescape
 # monkey patching
 from . import monkey
 # rest of the project
@@ -206,7 +208,7 @@ JINJA_CONTEXT = {
 	]
 }
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+
 jinjaenv = Environment(
 	loader=PackageLoader('maloja', 'web/jinja'),
 	autoescape=select_autoescape(['html', 'xml'])

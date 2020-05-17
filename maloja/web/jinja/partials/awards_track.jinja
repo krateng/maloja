@@ -1,0 +1,63 @@
+{% macro medals(info) %}
+
+<!-- MEDALS -->
+{% for year in info.medals.gold -%}
+<a title="Best Track in {{ year }}" class="hidelink medal shiny gold" href='/charts_tracks?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.silver -%}
+<a title="Second best Track in {{ year }}" class="hidelink medal shiny silver" href='/charts_tracks?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.bronze -%}
+<a title="Third best Track in {{ year }}" class="hidelink medal shiny bronze" href='/charts_tracks?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+{% macro topweeks(info) %}
+
+{% set encodedtrack = urihandler.compose_querystring(urihandler.internal_to_uri({'track':info.track})) %}
+
+<!-- TOPWEEKS -->
+<span>
+	{% if info.topweeks is not none %}
+	<a title="{{ info.topweeks }} weeks on #1" href="/performance?{{ encodedtrack }}&step=week">
+		<img class="star" src="/media/star.png" />{{ info.topweeks }}
+	</a>
+	{% endif %}
+</span>
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+
+{% macro certs(track) %}
+
+<!-- CERTS -->
+
+{% set info = db.trackInfo(track) %}
+{% if info.certification is not none %}
+	<img class="certrecord"
+				src="/media/record_{{ info.certification }}.png"
+				title="This track has reached {{ info.certification.capitalize() }} status" />
+{% endif %}
+
+{%- endmacro %}

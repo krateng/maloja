@@ -28,6 +28,8 @@
 
 {% macro topweeks(info) %}
 
+{% set encodedartist = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':info.artist})) %}
+
 
 <!-- TOPWEEKS -->
 <span>
@@ -51,15 +53,14 @@
 {% macro certs(artist) %}
 
 <!-- CERTS -->
-{% for track in db.get_tracks(artist=artist) %}
+{% for track in db.get_tracks(artist=artist) -%}
 	{% set info = db.trackInfo(track) %}
-	{% if info.certification is not none %}
+	{% if info.certification is not none -%}
 	<a href='{{ htmlgenerators.link_address(track) }}'>
 		<img class="certrecord_small"
 					src="/media/record_{{ info.certification }}.png"
-					title="{{ track.title }} has reached {{ info.certification.capitalize() }} status" />
-	</a>
-	{% endif %}
-{% endfor %}
+					title="{{ track.title }} has reached {{ info.certification.capitalize() }} status" /></a>
+	{%- endif %}
+{%- endfor %}
 
 {%- endmacro %}

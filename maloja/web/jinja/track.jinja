@@ -1,0 +1,135 @@
+{% extends "base.jinja" %}
+{% block title %}Maloja - {{ track.title }}{% endblock %}
+
+{% block scripts %}
+	<script src="/rangeselect.js"></script>
+	<script>
+		function scrobble(encodedtrack,apikey) {
+			neo.xhttprequest('/api/newscrobble?' + encodedtrack + "key=" + apikey).then(response=>{window.location.reload()});
+		}
+	</script>
+{% endblock %}
+
+{% set track = filterkeys.track %}
+{% set info = db.trackInfo(track) %}
+
+{% set initialrange ='month' %}
+
+
+{% set encodedtrack = urihandler.compose_querystring(urihandler.internal_to_uri({'track':track})) %}
+
+
+{% block content %}
+
+
+{% import 'partials/awards_track.jinja' as awards %}
+
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			{% if adminmode %}
+			<div
+				class="changeable-image" data-uploader="b64=>upload('{encodedartist}','{apikey}',b64)"
+				style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');"
+			></div>
+			{% else %}
+			<div style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');">
+			</div>
+			{% endif %}
+		</td>
+		<td class="text">
+			<span>{{ htmlgenerators.artistLinks(track.artists) }}</span><br/>
+			<h1>{{ track.title }}</h1>
+				{{ awards.certs(track) }}
+				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
+				<br/>
+
+			<p class="stats"><a href="/scrobbles?{{ encodedtrack }}">{{ info['scrobbles'] }} Scrobbles</a></p>
+
+
+
+
+
+			{{ awards.medals(info) }}
+			{{ awards.topweeks(info) }}
+
+
+		</td>
+	</tr>
+</table>
+
+
+<table class="twopart">
+
+	<tr>
+		<td>
+			<h2><a href='/pulse?{{ encodedtrack }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+			<br/>
+			{% for range in xranges %}
+			<span
+				onclick="showRangeManual('pulse','{{ range.identifier }}')"
+				class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
+				style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
+				{{ range.localisation }}
+			</span>
+			{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% import 'partials/pulse.jinja' as pulse %}
+			{% for range in xranges %}
+
+			<span
+				class="stat_module_pulse pulse_{{ range.identifier }}"
+				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				>
+
+			{{ pulse.pulse(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+			</span>
+
+			{% endfor %}
+		</td>
+		<td>
+			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
+			<h2><a href='/performance?{{ encodedtrack }}&amp;step=year&amp;trail=1'>Performance</a></h2>
+			<br/>
+			{% for range in xranges %}
+				<span
+					onclick="showRangeManual('pulse','{{ range.identifier }}')"
+					class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
+					style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
+					{{ range.localisation }}
+				</span>
+				{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% import 'partials/performance.jinja' as performance %}
+			{% for range in xranges %}
+
+			<span
+				class="stat_module_pulse pulse_{{ range.identifier }}"
+				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				>
+
+			{{ performance.performance(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+
+			</span>
+
+			{% endfor %}
+
+		</td>
+	</tr>
+</table>
+
+
+<h2><a href='/scrobbles?{{ encodedtrack }}'>Last Scrobbles</a></h2>
+
+{% import 'partials/scrobbles.jinja' as scrobbles %}
+{{ scrobbles.scrobbles(filterkeys,limitkeys,{"perpage":15,"page":0}) }}
+
+
+{% endblock %}

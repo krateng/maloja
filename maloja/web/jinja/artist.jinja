@@ -28,6 +28,7 @@
 {% block content %}
 
 
+{% import 'partials/awards_artist.jinja' as awards %}
 
 
 <table class="top_info">
@@ -45,18 +46,18 @@
 		</td>
 		<td class="text">
 			<h1>{{ artist }}</h1>
-				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">{{ positionstring }}</a></span>{% endif %}
+				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
 				{% if competes and included %}
 					<span>associated: {{ htmlgenerators.artistLinks(included) }}</span>
 				{% elif not competes %}
-					<span>Competing under {{ htmlgenerators.artistLink(credited) }} ({{ positionstring }})</span>
+					<span>Competing under {{ htmlgenerators.artistLink(credited) }} (#{{ info.position }})</span>
 				{% endif %}
 
 			<p class="stats"><a href="/scrobbles?{{ encodedartist }}">{{ info['scrobbles'] }} Scrobbles</a></p>
 
 
-			{% import 'partials/awards.jinja' as awards %}
+
 
 			{% if competes %}
 				{{ awards.medals(info) }}
@@ -74,7 +75,7 @@
 {# htmlmodules.module_trackcharts(**filterkeys,max_=15)[0] #}
 {% import 'partials/charts_tracks.jinja' as charts_tracks %}
 
-{{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,compare=false) }}
+{{ charts_tracks.charts_tracks(filterkeys,limitkeys,{"perpage":15,"page":0},compare=false) }}
 
 <br/>
 
@@ -83,7 +84,7 @@
 	<tr>
 		<td>
 			<h2><a href='/pulse?{{ encodedartist }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
-
+			<br/>
 			{% for range in xranges %}
 			<span
 				onclick="showRangeManual('pulse','{{ range.identifier }}')"
@@ -112,6 +113,9 @@
 		<td>
 			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
 			<h2><a href='/performance?{{ encodedcredited }}&amp;step=year&amp;trail=1'>Performance</a></h2>
+			{% if not competes %}<span class="afterheader">of {{ htmlgenerators.artistLink(credited) }}</span>
+			{% endif %}
+			<br/>
 
 			{% for range in xranges %}
 				<span
@@ -133,7 +137,7 @@
 				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
 				>
 
-			{{ performance.performance(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+			{{ performance.performance({'artist':credited},{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
 
 			</span>
 
@@ -144,7 +148,7 @@
 </table>
 
 
-<h2><a href='/scrobbles?{encodedartist}'>Last Scrobbles</a></h2>
+<h2><a href='/scrobbles?{{ encodedartist }}'>Last Scrobbles</a></h2>
 
 {% import 'partials/scrobbles.jinja' as scrobbles %}
 {{ scrobbles.scrobbles(filterkeys,limitkeys,{"perpage":15,"page":0}) }}
