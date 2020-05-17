@@ -64,6 +64,11 @@ Also neat: You can use your **custom artist or track images**.
 * Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
 
 
+### Docker
+
+There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/foxxmd/maloja) kindly provided by FoxxMD.
+
+
 ## How to use
 
 ### Basic control
