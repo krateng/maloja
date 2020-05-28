@@ -719,7 +719,7 @@ def abouttoshutdown():
 def newrule(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
-		tsv.add_entry("rules/webmade.tsv",[k for k in keys])
+		tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
 		#addEntry("rules/webmade.tsv",[k for k in keys])
 		global db_rulestate
 		db_rulestate = False
