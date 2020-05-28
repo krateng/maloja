@@ -1034,17 +1034,29 @@ def sync():
 
 import copy
 
-cache_query = {}
-if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
-	cache_query_permanent = DiskDict(name="dbquery",folder=datadir("cache"),maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if settings.get_settings("CACHE_DATABASE"):
+	def db_query(**kwargs):
+		return db_query_cached(**kwargs)
+	def db_aggregate(**kwargs):
+		return db_aggregate_cached(**kwargs)
 else:
-	cache_query_permanent = Cache(maxmemory=1024*1024*500)
+	def db_query(**kwargs):
+		return db_query_full(**kwargs)
+	def db_aggregate(**kwargs):
+		return db_aggregate_full(**kwargs)
+
 cacheday = (0,0,0)
-def db_query(**kwargs):
+
+
+cache_query = {}
+cache_query_permanent = Cache(maxmemory=1024*1024*500)
+def db_query_cached(**kwargs):
 	check_cache_age()
 	global cache_query, cache_query_permanent
 	key = utilities.serialize(kwargs)
-	if "timerange" in kwargs and not kwargs["timerange"].active():
+
+	# hit permanent cache for past timeranges
+	if "timerange" in kwargs and not kwargs["timerange"].active() and settings.get_settings("CACHE_DATABASE_PERM"):
 		if key in cache_query_permanent:
 			#print("Hit")
 			return copy.copy(cache_query_permanent.get(key))
@@ -1052,31 +1064,36 @@ def db_query(**kwargs):
 		result = db_query_full(**kwargs)
 		cache_query_permanent.add(key,copy.copy(result))
 		#print(cache_query_permanent.cache)
+	# hit short term cache
 	else:
 		#print("I guess they never miss huh")
-		if key in cache_query: return copy.copy(cache_query[key])
-		result = db_query_full(**kwargs)
-		cache_query[key] = copy.copy(result)
+		if key in cache_query:
+			return copy.copy(cache_query[key])
+		else:
+			result = db_query_full(**kwargs)
+			cache_query[key] = copy.copy(result)
 
 	return result
 
 cache_aggregate = {}
-if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
-	cache_aggregate_permanent = DiskDict(name="dbaggregate",folder="cache",maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
-else:
-	cache_aggregate_permanent = Cache(maxmemory=1024*1024*500)
-def db_aggregate(**kwargs):
+cache_aggregate_permanent = Cache(maxmemory=1024*1024*500)
+def db_aggregate_cached(**kwargs):
 	check_cache_age()
 	global cache_aggregate, cache_aggregate_permanent
 	key = utilities.serialize(kwargs)
-	if "timerange" in kwargs and not kwargs["timerange"].active():
+
+	# hit permanent cache for past timeranges
+	if "timerange" in kwargs and not kwargs["timerange"].active() and settings.get_settings("CACHE_DATABASE_PERM"):
 		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
 		result = db_aggregate_full(**kwargs)
 		cache_aggregate_permanent.add(key,copy.copy(result))
+	# hit short term cache
 	else:
-		if key in cache_aggregate: return copy.copy(cache_aggregate[key])
-		result = db_aggregate_full(**kwargs)
-		cache_aggregate[key] = copy.copy(result)
+		if key in cache_aggregate:
+			return copy.copy(cache_aggregate[key])
+		else:
+			result = db_aggregate_full(**kwargs)
+			cache_aggregate[key] = copy.copy(result)
 
 	return result
 
