@@ -1062,34 +1062,32 @@ cache_aggregate = lru.LRU(csz)
 cache_aggregate_perm = lru.LRU(csz)
 
 cachestats = {
-	"cache_query_tmp":{
-		"obj":cache_query,
-		"hits":0,
-		"misses":0
+	"cache_query":{
+		"hits_perm":0,
+		"hits_tmp":0,
+		"misses":0,
+		"objperm":cache_query_perm,
+		"objtmp":cache_query,
+		"name":"Query Cache"
 	},
-	"cache_query_perm":{
-		"obj":cache_query_perm,
-		"hits":0,
-		"misses":0
-	},
-	"cache_aggregate_tmp":{
-		"obj":cache_aggregate,
-		"hits":0,
-		"misses":0
-	},
-	"cache_aggregate_perm":{
-		"obj":cache_aggregate_perm,
-		"hits":0,
-		"misses":0
-	},
+	"cache_aggregate":{
+		"hits_perm":0,
+		"hits_tmp":0,
+		"misses":0,
+		"objperm":cache_aggregate_perm,
+		"objtmp":cache_aggregate,
+		"name":"Aggregate Cache"
+	}
 }
 
 from doreah.regular import runhourly
 
 @runhourly
 def log_stats():
-	log({c:{"size":len(cachestats[c]["obj"]),"hits":cachestats[c]["hits"],"misses":cachestats[c]["misses"]} for c in cachestats},module="debug")
-
+	logstr = "{name}: {hitsperm} Perm Hits, {hitstmp} Tmp Hits, {misses} Misses; Current Size: {sizeperm}/{sizetmp}"
+	for s in (cachestats["cache_query"],cachestats["cache_aggregate"]):
+		log(logstr.format(name=s["name"],hitsperm=s["hits_perm"],hitstmp=s["hits_tmp"],misses=s["misses"],
+		sizeperm=len(s["objperm"]),sizetmp=len(s["objtmp"])))
 
 def db_query_cached(**kwargs):
 	global cache_query, cache_query_perm
@@ -1107,13 +1105,16 @@ def db_query_cached(**kwargs):
 
 	# hit permanent cache for past timeranges
 	if eligible_permanent_caching and key in cache_query_perm:
+		cachestats["cache_query"]["hits_perm"] += 1
 		return copy.copy(cache_query_perm.get(key))
 
 	# hit short term cache
 	elif eligible_temporary_caching and key in cache_query:
+		cachestats["cache_query"]["hits_tmp"] += 1
 		return copy.copy(cache_query.get(key))
 
 	else:
+		cachestats["cache_query"]["misses"] += 1
 		result = db_query_full(**kwargs)
 		if eligible_permanent_caching: cache_query_perm[key] = result
 		elif eligible_temporary_caching: cache_query[key] = result
@@ -1136,13 +1137,16 @@ def db_aggregate_cached(**kwargs):
 
 	# hit permanent cache for past timeranges
 	if eligible_permanent_caching and key in cache_aggregate_perm:
+		cachestats["cache_aggregate"]["hits_perm"] += 1
 		return copy.copy(cache_aggregate_perm.get(key))
 
 	# hit short term cache
 	elif eligible_temporary_caching and key in cache_aggregate:
+		cachestats["cache_aggregate"]["hits_tmp"] += 1
 		return copy.copy(cache_aggregate.get(key))
 
 	else:
+		cachestats["cache_aggregate"]["misses"] += 1
 		result = db_aggregate_full(**kwargs)
 		if eligible_permanent_caching: cache_aggregate_perm[key] = result
 		elif eligible_temporary_caching: cache_aggregate[key] = result

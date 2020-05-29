@@ -245,7 +245,7 @@ def static_html(name):
 		template = jinjaenv.get_template(name + '.jinja')
 
 		res = template.render(**LOCAL_CONTEXT)
-		log("Generated page {name} in {time}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
+		log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
 		return res
 
 	# if a pyhp file exists, use this
@@ -272,7 +272,7 @@ def static_html(name):
 
 		#response.set_header("Content-Type","application/xhtml+xml")
 		res = pyhpfile(pthjoin(WEBFOLDER,"pyhp",name + ".pyhp"),environ)
-		log("Generated page {name} in {time}s (PYHP)".format(name=name,time=clock.stop()),module="debug")
+		log("Generated page {name} in {time:.5f}s (PYHP)".format(name=name,time=clock.stop()),module="debug")
 		return res
 
 	# if not, use the old way
@@ -316,7 +316,7 @@ def static_html(name):
 
 
 		response.set_header("Link",",".join(linkheaders))
-		log("Generated page " + name + " in " + str(clock.stop()) + "s (Python+HTML)",module="debug")
+		log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug")
 		return html
 		#return static_file("web/" + name + ".html",root="")
 
