@@ -34,7 +34,6 @@ from collections import namedtuple
 from threading import Lock
 import yaml
 import lru
-import psutil
 
 # url handling
 from importlib.machinery import SourceFileLoader
@@ -1057,6 +1056,11 @@ else:
 
 csz = settings.get_settings("DB_CACHE_ENTRIES")
 cmp = settings.get_settings("DB_MAX_MEMORY")
+try:
+	import psutil
+	use_psutil = True
+except:
+	use_psutil = False
 
 cache_query = lru.LRU(csz)
 cache_query_perm = lru.LRU(csz)
@@ -1121,10 +1125,11 @@ def db_query_cached(**kwargs):
 		if eligible_permanent_caching: cache_query_perm[key] = result
 		elif eligible_temporary_caching: cache_query[key] = result
 
-		ramprct = psutil.virtual_memory().percent
-		if ramprct > cmp:
-			log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
-			invalidate_caches()
+		if use_psutil:
+			ramprct = psutil.virtual_memory().percent
+			if ramprct > cmp:
+				log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
+				invalidate_caches()
 
 		return result
 
@@ -1159,10 +1164,11 @@ def db_aggregate_cached(**kwargs):
 		if eligible_permanent_caching: cache_aggregate_perm[key] = result
 		elif eligible_temporary_caching: cache_aggregate[key] = result
 
-		ramprct = psutil.virtual_memory().percent
-		if ramprct > cmp:
-			log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
-			invalidate_caches()
+		if use_psutil:
+			ramprct = psutil.virtual_memory().percent
+			if ramprct > cmp:
+				log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
+				invalidate_caches()
 
 		return result
 
