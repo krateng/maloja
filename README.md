@@ -15,8 +15,10 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 ## Table of Contents
 * [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
 * [How to install](#how-to-install)
+	* [Environment](#environment)
 	* [New Installation](#new-installation)
 	* [Update](#update)
+	* [Docker](#docker)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
 	* [Data](#data)
@@ -39,6 +41,10 @@ Also neat: You can use your **custom artist or track images**.
 
 
 ## How to install
+
+### Environment
+
+I can support you with issues best if you use **Alpine Linux**. In my experience, **2-4 GB RAM** should do nicely.
 
 ### New Installation
 

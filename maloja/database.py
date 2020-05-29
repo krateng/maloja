@@ -1126,10 +1126,7 @@ def db_query_cached(**kwargs):
 		elif eligible_temporary_caching: cache_query[key] = result
 
 		if use_psutil:
-			ramprct = psutil.virtual_memory().percent
-			if ramprct > cmp:
-				log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
-				invalidate_caches()
+			reduce_caches_if_low_ram()
 
 		return result
 
@@ -1165,10 +1162,7 @@ def db_aggregate_cached(**kwargs):
 		elif eligible_temporary_caching: cache_aggregate[key] = result
 
 		if use_psutil:
-			ramprct = psutil.virtual_memory().percent
-			if ramprct > cmp:
-				log("{prct} RAM usage, dumping temporary caches!".format(prct=ramprct),module="debug")
-				invalidate_caches()
+			reduce_caches_if_low_ram()
 
 		return result
 
@@ -1177,6 +1171,21 @@ def invalidate_caches():
 	cache_query.clear()
 	cache_aggregate.clear()
 	log("Database caches invalidated.")
+
+def reduce_caches(to=0.75):
+	global cache_query, cache_aggregate
+	for c in cache_query, cache_aggregate:
+		currentsize = len(c)
+		targetsize = int(currentsize * to)
+		c.set_size(targetsize)
+		c.set_size(csz)
+
+def reduce_caches_if_low_ram():
+	ramprct = psutil.virtual_memory().percent
+	if ramprct > cmp:
+		log("{prct}% RAM usage, reducing temporary caches!".format(prct=ramprct),module="debug")
+		ratio = (cmp / ramprct) ** 3
+		reduce_caches(to=ratio)
 
 ####
 ## Database queries
