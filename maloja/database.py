@@ -1,5 +1,6 @@
 # server
 from bottle import request, response, FormsDict
+
 # rest of the project
 from .cleanup import CleanerAgent, CollectorAgent
 from . import utilities
@@ -9,6 +10,7 @@ from . import compliant_api
 from .external import proxy_scrobble
 from .__pkginfo__ import version
 from .globalconf import datadir
+
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -18,9 +20,11 @@ try:
 	from doreah.persistence import DiskDict
 except: pass
 import doreah
+
 # nimrodel API
 from nimrodel import EAPI as API
 from nimrodel import Multi
+
 # technical
 import os
 import datetime
@@ -29,6 +33,8 @@ import unicodedata
 from collections import namedtuple
 from threading import Lock
 import yaml
+import lru
+
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
@@ -1032,9 +1038,11 @@ def sync():
 ###
 
 
+
+
 import copy
 
-if settings.get_settings("CACHE_DATABASE"):
+if settings.get_settings("USE_DB_CACHE"):
 	def db_query(**kwargs):
 		return db_query_cached(**kwargs)
 	def db_aggregate(**kwargs):
@@ -1045,74 +1053,107 @@ else:
 	def db_aggregate(**kwargs):
 		return db_aggregate_full(**kwargs)
 
-cacheday = (0,0,0)
+
+csz = settings.get_settings("DB_CACHE_ENTRIES")
+
+cache_query = lru.LRU(csz)
+cache_query_perm = lru.LRU(csz)
+cache_aggregate = lru.LRU(csz)
+cache_aggregate_perm = lru.LRU(csz)
+
+cachestats = {
+	"cache_query_tmp":{
+		"obj":cache_query,
+		"hits":0,
+		"misses":0
+	},
+	"cache_query_perm":{
+		"obj":cache_query_perm,
+		"hits":0,
+		"misses":0
+	},
+	"cache_aggregate_tmp":{
+		"obj":cache_aggregate,
+		"hits":0,
+		"misses":0
+	},
+	"cache_aggregate_perm":{
+		"obj":cache_aggregate_perm,
+		"hits":0,
+		"misses":0
+	},
+}
+
+from doreah.regular import runhourly
+
+@runhourly
+def log_stats():
+	log({c:{"size":len(cachestats[c]["obj"]),"hits":cachestats[c]["hits"],"misses":cachestats[c]["misses"]} for c in cachestats},module="debug")
 
 
-cache_query = {}
-cache_query_permanent = Cache(maxmemory=1024*1024*500)
 def db_query_cached(**kwargs):
-	check_cache_age()
-	global cache_query, cache_query_permanent
+	global cache_query, cache_query_perm
 	key = utilities.serialize(kwargs)
 
+	eligible_permanent_caching = (
+		"timerange" in kwargs and
+		not kwargs["timerange"].active() and
+		settings.get_settings("CACHE_DATABASE_PERM")
+	)
+	eligible_temporary_caching = (
+		not eligible_permanent_caching and
+		settings.get_settings("CACHE_DATABASE_SHORT")
+	)
+
 	# hit permanent cache for past timeranges
-	if "timerange" in kwargs and not kwargs["timerange"].active() and settings.get_settings("CACHE_DATABASE_PERM"):
-		if key in cache_query_permanent:
-			#print("Hit")
-			return copy.copy(cache_query_permanent.get(key))
-		#print("Miss")
+	if eligible_permanent_caching and key in cache_query_perm:
+		return copy.copy(cache_query_perm.get(key))
+
+	# hit short term cache
+	elif eligible_temporary_caching and key in cache_query:
+		return copy.copy(cache_query.get(key))
+
+	else:
 		result = db_query_full(**kwargs)
-		cache_query_permanent.add(key,copy.copy(result))
-		#print(cache_query_permanent.cache)
-	# hit short term cache
-	else:
-		#print("I guess they never miss huh")
-		if key in cache_query:
-			return copy.copy(cache_query[key])
-		else:
-			result = db_query_full(**kwargs)
-			cache_query[key] = copy.copy(result)
+		if eligible_permanent_caching: cache_query_perm[key] = result
+		elif eligible_temporary_caching: cache_query[key] = result
+		return result
 
-	return result
 
-cache_aggregate = {}
-cache_aggregate_permanent = Cache(maxmemory=1024*1024*500)
 def db_aggregate_cached(**kwargs):
-	check_cache_age()
-	global cache_aggregate, cache_aggregate_permanent
+	global cache_aggregate, cache_aggregate_perm
 	key = utilities.serialize(kwargs)
 
-	# hit permanent cache for past timeranges
-	if "timerange" in kwargs and not kwargs["timerange"].active() and settings.get_settings("CACHE_DATABASE_PERM"):
-		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
-		result = db_aggregate_full(**kwargs)
-		cache_aggregate_permanent.add(key,copy.copy(result))
-	# hit short term cache
-	else:
-		if key in cache_aggregate:
-			return copy.copy(cache_aggregate[key])
-		else:
-			result = db_aggregate_full(**kwargs)
-			cache_aggregate[key] = copy.copy(result)
+	eligible_permanent_caching = (
+		"timerange" in kwargs and
+		not kwargs["timerange"].active() and
+		settings.get_settings("CACHE_DATABASE_PERM")
+	)
+	eligible_temporary_caching = (
+		not eligible_permanent_caching and
+		settings.get_settings("CACHE_DATABASE_SHORT")
+	)
 
-	return result
+	# hit permanent cache for past timeranges
+	if eligible_permanent_caching and key in cache_aggregate_perm:
+		return copy.copy(cache_aggregate_perm.get(key))
+
+	# hit short term cache
+	elif eligible_temporary_caching and key in cache_aggregate:
+		return copy.copy(cache_aggregate.get(key))
+
+	else:
+		result = db_aggregate_full(**kwargs)
+		if eligible_permanent_caching: cache_aggregate_perm[key] = result
+		elif eligible_temporary_caching: cache_aggregate[key] = result
+
+		return result
 
 def invalidate_caches():
 	global cache_query, cache_aggregate
-	cache_query = {}
-	cache_aggregate = {}
-
-	now = datetime.datetime.utcnow()
-	global cacheday
-	cacheday = (now.year,now.month,now.day)
-
+	cache_query.clear()
+	cache_aggregate.clear()
 	log("Database caches invalidated.")
-
-def check_cache_age():
-	now = datetime.datetime.utcnow()
-	global cacheday
-	if cacheday != (now.year,now.month,now.day): invalidate_caches()
-
 
 ####
 ## Database queries
