@@ -1,0 +1,41 @@
+{% macro charts_artists(limitkeys,amountkeys,charts=None,compare=False) %}
+
+{% if charts is none %}
+	{% set charts = dbp.get_charts_artists(limitkeys) %}
+{% endif %}
+
+{% if compare %}
+{% endif %}
+
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
+
+{% set maxbar = charts[0]['scrobbles'] if charts != [] else 0 %}
+
+<table class='list'>
+	{% for e in charts %}
+		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
+		<tr>
+			<!-- Rank -->
+			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
+			<!-- Rank change -->
+			{% if false %}
+				{% if e not in prevcharts %}<td class='rankup' title='New'>🆕</td>{% endif %}
+
+			{% endif %}
+
+			<!-- artist -->
+			{{ htmlgenerators.entity_column(e['artist']) }}
+
+			<!-- scrobbles -->
+			<td class="amount">{{ htmlgenerators.scrobblesArtistLink(e['artist'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles']) }}</td>
+			<td class="bar">{{ htmlgenerators.scrobblesArtistLink(e['artist'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar) }}</td>
+		</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+
+
+{%- endmacro %}
