@@ -1173,8 +1173,8 @@ def invalidate_caches():
 	log("Database caches invalidated.")
 
 def reduce_caches(to=0.75):
-	global cache_query, cache_aggregate
-	for c in cache_query, cache_aggregate:
+	global cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm
+	for c in cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm:
 		currentsize = len(c)
 		targetsize = int(currentsize * to)
 		c.set_size(targetsize)
@@ -1183,7 +1183,7 @@ def reduce_caches(to=0.75):
 def reduce_caches_if_low_ram():
 	ramprct = psutil.virtual_memory().percent
 	if ramprct > cmp:
-		log("{prct}% RAM usage, reducing temporary caches!".format(prct=ramprct),module="debug")
+		log("{prct}% RAM usage, reducing caches!".format(prct=ramprct),module="debug")
 		ratio = (cmp / ramprct) ** 3
 		reduce_caches(to=ratio)
 
