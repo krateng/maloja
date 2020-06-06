@@ -1067,6 +1067,9 @@ cache_query_perm = lru.LRU(csz)
 cache_aggregate = lru.LRU(csz)
 cache_aggregate_perm = lru.LRU(csz)
 
+perm_caching = settings.get_settings("CACHE_DATABASE_PERM")
+temp_caching = settings.get_settings("CACHE_DATABASE_SHORT")
+
 cachestats = {
 	"cache_query":{
 		"hits_perm":0,
@@ -1102,11 +1105,11 @@ def db_query_cached(**kwargs):
 	eligible_permanent_caching = (
 		"timerange" in kwargs and
 		not kwargs["timerange"].active() and
-		settings.get_settings("CACHE_DATABASE_PERM")
+		perm_caching
 	)
 	eligible_temporary_caching = (
 		not eligible_permanent_caching and
-		settings.get_settings("CACHE_DATABASE_SHORT")
+		temp_caching
 	)
 
 	# hit permanent cache for past timeranges
@@ -1138,11 +1141,11 @@ def db_aggregate_cached(**kwargs):
 	eligible_permanent_caching = (
 		"timerange" in kwargs and
 		not kwargs["timerange"].active() and
-		settings.get_settings("CACHE_DATABASE_PERM")
+		perm_caching
 	)
 	eligible_temporary_caching = (
 		not eligible_permanent_caching and
-		settings.get_settings("CACHE_DATABASE_SHORT")
+		temp_caching
 	)
 
 	# hit permanent cache for past timeranges
