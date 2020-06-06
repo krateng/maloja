@@ -60,7 +60,7 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 ```
 @reboot sleep 15 && maloja start
-42 0 * * * maloja restart
+42 0 * * 2 maloja restart
 ```
 
 
