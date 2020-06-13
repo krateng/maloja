@@ -1179,9 +1179,10 @@ def reduce_caches(to=0.75):
 	global cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm
 	for c in cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm:
 		currentsize = len(c)
-		targetsize = int(currentsize * to)
-		c.set_size(targetsize)
-		c.set_size(csz)
+		if currentsize > 100:
+			targetsize = max(int(currentsize * to),10)
+			c.set_size(targetsize)
+			c.set_size(csz)
 
 def reduce_caches_if_low_ram():
 	ramprct = psutil.virtual_memory().percent
