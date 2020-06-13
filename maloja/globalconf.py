@@ -37,9 +37,6 @@ config(
 	pyhp={
 		"version": 2
 	},
-	logging={
-		"logfolder": datadir("logs")
-	},
 	settings={
 		"files":[
 			datadir("settings/default.ini"),
@@ -56,6 +53,14 @@ config(
 )
 
 # because we loaded a doreah module already before setting the config, we need to to that manually
+settingsconfig._readpreconfig()
+
+config(
+	logging={
+		"logfolder": datadir("logs") if get_settings("LOGGING") else None
+	}
+)
+
 settingsconfig._readpreconfig()
 
 
