@@ -1,7 +1,7 @@
 import os
-from .globalconf import datadir
+from ...globalconf import datadir
 import re
-from .cleanup import CleanerAgent
+from ...cleanup import CleanerAgent
 from doreah.logging import log
 import difflib
 import datetime
@@ -35,9 +35,10 @@ def fix():
 
 	#with open(datadir("logs","dbfix",nowstr + ".log"),"a") as logfile:
 
-
+	log("Fixing database...")
 	for filename in os.listdir(datadir("scrobbles")):
 		if filename.endswith(".tsv"):
+			log("Fix file " + filename)
 			filename_new = filename + "_new"
 
 			with open(datadir("scrobbles",filename_new),"w") as newfile:
@@ -68,3 +69,5 @@ def fix():
 
 			with open(datadir("scrobbles",filename + ".rulestate"),"w") as checkfile:
 				checkfile.write(wendigo.checksums)
+
+	log("Database fixed!")
