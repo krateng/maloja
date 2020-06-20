@@ -1,11 +1,9 @@
 import os
-from .lastfmconverter import convert
-from .backup import backup
-from .fixexisting import fix
+from doreah.io import ask
 
 from ...globalconf import datadir
-from ..control import restart
-from doreah.io import ask
+
+
 
 def loadlastfm(filename):
 
@@ -18,17 +16,21 @@ def loadlastfm(filename):
 		if not overwrite: return
 	print("Please wait...")
 
+	from .lastfmconverter import convert
 	convert(filename,datadir("scrobbles/lastfmimport.tsv"))
 	#os.system("python3 -m maloja.lastfmconverter " + filename + " " + datadir("scrobbles/lastfmimport.tsv"))
 	print("Successfully imported your Last.FM scrobbles!")
 
 
 def backuphere():
+	from .backup import backup
 	backup(folder=os.getcwd())
 
 def update():
 	os.system("pip3 install malojaserver --upgrade --no-cache-dir")
+	from ..control import restart
 	restart()
 
 def fixdb():
+	from .fixexisting import fix
 	fix()
