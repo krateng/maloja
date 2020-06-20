@@ -33,5 +33,5 @@ resources = [
 ]
 
 commands = {
-	"maloja":"controller:main"
+	"maloja":"proccontrol.control:main"
 }
