@@ -1,9 +1,10 @@
 import os
-from ..lastfmconverter import convert
-from ..backup import backup
-from ..fixexisting import fix
-from ..globalconf import datadir
-from .control import restart
+from .lastfmconverter import convert
+from .backup import backup
+from .fixexisting import fix
+
+from ...globalconf import datadir
+from ..control import restart
 from doreah.io import ask
 
 def loadlastfm(filename):

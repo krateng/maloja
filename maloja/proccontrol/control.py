@@ -6,6 +6,7 @@ import os
 import signal
 
 from .setup import setup
+from . import tasks
 
 def getInstance():
 	try:
@@ -82,11 +83,10 @@ def main(action,*args,**kwargs):
 		"run":direct,
 		"debug":direct,
 
-	#	"import":loadlastfm,
-
-	#	"backup":backuphere,
+		"import":tasks.loadlastfm,
+		"backup":tasks.backuphere,
 	#	"update":update,
-	#	"fix":fixdb
+		"fix":tasks.fixdb
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))

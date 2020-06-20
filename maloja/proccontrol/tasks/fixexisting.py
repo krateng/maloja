@@ -1,7 +1,7 @@
 import os
-from .globalconf import datadir
+from ...globalconf import datadir
 import re
-from .cleanup import CleanerAgent
+from ...cleanup import CleanerAgent
 from doreah.logging import log
 import difflib
 import datetime
