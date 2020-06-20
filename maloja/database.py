@@ -854,7 +854,7 @@ def rebuild(**keys):
 		global db_rulestate
 		db_rulestate = False
 		sync()
-		from .fixexisting import fix
+		from .proccontrol.tasks.fixexisting import fix
 		fix()
 		global cla, coa
 		cla = CleanerAgent()
