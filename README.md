@@ -59,8 +59,8 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 5) (Recommended) Until I have a proper service implemented, I would recommend setting two cronjobs for maloja:
 
 ```
-@reboot maloja start
-42 0 * * * maloja restart
+@reboot sleep 15 && maloja start
+42 0 * * 2 maloja restart
 ```
 
 

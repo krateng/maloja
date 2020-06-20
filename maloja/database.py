@@ -933,6 +933,7 @@ def build_db():
 	log("Building database...")
 
 	global SCROBBLES, ARTISTS, TRACKS
+	global TRACKS_NORMALIZED_SET, TRACKS_NORMALIZED, ARTISTS_NORMALIZED_SET, ARTISTS_NORMALIZED
 	global SCROBBLESDICT, STAMPS
 
 	SCROBBLES = []
@@ -940,6 +941,11 @@ def build_db():
 	TRACKS = []
 	STAMPS = []
 	SCROBBLESDICT = {}
+
+	TRACKS_NORMALIZED = []
+	ARTISTS_NORMALIZED = []
+	ARTISTS_NORMALIZED_SET = set()
+	TRACKS_NORMALIZED_SET = set()
 
 
 	# parse files
@@ -1067,6 +1073,9 @@ cache_query_perm = lru.LRU(csz)
 cache_aggregate = lru.LRU(csz)
 cache_aggregate_perm = lru.LRU(csz)
 
+perm_caching = settings.get_settings("CACHE_DATABASE_PERM")
+temp_caching = settings.get_settings("CACHE_DATABASE_SHORT")
+
 cachestats = {
 	"cache_query":{
 		"hits_perm":0,
@@ -1102,11 +1111,11 @@ def db_query_cached(**kwargs):
 	eligible_permanent_caching = (
 		"timerange" in kwargs and
 		not kwargs["timerange"].active() and
-		settings.get_settings("CACHE_DATABASE_PERM")
+		perm_caching
 	)
 	eligible_temporary_caching = (
 		not eligible_permanent_caching and
-		settings.get_settings("CACHE_DATABASE_SHORT")
+		temp_caching
 	)
 
 	# hit permanent cache for past timeranges
@@ -1138,11 +1147,11 @@ def db_aggregate_cached(**kwargs):
 	eligible_permanent_caching = (
 		"timerange" in kwargs and
 		not kwargs["timerange"].active() and
-		settings.get_settings("CACHE_DATABASE_PERM")
+		perm_caching
 	)
 	eligible_temporary_caching = (
 		not eligible_permanent_caching and
-		settings.get_settings("CACHE_DATABASE_SHORT")
+		temp_caching
 	)
 
 	# hit permanent cache for past timeranges
@@ -1173,17 +1182,18 @@ def invalidate_caches():
 	log("Database caches invalidated.")
 
 def reduce_caches(to=0.75):
-	global cache_query, cache_aggregate
-	for c in cache_query, cache_aggregate:
+	global cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm
+	for c in cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm:
 		currentsize = len(c)
-		targetsize = int(currentsize * to)
-		c.set_size(targetsize)
-		c.set_size(csz)
+		if currentsize > 100:
+			targetsize = max(int(currentsize * to),10)
+			c.set_size(targetsize)
+			c.set_size(csz)
 
 def reduce_caches_if_low_ram():
 	ramprct = psutil.virtual_memory().percent
 	if ramprct > cmp:
-		log("{prct}% RAM usage, reducing temporary caches!".format(prct=ramprct),module="debug")
+		log("{prct}% RAM usage, reducing caches!".format(prct=ramprct),module="debug")
 		ratio = (cmp / ramprct) ** 3
 		reduce_caches(to=ratio)
 
