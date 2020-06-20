@@ -3,6 +3,7 @@ from datetime import datetime
 import glob
 import os
 from ...globalconf import datadir
+from pathlib import PurePath
 
 
 user_files = {
@@ -32,4 +33,6 @@ def backup(folder,level="full"):
 	assert not os.path.exists(archivefile)
 	with tarfile.open(name=archivefile,mode="x:gz") as archive:
 		for f in real_files:
-			archive.add(f)
+			p = PurePath(f)
+			r = p.relative_to(datadir())
+			archive.add(f,arcname=r)
