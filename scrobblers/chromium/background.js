@@ -17,6 +17,13 @@ pages = {
 		],
 		"script":"plex.js"
 	},
+	"Jellyfin":{
+		"patterns":[
+			"https://jellyfin.",
+			"http://jellyfin."
+		],
+		"script":"jellyfin.js"
+	},
 	"YouTube Music":{
 		"patterns":[
 			"https://music.youtube.com"
