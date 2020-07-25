@@ -9,6 +9,7 @@
 import xml.etree.ElementTree as ElementTree
 import json
 import urllib.parse, urllib.request
+import base64
 from doreah.settings import get_settings
 from doreah.logging import log
 
@@ -52,6 +53,7 @@ class GenericInterface:
 		# avoid constant disk access, restart on adding services is acceptable
 		for key in self.settings:
 			self.settings[key] = get_settings(self.settings[key])
+		self.authorize()
 
 	def __init_subclass__(cls,abstract=False):
 		if not abstract:
@@ -65,6 +67,10 @@ class GenericInterface:
 			if s.active_metadata():
 				services["metadata"].append(s)
 				log(cls.name + " registered as metadata provider")
+
+	def authorize(self):
+		return True
+		# per default. no authorization is necessary
 
 # proxy scrobbler
 class ProxyScrobbleInterface(GenericInterface,abstract=True):
@@ -150,13 +156,15 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 def utf(st):
 	return st.encode(encoding="UTF-8")
-
+def b64(inp):
+	return base64.b64encode(inp)
 
 
 
 ### actually create everything
 
 __all__ = [
-	"lastfm"
+	"lastfm",
+	"spotify"
 ]
 from . import *
