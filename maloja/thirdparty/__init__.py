@@ -53,13 +53,13 @@ class GenericInterface:
 			s = cls()
 			if s.active_proxyscrobble():
 				services["proxyscrobble"].append(s)
-				log(cls.name + "Registered as proxy scrobble target")
+				log(cls.name + " registered as proxy scrobble target")
 			if s.active_import():
 				services["import"].append(s)
-				log(cls.name + "Registered as scrobble import source")
+				log(cls.name + " registered as scrobble import source")
 			if s.active_metadata():
 				services["metadata"].append(s)
-				log(cls.name + "Registered for metadata provider")
+				log(cls.name + " registered as metadata provider")
 
 # proxy scrobbler
 class ProxyScrobbleInterface(GenericInterface,abstract=True):
@@ -78,11 +78,11 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 	def scrobble(self,artists,title,timestamp):
 		response = urllib.request.urlopen(
 			self.proxyscrobble["scrobbleurl"],
-			data=utf(self.postdata(artists,title,timestamp)))
+			data=utf(self.proxyscrobble_postdata(artists,title,timestamp)))
 		responsedata = response.read()
 		if self.proxyscrobble["response_type"] == "xml":
 			data = ElementTree.fromstring(responsedata)
-			return self.parse_response(data)
+			return self.proxyscrobble_parse_response(data)
 
 # scrobble import
 class ImportInterface(GenericInterface,abstract=True):
@@ -127,4 +127,5 @@ def utf(st):
 
 ### actually create everything
 
-from . import lastfm
+__all__ = ["lastfm"] # list them for now, do this dynamically later
+from . import *

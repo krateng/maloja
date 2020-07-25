@@ -18,10 +18,10 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		"activated_setting": "SCROBBLE_LASTFM"
 	}
 
-	def parse_response(self,data):
+	def proxyscrobble_parse_response(self,data):
 		return data.attrib.get("status") == "ok" and data.find("scrobbles").attrib.get("ignored") == "0"
 
-	def postdata(self,artists,title,timestamp):
+	def proxyscrobble_postdata(self,artists,title,timestamp):
 		return self.query_compose({
 			"method":"track.scrobble",
 			"artist[0]":", ".join(artists),
