@@ -14,8 +14,8 @@ from doreah import caching
 from doreah.logging import log
 from doreah.regular import yearly, daily
 
-from .external import api_request_track, api_request_artist
-from .thirdparty import get_image_track_all
+#from .external import api_request_track, api_request_artist
+from .thirdparty import get_image_track_all, get_image_artist_all
 from .__pkginfo__ import version
 from . import globalconf
 from .globalconf import datadir
@@ -348,7 +348,8 @@ def getArtistImage(artist,fast=False):
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)
 
 	# non-fast lookup (esentially only the resolver lookup)
-	result = api_request_artist(artist=artist)
+#	result = api_request_artist(artist=artist)
+	result = get_image_artist_all(artist)
 
 	# cache results (even negative ones)
 	#cachedArtists[artist] = result

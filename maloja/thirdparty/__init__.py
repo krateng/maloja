@@ -31,6 +31,10 @@ def get_image_track_all(track):
 	for service in services["metadata"]:
 		res = service.get_image_track(track)
 		if res is not None: return res
+def get_image_artist_all(artist):
+	for service in services["metadata"]:
+		res = service.get_image_artist(artist)
+		if res is not None: return res
 
 
 
@@ -135,13 +139,33 @@ class MetadataInterface(GenericInterface,abstract=True):
 		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
 			data = json.loads(responsedata)
-			return self.metadata_parse_response(data)
+			return self.metadata_parse_response_track(data)
+
+	def get_image_artist(self,artist):
+		artiststring = urllib.parse.quote(artist)
+		response = urllib.request.urlopen(
+			self.metadata["artisturl"].format(artist=artiststring,**self.settings)
+		)
+
+		responsedata = response.read()
+		if self.metadata["response_type"] == "json":
+			data = json.loads(responsedata)
+			return self.metadata_parse_response_artist(data)
 
 	# default function to parse response by descending down nodes
 	# override if more complicated
-	def metadata_parse_response(self,data):
+	def metadata_parse_response_artist(self,data):
 		res = data
-		for node in self.metadata["response_parse_tree"]:
+		for node in self.metadata["response_parse_tree_artist"]:
+			try:
+				res = res[node]
+			except:
+				return None
+		return res
+
+	def metadata_parse_response_track(self,data):
+		res = data
+		for node in self.metadata["response_parse_tree_track"]:
 			try:
 				res = res[node]
 			except:
