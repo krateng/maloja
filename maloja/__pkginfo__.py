@@ -20,7 +20,7 @@ requires = [
 	"setproctitle>=1.1.10",
 	"wand>=0.5.4",
 	"lesscpy>=0.13",
-	"jinja2">2.11
+	"jinja2>2.11"
 ]
 resources = [
 	"web/*/*",

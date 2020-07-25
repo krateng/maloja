@@ -6,7 +6,10 @@ from . import utilities
 from .malojatime import register_scrobbletime, time_stamps, ranges
 from .urihandler import uri_to_internal, internal_to_uri, compose_querystring
 from . import compliant_api
-from .external import proxy_scrobble
+
+#from .external import proxy_scrobble
+from .thirdparty import proxy_scrobble_all
+
 from .__pkginfo__ import version
 from .globalconf import datadir
 # doreah toolkit
@@ -155,7 +158,7 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 	invalidate_caches()
 	dblock.release()
 
-	proxy_scrobble(artists,title,time)
+	proxy_scrobble_all(artists,title,time)
 
 	return get_track_dict(TRACKS[obj.track])
 
