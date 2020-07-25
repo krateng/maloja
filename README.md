@@ -15,8 +15,10 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 ## Table of Contents
 * [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
 * [How to install](#how-to-install)
+	* [Environment](#environment)
 	* [New Installation](#new-installation)
 	* [Update](#update)
+	* [Docker](#docker)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
 	* [Data](#data)
@@ -40,6 +42,10 @@ Also neat: You can use your **custom artist or track images**.
 
 ## How to install
 
+### Environment
+
+I can support you with issues best if you use **Alpine Linux**. In my experience, **2-4 GB RAM** should do nicely.
+
 ### New Installation
 
 1) Make sure you have Python 3.5 or higher installed. You also need some basic packages that should be present on most systems, but I've provided simple shell scripts for Alpine and Ubuntu to get everything you need.
@@ -53,8 +59,8 @@ Also neat: You can use your **custom artist or track images**.
 5) (Recommended) Until I have a proper service implemented, I would recommend setting two cronjobs for maloja:
 
 ```
-@reboot maloja start
-42 0 * * * maloja restart
+@reboot sleep 15 && maloja start
+42 0 * * 2 maloja restart
 ```
 
 
@@ -62,6 +68,11 @@ Also neat: You can use your **custom artist or track images**.
 
 * If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `~/.local/share/maloja` folder.
 * Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
+
+
+### Docker
+
+There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/foxxmd/maloja) kindly provided by FoxxMD.
 
 
 ## How to use

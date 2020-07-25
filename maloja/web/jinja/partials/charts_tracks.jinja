@@ -1,7 +1,8 @@
-{% macro charts_tracks(filterkeys,limitkeys,amountkeys,compare=False) %}
+{% macro charts_tracks(filterkeys,limitkeys,amountkeys,charts=None,compare=False) %}
 
-
-{% set tracks = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% if charts is none %}
+	{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% endif %}
 {% if compare %}
 	{% if compare is true %}
 		{% set compare = limitkeys.timerange.next(step=-1) %}
@@ -9,11 +10,11 @@
 	{% set prevtracks = dbp.get_charts_tracks(filterkeys,{'timerange':compare}) %}
 
 	{% set lastrank = {} %}
-	{% for t in tracks %}
+	{% for t in charts %}
 		{% if lastrank.update({(t.track.artists,t.track.title):t.rank}) %}{% endif %}
 	{% endfor %}
 
-	{% for t in tracks %}
+	{% for t in charts %}
 		{% if (t.track.artists,t.track.title) in lastrank %}
 			{% if t.update({'lastrank':lastrank[(t.track.artists,t.track.title)]}) %}{% endif %}
 		{% endif %}
@@ -24,10 +25,10 @@
 {% set lastindex = firstindex + amountkeys.perpage %}
 
 
-{% set maxbar = tracks[0]['scrobbles'] if tracks != [] else 0 %}
+{% set maxbar = charts[0]['scrobbles'] if charts != [] else 0 %}
 
 <table class='list'>
-	{% for e in tracks %}
+	{% for e in charts %}
 		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
 		<tr>
 			<!-- Rank -->

@@ -112,7 +112,7 @@
 
 		<h2>External</h2>
 
-		<a class="textlink" href="https://github.com/krateng/maloja/issues/new">Report Issue</a><br/>
+		<a class="textlink" target="_blank" rel="noopener noreferrer" href="https://github.com/krateng/maloja/issues/new">Report Issue</a><br/>
 
 		<pyhp include="common/footer.html" />
 	</body>

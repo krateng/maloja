@@ -2,7 +2,10 @@ import tarfile
 from datetime import datetime
 import glob
 import os
-from .globalconf import datadir
+from ...globalconf import datadir
+from pathlib import PurePath
+
+from doreah.logging import log
 
 
 user_files = {
@@ -25,6 +28,8 @@ def backup(folder,level="full"):
 	for g in selected_files:
 		real_files += glob.glob(datadir(g))
 
+	log("Creating backup of " + str(len(real_files)) + " files...")
+
 	now = datetime.utcnow()
 	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")
 	filename = "maloja_backup_" + timestr + ".tar.gz"
@@ -32,4 +37,7 @@ def backup(folder,level="full"):
 	assert not os.path.exists(archivefile)
 	with tarfile.open(name=archivefile,mode="x:gz") as archive:
 		for f in real_files:
-			archive.add(f)
+			p = PurePath(f)
+			r = p.relative_to(datadir())
+			archive.add(f,arcname=r)
+	log("Backup created!")

@@ -1,0 +1,34 @@
+{% extends "base.jinja" %}
+{% block title %}Maloja - Track Charts{% endblock %}
+
+{% block scripts %}
+	<script src="/datechange.js" async></script>
+{% endblock %}
+
+{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+
+
+{% block content %}
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			<div style="background-image:url('{{ img }}')"></div>
+		</td>
+		<td class="text">
+			<h1>Track Charts</h1><a href="/top_tracks"><span>View #1 Tracks</span></a><br/>
+			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+			<br/><br/>
+			{{ htmlmodules.module_filterselection(_urikeys) }}
+
+		</td>
+	</tr>
+</table>
+
+
+{% import 'partials/charts_tracks.jinja' as charts_tracks %}
+
+{{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,charts=charts,compare=false) }}
+
+
+{% endblock %}

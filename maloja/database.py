@@ -1,5 +1,6 @@
 # server
 from bottle import request, response, FormsDict
+
 # rest of the project
 from .cleanup import CleanerAgent, CollectorAgent
 from . import utilities
@@ -12,6 +13,7 @@ from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
 from .globalconf import datadir
+
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
@@ -21,9 +23,11 @@ try:
 	from doreah.persistence import DiskDict
 except: pass
 import doreah
+
 # nimrodel API
 from nimrodel import EAPI as API
 from nimrodel import Multi
+
 # technical
 import os
 import datetime
@@ -32,6 +36,8 @@ import unicodedata
 from collections import namedtuple
 from threading import Lock
 import yaml
+import lru
+
 # url handling
 from importlib.machinery import SourceFileLoader
 import urllib
@@ -722,7 +728,7 @@ def abouttoshutdown():
 def newrule(**keys):
 	apikey = keys.pop("key",None)
 	if (checkAPIkey(apikey)):
-		tsv.add_entry("rules/webmade.tsv",[k for k in keys])
+		tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
 		#addEntry("rules/webmade.tsv",[k for k in keys])
 		global db_rulestate
 		db_rulestate = False
@@ -851,7 +857,7 @@ def rebuild(**keys):
 		global db_rulestate
 		db_rulestate = False
 		sync()
-		from .fixexisting import fix
+		from .proccontrol.tasks.fixexisting import fix
 		fix()
 		global cla, coa
 		cla = CleanerAgent()
@@ -930,6 +936,7 @@ def build_db():
 	log("Building database...")
 
 	global SCROBBLES, ARTISTS, TRACKS
+	global TRACKS_NORMALIZED_SET, TRACKS_NORMALIZED, ARTISTS_NORMALIZED_SET, ARTISTS_NORMALIZED
 	global SCROBBLESDICT, STAMPS
 
 	SCROBBLES = []
@@ -937,6 +944,11 @@ def build_db():
 	TRACKS = []
 	STAMPS = []
 	SCROBBLESDICT = {}
+
+	TRACKS_NORMALIZED = []
+	ARTISTS_NORMALIZED = []
+	ARTISTS_NORMALIZED_SET = set()
+	TRACKS_NORMALIZED_SET = set()
 
 
 	# parse files
@@ -1035,70 +1047,158 @@ def sync():
 ###
 
 
+
+
 import copy
 
-cache_query = {}
-if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
-	cache_query_permanent = DiskDict(name="dbquery",folder=datadir("cache"),maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
+if settings.get_settings("USE_DB_CACHE"):
+	def db_query(**kwargs):
+		return db_query_cached(**kwargs)
+	def db_aggregate(**kwargs):
+		return db_aggregate_cached(**kwargs)
 else:
-	cache_query_permanent = Cache(maxmemory=1024*1024*500)
-cacheday = (0,0,0)
-def db_query(**kwargs):
-	check_cache_age()
-	global cache_query, cache_query_permanent
+	def db_query(**kwargs):
+		return db_query_full(**kwargs)
+	def db_aggregate(**kwargs):
+		return db_aggregate_full(**kwargs)
+
+
+csz = settings.get_settings("DB_CACHE_ENTRIES")
+cmp = settings.get_settings("DB_MAX_MEMORY")
+try:
+	import psutil
+	use_psutil = True
+except:
+	use_psutil = False
+
+cache_query = lru.LRU(csz)
+cache_query_perm = lru.LRU(csz)
+cache_aggregate = lru.LRU(csz)
+cache_aggregate_perm = lru.LRU(csz)
+
+perm_caching = settings.get_settings("CACHE_DATABASE_PERM")
+temp_caching = settings.get_settings("CACHE_DATABASE_SHORT")
+
+cachestats = {
+	"cache_query":{
+		"hits_perm":0,
+		"hits_tmp":0,
+		"misses":0,
+		"objperm":cache_query_perm,
+		"objtmp":cache_query,
+		"name":"Query Cache"
+	},
+	"cache_aggregate":{
+		"hits_perm":0,
+		"hits_tmp":0,
+		"misses":0,
+		"objperm":cache_aggregate_perm,
+		"objtmp":cache_aggregate,
+		"name":"Aggregate Cache"
+	}
+}
+
+from doreah.regular import runhourly
+
+@runhourly
+def log_stats():
+	logstr = "{name}: {hitsperm} Perm Hits, {hitstmp} Tmp Hits, {misses} Misses; Current Size: {sizeperm}/{sizetmp}"
+	for s in (cachestats["cache_query"],cachestats["cache_aggregate"]):
+		log(logstr.format(name=s["name"],hitsperm=s["hits_perm"],hitstmp=s["hits_tmp"],misses=s["misses"],
+		sizeperm=len(s["objperm"]),sizetmp=len(s["objtmp"])),module="debug")
+
+def db_query_cached(**kwargs):
+	global cache_query, cache_query_perm
 	key = utilities.serialize(kwargs)
-	if "timerange" in kwargs and not kwargs["timerange"].active():
-		if key in cache_query_permanent:
-			#print("Hit")
-			return copy.copy(cache_query_permanent.get(key))
-		#print("Miss")
-		result = db_query_full(**kwargs)
-		cache_query_permanent.add(key,copy.copy(result))
-		#print(cache_query_permanent.cache)
+
+	eligible_permanent_caching = (
+		"timerange" in kwargs and
+		not kwargs["timerange"].active() and
+		perm_caching
+	)
+	eligible_temporary_caching = (
+		not eligible_permanent_caching and
+		temp_caching
+	)
+
+	# hit permanent cache for past timeranges
+	if eligible_permanent_caching and key in cache_query_perm:
+		cachestats["cache_query"]["hits_perm"] += 1
+		return copy.copy(cache_query_perm.get(key))
+
+	# hit short term cache
+	elif eligible_temporary_caching and key in cache_query:
+		cachestats["cache_query"]["hits_tmp"] += 1
+		return copy.copy(cache_query.get(key))
+
 	else:
-		#print("I guess they never miss huh")
-		if key in cache_query: return copy.copy(cache_query[key])
+		cachestats["cache_query"]["misses"] += 1
 		result = db_query_full(**kwargs)
-		cache_query[key] = copy.copy(result)
+		if eligible_permanent_caching: cache_query_perm[key] = result
+		elif eligible_temporary_caching: cache_query[key] = result
 
-	return result
+		if use_psutil:
+			reduce_caches_if_low_ram()
 
-cache_aggregate = {}
-if doreah.version >= (0,7,1) and settings.get_settings("EXPERIMENTAL_FEATURES"):
-	cache_aggregate_permanent = DiskDict(name="dbaggregate",folder="cache",maxmemory=1024*1024*500,maxstorage=1024*1024*settings.get_settings("DB_CACHE_SIZE"))
-else:
-	cache_aggregate_permanent = Cache(maxmemory=1024*1024*500)
-def db_aggregate(**kwargs):
-	check_cache_age()
-	global cache_aggregate, cache_aggregate_permanent
+		return result
+
+
+def db_aggregate_cached(**kwargs):
+	global cache_aggregate, cache_aggregate_perm
 	key = utilities.serialize(kwargs)
-	if "timerange" in kwargs and not kwargs["timerange"].active():
-		if key in cache_aggregate_permanent: return copy.copy(cache_aggregate_permanent.get(key))
-		result = db_aggregate_full(**kwargs)
-		cache_aggregate_permanent.add(key,copy.copy(result))
-	else:
-		if key in cache_aggregate: return copy.copy(cache_aggregate[key])
-		result = db_aggregate_full(**kwargs)
-		cache_aggregate[key] = copy.copy(result)
 
-	return result
+	eligible_permanent_caching = (
+		"timerange" in kwargs and
+		not kwargs["timerange"].active() and
+		perm_caching
+	)
+	eligible_temporary_caching = (
+		not eligible_permanent_caching and
+		temp_caching
+	)
+
+	# hit permanent cache for past timeranges
+	if eligible_permanent_caching and key in cache_aggregate_perm:
+		cachestats["cache_aggregate"]["hits_perm"] += 1
+		return copy.copy(cache_aggregate_perm.get(key))
+
+	# hit short term cache
+	elif eligible_temporary_caching and key in cache_aggregate:
+		cachestats["cache_aggregate"]["hits_tmp"] += 1
+		return copy.copy(cache_aggregate.get(key))
+
+	else:
+		cachestats["cache_aggregate"]["misses"] += 1
+		result = db_aggregate_full(**kwargs)
+		if eligible_permanent_caching: cache_aggregate_perm[key] = result
+		elif eligible_temporary_caching: cache_aggregate[key] = result
+
+		if use_psutil:
+			reduce_caches_if_low_ram()
+
+		return result
 
 def invalidate_caches():
 	global cache_query, cache_aggregate
-	cache_query = {}
-	cache_aggregate = {}
-
-	now = datetime.datetime.utcnow()
-	global cacheday
-	cacheday = (now.year,now.month,now.day)
-
+	cache_query.clear()
+	cache_aggregate.clear()
 	log("Database caches invalidated.")
 
-def check_cache_age():
-	now = datetime.datetime.utcnow()
-	global cacheday
-	if cacheday != (now.year,now.month,now.day): invalidate_caches()
+def reduce_caches(to=0.75):
+	global cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm
+	for c in cache_query, cache_aggregate, cache_query_perm, cache_aggregate_perm:
+		currentsize = len(c)
+		if currentsize > 100:
+			targetsize = max(int(currentsize * to),10)
+			c.set_size(targetsize)
+			c.set_size(csz)
 
+def reduce_caches_if_low_ram():
+	ramprct = psutil.virtual_memory().percent
+	if ramprct > cmp:
+		log("{prct}% RAM usage, reducing caches!".format(prct=ramprct),module="debug")
+		ratio = (cmp / ramprct) ** 3
+		reduce_caches(to=ratio)
 
 ####
 ## Database queries

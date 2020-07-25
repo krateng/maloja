@@ -45,7 +45,7 @@
 			{% endif %}
 		</td>
 		<td class="text">
-			<h1>{{ artist }}</h1>
+			<h1 class="headerwithextra">{{ artist }}</h1>
 				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
 				{% if competes and included %}
@@ -83,7 +83,7 @@
 
 	<tr>
 		<td>
-			<h2><a href='/pulse?{{ encodedartist }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+			<h2 class="headerwithextra"><a href='/pulse?{{ encodedartist }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
 			<br/>
 			{% for range in xranges %}
 			<span
@@ -112,7 +112,7 @@
 		</td>
 		<td>
 			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-			<h2><a href='/performance?{{ encodedcredited }}&amp;step=year&amp;trail=1'>Performance</a></h2>
+			<h2 class="headerwithextra"><a href='/performance?{{ encodedcredited }}&amp;step=year&amp;trail=1'>Performance</a></h2>
 			{% if not competes %}<span class="afterheader">of {{ htmlgenerators.artistLink(credited) }}</span>
 			{% endif %}
 			<br/>
