@@ -7,6 +7,7 @@
 # pls don't sue me
 
 import xml.etree.ElementTree as ElementTree
+import json
 import urllib.parse, urllib.request
 from doreah.settings import get_settings
 from doreah.logging import log
@@ -25,6 +26,10 @@ def proxy_scrobble_all(artists,title,timestamp):
 	for service in services["proxyscrobble"]:
 		service.scrobble(artists,title,timestamp)
 
+def get_image_track_all(track):
+	for service in services["metadata"]:
+		res = service.get_image_track(track)
+		if res is not None: return res
 
 
 
@@ -113,6 +118,30 @@ class MetadataInterface(GenericInterface,abstract=True):
 			get_settings(self.metadata["activated_setting"])
 		)
 
+	def get_image_track(self,track):
+		artists, title = track
+		artiststring = urllib.parse.quote(", ".join(artists))
+		titlestring = urllib.parse.quote(title)
+		response = urllib.request.urlopen(
+			self.metadata["trackurl"].format(artist=artiststring,title=titlestring,**self.settings)
+		)
+
+		responsedata = response.read()
+		if self.metadata["response_type"] == "json":
+			data = json.loads(responsedata)
+			return self.metadata_parse_response(data)
+
+	# default function to parse response by descending down nodes
+	# override if more complicated
+	def metadata_parse_response(self,data):
+		res = data
+		for node in self.metadata["response_parse_tree"]:
+			try:
+				res = res[node]
+			except:
+				return None
+		return res
+
 
 
 
@@ -127,5 +156,7 @@ def utf(st):
 
 ### actually create everything
 
-__all__ = ["lastfm"] # list them for now, do this dynamically later
+__all__ = [
+	"lastfm"
+]
 from . import *

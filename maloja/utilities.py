@@ -15,6 +15,7 @@ from doreah.logging import log
 from doreah.regular import yearly, daily
 
 from .external import api_request_track, api_request_artist
+from .thirdparty import get_image_track_all
 from .__pkginfo__ import version
 from . import globalconf
 from .globalconf import datadir
@@ -292,7 +293,8 @@ def getTrackImage(artists,title,fast=False):
 	if fast: return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
 
 	# non-fast lookup (esentially only the resolver lookup)
-	result = api_request_track((artists,title))
+#	result = api_request_track((artists,title))
+	result = get_image_track_all((artists,title))
 
 	# cache results (even negative ones)
 	#cachedTracks[(frozenset(artists),title)] = result
