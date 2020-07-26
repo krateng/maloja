@@ -8,7 +8,6 @@ from .malojatime import register_scrobbletime, time_stamps, ranges
 from .urihandler import uri_to_internal, internal_to_uri, compose_querystring
 from . import compliant_api
 
-#from .external import proxy_scrobble
 from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
