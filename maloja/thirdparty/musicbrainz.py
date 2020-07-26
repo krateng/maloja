@@ -57,7 +57,6 @@ class MusicBrainz(MetadataInterface):
 			return self.metadata_parse_response_track(data)
 
 		except:
-			raise
 			return None
 		finally:
 			time.sleep(2)

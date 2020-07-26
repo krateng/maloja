@@ -145,6 +145,7 @@ replaceartist	여자친구 GFriend			GFriend
 
 # Girl's Generation
 replaceartist	소녀시대				Girls' Generation
+replaceartist	SNSD				Girls' Generation
 
 # Apink
 replaceartist	A Pink					Apink
@@ -162,6 +163,11 @@ replacetitle	달라달라 (DALLA DALLA)			Dalla Dalla
 # K/DA
 belongtogether	K/DA
 
+# 2NE1
+countas			CL						2NE1
+
+# WJSN
+replaceartist	Cosmic Girls			WJSN
 
 # Popular Remixes
 artistintitle	Areia Remix				Areia

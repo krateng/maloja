@@ -1,4 +1,4 @@
-
+var searches = []
 
 function search(searchfield) {
 	txt = searchfield.value;
@@ -7,6 +7,7 @@ function search(searchfield) {
 	}
 	else {
 		xhttp = new XMLHttpRequest();
+		searches.push(xhttp)
 		xhttp.onreadystatechange = searchresult
 		xhttp.open("GET","/api/search?max=5&query=" + encodeURIComponent(txt), true);
 		xhttp.send();
@@ -45,8 +46,9 @@ const oneresult = html_to_fragment(resulthtml).firstElementChild;
 
 
 function searchresult() {
-	if (this.readyState == 4 && this.status == 200 && document.getElementById("searchinput").value != "") {
-		// checking if field is empty in case we get an old result coming in that would overwrite our cleared result window
+	if (this.readyState == 4 && this.status == 200 && document.getElementById("searchinput").value != "" && searches.includes(this)) {
+		// any older searches are now rendered irrelevant
+		while (searches[0] != this) { searches.splice(0,1) }
 		var result = JSON.parse(this.responseText);
 		var artists = result["artists"].slice(0,5)
 		var tracks = result["tracks"].slice(0,5)
