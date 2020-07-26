@@ -34,5 +34,4 @@ class Spotify(MetadataInterface):
 		req = urllib.request.Request(**keys)
 		response = urllib.request.urlopen(req)
 		self.settings["token"] = json.loads(response.read())["access_token"]
-		print(self.settings)
 		return True

@@ -30,11 +30,19 @@ def proxy_scrobble_all(artists,title,timestamp):
 def get_image_track_all(track):
 	for service in services["metadata"]:
 		res = service.get_image_track(track)
-		if res is not None: return res
+		if res is not None:
+			log("Got track image for " + str(track) + " from " + service.name)
+			return res
+		else:
+			log("Could not get track image for " + str(track) + " from " + service.name)
 def get_image_artist_all(artist):
 	for service in services["metadata"]:
 		res = service.get_image_artist(artist)
-		if res is not None: return res
+		if res is not None:
+			log("Got artist image for " + str(artist) + " from " + service.name)
+			return res
+		else:
+			log("Could not get artist image for " + str(artist) + " from " + service.name)
 
 
 
@@ -189,6 +197,7 @@ def b64(inp):
 
 __all__ = [
 	"lastfm",
-	"spotify"
+	"spotify",
+	"musicbrainz"
 ]
 from . import *
