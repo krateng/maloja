@@ -8,6 +8,7 @@ from ..__pkginfo__ import versionstr, author, links
 
 class MusicBrainz(MetadataInterface):
 	name = "MusicBrainz"
+	identifier = "musicbrainz"
 
 	# musicbrainz is rate-limited
 	lock = threading.Lock()

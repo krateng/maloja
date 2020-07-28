@@ -22,6 +22,8 @@ services = {
 	"metadata":[]
 }
 
+metadata_service_ids = {}
+
 
 def proxy_scrobble_all(artists,title,timestamp):
 	for service in services["proxyscrobble"]:
@@ -77,7 +79,7 @@ class GenericInterface:
 				services["import"].append(s)
 				log(cls.name + " registered as scrobble import source")
 			if s.active_metadata():
-				services["metadata"].append(s)
+				metadata_service_ids[s.identifier] = s
 				log(cls.name + " registered as metadata provider")
 
 	def authorize(self):
@@ -201,3 +203,11 @@ __all__ = [
 	"musicbrainz"
 ]
 from . import *
+
+
+
+services["metadata"] = [
+	metadata_service_ids[pr]
+	for pr in get_settings("METADATA_PROVIDERS")
+	if metadata_service_ids[pr].active_metadata()
+]

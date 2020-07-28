@@ -5,6 +5,7 @@ import json
 
 class Spotify(MetadataInterface):
 	name = "Spotify"
+	identifier = "spotify"
 
 	settings = {
 		"apiid":"SPOTIFY_API_ID",

@@ -4,6 +4,7 @@ import urllib.parse, urllib.request
 
 class LastFM(MetadataInterface, ProxyScrobbleInterface):
 	name = "LastFM"
+	identifier = "lastfm"
 
 	settings = {
 		"apikey":"LASTFM_API_KEY",
