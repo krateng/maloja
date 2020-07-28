@@ -15,14 +15,11 @@ from doreah.logging import log
 
 
 
-
 services = {
 	"proxyscrobble":[],
 	"import":[],
 	"metadata":[]
 }
-
-metadata_service_ids = {}
 
 
 def proxy_scrobble_all(artists,title,timestamp):
@@ -79,7 +76,7 @@ class GenericInterface:
 				services["import"].append(s)
 				log(cls.name + " registered as scrobble import source")
 			if s.active_metadata():
-				metadata_service_ids[s.identifier] = s
+				services["metadata"].append(s)
 				log(cls.name + " registered as metadata provider")
 
 	def authorize(self):
@@ -135,7 +132,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 	def active_metadata(self):
 		return (
 			all(self.settings[key] not in [None,"ASK"] for key in self.metadata["required_settings"]) and
-			get_settings(self.metadata["activated_setting"])
+			self.identifier in get_settings("METADATA_PROVIDERS")
 		)
 
 	def get_image_track(self,track):
@@ -205,9 +202,6 @@ __all__ = [
 from . import *
 
 
-
-services["metadata"] = [
-	metadata_service_ids[pr]
-	for pr in get_settings("METADATA_PROVIDERS")
-	if metadata_service_ids[pr].active_metadata()
-]
+services["metadata"].sort(
+	key=lambda provider : get_settings("METADATA_PROVIDERS").index(provider.identifier)
+)
