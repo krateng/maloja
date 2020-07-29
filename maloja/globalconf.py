@@ -49,6 +49,12 @@ config(
 	},
 	regular={
 		"autostart": False
+	},
+	auth={
+		"multiuser":False,
+		"cookieprefix":"maloja",
+		"stylesheets":["/style.css"],
+		"dbfile":datadir("auth/auth.ddb")
 	}
 )
 

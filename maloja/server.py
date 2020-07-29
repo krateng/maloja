@@ -25,6 +25,7 @@ from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
 from doreah.pyhp import file as pyhpfile
+from doreah.auth import get_login_page, authapi, authenticated
 # technical
 #from importlib.machinery import SourceFileLoader
 import importlib
@@ -55,6 +56,7 @@ STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
 DATAFOLDER = DATA_DIR
 
 webserver = Bottle()
+authapi.mount(server=webserver)
 
 pthjoin = os.path.join
 
@@ -158,6 +160,10 @@ def get_css():
 	return css
 
 
+@webserver.route("/login")
+def login():
+	return get_login_page()
+
 @webserver.route("/<name>.<ext>")
 def static(name,ext):
 	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
@@ -216,7 +222,15 @@ jinjaenv = Environment(
 jinjaenv.globals.update(JINJA_CONTEXT)
 
 
+@webserver.route("/<name:re:(issues|manual|setup|admin)>")
+@authenticated
+def static_html_private(name):
+	return static_html(name)
+
 @webserver.route("/<name>")
+def static_html_public(name):
+	return static_html(name)
+
 def static_html(name):
 	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
