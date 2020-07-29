@@ -25,7 +25,7 @@ from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
 from doreah.pyhp import file as pyhpfile
-from doreah.auth import get_login_page, authapi, authenticated
+from doreah import auth
 # technical
 #from importlib.machinery import SourceFileLoader
 import importlib
@@ -56,7 +56,7 @@ STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
 DATAFOLDER = DATA_DIR
 
 webserver = Bottle()
-authapi.mount(server=webserver)
+auth.authapi.mount(server=webserver)
 
 pthjoin = os.path.join
 
@@ -162,7 +162,7 @@ def get_css():
 
 @webserver.route("/login")
 def login():
-	return get_login_page()
+	return auth.get_login_page()
 
 @webserver.route("/<name>.<ext>")
 def static(name,ext):
@@ -223,7 +223,7 @@ jinjaenv.globals.update(JINJA_CONTEXT)
 
 
 @webserver.route("/<name:re:(issues|manual|setup|admin)>")
-@authenticated
+@auth.authenticated
 def static_html_private(name):
 	return static_html(name)
 
@@ -242,7 +242,7 @@ def static_html(name):
 	pyhp_pref = settings.get_settings("USE_PYHP")
 	jinja_pref = settings.get_settings("USE_JINJA")
 
-	adminmode = request.cookies.get("adminmode") == "true" and database.checkAPIkey(request.cookies.get("apikey")) is not False
+	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	clock = Clock()
 	clock.start()

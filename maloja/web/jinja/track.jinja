@@ -4,8 +4,8 @@
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
 	<script>
-		function scrobble(encodedtrack,apikey) {
-			neo.xhttprequest('/api/newscrobble?' + encodedtrack + "key=" + apikey).then(response=>{window.location.reload()});
+		function scrobble(encodedtrack) {
+			neo.xhttprequest('/api/newscrobble?' + encodedtrack).then(response=>{window.location.reload()});
 		}
 	</script>
 {% endblock %}
@@ -45,7 +45,10 @@
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>
 
-			<p class="stats"><a href="/scrobbles?{{ encodedtrack }}">{{ info['scrobbles'] }} Scrobbles</a></p>
+			<p class="stats">
+				{% if adminmode %}<span onclick="scrobble('{{ encodedtrack }}')" class="button">Scrobble now</span>{% endif %}
+				<a href="/scrobbles?{{ encodedtrack }}">{{ info['scrobbles'] }} Scrobbles</a>
+			</p>
 
 
 
