@@ -829,6 +829,53 @@ def issues():
 	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
 
 
+def get_predefined_rulesets():
+	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	rulesets = []
+
+	for f in os.listdir(datadir("rules/predefined")):
+		if f.endswith(".tsv"):
+
+			rawf = f.replace(".tsv","")
+			valid = True
+			for char in rawf:
+				if char not in validchars:
+					valid = False
+					break # don't even show up invalid filenames
+
+			if not valid: continue
+			if not "_" in rawf: continue
+
+			try:
+				with open(datadir("rules/predefined",f)) as tsvfile:
+					line1 = tsvfile.readline()
+					line2 = tsvfile.readline()
+
+					if "# NAME: " in line1:
+						name = line1.replace("# NAME: ","")
+					else: name = rawf.split("_")[1]
+					if "# DESC: " in line2:
+						desc = line2.replace("# DESC: ","")
+					else: desc = ""
+
+					author = rawf.split("_")[0]
+			except:
+				continue
+
+			ruleset = {"file":rawf}
+			rulesets.append(ruleset)
+			if os.path.exists(datadir("rules",f)):
+				ruleset["active"] = True
+			else:
+				ruleset["active"] = False
+
+			ruleset["name"] = name
+			ruleset["author"] = author
+			ruleset["desc"] = desc
+
+	return rulesets
+
 @dbserver.post("importrules")
 def import_rulemodule(**keys):
 	apikey = keys.pop("key",None)
