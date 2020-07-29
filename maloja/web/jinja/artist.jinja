@@ -36,7 +36,7 @@
 		<td class="image">
 			{% if adminmode %}
 			<div
-				class="changeable-image" data-uploader="b64=>upload('{encodedartist}','{apikey}',b64)"
+				class="changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
 				style="background-image:url('{{ utilities.getArtistImage(artist=artist,fast=True) }}');"
 			></div>
 			{% else %}
