@@ -53,22 +53,6 @@
 				window.location.reload(true);
 			}
 
-			function buttonlock() {
-				button = document.getElementById("adminmodebutton")
-				if (apikeycorrect) {
-					button.classList.remove("locked");
-					if (button.innerHTML == "Activate") { button.onclick = activate; }
-					else { button.onclick = deactivate; }
-					// ugh
-				}
-				else {
-					button.classList.add("locked");
-					button.onclick = null;
-				}
-			}
-
-			window.addEventListener("load",function(){checkAPIkey(buttonlock)});
-			// we do this twice, but this one ensures that the button is correctly locked / unlocked after the api key has been checked
 		</script>
 	</head>
 
@@ -83,9 +67,7 @@
 					<div style="background-image:url('/favicon.png')"></div>
 				</td>
 				<td class="text">
-					<h1>Admin Panel</h1><br/>
-					<br/><br/>
-					API Key: <input id='apikey' onchange='checkAPIkey(buttonlock);' style='width:300px;'/><br/><br/>
+					<h1>Admin Panel</h1>
 
 				</td>
 			</tr>
@@ -101,8 +83,8 @@
 		<h2>Admin Mode</h2>
 
 		Admin Mode allows you to manually scrobble from various places on the web interface instead of just the dedicated page.<br/><br/>
-		<pyhp if="adminmode"><span id="adminmodebutton" class="button locked">Deactivate</span></pyhp>
-		<pyhp if="not adminmode"><span id="adminmodebutton" class="button locked">Activate</span></pyhp>
+		<pyhp if="adminmode"><span id="adminmodebutton" class="button">Deactivate</span></pyhp>
+		<pyhp if="not adminmode"><span id="adminmodebutton" class="button">Activate</span></pyhp>
 
 		<h2>Links</h2>
 
