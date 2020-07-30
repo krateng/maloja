@@ -2,6 +2,7 @@ from . import MetadataInterface, utf, b64
 import hashlib
 import urllib.parse, urllib.request
 import json
+from threading import Timer
 
 class Spotify(MetadataInterface):
 	name = "Spotify"
@@ -34,5 +35,8 @@ class Spotify(MetadataInterface):
 		}
 		req = urllib.request.Request(**keys)
 		response = urllib.request.urlopen(req)
-		self.settings["token"] = json.loads(response.read())["access_token"]
+		responsedata = json.loads(response.read())
+		expire = responsedata["expires_in"]
+		self.settings["token"] = responsedata["access_token"]
+		Timer(expire,self.authorize).start()
 		return True
