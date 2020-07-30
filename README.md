@@ -44,13 +44,13 @@ Also neat: You can use your **custom artist or track images**.
 
 ### Environment
 
-I can support you with issues best if you use **Alpine Linux**. In my experience, **2-4 GB RAM** should do nicely.
+I can support you with issues best if you use **Alpine Linux**. In my experience, **2 GB RAM** should do nicely, but higher amounts allow more caching and reduce page load times for complicated statistics.
 
 ### New Installation
 
 1) Make sure you have Python 3.5 or higher installed. You also need some basic packages that should be present on most systems, but I've provided simple shell scripts for Alpine and Ubuntu to get everything you need.
 
-2) If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/) (you need a project key, not a personal one). These are free of charge!
+2) If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!
 
 3) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary).
 
