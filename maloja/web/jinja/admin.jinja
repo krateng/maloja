@@ -1,54 +1,5 @@
 {% extends "base.jinja" %}
-{% block title %}Maloja - Admin Panel{% endblock %}
-
-{% block scripts %}
-	<script src="/cookies.js"></script>
-	<script>
-
-		function versioncompare(a,b) {
-			for (var pos=0;pos<3;pos++) {
-				var v1 = parseInt(a[pos]) || 0;
-				var v2 = parseInt(b[pos]) || 0;
-				if (v1 > v2) { return 1;}
-				if (v1 < v2) { return -1;}
-			}
-
-			return 0;
-		}
-		neo.xhttprequest("https://pypi.org/pypi/malojaserver/json",{},"GET",json=true).then((response)=>{
-			result = JSON.parse(response.responseText);
-			latestvers = result.info.version.split(".");
-
-			neo.xhttprequest("/api/serverinfo",{},"GET",json=true).then((response)=>{
-
-				result = JSON.parse(response.responseText);
-				thisvers = result.version;
-
-				document.getElementById("latestversion").innerHTML = latestvers.join(".");
-				document.getElementById("currentversion").innerHTML = thisvers.join(".");
-
-				if (versioncompare(latestvers,thisvers) <= 0) {
-					document.getElementById("currentversion").style.color = "green";
-				}
-				else {
-					document.getElementById("currentversion").style.color = "red";
-					document.getElementById("updatestatus").innerHTML = "Consider updating to take advantage of new features";
-				}
-			});
-		});
-
-
-		function activate() {
-			neo.setCookie("adminmode","true");
-			window.location.reload(true);
-		}
-		function deactivate() {
-			neo.setCookie("adminmode","false");
-			window.location.reload(true);
-		}
-
-	</script>
-{% endblock %}
+{% block title %}Maloja - Backend{% endblock %}
 
 
 {% block content %}
@@ -63,36 +14,36 @@
 			</td>
 			<td class="text">
 				<h1>Admin Panel</h1>
+				<br/>
+				<span>
+					{% if page=='admin_overview' %}
+						<span style="opacity:0.5;">Overview</span>
+					{% else %}
+						<a href="/admin_overview">Overview</a>
+					{% endif %} |
+					{% if page=='admin_setup' %}
+						<span style="opacity:0.5;">Server Setup</span>
+					{% else %}
+						<a href="/admin_setup">Server Setup</a>
+					{% endif %} |
+					{% if page=='admin_manual' %}
+						<span style="opacity:0.5;">Manual Scrobbling</span>
+					{% else %}
+						<a href="/admin_manual">Manual Scrobbling</a>
+					{% endif %} |
+					{% if page=='admin_issues' %}
+						<span style="opacity:0.5;">Database Maintenance</span>
+					{% else %}
+						<a href="/admin_issues">Database Maintenance</a>
+					{% endif %}
+				</span>
+				<br/><br/>
+				<span id="notification"></span>
 
 			</td>
 		</tr>
 	</table>
 
-	<h2>Update</h2>
-
-	Currently installed Maloja version: <span id="currentversion">Loading...</span><br/>
-	Latest recommended Maloja version: <span id="latestversion">Loading...</span><br/>
-	<span id="updatestatus"></span>
-
-
-	<h2>Admin Mode</h2>
-
-	Admin Mode allows you to manually scrobble from various places on the web interface instead of just the dedicated page.<br/><br/>
-	{% if adminmode %}
-	<span id="adminmodebutton" class="button" onclick="deactivate()">Deactivate</span>
-	{% else %}
-	<span id="adminmodebutton" class="button" onclick="activate()">Activate</span>
-	{% endif %}
-
-	<h2>Links</h2>
-
-	<a class="textlink" href="/setup">Server Setup</a><br/>
-	<a class="textlink" href="/manual">Manual Scrobbling</a><br/>
-	<a class="textlink" href="/issues">Database Maintenance</a>
-
-	<h2>External</h2>
-
-	<a class="textlink" target="_blank" rel="noopener noreferrer" href="https://github.com/krateng/maloja/issues/new">Report Issue</a><br/>
-
-
+	{% block maincontent %}
+	{% endblock %}
 {% endblock %}

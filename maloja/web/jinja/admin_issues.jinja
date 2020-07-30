@@ -1,9 +1,9 @@
-{% extends "base.jinja" %}
+{% set page ='admin_issues' %}
+{% extends "admin.jinja" %}
 {% block title %}Maloja - Issues{% endblock %}
 
 
 {% block scripts %}
-	<script src="/cookies.js"></script>
 	<script>
 		function newrule() {
 			keys = ""
@@ -34,22 +34,10 @@
 
 {% set issuedata = dbp.issues() %}
 
-{% block content %}
+{% block maincontent %}
 
-<table class="top_info">
-	<tr>
-		<td class="image">
-			<div style="background-image:url('/favicon.png')"></div>
-		</td>
-		<td class="text">
-			<h1>Possible Issues</h1><br/>
-			<span>with your library</span>
-			<!--<p class="stats">KEY_ISSUES Issues</p>-->
 
-			<p>Maloja can identify possible problems with consistency or redundancy in your library. After making any changes, you should <a class="textlink" onclick='fullrebuild()'>rebuild your library</a>.</p>
-		</td>
-	</tr>
-</table>
+<p>Maloja can identify possible problems with consistency or redundancy in your library. After making any changes, you should <a class="textlink" onclick='fullrebuild()'>rebuild your library</a>.</p>
 
 <table class="list">
 
