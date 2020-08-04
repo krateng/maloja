@@ -64,7 +64,8 @@ class GenericInterface:
 		# avoid constant disk access, restart on adding services is acceptable
 		for key in self.settings:
 			self.settings[key] = get_settings(self.settings[key])
-		self.authorize()
+		try: self.authorize()
+		except: pass
 
 	def __init_subclass__(cls,abstract=False):
 		if not abstract:
