@@ -147,7 +147,11 @@ class MetadataInterface(GenericInterface,abstract=True):
 		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
 			data = json.loads(responsedata)
-			return self.metadata_parse_response_track(data)
+			imgurl = self.metadata_parse_response_track(data)
+		else:
+			imgurl = None
+		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		return imgurl
 
 	def get_image_artist(self,artist):
 		artiststring = urllib.parse.quote(artist)
@@ -158,7 +162,11 @@ class MetadataInterface(GenericInterface,abstract=True):
 		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
 			data = json.loads(responsedata)
-			return self.metadata_parse_response_artist(data)
+			imgurl = self.metadata_parse_response_artist(data)
+		else:
+			imgurl = None
+		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		return imgurl
 
 	# default function to parse response by descending down nodes
 	# override if more complicated
@@ -180,6 +188,9 @@ class MetadataInterface(GenericInterface,abstract=True):
 				return None
 		return res
 
+	def postprocess_url(self,url):
+		url = url.replace("http:","https:",1)
+		return url
 
 
 
