@@ -717,12 +717,6 @@ def sapi(path:Multi,**keys):
 
 
 
-
-@dbserver.get("sync")
-def abouttoshutdown():
-	sync()
-	#sys.exit()
-
 @dbserver.post("newrule")
 def newrule(**keys):
 	apikey = keys.pop("key",None)

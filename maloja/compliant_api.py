@@ -44,11 +44,7 @@ def handler(apiname,version):
 	return deco
 
 def handle(path,keys):
-	print("API request: " + str(path))
-	print("Keys:")
-	for k in keys:
-		print("\t",k,":",keys.get(k))
-
+	log("API request: " + str(path))# + " | Keys: " + str({k:keys.get(k) for k in keys}))
 
 	if len(path)>1 and (path[0],path[1]) in handlers:
 		handler = handlers[(path[0],path[1])]
@@ -63,7 +59,7 @@ def handle(path,keys):
 		response.status = 500
 
 
-	print("Response: " + str(result))
+	log("Response: " + str(result))
 	return result
 
 def scrobbletrack(artiststr,titlestr,timestamp):
@@ -182,7 +178,6 @@ class LBrnz1(APIHandler):
 		}
 
 	def get_method(self,pathnodes,keys):
-		print(pathnodes)
 		return pathnodes.pop(0)
 
 	def submit(self,pathnodes,keys):
