@@ -212,10 +212,10 @@ class LBrnz1(APIHandler):
 
 	def validate_token(self,pathnodes,keys):
 		try:
-			token = keys.get("Authorization").replace("token ","").replace("Token ","").strip()
+			token = keys.get("token").strip()
 		except:
 			raise BadAuthException()
 		if token not in database.allAPIkeys():
 			raise InvalidAuthException()
 		else:
-			return 200,{"code":200,"message":"Token valid.",valid:True}
+			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":"n/a"}
