@@ -47,7 +47,7 @@ import urllib
 #settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT = settings.get_settings("WEB_PORT")
 HOST = settings.get_settings("HOST")
-THREADS = 12
+THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 WEBFOLDER = pkg_resources.resource_filename(__name__,"web")

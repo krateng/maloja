@@ -191,7 +191,7 @@ class LBrnz1(APIHandler):
 			raise InvalidAuthException()
 
 		try:
-			log("scrobbling to listenbrainz, keys "+str(keys),module="debug")
+			#log("scrobbling to listenbrainz, keys "+str(keys),module="debug")
 			if keys["listen_type"] in ["single","import"]:
 				payload = keys["payload"]
 				for listen in payload:
@@ -204,9 +204,9 @@ class LBrnz1(APIHandler):
 						timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 					#database.createScrobble(artists,title,timestamp)
 					scrobbletrack(artiststr,titlestr,timestamp)
-				return 200,{"code":200,"status":"ok"}
+				return 200,{"status":"ok"}
 			else:
-				return 200,{"code":200,"status":"ok"}
+				return 200,{"status":"ok"}
 		except:
 			raise MalformedJSONException()
 
