@@ -1,6 +1,12 @@
-# NAME: Artists and Groups
-# DESC: Combines artists that also performed as part of a group
+# NAME: CPop
+# DESC: Romanizes some CPop artists and tracks
 
 replaceartist	SING女團							S.I.N.G.
 replacetitle	SING-Moonlight Thoughts			Moonlight Thoughts (English Version)
 replacetitle	那不勒斯的黎明						Dawn in Naples
+countas			Ju Jingyi						SNH48
+countas			7SENSES							SNH48
+countas			BEJ48							SNH48
+countas			Li Yitong						SNH48
+countas			Dai Meng						SNH48
+countas			Mo Han							SNH48
