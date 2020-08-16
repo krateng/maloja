@@ -1,27 +1,44 @@
+var lastArtists = []
+var lastTrack = ""
+
+
+function addArtist(artist) {
+	var newartistfield = document.getElementById("artists");
+	var artistelement = document.createElement("span");
+	artistelement.innerHTML = artist;
+	artistelement.style = "padding:5px;";
+	document.getElementById("artists_td").insertBefore(artistelement,newartistfield);
+	newartistfield.placeholder = "Backspace to remove last"
+}
+
 function keyDetect(event) {
-	if (event.key === "Enter" || event.key === "Tab") { addArtist() }
+	if (event.key === "Enter" || event.key === "Tab") { addEnteredArtist() }
 	if (event.key === "Backspace" && document.getElementById("artists").value == "") { removeArtist() }
 }
 
-function addArtist() {
-	element = document.getElementById("artists");
-	newartist = element.value.trim();
-	element.value = "";
+function addEnteredArtist() {
+	var newartistfield = document.getElementById("artists");
+	var newartist = newartistfield.value.trim();
+	newartistfield.value = "";
 	if (newartist != "") {
-		artist = document.createElement("span");
-		artist.innerHTML = newartist;
-		artist.style = "padding:5px;";
-		document.getElementById("artists_td").insertBefore(artist,element);
-
-		element.placeholder = "Backspace to remove last"
+		addArtist(newartist);
 	}
 }
 function removeArtist() {
-	artists = document.getElementById("artists_td").getElementsByTagName("span")
-	lastartist = artists[artists.length-1]
+	var artists = document.getElementById("artists_td").getElementsByTagName("span")
+	var lastartist = artists[artists.length-1]
 	document.getElementById("artists_td").removeChild(lastartist);
 	if (artists.length < 1) {
 		document.getElementById("artists").placeholder = "Separate with Enter"
+	}
+}
+
+function clear() {
+	document.getElementById("title").value = "";
+	document.getElementById("artists").value = "";
+	var artists = document.getElementById("artists_td").getElementsByTagName("span")
+	while (artists.length > 0) {
+			removeArtist();
 	}
 }
 
@@ -33,19 +50,22 @@ function scrobbleIfEnter(event) {
 }
 
 function scrobbleNew() {
-	artistnodes = document.getElementById("artists_td").getElementsByTagName("span");
-	artists = [];
+	var artistnodes = document.getElementById("artists_td").getElementsByTagName("span");
+	var artists = [];
 	for (let node of artistnodes) {
 		artists.push(node.innerHTML);
 	}
-	title = document.getElementById("title").value;
+	var title = document.getElementById("title").value;
 	scrobble(artists,title);
 }
 
 function scrobble(artists,title) {
 
+	lastArtists = artists;
+	lastTrack = title;
 
-	artist = artists.join(";");
+
+	var artist = artists.join(";");
 
 	if (title != "" && artists.length > 0) {
 		xhttp = new XMLHttpRequest();
@@ -57,8 +77,7 @@ function scrobble(artists,title) {
 
 	document.getElementById("title").value = "";
 	document.getElementById("artists").value = "";
-	parent = document.getElementById("artists_td");
-	artists = document.getElementById("artists_td").getElementsByTagName("span")
+	var artists = document.getElementById("artists_td").getElementsByTagName("span");
 	while (artists.length > 0) {
 			removeArtist();
 	}
@@ -76,6 +95,13 @@ function scrobbledone() {
 
 }
 
+function repeatLast() {
+	clear();
+	for (let artist of lastArtists) {
+		addArtist(artist);
+	}
+	document.getElementById("title").value = lastTrack;
+}
 
 
 
@@ -84,7 +110,7 @@ function scrobbledone() {
 ///
 
 function search_manualscrobbling(searchfield) {
-	txt = searchfield.value;
+	var txt = searchfield.value;
 	if (txt == "") {
 
 	}

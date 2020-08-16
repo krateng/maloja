@@ -43,7 +43,7 @@ def start():
 			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /setup to get started.")
 			print("If you're installing this on your local machine, these links should get you there:")
 			print("\t" + col["blue"]("http://localhost:" + str(port)))
-			print("\t" + col["blue"]("http://localhost:" + str(port) + "/setup"))
+			print("\t" + col["blue"]("http://localhost:" + str(port) + "/admin_setup"))
 			return True
 		except:
 			print("Error while starting Maloja.")
