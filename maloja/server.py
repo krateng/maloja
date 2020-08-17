@@ -221,7 +221,7 @@ jinjaenv = Environment(
 jinjaenv.globals.update(JINJA_CONTEXT)
 
 
-@webserver.route("/<name:re:(admin.*)>")
+@webserver.route("/<name:re:admin.*>")
 @auth.authenticated
 def static_html_private(name):
 	return static_html(name)

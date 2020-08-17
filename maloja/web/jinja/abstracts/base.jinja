@@ -20,6 +20,25 @@
 
 		{% block content %}
 
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('{% block imageurl %}/favicon.png{% endblock %}')"></div>
+				</td>
+				<td class="text">
+					<h1>{% block heading %}{% endblock %}</h1><br/>
+
+
+					{% block top_info %}
+
+					{% endblock %}
+				</td>
+			</tr>
+		</table>
+
+			{% block maincontent %}
+
+			{% endblock %}
 		{% endblock %}
 
 
