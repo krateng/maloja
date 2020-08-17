@@ -4,7 +4,7 @@ from .globalconf import datadir, DATA_DIR
 
 
 # server stuff
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest
+from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest, abort
 import waitress
 # templating
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -94,10 +94,9 @@ def mainpage():
 def customerror(error):
 	code = int(str(error).split(",")[0][1:])
 
-	if os.path.exists(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp")):
-		return pyhpfile(pthjoin(WEBFOLDER,"errors",str(code) + ".pyhp"),{"errorcode":code})
-	else:
-		return pyhpfile(pthjoin(WEBFOLDER,"errors","generic.pyhp"),{"errorcode":code})
+	template = jinjaenv.get_template('error.jinja')
+	res = template.render(errorcode=code)
+	return res
 
 
 
@@ -222,7 +221,7 @@ jinjaenv = Environment(
 jinjaenv.globals.update(JINJA_CONTEXT)
 
 
-@webserver.route("/<name:re:(issues|manual|setup|admin)>")
+@webserver.route("/<name:re:(admin.*)>")
 @auth.authenticated
 def static_html_private(name):
 	return static_html(name)
@@ -291,48 +290,50 @@ def static_html(name):
 
 	# if not, use the old way
 	else:
+		try:
+			with open(pthjoin(WEBFOLDER,name + ".html")) as htmlfile:
+				html = htmlfile.read()
 
-		with open(pthjoin(WEBFOLDER,name + ".html")) as htmlfile:
-			html = htmlfile.read()
-
-		# apply global substitutions
-		with open(pthjoin(WEBFOLDER,"common/footer.html")) as footerfile:
-			footerhtml = footerfile.read()
-		with open(pthjoin(WEBFOLDER,"common/header.html")) as headerfile:
-			headerhtml = headerfile.read()
-		html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
-
-
-		# If a python file exists, it provides the replacement dict for the html file
-		if os.path.exists(pthjoin(WEBFOLDER,name + ".py")):
-			#txt_keys = SourceFileLoader(name,"web/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
-			try:
-				module = importlib.import_module(".web." + name,package="maloja")
-				txt_keys,resources = module.instructions(keys)
-			except Exception as e:
-				log("Error in website generation: " + str(sys.exc_info()),module="error")
-				raise
-
-			# add headers for server push
-			for resource in resources:
-				if all(ord(c) < 128 for c in resource["file"]):
-					# we can only put ascii stuff in the http header
-					linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
-
-			# apply key substitutions
-			for k in txt_keys:
-				if isinstance(txt_keys[k],list):
-					# if list, we replace each occurence with the next item
-					for element in txt_keys[k]:
-						html = html.replace(k,element,1)
-				else:
-					html = html.replace(k,txt_keys[k])
+			# apply global substitutions
+			with open(pthjoin(WEBFOLDER,"common/footer.html")) as footerfile:
+				footerhtml = footerfile.read()
+			with open(pthjoin(WEBFOLDER,"common/header.html")) as headerfile:
+				headerhtml = headerfile.read()
+			html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
 
 
-		response.set_header("Link",",".join(linkheaders))
-		log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug")
-		return html
-		#return static_file("web/" + name + ".html",root="")
+			# If a python file exists, it provides the replacement dict for the html file
+			if os.path.exists(pthjoin(WEBFOLDER,name + ".py")):
+				#txt_keys = SourceFileLoader(name,"web/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
+				try:
+					module = importlib.import_module(".web." + name,package="maloja")
+					txt_keys,resources = module.instructions(keys)
+				except Exception as e:
+					log("Error in website generation: " + str(sys.exc_info()),module="error")
+					raise
+
+				# add headers for server push
+				for resource in resources:
+					if all(ord(c) < 128 for c in resource["file"]):
+						# we can only put ascii stuff in the http header
+						linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
+
+				# apply key substitutions
+				for k in txt_keys:
+					if isinstance(txt_keys[k],list):
+						# if list, we replace each occurence with the next item
+						for element in txt_keys[k]:
+							html = html.replace(k,element,1)
+					else:
+						html = html.replace(k,txt_keys[k])
+
+
+			response.set_header("Link",",".join(linkheaders))
+			log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug")
+			return html
+
+		except:
+			abort(404, "Page does not exist")
 
 
 # Shortlinks
