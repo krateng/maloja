@@ -69,6 +69,8 @@ MEDALS_TRACKS = {}
 WEEKLY_TOPTRACKS = {}
 WEEKLY_TOPARTISTS = {}
 
+ISSUES = {}
+
 cla = CleanerAgent()
 coa = CollectorAgent()
 clients = []
@@ -727,17 +729,13 @@ def newrule(**keys):
 		db_rulestate = False
 
 
-@dbserver.get("issues")
-def issues_external(): #probably not even needed
-	return issues()
-
-
 def issues():
+	return ISSUES
+
+def check_issues():
 	combined = []
 	duplicates = []
 	newartists = []
-	inconsistent = not db_rulestate
-	# if the user manually edits files while the server is running this won't show, but too lazy to check the rulestate here
 
 	import itertools
 	import difflib
@@ -820,7 +818,8 @@ def issues():
 	#		duplicates.append((c[0],c[1]))
 
 
-	return {"duplicates":duplicates,"combined":combined,"newartists":newartists,"inconsistent":inconsistent}
+	return {"duplicates":duplicates,"combined":combined,"newartists":newartists}
+
 
 
 @dbserver.post("importrules")
@@ -980,6 +979,9 @@ def build_db():
 
 	global db_rulestate
 	db_rulestate = utilities.consistentRulestate(datadir("scrobbles"),cla.checksums)
+
+	global ISSUES
+	ISSUES = check_issues()
 
 	log("Database fully built!")
 
