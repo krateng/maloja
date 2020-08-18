@@ -50,7 +50,7 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 1) Make sure you have Python 3.5 or higher installed. You also need some basic packages that should be present on most systems, but I've provided simple shell scripts for Alpine and Ubuntu to get everything you need.
 
-2) If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Fanart.tv](https://fanart.tv/get-an-api-key/) (you need a project key, not a personal one). These are free of charge!
+2) If you'd like to display images, you will need some free API keys - check the settings for details!
 
 3) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary).
 
@@ -73,6 +73,8 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 ### Docker
 
 There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/foxxmd/maloja) kindly provided by FoxxMD.
+
+You might want to set the environment variables `MALOJA_DEFAULT_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
 
 
 ## How to use
@@ -141,7 +143,7 @@ It is recommended to define a different API key for every scrobbler you use in `
 
 ### Manual
 
-If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server.
+If you can't automatically scrobble your music, you can always do it manually on the `/admin_manual` page of your Maloja server.
 
 
 ## How to extend

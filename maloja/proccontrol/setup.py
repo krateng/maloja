@@ -23,11 +23,12 @@ def copy_initial_local_files():
 	#shutil.copy(folder,DATA_DIR)
 	dir_util.copy_tree(folder,datadir(),update=False)
 
+charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):
 	import random
 	key = ""
 	for i in range(length):
-		key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+		key += str(random.choice(charset))
 	return key
 
 def setup():

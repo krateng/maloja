@@ -178,6 +178,10 @@ def static(name,ext):
 	return response
 
 
+aliases = {
+	"admin": "admin_overview",
+	"manual": "admin_manual"
+}
 
 
 
@@ -231,6 +235,7 @@ def static_html_public(name):
 	return static_html(name)
 
 def static_html(name):
+	if name in aliases: redirect(aliases[name])
 	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
