@@ -1,0 +1,49 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - Backend{% endblock %}
+
+
+{% block content %}
+
+
+
+
+	<table class="top_info">
+		<tr>
+			<td class="image">
+				<div style="background-image:url('/favicon.png')"></div>
+			</td>
+			<td class="text">
+				<h1>Admin Panel</h1>
+				<br/>
+				<span>
+					{% if page=='admin_overview' %}
+						<span style="opacity:0.5;">Overview</span>
+					{% else %}
+						<a href="/admin_overview">Overview</a>
+					{% endif %} |
+					{% if page=='admin_setup' %}
+						<span style="opacity:0.5;">Server Setup</span>
+					{% else %}
+						<a href="/admin_setup">Server Setup</a>
+					{% endif %} |
+					{% if page=='admin_manual' %}
+						<span style="opacity:0.5;">Manual Scrobbling</span>
+					{% else %}
+						<a href="/admin_manual">Manual Scrobbling</a>
+					{% endif %} |
+					{% if page=='admin_issues' %}
+						<span style="opacity:0.5;">Database Maintenance</span>
+					{% else %}
+						<a href="/admin_issues">Database Maintenance</a>
+					{% endif %}
+				</span>
+				<br/><br/>
+				<span id="notification"></span>
+
+			</td>
+		</tr>
+	</table>
+
+	{% block maincontent %}
+	{% endblock %}
+{% endblock %}

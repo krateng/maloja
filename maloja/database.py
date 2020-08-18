@@ -18,6 +18,7 @@ from doreah.logging import log
 from doreah import tsv
 from doreah import settings
 from doreah.caching import Cache, DeepCache
+from doreah.auth import authenticated_api, authenticated_api_with_alternate
 try:
 	from doreah.persistence import DiskDict
 except: pass
@@ -241,6 +242,23 @@ def normalize_name(name):
 ## HTTP requests and their associated functions
 ########
 ########
+
+# skip regular authentication if api key is present in request
+# an api key now ONLY permits scrobbling tracks, no other admin tasks
+def api_key_correct(request):
+	args = request.query
+	print(dict(args))
+	if "key" in args:
+		apikey = args["key"]
+		print(args)
+		del args["key"]
+		print(args)
+	elif "apikey" in args:
+		apikey = args["apikey"]
+		del args["apikey"]
+	else: return False
+
+	return checkAPIkey(apikey)
 
 
 dbserver = API(delay=True,path="api")
@@ -671,23 +689,19 @@ def trackInfo(track):
 
 @dbserver.get("newscrobble")
 @dbserver.post("newscrobble")
+@authenticated_api_with_alternate(api_key_correct)
 def post_scrobble(artist:Multi,**keys):
 	artists = "/".join(artist)
 	title = keys.get("title")
 	album = keys.get("album")
 	duration = keys.get("seconds")
-	apikey = keys.get("key")
-	client = checkAPIkey(apikey)
-	if client == False: # empty string allowed!
-		response.status = 403
-		return ""
 
 	try:
 		time = int(keys.get("time"))
 	except:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (native API): Client " + client + ", ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
+	log("Incoming scrobble (native API): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
 
 	## this is necessary for localhost testing
@@ -720,13 +734,12 @@ def sapi(path:Multi,**keys):
 
 
 @dbserver.post("newrule")
+@authenticated_api
 def newrule(**keys):
-	apikey = keys.pop("key",None)
-	if (checkAPIkey(apikey)):
-		tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
-		#addEntry("rules/webmade.tsv",[k for k in keys])
-		global db_rulestate
-		db_rulestate = False
+	tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
+	#addEntry("rules/webmade.tsv",[k for k in keys])
+	global db_rulestate
+	db_rulestate = False
 
 
 def issues():
@@ -822,40 +835,84 @@ def check_issues():
 
 
 
+def get_predefined_rulesets():
+	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	rulesets = []
+
+	for f in os.listdir(datadir("rules/predefined")):
+		if f.endswith(".tsv"):
+
+			rawf = f.replace(".tsv","")
+			valid = True
+			for char in rawf:
+				if char not in validchars:
+					valid = False
+					break # don't even show up invalid filenames
+
+			if not valid: continue
+			if not "_" in rawf: continue
+
+			try:
+				with open(datadir("rules/predefined",f)) as tsvfile:
+					line1 = tsvfile.readline()
+					line2 = tsvfile.readline()
+
+					if "# NAME: " in line1:
+						name = line1.replace("# NAME: ","")
+					else: name = rawf.split("_")[1]
+					if "# DESC: " in line2:
+						desc = line2.replace("# DESC: ","")
+					else: desc = ""
+
+					author = rawf.split("_")[0]
+			except:
+				continue
+
+			ruleset = {"file":rawf}
+			rulesets.append(ruleset)
+			if os.path.exists(datadir("rules",f)):
+				ruleset["active"] = True
+			else:
+				ruleset["active"] = False
+
+			ruleset["name"] = name
+			ruleset["author"] = author
+			ruleset["desc"] = desc
+
+	return rulesets
+
 @dbserver.post("importrules")
+@authenticated_api
 def import_rulemodule(**keys):
-	apikey = keys.pop("key",None)
+	filename = keys.get("filename")
+	remove = keys.get("remove") is not None
+	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	filename = "".join(c for c in filename if c in validchars)
 
-	if (checkAPIkey(apikey)):
-		filename = keys.get("filename")
-		remove = keys.get("remove") is not None
-		validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-		filename = "".join(c for c in filename if c in validchars)
-
-		if remove:
-			log("Deactivating predefined rulefile " + filename)
-			os.remove(datadir("rules/" + filename + ".tsv"))
-		else:
-			log("Importing predefined rulefile " + filename)
-			os.symlink(datadir("rules/predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
+	if remove:
+		log("Deactivating predefined rulefile " + filename)
+		os.remove(datadir("rules/" + filename + ".tsv"))
+	else:
+		log("Importing predefined rulefile " + filename)
+		os.symlink(datadir("rules/predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
 
 
 
 @dbserver.post("rebuild")
+@authenticated_api
 def rebuild(**keys):
-	apikey = keys.pop("key",None)
-	if (checkAPIkey(apikey)):
-		log("Database rebuild initiated!")
-		global db_rulestate
-		db_rulestate = False
-		sync()
-		from .proccontrol.tasks.fixexisting import fix
-		fix()
-		global cla, coa
-		cla = CleanerAgent()
-		coa = CollectorAgent()
-		build_db()
-		invalidate_caches()
+	log("Database rebuild initiated!")
+	global db_rulestate
+	db_rulestate = False
+	sync()
+	from .proccontrol.tasks.fixexisting import fix
+	fix()
+	global cla, coa
+	cla = CleanerAgent()
+	coa = CollectorAgent()
+	build_db()
+	invalidate_caches()
 
 
 
@@ -896,15 +953,15 @@ def search(**keys):
 
 
 @dbserver.post("addpicture")
-def add_picture(b64,key,artist:Multi=[],title=None):
-	if (checkAPIkey(key)):
-		keys = FormsDict()
-		for a in artist:
-			keys.append("artist",a)
-		if title is not None: keys.append("title",title)
-		k_filter, _, _, _ = uri_to_internal(keys)
-		if "track" in k_filter: k_filter = k_filter["track"]
-		utilities.set_image(b64,**k_filter)
+@authenticated_api
+def add_picture(b64,artist:Multi=[],title=None):
+	keys = FormsDict()
+	for a in artist:
+		keys.append("artist",a)
+	if title is not None: keys.append("title",title)
+	k_filter, _, _, _ = uri_to_internal(keys)
+	if "track" in k_filter: k_filter = k_filter["track"]
+	utilities.set_image(b64,**k_filter)
 
 ####
 ## Server operation

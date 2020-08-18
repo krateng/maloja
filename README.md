@@ -74,6 +74,8 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/foxxmd/maloja) kindly provided by FoxxMD.
 
+You might want to set the environment variables `MALOJA_DEFAULT_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
+
 
 ## How to use
 
@@ -141,7 +143,7 @@ It is recommended to define a different API key for every scrobbler you use in `
 
 ### Manual
 
-If you can't automatically scrobble your music, you can always do it manually on the `/manual` page of your Maloja server.
+If you can't automatically scrobble your music, you can always do it manually on the `/admin_manual` page of your Maloja server.
 
 
 ## How to extend

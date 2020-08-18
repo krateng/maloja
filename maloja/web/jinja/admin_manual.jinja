@@ -1,0 +1,47 @@
+{% set page ='admin_manual' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - Manual Scrobbling{% endblock %}
+
+{% block scripts %}
+	<script src="/manualscrobble.js"></script>
+{% endblock %}
+
+
+{% block maincontent %}
+
+	<h2>Scrobble new discovery</h2>
+
+	<table>
+		<tr>
+			<td style="padding-right:7px;">
+				Artists:
+			</td><td id="artists_td">
+				<input placeholder='Separate with Enter' class='simpleinput' id='artists' onKeydown='keyDetect(event)' />
+			</td>
+		</tr>
+		<tr>
+			<td style="padding-right:7px;">
+				Title:
+			</td><td>
+				<input placeholder='Enter to scrobble' class='simpleinput' id='title' onKeydown='scrobbleIfEnter(event)' />
+			</td>
+		</tr>
+	</table>
+
+	<br/>
+
+	<span class="button" onclick="scrobbleNew(event)">Scrobble!</span>
+	<span class="button" onclick="repeatLast()">Last Manual Scrobble</span>
+
+	<br/>
+
+
+
+	<h2>Search</h2>
+
+	<input class="simpleinput" placeholder='Search for a track' oninput='search_manualscrobbling(this)' />
+	<br/><br/>
+	<table id="searchresults"></table>
+
+
+{% endblock %}

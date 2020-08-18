@@ -1,0 +1,127 @@
+{% set page ='admin_setup' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - Setup{% endblock %}
+
+{% block scripts %}
+
+	<script>
+
+
+		function replaceurls() {
+			url = window.location.origin
+			s = document.getElementsByName("serverurl")
+			for (var i=0;i<s.length;i++) {
+				s[i].innerHTML = url
+			}
+		}
+
+
+		function replace() {
+			replaceurls();
+		}
+
+		function activateRuleModule(e,filename) {
+			keys = "filename=" + encodeURIComponent(filename)
+			console.log(keys)
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST","/api/importrules", true);
+			xhttp.send(keys);
+
+			e.innerHTML = e.innerHTML.replace("Add","Remove")
+			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("activate","deactivate")
+			/* Nobody ever look at this code please */
+		}
+
+		function deactivateRuleModule(e,filename) {
+			keys = "remove&filename=" + encodeURIComponent(filename)
+
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("POST","/api/importrules", true);
+			xhttp.send(keys);
+
+			e.innerHTML = e.innerHTML.replace("Remove","Add")
+			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("deactivate","activate")
+		}
+
+		document.addEventListener("DOMContentLoaded",replace);
+	</script>
+{% endblock %}
+
+{% set rulesets = dbp.get_predefined_rulesets() %}
+
+{% block maincontent %}
+
+
+	<h2>Start Scrobbling</h2>
+
+	If you use Vivaldi, Brave, Iridium or any other Chromium-based browser and listen to music on Plex or YouTube Music, download the extension and simply enter the server URL as well as your API key in the relevant fields. They will turn green if the server is accessible.
+	<br/><br/>
+	You can also use any standard-compliant scrobbler. For GNUFM (audioscrobbler) scrobblers, enter <span class="stats"><span name="serverurl">yourserver.tld</span>/api/s/audioscrobbler</span> as your Gnukebox server and your API key as the password. For Listenbrainz scrobblers, use <span class="stats"><span name="serverurl">yourserver.tld</span>/api/s/listenbrainz</span> as the API URL and your API key as token.
+	<br/><br/>
+	If you use another browser or another music player, you could try to code your own extension. The API is super simple! Just send a POST HTTP request to
+
+	<span class="stats"><span name="serverurl">yourserver.tld</span>/api/newscrobble</span>
+
+	(make sure to use the public URL) with the key-value-pairs
+	<br/>
+	<br/>
+	<table class="misc">
+		<tr>	<td>artist</td>		<td><i>Artist String</i></td>	</tr>
+		<tr>	<td>title</td>		<td><i>Title String</i></td>	</tr>
+		<tr>	<td>key</td>		<td><i>API Key</i></td>	</tr>
+		<tr>	<td>seconds</td>	<td><i>Duration of Scrobble - optional and currently not used</i></td>	</tr>
+	</table>
+	<br/><br/>
+	Finally, you could always <a class="textlink" href="/admin_manual">manually scrobble</a>!
+
+	<br/><br/>
+
+	<h2>Import your Last.FM data</h2>
+
+	Switching from Last.fm? <a class="textlink" href="https://benjaminbenben.com/lastfm-to-csv/">Download all your data</a> and run the command <span class="stats">maloja import <i>(the file you just downloaded)</i></span>.
+	<br/><br/>
+
+	<h2>Set up some rules</h2>
+
+	After you've scrobbled for a bit, you might want to check the <a class="textlink" href="/admin_issues">Issues page</a> to see if you need to set up some rules. You can also manually add rules in your server's "rules" directory - just add your own .tsv file and read the instructions on how to declare a rule.
+	<br/><br/>
+
+	You can also set up some predefined rulesets right away!
+	<br/>
+
+	<br/><br/>
+	<table class='misc'>
+		<tr>
+			<th></th>
+			<th>Module</th>
+			<th>Author</th>
+			<th>Description</th>
+		</tr>
+		{% for rs in rulesets %}
+		<tr>
+			{% if rs.active %}
+			<td class='interaction' onclick=deactivateRuleModule(this,'{{ rs.file }}')><a class='textlink'>Remove:</a></td>
+			{% else %}
+			<td class='interaction' onclick=activateRuleModule(this,'{{ rs.file }}')><a class='textlink'>Add:</a></td>
+			{% endif %}
+			<td>{{ rs.name }}</td>
+			<td>{{ rs.author }}</td>
+			<td>{{ rs.desc }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+
+	<br/><br/>
+
+	<h2>Say thanks</h2>
+
+	Donations are never required, but always appreciated. If you really like Maloja, you can fund my next Buttergipfel via
+	<a class="textlink" target="_blank" rel="noopener noreferrer" href="https://paypal.me/krateng">PayPal</a>, <a class="textlink" href="bitcoin:1krat8JMniJBTiHftMfR1LtF3Y1w5DAxx">Bitcoin</a> or <a class="textlink" target="_blank" rel="noopener noreferrer" href="https://flattr.com/@Krateng">Flattr</a>.
+
+	<br/><br/>
+
+	<h2>View your stats</h2>
+
+	Done! Visit <a class="textlink" href="/"><span name="serverurl">yourserver.tld</span></a> (or your public / proxy URL) to look at your overview page. Almost everything is clickable!
+
+{% endblock %}
