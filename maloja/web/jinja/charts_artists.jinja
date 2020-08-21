@@ -1,11 +1,18 @@
 {% extends "abstracts/base.jinja" %}
-{% block title %}Maloja - {{ artist }}{% endblock %}
+{% block title %}Maloja - Artist Charts{% endblock %}
 
 {% block scripts %}
 	<script src="/datechange.js" async></script>
 {% endblock %}
 
 {% set charts = dbp.get_charts_artists(filterkeys,limitkeys) %}
+{% if charts[0] is defined %}
+	{% set topartist = charts[0].artist %}
+	{% set img = utilities.getArtistImage(artist=topartist,fast=True) %}
+{% else %}
+	{% set img = "/favicon.png" %}
+{% endif %}
+
 
 
 {% block content %}

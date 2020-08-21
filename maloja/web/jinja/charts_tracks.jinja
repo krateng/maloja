@@ -6,6 +6,12 @@
 {% endblock %}
 
 {% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% if charts[0] is defined %}
+	{% set toptrack = charts[0].track %}
+	{% set img = utilities.getTrackImage(artists=toptrack.artists,title=toptrack.title,fast=True) %}
+{% else %}
+	{% set img = "/favicon.png" %}
+{% endif %}
 
 
 {% block content %}
@@ -17,6 +23,7 @@
 		</td>
 		<td class="text">
 			<h1>Track Charts</h1><a href="/top_tracks"><span>View #1 Tracks</span></a><br/>
+			{% if filterkeys.get('artist') is not none %}by {{ htmlgenerators.artistLink(filterkeys.get('artist')) }}{% endif %}
 			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 			<br/><br/>
 			{{ htmlmodules.module_filterselection(_urikeys) }}
