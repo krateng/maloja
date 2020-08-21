@@ -407,9 +407,10 @@ def resolveImage(artist=None,track=None):
 def set_image(b64,**keys):
 	track = "title" in keys
 
+	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
+
 	regex = r"data:image/(\w+);base64,(.+)"
 	type,b64 = re.fullmatch(regex,b64).groups()
-	print(b64[:40])
 	b64 = base64.b64decode(b64)
 	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
 	for folder in get_all_possible_filenames(**keys):

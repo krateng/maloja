@@ -180,7 +180,9 @@ def static(name,ext):
 
 aliases = {
 	"admin": "admin_overview",
-	"manual": "admin_manual"
+	"manual": "admin_manual",
+	"setup": "admin_setup",
+	"issues": "admin_issues"
 }
 
 
