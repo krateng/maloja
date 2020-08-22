@@ -6,19 +6,22 @@
 {% if compare %}
 	{% if compare is true %}
 		{% set compare = limitkeys.timerange.next(step=-1) %}
+		{% if compare is none %}{% set compare = False %}{% endif %}
 	{% endif %}
-	{% set prevtracks = dbp.get_charts_tracks(filterkeys,{'timerange':compare}) %}
+	{% if compare %}
+		{% set prevtracks = dbp.get_charts_tracks(filterkeys,{'timerange':compare}) %}
 
-	{% set lastranks = {} %}
-	{% for t in prevtracks %}
-		{% if lastranks.update({"|".join(t.track.artists)+"||"+t.track.title:t.rank}) %}{% endif %}
-	{% endfor %}
+		{% set lastranks = {} %}
+		{% for t in prevtracks %}
+			{% if lastranks.update({"|".join(t.track.artists)+"||"+t.track.title:t.rank}) %}{% endif %}
+		{% endfor %}
 
-	{% for t in charts %}
-		{% if "|".join(t.track.artists)+"||"+t.track.title in lastranks %}
-			{% if t.update({'last_rank':lastranks["|".join(t.track.artists)+"||"+t.track.title]}) %}{% endif %}
-		{% endif %}
-	{% endfor %}
+		{% for t in charts %}
+			{% if "|".join(t.track.artists)+"||"+t.track.title in lastranks %}
+				{% if t.update({'last_rank':lastranks["|".join(t.track.artists)+"||"+t.track.title]}) %}{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
 {% endif %}
 
 {% set firstindex = amountkeys.page * amountkeys.perpage %}

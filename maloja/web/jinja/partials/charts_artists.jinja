@@ -7,19 +7,22 @@
 {% if compare %}
 	{% if compare is true %}
 		{% set compare = limitkeys.timerange.next(step=-1) %}
+		{% if compare is none %}{% set compare = False %}{% endif %}
 	{% endif %}
-	{% set prevartists = dbp.get_charts_artists(filterkeys,{'timerange':compare}) %}
+	{% if compare %}
+		{% set prevartists = dbp.get_charts_artists(filterkeys,{'timerange':compare}) %}
 
-	{% set lastranks = {} %}
-	{% for a in prevartists %}
-		{% if lastranks.update({a.artist:a.rank}) %}{% endif %}
-	{% endfor %}
+		{% set lastranks = {} %}
+		{% for a in prevartists %}
+			{% if lastranks.update({a.artist:a.rank}) %}{% endif %}
+		{% endfor %}
 
-	{% for a in charts %}
-		{% if a.artist in lastranks %}
-			{% if a.update({'last_rank':lastranks[a.artist]}) %}{% endif %}
-		{% endif %}
-	{% endfor %}
+		{% for a in charts %}
+			{% if a.artist in lastranks %}
+				{% if a.update({'last_rank':lastranks[a.artist]}) %}{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
 {% endif %}
 
 {% set firstindex = amountkeys.page * amountkeys.perpage %}
