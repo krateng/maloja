@@ -5,6 +5,21 @@
 {% endif %}
 
 {% if compare %}
+	{% if compare is true %}
+		{% set compare = limitkeys.timerange.next(step=-1) %}
+	{% endif %}
+	{% set prevartists = dbp.get_charts_artists(filterkeys,{'timerange':compare}) %}
+
+	{% set lastranks = {} %}
+	{% for a in prevartists %}
+		{% if lastranks.update({a.artist:a.rank}) %}{% endif %}
+	{% endfor %}
+
+	{% for a in charts %}
+		{% if a.artist in lastranks %}
+			{% if a.update({'last_rank':lastranks[a.artist]}) %}{% endif %}
+		{% endif %}
+	{% endfor %}
 {% endif %}
 
 {% set firstindex = amountkeys.page * amountkeys.perpage %}
@@ -20,9 +35,12 @@
 			<!-- Rank -->
 			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
 			<!-- Rank change -->
-			{% if false %}
-				{% if e not in prevcharts %}<td class='rankup' title='New'>🆕</td>{% endif %}
-
+			{% if compare %}
+				{% if e.last_rank is undefined %}<td class='rankup' title='New'>🆕</td>
+				{% elif e.last_rank < e.rank %}<td class='rankdown' title='Down from #{{ e.last_rank }}'>↘</td>
+				{% elif e.last_rank > e.rank %}<td class='rankup' title='Up from #{{ e.last_rank }}'>↗</td>
+				{% elif e.last_rank == e.rank %}<td class='ranksame' title='Unchanged'>➡</td>
+				{% endif %}
 			{% endif %}
 
 			<!-- artist -->
