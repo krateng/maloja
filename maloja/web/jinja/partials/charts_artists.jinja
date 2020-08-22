@@ -10,7 +10,7 @@
 		{% if compare is none %}{% set compare = False %}{% endif %}
 	{% endif %}
 	{% if compare %}
-		{% set prevartists = dbp.get_charts_artists(filterkeys,{'timerange':compare}) %}
+		{% set prevartists = dbp.get_charts_artists({'timerange':compare}) %}
 
 		{% set lastranks = {} %}
 		{% for a in prevartists %}
