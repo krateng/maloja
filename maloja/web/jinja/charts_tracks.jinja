@@ -35,11 +35,9 @@
 
 
 {% import 'partials/charts_tracks.jinja' as charts_tracks %}
-
 {{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,charts=charts,compare=true) }}
 
 {% import 'snippets/pagination.jinja' as pagination %}
-
 {{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
 
 {% endblock %}

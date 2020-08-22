@@ -2,13 +2,9 @@
 
 {% set ranges = dbp.get_performance(filterkeys,limitkeys,delimitkeys) %}
 
-{% set minrank = 80 %}
-{% for r in ranges %}
-	{% if r.rank is not none and r.rank+20 > minrank %}
-		{% set minrank = r.rank+20 %}
-	{% endif %}
-{% endfor %}
-
+{% set minrank = ranges|map(attribute="rank")|reject("none")|max|default(60) %}
+{% set minrank = minrank + 20 %}
+{% if minrank < 80 %}{% set minrank = 80 %}{% endif %}
 
 <table class="list">
 	{% for t in ranges %}
@@ -25,7 +21,7 @@
 		</td>
 
 
-		
+
 	</tr>
 	{% endfor %}
 </table>

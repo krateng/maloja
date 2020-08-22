@@ -2,12 +2,8 @@
 
 {% set ranges = dbp.get_pulse(filterkeys,limitkeys,delimitkeys) %}
 
-{% set maxbar = 1 %}
-{% for r in ranges %}
-	{% if r.scrobbles > maxbar %}
-		{% set maxbar = r.scrobbles %}
-	{% endif %}
-{% endfor %}
+{% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
+{% if maxbar < 1 %}{% set maxbar = 1 %}{% endif %}
 
 <table class="list">
 	{% for t in ranges %}
