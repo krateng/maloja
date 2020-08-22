@@ -1,0 +1,41 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - Please wait...{% endblock %}
+
+{% block heading %}Redbuilding the database{% endblock %}
+
+{% block top_info %}
+	Please wait...
+{% endblock %}
+
+{% block scripts %}
+<script>
+	var pending = false;
+	setInterval(probeServer,1500);
+
+	function probeServer() {
+		if (!pending) {
+			console.log("Probing...");
+			pending = true;
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("GET","/api/test", true);
+			xhttp.onreadystatechange = goback;
+			xhttp.send();
+
+		}
+
+	}
+
+	function goback() {
+		if ((this.readyState == 4) && (this.status == 205)) {
+			console.log("Not ready yet!")
+			pending = false;
+		}
+		if ((this.readyState == 4) && (this.status == 204)) {
+			console.log("K");
+			pending = false;
+			window.location = "/issues";
+		}
+	}
+
+</script>
+{% endblock %}

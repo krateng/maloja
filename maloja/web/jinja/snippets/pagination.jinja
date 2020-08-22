@@ -1,0 +1,50 @@
+{% macro pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages=1) %}
+
+{% set page = amountkeys.page %}
+
+
+
+
+<div class='paginate'>
+
+	{% if pages > 1 %}
+		{% if page > 1 %}
+			<a href='?{{ urihandler.compose_from_dicts(filterkeys,limitkeys,delimitkeys,amountkeys,{'page':0}) }}'>
+				<span class='stat_selector'>1</span>
+			</a> |
+		{% endif %}
+
+		{% if page > 2 %}
+			... |
+		{% endif %}
+
+		{% if page > 0 %}
+			<a href='?{{ urihandler.compose_from_dicts(filterkeys,limitkeys,delimitkeys,amountkeys,{'page':page-1}) }}'>
+				<span class='stat_selector'>{{ page }}</span>
+			</a> «
+		{% endif %}
+
+		<span style='opacity:0.5;' class='stat_selector'>
+			{{ page + 1 }}
+		</span>
+
+		{% if page < pages-1 %}
+			 » <a href='?{{ urihandler.compose_from_dicts(filterkeys,limitkeys,delimitkeys,amountkeys,{'page':page+1}) }}'>
+				 <span class='stat_selector'>{{ page+2 }}</span>
+			 </a>
+		{% endif %}
+
+		{% if page < pages-3 %}
+			| ...
+		{% endif %}
+
+		{% if page < pages-2 %}
+			 | <a href='?{{ urihandler.compose_from_dicts(filterkeys,limitkeys,delimitkeys,amountkeys,{'page':pages-1}) }}'>
+				 <span class='stat_selector'>{{ pages }}</span>
+			 </a>
+		{% endif %}
+	{% endif %}
+
+</div>
+
+{% endmacro %}

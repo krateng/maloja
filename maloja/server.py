@@ -24,7 +24,6 @@ from . import globalconf
 from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
-from doreah.pyhp import file as pyhpfile
 from doreah import auth
 # technical
 #from importlib.machinery import SourceFileLoader
@@ -241,11 +240,8 @@ def static_html(name):
 	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
-
-	pyhp_file = os.path.exists(pthjoin(WEBFOLDER,"pyhp",name + ".pyhp"))
 	html_file = os.path.exists(pthjoin(WEBFOLDER,name + ".html"))
 	jinja_file = os.path.exists(pthjoin(WEBFOLDER,"jinja",name + ".jinja"))
-	pyhp_pref = settings.get_settings("USE_PYHP")
 	jinja_pref = settings.get_settings("USE_JINJA")
 
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
@@ -254,7 +250,7 @@ def static_html(name):
 	clock.start()
 
 	# if a jinja file exists, use this
-	if (jinja_file and jinja_pref) or (jinja_file and not html_file and not pyhp_file):
+	if ("pyhtml" not in keys and jinja_file and jinja_pref) or (jinja_file and not html_file):
 		LOCAL_CONTEXT = {
 			"adminmode":adminmode,
 			"apikey":request.cookies.get("apikey") if adminmode else None,
@@ -268,32 +264,6 @@ def static_html(name):
 		log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
 		return res
 
-	# if a pyhp file exists, use this
-	elif (pyhp_file and pyhp_pref) or (pyhp_file and not html_file):
-
-		#things we expose to the pyhp pages
-		environ = {
-			"adminmode":adminmode,
-			"apikey":request.cookies.get("apikey") if adminmode else None,
-			# maloja
-			"db": database,
-			"htmlmodules": htmlmodules,
-			"htmlgenerators": htmlgenerators,
-			"malojatime": malojatime,
-			"utilities": utilities,
-			"urihandler": urihandler,
-			"settings": settings.get_settings,
-			# external
-			"urllib": urllib
-		}
-		# request
-		environ["filterkeys"], environ["limitkeys"], environ["delimitkeys"], environ["amountkeys"] = uri_to_internal(keys)
-		environ["_urikeys"] = keys #temporary!
-
-		#response.set_header("Content-Type","application/xhtml+xml")
-		res = pyhpfile(pthjoin(WEBFOLDER,"pyhp",name + ".pyhp"),environ)
-		log("Generated page {name} in {time:.5f}s (PYHP)".format(name=name,time=clock.stop()),module="debug")
-		return res
 
 	# if not, use the old way
 	else:

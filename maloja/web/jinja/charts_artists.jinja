@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% set charts = dbp.get_charts_artists(filterkeys,limitkeys) %}
+{% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set topartist = charts[0].artist %}
 	{% set img = utilities.getArtistImage(artist=topartist,fast=True) %}
@@ -37,5 +38,8 @@
 
 {{ charts_artists.charts_artists(limitkeys,amountkeys,compare=False) }}
 
+{% import 'snippets/pagination.jinja' as pagination %}
+
+{{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
 
 {% endblock %}

@@ -113,6 +113,12 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 	return resultkeys1, resultkeys2, resultkeys3, resultkeys4
 
+def compose_from_dicts(*dicts):
+	return compose_querystring(internal_to_uri_p(*dicts))
+
+def internal_to_uri_p(*dicts):
+	return internal_to_uri({k:d[k] for d in dicts for k in d})
+
 def internal_to_uri(keys):
 	urikeys = FormsDict()
 

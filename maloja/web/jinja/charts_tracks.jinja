@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set toptrack = charts[0].track %}
 	{% set img = utilities.getTrackImage(artists=toptrack.artists,title=toptrack.title,fast=True) %}
@@ -37,5 +38,8 @@
 
 {{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,charts=charts,compare=false) }}
 
+{% import 'snippets/pagination.jinja' as pagination %}
+
+{{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
 
 {% endblock %}
