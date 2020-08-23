@@ -261,7 +261,7 @@ def static_html(name):
 		template = jinjaenv.get_template(name + '.jinja')
 
 		res = template.render(**LOCAL_CONTEXT)
-		log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug")
+		log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
 		return res
 
 
@@ -306,7 +306,7 @@ def static_html(name):
 
 
 			response.set_header("Link",",".join(linkheaders))
-			log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug")
+			log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug_performance")
 			return html
 
 		except:

@@ -7,7 +7,7 @@
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
-You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like.
+You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
 
 
 > **IMPORTANT**: With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, see [below](#update).
