@@ -246,7 +246,7 @@ def normalize_name(name):
 # skip regular authentication if api key is present in request
 # an api key now ONLY permits scrobbling tracks, no other admin tasks
 def api_key_correct(request):
-	args = request.query
+	args = request.params
 	if "key" in args:
 		apikey = args["key"]
 		del args["key"]
