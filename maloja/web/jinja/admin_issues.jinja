@@ -58,7 +58,7 @@
 
 {% for issue in issuedata.combined %}
 	<tr>
-		<td>{{ artistLink(issue[0]) }} sounds like the combination of {{ len(issue[1]) }} artists:
+		<td>{{ htmlgenerators.artistLink(issue[0]) }} sounds like the combination of {{ issue[1].__len__() }} artists:
 			{{ issue[1]|join(", ") }}
 		</td>
 		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')"><div>Fix it</div></td>
