@@ -212,10 +212,17 @@ JINJA_CONTEXT = {
 		('year','10 years',malojatime.thisyear().next(-9),'year',12)
 	],
 	"xranges": [
-		{"identifier":"day","localisation":"14 days","firstrange":malojatime.today().next(-13),"amount":14},
-		{"identifier":"week","localisation":"14 weeks","firstrange":malojatime.thisweek().next(-13),"amount":14},
-		{"identifier":"month","localisation":"14 months","firstrange":malojatime.thismonth().next(-13),"amount":14},
-		{"identifier":"year","localisation":"14 years","firstrange":malojatime.thisyear().next(-13),"amount":14}
+		{"identifier":"day","localisation":"12 days","firstrange":malojatime.today().next(-11),"amount":12},
+		{"identifier":"week","localisation":"12 weeks","firstrange":malojatime.thisweek().next(-11),"amount":12},
+		{"identifier":"month","localisation":"12 months","firstrange":malojatime.thismonth().next(-11),"amount":12},
+		{"identifier":"year","localisation":"12 years","firstrange":malojatime.thisyear().next(-11),"amount":12}
+	],
+	"xcurrent": [
+		{"identifier":"day","localisation":"Today","range":malojatime.today()},
+		{"identifier":"week","localisation":"This Week","range":malojatime.thisweek()},
+		{"identifier":"month","localisation":"This Month","range":malojatime.thismonth()},
+		{"identifier":"year","localisation":"This Year","range":malojatime.thisyear()},
+		{"identifier":"alltime","localisation":"All Time","range":malojatime.alltime()},
 	]
 }
 
