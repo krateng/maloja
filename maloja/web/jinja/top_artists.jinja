@@ -1,0 +1,32 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - #1 Artists{% endblock %}
+
+
+<!-- find representative -->
+
+{% set entries = dbp.get_top_artists(limitkeys,delimitkeys) %}
+{% set repr = entries | find_representative('artist','scrobbles') %}
+{% set img = "/favicon.png" if repr is none else utilities.getArtistImage(repr.artist) %}
+
+
+{% block content %}
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('{{ img }}')"></div>
+				</td>
+				<td class="text">
+					<h1>#1 Artists</h1><br/>
+					<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+
+					<br/><br/>
+					{{ htmlmodules.module_filterselection(_urikeys,delimit=True) }}
+				</td>
+			</tr>
+		</table>
+
+
+		{% import 'partials/top_artists.jinja' as top_artists %}
+		{{ top_artists.top_artists(limitkeys,delimitkeys,amountkeys) }}
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% macro top_artists(limitkeys,delimitkeys,amountkeys) %}
+
+{% set ranges = dbp.get_top_artists(limitkeys,delimitkeys) %}
+
+{% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
+{% if maxbar < 1 %}{% set maxbar = 1 %}{% endif %}
+
+<table class="list">
+	{% for e in ranges %}
+
+	{% set thisrange = e.range %}
+	{% set artist = e.artist %}
+	<tr>
+		<td>{{ thisrange.desc() }}</td>
+
+		{% if artist is none %}
+			<td><div></div></td>
+			<td class='stats'>n/a</td>
+			<td class='amount'>0</td>
+			<td class='bar'></td>
+		{% else %}
+		{{ htmlgenerators.entity_column(artist,image=utilities.getArtistImage(artist,fast=True)) }}
+			<td class='amount'>{{ htmlgenerators.scrobblesArtistLink(artist,thisrange.urikeys(),amount=e.scrobbles) }}</td>
+			<td class='bar'> {{ htmlgenerators.scrobblesArtistLink(artist,thisrange.urikeys(),percent=e.scrobbles*100/maxbar) }}</td>
+		{% endif %}
+
+	</tr>
+	{% endfor %}
+</table>
+
+
+{%- endmacro %}
