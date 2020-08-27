@@ -34,9 +34,6 @@ def datadir(*args):
 from doreah import config
 
 config(
-	pyhp={
-		"version": 2
-	},
 	settings={
 		"files":[
 			datadir("settings/default.ini"),

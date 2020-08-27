@@ -1,0 +1,32 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - #1 Tracks{% endblock %}
+
+
+<!-- find representative -->
+
+{% set entries = dbp.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
+{% set repr = entries | find_representative('track','scrobbles') %}
+{% set img = "/favicon.png" if repr is none else utilities.getTrackImage(repr.track.artists,repr.track.title) %}
+
+
+{% block content %}
+		<table class="top_info">
+			<tr>
+				<td class="image">
+					<div style="background-image:url('{{ img }}')"></div>
+				</td>
+				<td class="text">
+					<h1>#1 Tracks</h1><br/>
+					<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+
+					<br/><br/>
+					{{ htmlmodules.module_filterselection(_urikeys,delimit=True) }}
+				</td>
+			</tr>
+		</table>
+
+
+		{% import 'partials/top_tracks.jinja' as top_tracks %}
+		{{ top_tracks.top_tracks(filterkeys,limitkeys,delimitkeys,amountkeys) }}
+
+{% endblock %}
