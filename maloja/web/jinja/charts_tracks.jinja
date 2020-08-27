@@ -33,6 +33,11 @@
 	</tr>
 </table>
 
+{% if settings('CHARTS_DISPLAY_TILES') %}
+	{% import 'partials/charts_tracks_tiles.jinja' as charts_tracks_tiles %}
+	{{ charts_tracks_tiles.charts_tracks_tiles(filterkeys,limitkeys,amountkeys,compare=true) }}
+	<br/><br/>
+{% endif %}
 
 {% import 'partials/charts_tracks.jinja' as charts_tracks %}
 {{ charts_tracks.charts_tracks(filterkeys,limitkeys,amountkeys,charts=charts,compare=true) }}

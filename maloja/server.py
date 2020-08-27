@@ -20,6 +20,7 @@ from .utilities import resolveImage
 from .urihandler import uri_to_internal, remove_identical
 from . import urihandler
 from . import globalconf
+from . import jinja_filters
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -155,7 +156,7 @@ def static_image(pth):
 @webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
-	return css
+	return generate_css() if settings.get_settings("CSS_DEBUG") else css
 
 
 @webserver.route("/login")
@@ -224,6 +225,7 @@ jinjaenv = Environment(
 	autoescape=select_autoescape(['html', 'xml'])
 )
 jinjaenv.globals.update(JINJA_CONTEXT)
+jinjaenv.filters.update({k:jinja_filters.__dict__[k] for k in jinja_filters.__dict__ if not k.startswith("__")})
 
 
 @webserver.route("/<name:re:admin.*>")

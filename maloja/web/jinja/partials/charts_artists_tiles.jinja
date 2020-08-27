@@ -1,0 +1,41 @@
+{% macro charts_artists_tiles(limitkeys,amountkeys,charts=None,compare=False) %}
+
+{% if charts is none %}
+	{% set charts = dbp.get_charts_artists(limitkeys) %}
+{% endif %}
+
+{% set charts = charts | fixlength(14) %}
+{% set charts_cycler = cycler(*charts) %}
+
+
+<table class="tiles_top"><tr>
+{% for segment in range(3) %}
+	<td>
+	{% set segmentsize = segment+1 %}
+	<table class="tiles_{{ segmentsize }}x{{ segmentsize }} tiles_sub">
+		{% for row in range(segmentsize) %}
+			<tr>
+				{% for col in range(segmentsize) %}
+					{% set entry = charts_cycler.next() %}
+					{% if entry is not none %}
+						{% set artist = entry.artist %}
+						{% set rank = entry.rank %}
+						<td>
+							<a href="{{ htmlgenerators.link_address(artist) }}">
+							<div style='cursor:pointer;background-image:url("{{ utilities.getArtistImage(artist,fast=True) }}")'>
+								<span class='stats'>#{{ rank }}</span> <span>{{ artist }}</span>
+							</div>
+							</a>
+						</td>
+					{% else %}
+						<td><span class='stats'></span> <span></span></td>
+					{% endif %}
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
+</td>
+{% endfor %}
+</tr></table>
+
+{%- endmacro %}
