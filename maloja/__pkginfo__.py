@@ -27,7 +27,6 @@ resources = [
 	"web/*/*/*",
 	"web/*/*",
 	"web/*",
-	"static/*/*",
 	"data_files/*/*",
 	"data_files/*/*/*",
 	"*/*.py",

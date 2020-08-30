@@ -93,7 +93,7 @@ def mainpage():
 def customerror(error):
 	code = int(str(error).split(",")[0][1:])
 
-	template = jinjaenv.get_template('error.jinja')
+	template = jinja_environment.get_template('error.jinja')
 	res = template.render(errorcode=code)
 	return res
 
