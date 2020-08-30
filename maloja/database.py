@@ -681,6 +681,62 @@ def trackInfo(track):
 
 
 
+@dbserver.get("compare")
+def compare_external(**keys):
+
+	results = compare(keys["remote"])
+	return results
+
+def compare(remoteurl):
+	import json
+	compareurl = remoteurl + "/api/info"
+
+	response = urllib.request.urlopen(compareurl)
+	strangerinfo = json.loads(response.read())
+	owninfo = info()
+
+	#add_known_server(compareto)
+
+	artists = {}
+
+	for a in owninfo["artists"]:
+		artists[a.lower()] = {"name":a,"self":int(owninfo["artists"][a]*1000),"other":0}
+
+	for a in strangerinfo["artists"]:
+		artists[a.lower()] = artists.setdefault(a.lower(),{"name":a,"self":0})
+		artists[a.lower()]["other"] = int(strangerinfo["artists"][a]*1000)
+
+	for a in artists:
+		common = min(artists[a]["self"],artists[a]["other"])
+		artists[a]["self"] -= common
+		artists[a]["other"] -= common
+		artists[a]["common"] = common
+
+	best = sorted((artists[a]["name"] for a in artists),key=lambda x: artists[x.lower()]["common"],reverse=True)
+
+	result = {
+		"unique_self":sum(artists[a]["self"] for a in artists if artists[a]["common"] == 0),
+		"more_self":sum(artists[a]["self"] for a in artists if artists[a]["common"] != 0),
+		"common":sum(artists[a]["common"] for a in artists),
+		"more_other":sum(artists[a]["other"] for a in artists if artists[a]["common"] != 0),
+		"unique_other":sum(artists[a]["other"] for a in artists if artists[a]["common"] == 0)
+	}
+
+	total = sum(result[c] for c in result)
+
+	for r in result:
+		result[r] = (result[r],result[r]/total)
+
+
+
+	return {
+		"result":result,
+		"info":{
+			"ownname":owninfo["name"],
+			"remotename":strangerinfo["name"]
+		},
+		"commonartist":best[0]
+	}
 
 
 

@@ -17,7 +17,8 @@ from . import htmlgenerators
 from . import malojatime
 from . import utilities
 from .utilities import resolveImage
-from .urihandler import uri_to_internal, remove_identical
+from .urihandler import remove_identical
+from .malojauri import uri_to_internal
 from . import urihandler
 from . import globalconf
 from . import jinja_filters
@@ -114,7 +115,7 @@ def graceful_exit(sig=None,frame=None):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	relevant, _, _, _ = uri_to_internal(keys)
+	relevant, _, _, _, _ = uri_to_internal(keys)
 	result = resolveImage(**relevant)
 	if result == "": return ""
 	redirect(result,307)
@@ -265,7 +266,8 @@ def static_html(name):
 			"apikey":request.cookies.get("apikey") if adminmode else None,
 			"_urikeys":keys, #temporary!
 		}
-		LOCAL_CONTEXT["filterkeys"], LOCAL_CONTEXT["limitkeys"], LOCAL_CONTEXT["delimitkeys"], LOCAL_CONTEXT["amountkeys"] = uri_to_internal(keys)
+		lc = LOCAL_CONTEXT
+		lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
 
 		template = jinjaenv.get_template(name + '.jinja')
 
