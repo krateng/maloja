@@ -1,0 +1,45 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - Scrobbles{% endblock %}
+
+{% set scrobbles = dbp.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
+
+{% if filterkeys.get('track') is not none %}
+	{% set img = utilities.getTrackImage(artists=filterkeys.track.artists,title=filterkeys.track.title,fast=True) %}
+{% elif filterkeys.get('artist') is not none %}
+	{% set img = utilities.getArtistImage(filterkeys.artist,fast=True) %}
+{% elif scrobbles.__len__() > 0 %}
+	{% set img = utilities.getTrackImage(artists=scrobbles[0].artists,title=scrobbles[0].title,fast=True) %}
+{% else %}
+	{% set img = "/favicon.png" %}
+{% endif %}
+
+{% block content %}
+
+
+	<table class="top_info">
+		<tr>
+			<td class="image">
+				<div style="background-image:url('{{ img }}')"></div>
+			</td>
+			<td class="text">
+				<h1>Scrobbles</h1><br/>
+				{% if filterkeys.get('artist') is not none %}
+					by {{ htmlgenerators.artistLink(filterkeys.get('artist')) }}
+				{% elif filterkeys.get('track') is not none %}
+					of {{ htmlgenerators.trackLink(filterkeys.get('track')) }}
+					by {{ htmlgenerators.artistLinks(filterkeys["track"]["artists"]) }}
+				{% endif %}
+				<span>{{ limitkeys.timerange.desc(prefix=True) }}</span><br/>
+				<p class="stats">{{ scrobbles.__len__() }} Scrobbles</p>
+				<br/>
+				{{ htmlmodules.module_filterselection(_urikeys) }}
+
+			</td>
+		</tr>
+	</table>
+
+	{% import 'partials/scrobbles.jinja' as scrobbles %}
+	{{ scrobbles.scrobbles(filterkeys,limitkeys,amountkeys) }}
+
+
+{% endblock %}

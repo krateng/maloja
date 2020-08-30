@@ -1,5 +1,12 @@
 {% macro row(entity,counting=[]) %}
 
+{% if 'artists' in entity %}
+	{% set img = utilities.getTrackImage(artists=entity.artists,title=entity.title,fast=True) %}
+{% else %}
+	{% set img = utilities.getArtistImage(entity,fast=True) %}
+{% endif %}
+
+<td class='icon'><div style="background-image:url('{{ img }}')"></div></td>
 {% if "artists" in entity %}
 	<td class='track'>
 		<span class='artist_in_trackcolumn'>{{ htmlgenerators.html_links(entity.artists) }}</span> – {{ htmlgenerators.html_link(entity) }}
