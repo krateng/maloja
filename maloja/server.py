@@ -52,8 +52,7 @@ HOST = settings.get_settings("HOST")
 THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
-WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
-STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
+STATICFOLDER = pkg_resources.resource_filename(__name__,"web/static")
 DATAFOLDER = DATA_DIR
 
 webserver = Bottle()
@@ -229,7 +228,7 @@ JINJA_CONTEXT = {
 
 
 jinjaenv = Environment(
-	loader=PackageLoader('maloja', 'web/jinja'),
+	loader=PackageLoader('maloja', "web/jinja"),
 	autoescape=select_autoescape(['html', 'xml'])
 )
 jinjaenv.globals.update(JINJA_CONTEXT)
@@ -250,78 +249,24 @@ def static_html(name):
 	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
-	html_file = os.path.exists(pthjoin(WEBFOLDER,name + ".html"))
-	jinja_file = os.path.exists(pthjoin(WEBFOLDER,"jinja",name + ".jinja"))
-	jinja_pref = settings.get_settings("USE_JINJA")
-
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	clock = Clock()
 	clock.start()
 
-	# if a jinja file exists, use this
-	if ("pyhtml" not in keys and jinja_file and jinja_pref) or (jinja_file and not html_file):
-		LOCAL_CONTEXT = {
-			"adminmode":adminmode,
-			"apikey":request.cookies.get("apikey") if adminmode else None,
-			"_urikeys":keys, #temporary!
-		}
-		lc = LOCAL_CONTEXT
-		lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
+	LOCAL_CONTEXT = {
+		"adminmode":adminmode,
+		"apikey":request.cookies.get("apikey") if adminmode else None,
+		"_urikeys":keys, #temporary!
+	}
+	lc = LOCAL_CONTEXT
+	lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
 
-		template = jinjaenv.get_template(name + '.jinja')
+	template = jinjaenv.get_template(name + '.jinja')
 
-		res = template.render(**LOCAL_CONTEXT)
-		log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
-		return res
-
-
-	# if not, use the old way
-	else:
-		try:
-			with open(pthjoin(WEBFOLDER,name + ".html")) as htmlfile:
-				html = htmlfile.read()
-
-			# apply global substitutions
-			with open(pthjoin(WEBFOLDER,"common/footer.html")) as footerfile:
-				footerhtml = footerfile.read()
-			with open(pthjoin(WEBFOLDER,"common/header.html")) as headerfile:
-				headerhtml = headerfile.read()
-			html = html.replace("</body>",footerhtml + "</body>").replace("</head>",headerhtml + "</head>")
-
-
-			# If a python file exists, it provides the replacement dict for the html file
-			if os.path.exists(pthjoin(WEBFOLDER,name + ".py")):
-				#txt_keys = SourceFileLoader(name,"web/" + name + ".py").load_module().replacedict(keys,DATABASE_PORT)
-				try:
-					module = importlib.import_module(".web." + name,package="maloja")
-					txt_keys,resources = module.instructions(keys)
-				except Exception as e:
-					log("Error in website generation: " + str(sys.exc_info()),module="error")
-					raise
-
-				# add headers for server push
-				for resource in resources:
-					if all(ord(c) < 128 for c in resource["file"]):
-						# we can only put ascii stuff in the http header
-						linkheaders.append("<" + resource["file"] + ">; rel=preload; as=" + resource["type"])
-
-				# apply key substitutions
-				for k in txt_keys:
-					if isinstance(txt_keys[k],list):
-						# if list, we replace each occurence with the next item
-						for element in txt_keys[k]:
-							html = html.replace(k,element,1)
-					else:
-						html = html.replace(k,txt_keys[k])
-
-
-			response.set_header("Link",",".join(linkheaders))
-			log("Generated page {name} in {time:.5f}s (Python+HTML)".format(name=name,time=clock.stop()),module="debug_performance")
-			return html
-
-		except:
-			abort(404, "Page does not exist")
+	res = template.render(**LOCAL_CONTEXT)
+	log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
+	return res
 
 
 # Shortlinks
