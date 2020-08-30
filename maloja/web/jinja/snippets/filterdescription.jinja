@@ -1,0 +1,11 @@
+{% macro desc(filterkeys,limitkeys,prefix="by") %}
+
+	{% if filterkeys.get('artist') is not none %}
+		{{ prefix }} {{ htmlgenerators.artistLink(filterkeys.get('artist')) }}
+	{% elif filterkeys.get('track') is not none %}
+		of {{ htmlgenerators.trackLink(filterkeys.get('track')) }}
+		by {{ htmlgenerators.artistLinks(filterkeys["track"]["artists"]) }}
+	{% endif %}
+	{{ limitkeys.timerange.desc(prefix=True) }}
+
+{% endmacro %}

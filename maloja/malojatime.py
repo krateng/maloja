@@ -542,7 +542,8 @@ def time_stamps(since=None,to=None,within=None,range=None):
 #	return (stamp1,stamp2-1)
 
 
-
+def delimit_desc_p(d):
+	return delimit_desc(**d)
 
 def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
