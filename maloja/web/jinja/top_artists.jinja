@@ -20,13 +20,13 @@
 					<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 
 					<br/><br/>
-					{{ htmlmodules.module_filterselection(_urikeys,delimit=True) }}
+					{% import 'snippets/timeselection.jinja' as timeselection %}
+					{{ timeselection.selector(filterkeys,limitkeys,delimitkeys,delimit=True) }}
 				</td>
 			</tr>
 		</table>
 
 
-		{% import 'partials/top_artists.jinja' as top_artists %}
-		{{ top_artists.top_artists(limitkeys,delimitkeys,amountkeys) }}
+		{% include 'partials/top_artists.jinja' %}
 
 {% endblock %}

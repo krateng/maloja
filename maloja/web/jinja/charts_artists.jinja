@@ -27,7 +27,8 @@
 			<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
 			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 			<br/><br/>
-			{{ htmlmodules.module_filterselection(_urikeys) }}
+			{% import 'snippets/timeselection.jinja' as timeselection %}
+			{{ timeselection.selector(filterkeys,limitkeys,delimitkeys) }}
 
 		</td>
 	</tr>

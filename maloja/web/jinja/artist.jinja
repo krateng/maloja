@@ -70,9 +70,8 @@
 	</tr>
 </table>
 
-<h2><a href='/charts_tracks?{{ encodedartist }}'>Top Tracks</a></h2>
+<h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 
-{# htmlmodules.module_trackcharts(**filterkeys,max_=15)[0] #}
 {% import 'partials/charts_tracks.jinja' as charts_tracks %}
 
 {{ charts_tracks.charts_tracks(filterkeys,limitkeys,{"perpage":15,"page":0},compare=false) }}
@@ -83,62 +82,63 @@
 
 	<tr>
 		<td>
-			<h2 class="headerwithextra"><a href='/pulse?{{ encodedartist }}&amp;step=year&amp;trail=1'>Pulse</a></h2>
+			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/pulse",filterkeys) }}'>Pulse</a></h2>
 			<br/>
-			{% for range in xranges %}
+			{% for r in xranges %}
 			<span
-				onclick="showRangeManual('pulse','{{ range.identifier }}')"
-				class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
-				style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
-				{{ range.localisation }}
+				onclick="showRangeManual('pulse','{{ r.identifier }}')"
+				class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+				style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
+				{{ r.localisation }}
 			</span>
 			{% if not loop.last %}|{% endif %}
 			{% endfor %}
 
       		<br/><br/>
 
-			{% import 'partials/pulse.jinja' as pulse %}
-			{% for range in xranges %}
+			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ range.identifier }}"
-				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				class="stat_module_pulse pulse_{{ r.identifier }}"
+				style="{{ 'display:none;' if initialrange==r.identifier else '' }}"
 				>
 
-			{{ pulse.pulse(filterkeys,{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
+			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
+			{% include 'partials/pulse.jinja' %}
+			{% endwith %}
 			</span>
 
 			{% endfor %}
 		</td>
 		<td>
 			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-			<h2 class="headerwithextra"><a href='/performance?{{ encodedcredited }}&amp;step=year&amp;trail=1'>Performance</a></h2>
+			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/performance",filterkeys) }}'>Performance</a></h2>
 			{% if not competes %}<span class="afterheader">of {{ htmlgenerators.artistLink(credited) }}</span>
 			{% endif %}
 			<br/>
 
-			{% for range in xranges %}
+			{% for r in xranges %}
 				<span
-					onclick="showRangeManual('pulse','{{ range.identifier }}')"
-					class="stat_selector_pulse selector_pulse_{{ range.identifier }}"
-					style="{{ 'opacity:0.5;' if initialrange==range.identifier else '' }}">
-					{{ range.localisation }}
+					onclick="showRangeManual('pulse','{{ r.identifier }}')"
+					class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+					style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
+					{{ r.localisation }}
 				</span>
 				{% if not loop.last %}|{% endif %}
 			{% endfor %}
 
       		<br/><br/>
 
-			{% import 'partials/performance.jinja' as performance %}
-			{% for range in xranges %}
+			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ range.identifier }}"
-				style="{{ 'display:none;' if initialrange==range.identifier else '' }}"
+				class="stat_module_pulse pulse_{{ r.identifier }}"
+				style="{{ 'display:none;' if initialrange==r.identifier else '' }}"
 				>
 
-			{{ performance.performance({'artist':credited},{'since':range.firstrange},{'step':range.identifier,'trail':1},amountkeys) }}
-
+			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
+			{% include 'partials/performance.jinja' %}
+			{% endwith %}
 			</span>
 
 			{% endfor %}
@@ -148,10 +148,10 @@
 </table>
 
 
-<h2><a href='/scrobbles?{{ encodedartist }}'>Last Scrobbles</a></h2>
+<h2><a href='{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}'>Last Scrobbles</a></h2>
 
-{% import 'partials/scrobbles.jinja' as scrobbles %}
-{{ scrobbles.scrobbles(filterkeys,limitkeys,{"perpage":15,"page":0}) }}
-
+{% with amountkeys = {"perpage":15,"page":0} %}
+{% include 'partials/scrobbles.jinja' %}
+{% endwith %}
 
 {% endblock %}

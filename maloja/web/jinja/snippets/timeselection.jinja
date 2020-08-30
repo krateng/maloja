@@ -1,0 +1,64 @@
+{% macro selector(filterkeys,limitkeys,delimitkeys,amountkeys,limit=True,delimit=False) %}
+
+	<!-- drop keys that are not relevant so they don't clutter the URI -->
+	{% if not limit %}{% set limitkeys = {} %}{% endif %}
+	{% if not delimit %}{% set delimitkeys = {} %}{% endif %}
+
+	{% set allkeys = [filterkeys,limitkeys,delimitkeys,amountkeys] | combine_dicts %}
+
+
+	{% if limit %}
+
+		<div>
+			{% set thisrange = limitkeys.timerange %}
+			{% set prevrange = thisrange.next(-1) %}
+			{% set nextrange = thisrange.next(1) %}
+
+			{% if prevrange is not none %}
+				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,{'timerange':prevrange}) }}'><span class='stat_selector'>{{ prevrange.desc() }}</span></a>
+				«
+			{% endif %}
+			{% if prevrange is not none or nextrange is not none %}
+				<span class='stat_selector' style='opacity:0.5;'>{{ thisrange.desc() }}</span>
+			{% endif %}
+			{% if nextrange is not none %}
+				»
+				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,{'timerange':nextrange}) }}'><span class='stat_selector'>{{ nextrange.desc() }}</span></a>
+			{% endif %}
+
+		</div>
+
+
+		<div>
+			{% for r in xcurrent %}
+				{% if r.range == limitkeys.timerange %}
+					<span class='stat_selector' style='opacity:0.5;'>{{ r.localisation }}</span>
+				{% else %}
+					<a href='{{ mlj_uri.create_uri("",allkeys,{"timerange":r.range}) }}'><span class='stat_selector'>{{ r.localisation }}</span></a>
+				{% endif %}
+				{{ "|" if not loop.last }}
+			{% endfor %}
+		</div>
+	{% endif %}
+
+
+	{% if delimit %}
+		<div>
+			{% for cat in [xdelimiters,xtrails] %}
+				{% for r in cat %}
+					{# {% if all(r.keys[k] == allkeys[k] for k in r.keys) %} #}
+					{% if r.replacekeys | map('compare_key_in_dicts',r.replacekeys,allkeys) | alltrue %}
+						<span class='stat_selector' style='opacity:0.5;'>{{ r.localisation }}</span>
+					{% else %}
+						<a href='{{ mlj_uri.create_uri("",allkeys,r.replacekeys) }}'><span class='stat_selector'>{{ r.localisation }}</span></a>
+					{% endif %}
+					{{ "|" if not loop.last }}
+				{% endfor %}
+				<br/>
+			{% endfor %}
+		</div>
+
+	{% endif %}
+
+
+{% endmacro %}

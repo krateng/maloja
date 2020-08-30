@@ -1,5 +1,3 @@
-{% macro top_artists(limitkeys,delimitkeys,amountkeys) %}
-
 {% set ranges = dbp.get_top_artists(limitkeys,delimitkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
@@ -27,6 +25,3 @@
 	</tr>
 	{% endfor %}
 </table>
-
-
-{%- endmacro %}

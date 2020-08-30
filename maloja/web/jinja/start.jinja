@@ -61,7 +61,6 @@
 
 		<div class="sidelist">
 			<!-- SCROBBLES -->
-			{% import 'partials/scrobbles.jinja' as scr %}
 
 			<h1><a href="/scrobbles">Last Scrobbles</a></h1>
 
@@ -74,7 +73,9 @@
 			<span class="stat_module">
 
 
-				{{ scr.scrobbles({},{},{"perpage":15,"page":0},shortTimeDesc=True) }}
+				{% with amountkeys = {"perpage":15,"page":0}, shortTimeDesc=True %}
+				{% include 'partials/scrobbles.jinja' %}
+				{% endwith %}
 			</span>
 
 
@@ -84,7 +85,6 @@
 
 
 			<!-- PULSE -->
-			{% import 'partials/pulse.jinja' as pls %}
 			<h1><a class="stat_link_pulse" href="/pulse?trail=1&step=month">Pulse</a></h1>
 
 			{% for range in xranges %}
@@ -95,7 +95,9 @@
 
 			{% for range in xranges %}
 				<span class="stat_module_pulse pulse_{{ range.identifier }}" style="display:none;">
-					{{ pls.pulse({},{"since":range.firstrange},{"step":range.identifier},{}) }}
+					{% with limitkeys={"since":range.firstrange},delimitkeys={"step":range.identifier} %}
+					{% include 'partials/pulse.jinja' %}
+					{% endwith %}
 				</span>
 			{% endfor %}
 

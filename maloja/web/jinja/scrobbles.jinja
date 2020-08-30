@@ -2,7 +2,6 @@
 {% block title %}Maloja - Scrobbles{% endblock %}
 
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
-{% import 'partials/scrobbles.jinja' as scrobblemodule %}
 {% import 'snippets/pagination.jinja' as pagination %}
 
 {% set scrobbles = dbp.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
@@ -32,14 +31,15 @@
 				<br/>
 				<p class="stats">{{ scrobbles.__len__() }} Scrobbles</p>
 				<br/>
-				{{ htmlmodules.module_filterselection(_urikeys) }}
+				{% import 'snippets/timeselection.jinja' as timeselection %}
+				{{ timeselection.selector(filterkeys,limitkeys,delimitkeys) }}
 
 			</td>
 		</tr>
 	</table>
 
 
-	{{ scrobblemodule.scrobbles(filterkeys,limitkeys,amountkeys) }}
+	{% include 'partials/scrobbles.jinja' %}
 
 	{{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
 

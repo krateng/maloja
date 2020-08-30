@@ -2,7 +2,6 @@
 {% block title %}Maloja - {{ malojatime.delimit_desc_p(delimitkeys) }} Performance{% endblock %}
 
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
-{% import 'partials/performance.jinja' as performance %}
 
 {% if filterkeys.get('track') is not none %}
 	{% set img = utilities.getTrackImage(artists=filterkeys.track.artists,title=filterkeys.track.title,fast=True) %}
@@ -21,18 +20,19 @@
 				<td class="text">
 					<h1>{{ malojatime.delimit_desc_p(delimitkeys) }} Performance</h1>
 					{% if limitkeys != {} %}
-					<a href="/pulse?{{ urihandler.compose_from_dicts(filterkeys,limitkeys,delimitkeys) }}"><span>View Pulse</span></a>
+					<a href="{{ mlj_uri.create_uri("/pulse",filterkeys,limitkeys,delimitkeys) }}"><span>View Pulse</span></a>
 					{% endif %}
 					<br/>
 					{{ filterdesc.desc(filterkeys,limitkeys,prefix='of') }}
 					<br/><br/>
-					{{ htmlmodules.module_filterselection(_urikeys,delimit=True) }}
+					{% import 'snippets/timeselection.jinja' as timeselection %}
+					{{ timeselection.selector(filterkeys,limitkeys,delimitkeys,delimit=True) }}
 
 				</td>
 			</tr>
 		</table>
 
 
-		{{ performance.performance(filterkeys,limitkeys,delimitkeys,amountkeys) }}
+		{% include 'partials/performance.jinja' %}
 
 {% endblock %}

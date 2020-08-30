@@ -1,5 +1,3 @@
-{% macro performance(filterkeys,limitkeys,delimitkeys,amountkeys) %}
-
 {% set ranges = dbp.get_performance(filterkeys,limitkeys,delimitkeys) %}
 
 {% set minrank = ranges|map(attribute="rank")|reject("none")|max|default(60) %}
@@ -25,6 +23,3 @@
 	</tr>
 	{% endfor %}
 </table>
-
-
-{%- endmacro %}
