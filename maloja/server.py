@@ -6,8 +6,7 @@ from .globalconf import datadir, DATA_DIR
 # server stuff
 from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest, abort
 import waitress
-# templating
-from jinja2 import Environment, PackageLoader, select_autoescape
+
 # monkey patching
 from . import monkey
 # rest of the project
@@ -16,12 +15,13 @@ from . import htmlmodules
 from . import htmlgenerators
 from . import malojatime
 from . import utilities
+from . import malojauri
 from .utilities import resolveImage
 from .urihandler import remove_identical
 from .malojauri import uri_to_internal
 from . import urihandler
 from . import globalconf
-from . import jinja_filters
+from .jinjaenv.context import jinja_environment
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -188,51 +188,6 @@ aliases = {
 
 
 
-from . import database_packed
-dbp = database_packed.DB()
-
-JINJA_CONTEXT = {
-	# maloja
-	"db": database,
-	"dbp":dbp,
-	"htmlmodules": htmlmodules,
-	"htmlgenerators": htmlgenerators,
-	"malojatime": malojatime,
-	"utilities": utilities,
-	"urihandler": urihandler,
-	"settings": settings.get_settings,
-	# external
-	"urllib": urllib,
-	"math":math,
-	# config
-	"ranges": [
-		('day','7 days',malojatime.today().next(-6),'day',7),
-		('week','12 weeks',malojatime.thisweek().next(-11),'week',12),
-		('month','12 months',malojatime.thismonth().next(-11),'month',12),
-		('year','10 years',malojatime.thisyear().next(-9),'year',12)
-	],
-	"xranges": [
-		{"identifier":"day","localisation":"12 days","firstrange":malojatime.today().next(-11),"amount":12},
-		{"identifier":"week","localisation":"12 weeks","firstrange":malojatime.thisweek().next(-11),"amount":12},
-		{"identifier":"month","localisation":"12 months","firstrange":malojatime.thismonth().next(-11),"amount":12},
-		{"identifier":"year","localisation":"12 years","firstrange":malojatime.thisyear().next(-11),"amount":12}
-	],
-	"xcurrent": [
-		{"identifier":"day","localisation":"Today","range":malojatime.today()},
-		{"identifier":"week","localisation":"This Week","range":malojatime.thisweek()},
-		{"identifier":"month","localisation":"This Month","range":malojatime.thismonth()},
-		{"identifier":"year","localisation":"This Year","range":malojatime.thisyear()},
-		{"identifier":"alltime","localisation":"All Time","range":malojatime.alltime()},
-	]
-}
-
-
-jinjaenv = Environment(
-	loader=PackageLoader('maloja', "web/jinja"),
-	autoescape=select_autoescape(['html', 'xml'])
-)
-jinjaenv.globals.update(JINJA_CONTEXT)
-jinjaenv.filters.update({k:jinja_filters.__dict__[k] for k in jinja_filters.__dict__ if not k.startswith("__")})
 
 
 @webserver.route("/<name:re:admin.*>")
@@ -262,9 +217,9 @@ def static_html(name):
 	lc = LOCAL_CONTEXT
 	lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
 
-	template = jinjaenv.get_template(name + '.jinja')
-
+	template = jinja_environment.get_template(name + '.jinja')
 	res = template.render(**LOCAL_CONTEXT)
+
 	log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
 	return res
 

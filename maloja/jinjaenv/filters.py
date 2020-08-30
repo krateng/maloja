@@ -39,3 +39,15 @@ def find_representative(sequence,attribute_id,attribute_count):
 #
 #	return mostappearances
 #	# among those, pick the one with the highest count in one of their appearances
+
+
+def combine_dicts(dictlist):
+	res = {k:d[k] for d in dictlist for k in d}
+	return res
+
+
+def compare_key_in_dicts(key,d1,d2):
+	return d1[key] == d2[key]
+
+def alltrue(seq):
+	return all(s for s in seq)
