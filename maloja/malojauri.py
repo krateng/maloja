@@ -1,6 +1,7 @@
 from .malojatime import get_range_object
-
-
+from bottle import FormsDict
+import urllib
+import math
 
 # this also sets defaults!
 def uri_to_internal(keys,forceTrack=False,forceArtist=False):
@@ -58,3 +59,99 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 
 	return filterkeys, limitkeys, delimitkeys, amountkeys, specialkeys
+
+
+
+def create_uri(path,*keydicts):
+	keyd = {}
+	for kd in keydicts:
+		keyd.update(kd)
+
+	return path + "?" + compose_querystring(internal_to_uri(keyd))
+
+
+def internal_to_uri(keys):
+	urikeys = FormsDict()
+
+	#filter
+	if "artist" in keys:
+		urikeys.append("artist",keys["artist"])
+		if keys.get("associated"): urikeys.append("associated","yes")
+	elif "track" in keys:
+		for a in keys["track"]["artists"]:
+			urikeys.append("artist",a)
+		urikeys.append("title",keys["track"]["title"])
+
+	#time
+	if "timerange" in keys:
+		keydict = keys["timerange"].urikeys()
+		for k in keydict:
+			urikeys.append(k,keydict[k])
+	elif "within" in keys:
+		urikeys.append("in",time_str(keys["within"]))
+	else:
+		if "since" in keys and keys["since"] is not None:
+			urikeys.append("since",time_str(keys["since"]))
+		if "to" in keys and keys["to"] is not None:
+			urikeys.append("to",time_str(keys["to"]))
+
+	# delimit
+	if "step" in keys:
+		urikeys.append("step",keys["step"])
+	if "stepn" in keys:
+		urikeys.append("stepn",str(keys["stepn"]))
+	if "trail" in keys:
+		if keys["trail"] == math.inf:
+			urikeys.append("cumulative","yes")
+		else:
+			urikeys.append("trail",str(keys["trail"]))
+
+	# stuff
+	#if "max_" in keys:
+	#	urikeys.append("max",str(keys["max_"]))
+	if "page" in keys:
+		urikeys.append("page",str(keys["page"]))
+	if "perpage" in keys:
+		urikeys.append("perpage",str(keys["perpage"]))
+
+
+	return urikeys
+
+
+
+
+
+# necessary because urllib.parse.urlencode doesnt handle multidicts
+def compose_querystring(*dicts,exclude=[]):
+
+	st = ""
+	keys = remove_identical(*dicts)
+	for k in keys:
+		if k in exclude: continue
+		values = keys.getall(k)
+		st += "&".join([urllib.parse.urlencode({k:v},safe="/") for v in values])
+		st += "&"
+	return st
+
+
+# takes any number of multidicts and normal dicts and creates a formsdict with duplicate values removed
+def remove_identical(*dicts):
+	#combine multiple dicts
+	keys = FormsDict()
+	for d in dicts:
+		for k in d:
+			try: #multidicts
+				for v in d.getall(k):
+					keys.append(k,v)
+			except: #normaldicts
+				v = d.get(k)
+				keys.append(k,v)
+
+	new = FormsDict()
+	for k in keys:
+		#values = set(keys.getall(k))
+		values = keys.getall(k)		# NO IDENTICAL REMOVAL FOR NOW
+		for v in values:
+			new.append(k,v)
+
+	return new
