@@ -67,7 +67,5 @@ def fix():
 
 			os.rename(datadir("scrobbles",filename_new),datadir("scrobbles",filename))
 
-			with open(datadir("scrobbles",filename + ".rulestate"),"w") as checkfile:
-				checkfile.write(wendigo.checksums)
 
 	log("Database fixed!")

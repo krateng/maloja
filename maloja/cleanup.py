@@ -24,19 +24,6 @@ class CleanerAgent:
 		self.rules_artistintitle = {b.lower():c for [a,b,c,d] in raw if a=="artistintitle"}
 		#self.rules_regexartist = [[b,c] for [a,b,c,d] in raw if a=="regexartist"]
 		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
-		# TODO
-
-		#self.plugin_artistparsers = []
-		#self.plugin_titleparsers = []
-		#if settings.get_settings("USE_PARSE_PLUGINS"):
-		#	for ep in pkg_resources.iter_entry_points(group='maloja.artistparsers'):
-		#		self.plugin_artistparsers.append(ep.load())
-		#	for ep in pkg_resources.iter_entry_points(group='maloja.titleparsers'):
-		#		self.plugin_titleparsers.append(ep.load())
-
-
-		# we always need to be able to tell if our current database is made with the current rules
-		self.checksums = utilities.checksumTSV(datadir("rules"))
 
 
 	def fullclean(self,artist,title):

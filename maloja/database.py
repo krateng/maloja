@@ -78,8 +78,6 @@ clients = []
 
 lastsync = 0
 
-# rulestate that the entire current database was built with, or False if the database was built from inconsistent scrobble files
-db_rulestate = False
 
 try:
 	with open(datadir("known_servers.yml"),"r") as f:
@@ -272,15 +270,11 @@ def test_server(key=None):
 		response.status = 403
 		return "Wrong API key"
 
-	elif db_rulestate:
-		response.status = 204
-		return
 	else:
-		response.status = 205
+		response.status = 200
 		return
 
-	# 204	Database server is up and operational
-	# 205	Database server is up, but DB is not fully built or is inconsistent
+	# 200	Database server is up and operational
 	# 403	Database server is up, but provided API key is not valid
 
 @dbserver.get("serverinfo")
@@ -795,8 +789,6 @@ def sapi(path:Multi,**keys):
 def newrule(**keys):
 	tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])
-	global db_rulestate
-	db_rulestate = False
 
 
 def issues():
@@ -960,8 +952,6 @@ def import_rulemodule(**keys):
 @authenticated_api
 def rebuild(**keys):
 	log("Database rebuild initiated!")
-	global db_rulestate
-	db_rulestate = False
 	sync()
 	from .proccontrol.tasks.fixexisting import fix
 	fix()
@@ -1091,8 +1081,6 @@ def build_db():
 	utilities.update_weekly()
 	utilities.send_stats()
 
-	global db_rulestate
-	db_rulestate = utilities.consistentRulestate(datadir("scrobbles"),cla.checksums)
 
 	global ISSUES
 	ISSUES = check_issues()
@@ -1135,7 +1123,6 @@ def sync():
 	for e in entries:
 		tsv.add_entries(datadir("scrobbles/" + e + ".tsv"),entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
-		utilities.combineChecksums(datadir("scrobbles/" + e + ".tsv"),cla.checksums)
 
 	#log("Written files",module="debug")
 

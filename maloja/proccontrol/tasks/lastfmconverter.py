@@ -61,7 +61,3 @@ def convert(input,output):
 
 				outputlog.write(entry)
 				outputlog.write("\n")
-
-	with open(output + ".rulestate","w") as checksumfile:
-		#this file stores an identifier for all rules that were in place when the corresponding file was created
-		checksumfile.write(c.checksums)
