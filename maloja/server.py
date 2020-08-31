@@ -158,6 +158,7 @@ def static_image(pth):
 @webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
+	global css
 	if settings.get_settings("DEV_MODE"): css = generate_css()
 	return css
 
