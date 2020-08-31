@@ -83,17 +83,6 @@ def mainpage():
 	response = static_html("start")
 	return response
 
-errortypes = {
-	400: "Bad Request",
-	403: "Forbidden",
-	404: "Not Found",
-	405: "Method Not Allowed",
-	408: "Request Timeout",
-	418: "I'm a teapot",
-	500: "Internal Server Error",
-	505: "HTTP Version Not Supported"
-}
-
 @webserver.error(400)
 @webserver.error(403)
 @webserver.error(404)
@@ -102,10 +91,14 @@ errortypes = {
 @webserver.error(500)
 @webserver.error(505)
 def customerror(error):
-	code = int(str(error).split(",")[0][1:])
+	errorcode = error.status_code
+	errordesc = error.status
+	traceback = error.traceback.strip()
+
+	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	template = jinja_environment.get_template('error.jinja')
-	res = template.render(errorcode=code,errordesc=errortypes[code])
+	res = template.render(errorcode=errorcode,errordesc=errordesc,traceback=traceback,adminmode=adminmode)
 	return res
 
 

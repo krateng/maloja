@@ -8,12 +8,21 @@
 				<div style="background-image:url('/favicon.png')"></div>
 			</td>
 			<td class="text">
-				<h1>Error {{ errorcode }}</h1><br/>
+				<h1>{{ errordesc }}</h1><br/>
 
-
-				<p>{{ errordesc }}</p>
 			</td>
 		</tr>
 	</table>
+
+
+
+	{% if adminmode %}
+		You are only seeing this information because you are in admin mode:
+		<br/><br/>
+		<div style="white-space: pre-wrap; font-family: monospace;">{{ traceback }}</div>
+	{% else %}
+		A team of Korean schoolgirls with katanas has been dispatched to deal with this situation.
+	{% endif %}
+
 
 {% endblock %}
