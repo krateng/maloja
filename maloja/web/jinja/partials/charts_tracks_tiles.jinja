@@ -1,3 +1,5 @@
+{% import 'snippets/links.jinja' as links %}
+
 {% macro charts_tracks_tiles(filterkeys,limitkeys,amountkeys,charts=None,compare=False) %}
 
 {% if charts is none %}
@@ -21,7 +23,7 @@
 						{% set track = entry.track %}
 						{% set rank = entry.rank %}
 						<td>
-							<a href="{{ htmlgenerators.link_address(track) }}">
+							<a href="{{ links.url(track) }}">
 							<div style='cursor:pointer;background-image:url("{{ utilities.getTrackImage(track.artists,track.title,fast=True) }}")'>
 								<span class='stats'>#{{ rank }}</span> <span>{{ track.title }}</span>
 							</div>

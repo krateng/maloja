@@ -1,6 +1,8 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - Track Charts{% endblock %}
 
+{% import 'snippets/links.jinja' as links %}
+
 {% block scripts %}
 	<script src="/datechange.js" async></script>
 {% endblock %}
@@ -24,7 +26,7 @@
 		</td>
 		<td class="text">
 			<h1>Track Charts</h1><a href="/top_tracks"><span>View #1 Tracks</span></a><br/>
-			{% if filterkeys.get('artist') is not none %}by {{ htmlgenerators.artistLink(filterkeys.get('artist')) }}{% endif %}
+			{% if filterkeys.get('artist') is not none %}by {{ links.link(filterkeys.get('artist')) }}{% endif %}
 			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 			<br/><br/>
 			{% import 'snippets/timeselection.jinja' as timeselection %}

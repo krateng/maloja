@@ -1,3 +1,6 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
 {% macro charts_artists(limitkeys,amountkeys,charts=None,compare=False) %}
 
 {% if charts is none %}
@@ -47,7 +50,7 @@
 			{% endif %}
 
 			<!-- artist -->
-			{{ htmlgenerators.entity_column(e['artist']) }}
+			{{ entityrow.row(e['artist']) }}
 
 			<!-- scrobbles -->
 			<td class="amount">{{ htmlgenerators.scrobblesArtistLink(e['artist'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles']) }}</td>

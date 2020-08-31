@@ -1,5 +1,7 @@
 {% macro row(entity,counting=[]) %}
 
+{% import 'snippets/links.jinja' as links %}
+
 {% if 'artists' in entity %}
 	{% set img = utilities.getTrackImage(artists=entity.artists,title=entity.title,fast=True) %}
 {% else %}
@@ -9,12 +11,12 @@
 <td class='icon'><div style="background-image:url('{{ img }}')"></div></td>
 {% if "artists" in entity %}
 	<td class='track'>
-		<span class='artist_in_trackcolumn'>{{ htmlgenerators.html_links(entity.artists) }}</span> – {{ htmlgenerators.html_link(entity) }}
+		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
 	</td>
 {% else %}
-	<td class='artist'>{{ htmlgenerators.html_link(entity) }}
+	<td class='artist'>{{ links.link(entity) }}
 	{% if counting != [] %}
-		<span class='extra'>incl. {{ htmlgenerators.html_links(counting) }}</span>
+		<span class='extra'>incl. {{ links.links(counting) }}</span>
 	{% endif %}
 	</td>
 

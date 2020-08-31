@@ -1,10 +1,12 @@
+{% import 'snippets/links.jinja' as links %}
+
 {% macro desc(filterkeys,limitkeys,prefix="by") %}
 
 	{% if filterkeys.get('artist') is not none %}
-		{{ prefix }} {{ htmlgenerators.artistLink(filterkeys.get('artist')) }}
+		{{ prefix }} {{ links.link(filterkeys.get('artist')) }}
 	{% elif filterkeys.get('track') is not none %}
-		of {{ htmlgenerators.trackLink(filterkeys.get('track')) }}
-		by {{ htmlgenerators.artistLinks(filterkeys["track"]["artists"]) }}
+		of {{ links.link(filterkeys.get('track')) }}
+		by {{ links.links(filterkeys["track"]["artists"]) }}
 	{% endif %}
 	{{ limitkeys.timerange.desc(prefix=True) }}
 

@@ -1,6 +1,9 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - {{ artist }}{% endblock %}
 
+{% import 'snippets/links.jinja' as links %}
+{% import 'partials/awards_artist.jinja' as awards %}
+
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
 {% endblock %}
@@ -28,7 +31,7 @@
 {% block content %}
 
 
-{% import 'partials/awards_artist.jinja' as awards %}
+
 
 
 <table class="top_info">
@@ -49,9 +52,9 @@
 				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
 				{% if competes and included %}
-					<span>associated: {{ htmlgenerators.artistLinks(included) }}</span>
+					<span>associated: {{ links.links(included) }}</span>
 				{% elif not competes %}
-					<span>Competing under {{ htmlgenerators.artistLink(credited) }} (#{{ info.position }})</span>
+					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>
 				{% endif %}
 
 			<p class="stats"><a href="/scrobbles?{{ encodedartist }}">{{ info['scrobbles'] }} Scrobbles</a></p>
@@ -113,7 +116,7 @@
 		<td>
 			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
 			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/performance",filterkeys) }}'>Performance</a></h2>
-			{% if not competes %}<span class="afterheader">of {{ htmlgenerators.artistLink(credited) }}</span>
+			{% if not competes %}<span class="afterheader">of {{ links.link(credited) }}</span>
 			{% endif %}
 			<br/>
 

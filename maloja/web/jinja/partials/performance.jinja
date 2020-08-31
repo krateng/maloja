@@ -1,3 +1,5 @@
+{% import 'snippets/links.jinja' as links %}
+
 {% set ranges = dbp.get_performance(filterkeys,limitkeys,delimitkeys) %}
 
 {% set minrank = ranges|map(attribute="rank")|reject("none")|max|default(60) %}

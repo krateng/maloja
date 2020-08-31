@@ -1,6 +1,8 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - Compare{% endblock %}
 
+{% import 'snippets/links.jinja' as links %}
+
 {% block scripts %}
 	<style>
 		.comparecircle {
@@ -99,7 +101,7 @@
 				<td></td>
 				<td>
 					<span>Common Favorite</span>
-					<h2 style="margin:7px;">{{ htmlgenerators.artistLink(bestartist) }}</h2>
+					<h2 style="margin:7px;">{{ links.link(bestartist) }}</h2>
 					<img src="{{ utilities.getArtistImage(bestartist) }}" style="width:80px;" />
 				</td>
 				<td></td>

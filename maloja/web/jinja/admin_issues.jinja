@@ -2,6 +2,7 @@
 {% extends "abstracts/admin.jinja" %}
 {% block title %}Maloja - Issues{% endblock %}
 
+{% import 'snippets/links.jinja' as links %}
 
 {% block scripts %}
 	<script>
@@ -50,7 +51,7 @@
 
 {% for issue in issuedata.duplicates %}
 	<tr>
-		<td>{{ htmlgenerators.artistLink(issue[0]) }} is a possible duplicate of {{ htmlgenerators.artistLink(issue[1]) }}</td>
+		<td>{{ links.link(issue[0]) }} is a possible duplicate of {{ links.link(issue[1]) }}</td>
 		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] }}')"><div>{{ issue[1] }} is correct</div></td>
 		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ issue[0] }}')"><div>{{ issue[0] }} is correct</div></td>
 	</tr>
@@ -58,7 +59,7 @@
 
 {% for issue in issuedata.combined %}
 	<tr>
-		<td>{{ htmlgenerators.artistLink(issue[0]) }} sounds like the combination of {{ issue[1].__len__() }} artists:
+		<td>{{ links.link(issue[0]) }} sounds like the combination of {{ issue[1].__len__() }} artists:
 			{{ issue[1]|join(", ") }}
 		</td>
 		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')"><div>Fix it</div></td>
@@ -67,7 +68,7 @@
 
 {% for issue in issuedata.newartists %}
 	<tr>
-		<td>Is '{{ issue[0] }}' in '{{ htmlgenerators.artistLink(issue[1]) }}' an artist?</td>
+		<td>Is '{{ issue[0] }}' in '{{ links.link(issue[1]) }}' an artist?</td>
 		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ (issue[2] + [issue[0]]) | join('␟') }}')"><div>Yes</div></td>
 	</tr>
 {% endfor %}
