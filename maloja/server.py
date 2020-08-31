@@ -83,6 +83,17 @@ def mainpage():
 	response = static_html("start")
 	return response
 
+errortypes = {
+	400: "Bad Request",
+	403: "Forbidden",
+	404: "Not Found",
+	405: "Method Not Allowed",
+	408: "Request Timeout",
+	418: "I'm a teapot",
+	500: "Internal Server Error",
+	505: "HTTP Version Not Supported"
+}
+
 @webserver.error(400)
 @webserver.error(403)
 @webserver.error(404)
@@ -94,7 +105,7 @@ def customerror(error):
 	code = int(str(error).split(",")[0][1:])
 
 	template = jinja_environment.get_template('error.jinja')
-	res = template.render(errorcode=code)
+	res = template.render(errorcode=code,errordesc=errortypes[code])
 	return res
 
 
