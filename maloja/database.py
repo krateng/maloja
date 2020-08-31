@@ -247,6 +247,7 @@ def normalize_name(name):
 # an api key now ONLY permits scrobbling tracks, no other admin tasks
 def api_key_correct(request):
 	args = request.params
+	args.update(request.json)
 	if "key" in args:
 		apikey = args["key"]
 		del args["key"]
