@@ -35,6 +35,7 @@ import os
 import setproctitle
 import pkg_resources
 import math
+from htmlmin.decorator import htmlmin
 # url handling
 import urllib
 
@@ -192,8 +193,6 @@ aliases = {
 
 
 
-
-
 @webserver.route("/<name:re:admin.*>")
 @auth.authenticated
 def static_html_private(name):
@@ -203,6 +202,7 @@ def static_html_private(name):
 def static_html_public(name):
 	return static_html(name)
 
+@htmlmin
 def static_html(name):
 	if name in aliases: redirect(aliases[name])
 	linkheaders = ["</style.css>; rel=preload; as=style"]
