@@ -1,3 +1,5 @@
+{% import 'snippets/links.jinja' as links %}
+
 {% set ranges = dbp.get_pulse(filterkeys,limitkeys,delimitkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
@@ -10,10 +12,10 @@
 	<tr>
 		<td>{{ thisrange.desc() }}</td>
 		<td class="amount">
-			{{ htmlgenerators.scrobblesLink(thisrange.urikeys(),amount=t.scrobbles,**filterkeys) }}
+			{{ links.link_scrobbles([filterkeys,{'timerange':thisrange}],amount=t.scrobbles) }}
 		</td>
 		<td class="bar">
-			{{ htmlgenerators.scrobblesLink(thisrange.urikeys(),percent=t.scrobbles*100/maxbar,**filterkeys) }}
+			{{ links.link_scrobbles([filterkeys,{'timerange':thisrange}],percent=t.scrobbles*100/maxbar) }}
 		</td>
 	</tr>
 	{% endfor %}

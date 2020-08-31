@@ -13,11 +13,11 @@
 	<tr>
 		<td>{{ thisrange.desc() }}</td>
 		<td class="rank">
-			{{ '#' + t.rank.__str__() if t.rank is not none else 'n/a' }}
+			{{ links.link_rank(filterkeys,thisrange,rank=t.rank) }}
 		</td>
 		<td class="chart">
 			{% set prct = ((minrank+1-t.rank)*100/minrank if t.rank is not none else 0) %}
-			{{ htmlgenerators.rankLink(thisrange.urikeys(),percent=prct,medal=t.rank,**filterkeys) }}
+			{{ links.link_rank(filterkeys,thisrange,percent=prct,rank=t.rank) }}
 		</td>
 
 

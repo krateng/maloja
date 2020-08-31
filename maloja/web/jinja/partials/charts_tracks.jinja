@@ -50,8 +50,8 @@
 			{{ entityrow.row(e['track']) }}
 
 			<!-- scrobbles -->
-			<td class="amount">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),amount=e['scrobbles']) }}</td>
-			<td class="bar">{{ htmlgenerators.scrobblesTrackLink(e['track'],urihandler.internal_to_uri(limitkeys),percent=e['scrobbles']*100/maxbar) }}</td>
+			<td class="amount">{{ links.link_scrobbles([{'track':e.track,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
+			<td class="bar">{{ links.link_scrobbles([{'track':e.track,'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
 		</tr>
 		{% endif %}
 	{% endfor %}

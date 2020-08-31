@@ -19,7 +19,9 @@
 	{% if adminmode %}
 		You are only seeing this information because you are in admin mode:
 		<br/><br/>
-		<div style="white-space: pre-wrap; font-family: monospace;">{{ traceback }}</div>
+		<div style="white-space: pre-wrap; font-family: monospace;">{% autoescape true -%}
+			{{ traceback }}
+		{%- endautoescape %}</div>
 	{% else %}
 		A team of Korean schoolgirls with katanas has been dispatched to deal with this situation.
 	{% endif %}

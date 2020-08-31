@@ -1,7 +1,7 @@
 from .. import database_packed
 from . import filters
 
-from .. import database, database_packed, htmlgenerators, malojatime, utilities, urihandler, malojauri
+from .. import database, database_packed, malojatime, utilities, urihandler, malojauri
 from doreah import settings
 
 import urllib
@@ -16,7 +16,6 @@ JINJA_CONTEXT = {
 	# maloja
 	"db": database,
 	"dbp":dbp,
-	"htmlgenerators": htmlgenerators,
 	"malojatime": malojatime,
 	"utilities": utilities,
 	"urihandler": urihandler,

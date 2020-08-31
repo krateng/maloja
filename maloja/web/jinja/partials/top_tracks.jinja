@@ -1,3 +1,6 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
 {% set ranges = dbp.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
@@ -17,9 +20,9 @@
 			<td class='amount'>0</td>
 			<td class='bar'></td>
 		{% else %}
-		{{ htmlgenerators.entity_column(track,image=utilities.getTrackImage(track.artists,track.title,fast=True)) }}
-			<td class='amount'>{{ htmlgenerators.scrobblesTrackLink(track,thisrange.urikeys(),amount=e.scrobbles) }}</td>
-			<td class='bar'> {{ htmlgenerators.scrobblesTrackLink(track,thisrange.urikeys(),percent=e.scrobbles*100/maxbar) }}</td>
+		{{ entityrow.row(track) }}
+			<td class='amount'>{{ links.link_scrobbles([{'track':track,'timerange':thisrange}],amount=e.scrobbles) }}</td>
+			<td class='bar'> {{ links.link_scrobbles([{'track':track,'timerange':thisrange}],percent=e.scrobbles*100/maxbar) }}</td>
 		{% endif %}
 
 	</tr>

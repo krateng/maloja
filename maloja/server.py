@@ -11,7 +11,6 @@ import waitress
 from . import monkey
 # rest of the project
 from . import database
-from . import htmlgenerators
 from . import malojatime
 from . import utilities
 from . import malojauri
