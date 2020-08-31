@@ -16,24 +16,24 @@
 
 
 
-{% macro url(entity) -%}
-	{% if 'artists' in entity %}
+{% macro url(entity) %}
+	{% if 'artists' in entity -%}
 		{{ mlj_uri.create_uri("/track",{'track':entity}) }}
-	{% else %}
+	{%- else -%}
 		{{ mlj_uri.create_uri("/artist",{'artist':entity}) }}
-	{% endif %}
-{%- endmacro %}
+	{%- endif %}
+{% endmacro %}
 
 
 
-{% macro link_scrobbles(keydicts,amount=None,percent=None) %}
+{% macro link_scrobbles(keydicts,amount=None,percent=None) -%}
 
 	<a href='{{ mlj_uri.create_uri("/scrobbles",*keydicts) }}'>
-		{% if percent is not none %}
+		{%- if percent is not none -%}
 			<div style='width:{{ percent }}%;'></div>
-		{% elif amount is not none %}
+		{%- elif amount is not none -%}
 			{{ amount }}
-		{% endif %}
+		{%- endif -%}
 
 	</a>
 {%- endmacro %}

@@ -15,7 +15,7 @@
 	<td>
 	{% set segmentsize = segment+1 %}
 	<table class="tiles_{{ segmentsize }}x{{ segmentsize }} tiles_sub">
-		{% for row in range(segmentsize) %}
+		{% for row in range(segmentsize) -%}
 			<tr>
 				{% for col in range(segmentsize) %}
 					{% set entry = charts_cycler.next() %}
@@ -29,12 +29,12 @@
 							</div>
 							</a>
 						</td>
-					{% else %}
+					{% else -%}
 						<td></td>
-					{% endif %}
-				{% endfor %}
+					{%- endif -%}
+				{%- endfor -%}
 			</tr>
-		{% endfor %}
+		{%- endfor -%}
 	</table>
 </td>
 {% endfor %}

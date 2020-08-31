@@ -158,7 +158,8 @@ def static_image(pth):
 @webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
-	return generate_css() if settings.get_settings("CSS_DEBUG") else css
+	if settings.get_settings("DEV_MODE"): css = generate_css()
+	return css
 
 
 @webserver.route("/login")
@@ -221,6 +222,8 @@ def static_html(name):
 
 	template = jinja_environment.get_template(name + '.jinja')
 	res = template.render(**LOCAL_CONTEXT)
+
+	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
 
 	log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
 	return res

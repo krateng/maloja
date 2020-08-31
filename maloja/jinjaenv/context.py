@@ -68,3 +68,7 @@ jinja_environment = Environment(
 )
 jinja_environment.globals.update(JINJA_CONTEXT)
 jinja_environment.filters.update({k:filters.__dict__[k] for k in filters.__dict__ if not k.startswith("__")})
+
+jinja_environment.trim_blocks = True
+jinja_environment.lstrip_blocks = True
+jinja_environment.strip_trailing_newlines = False
