@@ -55,6 +55,9 @@ DATAFOLDER = DATA_DIR
 webserver = Bottle()
 auth.authapi.mount(server=webserver)
 
+from .apis import init_apis
+init_apis(webserver)
+
 pthjoin = os.path.join
 
 def generate_css():
@@ -246,7 +249,6 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
 #run(webserver, host=HOST, port=MAIN_PORT, server='waitress')

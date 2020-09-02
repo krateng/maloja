@@ -24,9 +24,7 @@ try:
 except: pass
 import doreah
 
-# nimrodel API
-from nimrodel import EAPI as API
-from nimrodel import Multi
+
 
 # technical
 import os
@@ -260,45 +258,9 @@ def api_key_correct(request):
 	return checkAPIkey(apikey)
 
 
-dbserver = API(delay=True,path="api")
 
 
-@dbserver.get("test")
-def test_server(key=None):
-	response.set_header("Access-Control-Allow-Origin","*")
-	if key is not None and not (checkAPIkey(key)):
-		response.status = 403
-		return "Wrong API key"
 
-	else:
-		response.status = 200
-		return
-
-	# 200	Database server is up and operational
-	# 403	Database server is up, but provided API key is not valid
-
-@dbserver.get("serverinfo")
-def server_info():
-
-
-	response.set_header("Access-Control-Allow-Origin","*")
-	response.set_header("Content-Type","application/json")
-
-	return {
-		"name":settings.get_settings("NAME"),
-		"version":version,
-		"versionstring":".".join(str(n) for n in version)
-	}
-
-## All database functions are separated - the external wrapper only reads the request keys, converts them into lists and renames them where necessary, and puts the end result in a dict if not already so it can be returned as json
-
-@dbserver.get("scrobbles")
-def get_scrobbles_external(**keys):
-	k_filter, k_time, _, k_amount = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_amount}
-
-	result = get_scrobbles(**ckeys)
-	return {"list":result}
 
 def get_scrobbles(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track","max_"]})
@@ -308,15 +270,6 @@ def get_scrobbles(**keys):
 	#	return r
 	return r
 
-# info for comparison
-@dbserver.get("info")
-def info_external(**keys):
-
-	response.set_header("Access-Control-Allow-Origin","*")
-	response.set_header("Content-Type","application/json")
-
-	result = info()
-	return result
 
 def info():
 	totalscrobbles = get_scrobbles_num()
@@ -332,23 +285,6 @@ def info():
 	}
 
 
-
-# UNUSED
-#@dbserver.route("/amounts")
-#def get_amounts_external():
-#	return get_amounts() #really now
-#
-#def get_amounts():
-#	return {"scrobbles":len(SCROBBLES),"tracks":len(TRACKS),"artists":len(ARTISTS)}
-
-
-@dbserver.get("numscrobbles")
-def get_scrobbles_num_external(**keys):
-	k_filter, k_time, _, k_amount = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_amount}
-
-	result = get_scrobbles_num(**ckeys)
-	return {"amount":result}
 
 def get_scrobbles_num(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
@@ -387,32 +323,6 @@ def get_scrobbles_num(**keys):
 #	return validtracks
 
 
-# UNUSED
-#@dbserver.route("/charts")
-#def get_charts_external():
-#	keys = FormsDict.decode(request.query)
-#	ckeys = {}
-#	ckeys["since"], ckeys["to"], ckeys["within"] = keys.get("since"), keys.get("to"), keys.get("in")
-#
-#	result = get_scrobbles_num(**ckeys)
-#	return {"number":result}
-
-#def get_charts(**keys):
-#	return db_aggregate(**{k:keys[k] for k in keys if k in ["since","to","within"]})
-
-
-
-
-
-
-
-@dbserver.get("tracks")
-def get_tracks_external(**keys):
-	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter}
-
-	result = get_tracks(**ckeys)
-	return {"list":result}
 
 def get_tracks(artist=None):
 
@@ -429,11 +339,6 @@ def get_tracks(artist=None):
 	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
 
 
-@dbserver.get("artists")
-def get_artists_external():
-	result = get_artists()
-	return {"list":result}
-
 def get_artists():
 	return ARTISTS #well
 
@@ -441,15 +346,6 @@ def get_artists():
 
 
 
-
-
-@dbserver.get("charts/artists")
-def get_charts_artists_external(**keys):
-	_, k_time, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time}
-
-	result = get_charts_artists(**ckeys)
-	return {"list":result}
 
 def get_charts_artists(**keys):
 	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
@@ -459,13 +355,6 @@ def get_charts_artists(**keys):
 
 
 
-@dbserver.get("charts/tracks")
-def get_charts_tracks_external(**keys):
-	k_filter, k_time, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter, **k_time}
-
-	result = get_charts_tracks(**ckeys)
-	return {"list":result}
 
 def get_charts_tracks(**keys):
 	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
@@ -477,14 +366,6 @@ def get_charts_tracks(**keys):
 
 
 
-
-@dbserver.get("pulse")
-def get_pulse_external(**keys):
-	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
-
-	results = get_pulse(**ckeys)
-	return {"list":results}
 
 def get_pulse(**keys):
 
@@ -499,14 +380,6 @@ def get_pulse(**keys):
 
 
 
-
-@dbserver.get("performance")
-def get_performance_external(**keys):
-	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
-
-	results = get_performance(**ckeys)
-	return {"list":results}
 
 def get_performance(**keys):
 
@@ -539,14 +412,6 @@ def get_performance(**keys):
 
 
 
-@dbserver.get("top/artists")
-def get_top_artists_external(**keys):
-	_, k_time, k_internal, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
-
-	results = get_top_artists(**ckeys)
-	return {"list":results}
-
 def get_top_artists(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
@@ -568,17 +433,6 @@ def get_top_artists(**keys):
 
 
 
-
-
-@dbserver.get("top/tracks")
-def get_top_tracks_external(**keys):
-	_, k_time, k_internal, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
-
-	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
-
-	results = get_top_tracks(**ckeys)
-	return {"list":results}
 
 def get_top_tracks(**keys):
 
@@ -603,14 +457,6 @@ def get_top_tracks(**keys):
 
 
 
-
-@dbserver.get("artistinfo")
-def artistInfo_external(**keys):
-	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter}
-
-	results = artistInfo(**ckeys)
-	return results
 
 def artistInfo(artist):
 
@@ -642,17 +488,6 @@ def artistInfo(artist):
 
 
 
-@dbserver.get("trackinfo")
-def trackInfo_external(artist:Multi[str],**keys):
-	# transform into a multidict so we can use our nomral uri_to_internal function
-	keys = FormsDict(keys)
-	for a in artist:
-		keys.append("artist",a)
-	k_filter, _, _, _ = uri_to_internal(keys,forceTrack=True)
-	ckeys = {**k_filter}
-
-	results = trackInfo(**ckeys)
-	return results
 
 def trackInfo(track):
 	charts = db_aggregate(by="TRACK")
@@ -679,11 +514,6 @@ def trackInfo(track):
 
 
 
-@dbserver.get("compare")
-def compare_external(**keys):
-
-	results = compare(keys["remote"])
-	return results
 
 def compare(remoteurl):
 	import json
@@ -737,58 +567,25 @@ def compare(remoteurl):
 	}
 
 
-
-@dbserver.get("newscrobble")
-@dbserver.post("newscrobble")
-@authenticated_api_with_alternate(api_key_correct)
-def post_scrobble(artist:Multi,**keys):
-	artists = "/".join(artist)
-	title = keys.get("title")
-	album = keys.get("album")
-	duration = keys.get("seconds")
-
-	try:
-		time = int(keys.get("time"))
-	except:
+def incoming_scrobble(artists,title,album=None,duration=None,time=None):
+	artists = "/".join(artists)
+	if time is None:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (native API): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
+	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	(artists,title) = cla.fullclean(artists,title)
-
-	## this is necessary for localhost testing
-	#response.set_header("Access-Control-Allow-Origin","*")
-
 	trackdict = createScrobble(artists,title,time,album,duration)
 
 	sync()
-	#always sync, one filesystem access every three minutes shouldn't matter
-
-
 
 	return {"status":"success","track":trackdict}
 
 
 
-# standard-compliant scrobbling methods
-
-@dbserver.post("s/{path}",pass_headers=True)
-@dbserver.get("s/{path}",pass_headers=True)
-def sapi(path:Multi,**keys):
-	"""Scrobbles according to a standardized protocol.
-
-	:param string path: Path according to the scrobble protocol
-	:param string keys: Query keys according to the scrobble protocol
-	"""
-	path = list(filter(None,path))
-	return compliant_api.handle(path,keys)
 
 
 
-@dbserver.post("newrule")
-@authenticated_api
-def newrule(**keys):
-	tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
-	#addEntry("rules/webmade.tsv",[k for k in keys])
+
 
 
 def issues():
@@ -931,84 +728,6 @@ def get_predefined_rulesets():
 
 	return rulesets
 
-@dbserver.post("importrules")
-@authenticated_api
-def import_rulemodule(**keys):
-	filename = keys.get("filename")
-	remove = keys.get("remove") is not None
-	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	filename = "".join(c for c in filename if c in validchars)
-
-	if remove:
-		log("Deactivating predefined rulefile " + filename)
-		os.remove(datadir("rules/" + filename + ".tsv"))
-	else:
-		log("Importing predefined rulefile " + filename)
-		os.symlink(datadir("rules/predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
-
-
-
-@dbserver.post("rebuild")
-@authenticated_api
-def rebuild(**keys):
-	log("Database rebuild initiated!")
-	sync()
-	from .proccontrol.tasks.fixexisting import fix
-	fix()
-	global cla, coa
-	cla = CleanerAgent()
-	coa = CollectorAgent()
-	build_db()
-	invalidate_caches()
-
-
-
-
-@dbserver.get("search")
-def search(**keys):
-	query = keys.get("query")
-	max_ = keys.get("max")
-	if max_ is not None: max_ = int(max_)
-	query = query.lower()
-
-	artists = db_search(query,type="ARTIST")
-	tracks = db_search(query,type="TRACK")
-
-
-
-	# if the string begins with the query it's a better match, if a word in it begins with it, still good
-	# also, shorter is better (because longer titles would be easier to further specify)
-	artists.sort(key=lambda x: ((0 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 2),len(x)))
-	tracks.sort(key=lambda x: ((0 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 2),len(x["title"])))
-
-	# add links
-	artists_result = []
-	for a in artists:
-		result = {"name":a}
-		result["link"] = "/artist?" + compose_querystring(internal_to_uri({"artist":a}))
-		result["image"] = "/image?" + compose_querystring(internal_to_uri({"artist":a}))
-		artists_result.append(result)
-
-	tracks_result = []
-	for t in tracks:
-		result = t
-		result["link"] = "/track?" + compose_querystring(internal_to_uri({"track":t}))
-		result["image"] = "/image?" + compose_querystring(internal_to_uri({"track":t}))
-		tracks_result.append(result)
-
-	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
-
-
-@dbserver.post("addpicture")
-@authenticated_api
-def add_picture(b64,artist:Multi=[],title=None):
-	keys = FormsDict()
-	for a in artist:
-		keys.append("artist",a)
-	if title is not None: keys.append("title",title)
-	k_filter, _, _, _ = uri_to_internal(keys)
-	if "track" in k_filter: k_filter = k_filter["track"]
-	utilities.set_image(b64,**k_filter)
 
 ####
 ## Server operation
