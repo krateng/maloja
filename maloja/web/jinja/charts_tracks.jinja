@@ -37,8 +37,7 @@
 </table>
 
 {% if settings('CHARTS_DISPLAY_TILES') %}
-	{% import 'partials/charts_tracks_tiles.jinja' as charts_tracks_tiles %}
-	{{ charts_tracks_tiles.charts_tracks_tiles(filterkeys,limitkeys,amountkeys,compare=true) }}
+	{% include 'partials/charts_tracks_tiles.jinja' %}
 	<br/><br/>
 {% endif %}
 

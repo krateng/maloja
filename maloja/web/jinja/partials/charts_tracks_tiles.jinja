@@ -1,13 +1,12 @@
 {% import 'snippets/links.jinja' as links %}
 
-{% macro charts_tracks_tiles(filterkeys,limitkeys,amountkeys,charts=None,compare=False) %}
 
-{% if charts is none %}
+{% if charts is undefined %}
 	{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
 {% endif %}
 
-{% set charts = charts | fixlength(14) %}
-{% set charts_cycler = cycler(*charts) %}
+{% set charts_14 = charts | fixlength(14) %}
+{% set charts_cycler = cycler(*charts_14) %}
 
 
 <table class="tiles_top"><tr>
@@ -39,5 +38,3 @@
 </td>
 {% endfor %}
 </tr></table>
-
-{%- endmacro %}

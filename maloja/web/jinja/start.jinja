@@ -18,20 +18,21 @@
 		<!-- ARTIST CHARTS -->
 		<h1><a class="stat_link_topartists" href="/charts_artists?in=alltime">Top Artists</a></h1>
 
-		{% for range in xcurrent -%}
-			<span onclick="showRangeManual('topartists','{{ range.identifier }}')" class="stat_selector_topartists selector_topartists_{{ range.identifier }}">
-				{{ range.localisation }}
+		{% for r in xcurrent -%}
+			<span onclick="showRangeManual('topartists','{{ r.identifier }}')" class="stat_selector_topartists selector_topartists_{{ r.identifier }}">
+				{{ r.localisation }}
 			</span>
 			{{ "|" if not loop.last }}
 		{%- endfor %}
 
 		<br/><br/>
 
-		{% import 'partials/charts_artists_tiles.jinja' as cha %}
 
-		{% for range in xcurrent %}
-			<span class="stat_module_topartists topartists_{{ range.identifier }}" style="display:none;">
-				{{ cha.charts_artists_tiles({"timerange":range.range}) }}
+		{% for r in xcurrent %}
+			<span class="stat_module_topartists topartists_{{ r.identifier }}" style="display:none;">
+				{% with limitkeys = {"timerange":r.range} %}
+				{% include 'partials/charts_artists_tiles.jinja' %}
+				{% endwith %}
 			</span>
 		{% endfor %}
 
@@ -41,20 +42,21 @@
 		<!-- TRACK CHARTS -->
 		<h1><a class="stat_link_toptracks" href="/charts_tracks?in=alltime">Top Tracks</a></h1>
 
-		{% for range in xcurrent -%}
-			<span onclick="showRangeManual('toptracks','{{ range.identifier }}')" class="stat_selector_toptracks selector_toptracks_{{ range.identifier }}">
-				{{ range.localisation }}
+		{% for r in xcurrent -%}
+			<span onclick="showRangeManual('toptracks','{{ r.identifier }}')" class="stat_selector_toptracks selector_toptracks_{{ r.identifier }}">
+				{{ r.localisation }}
 			</span>
 			{{ "|" if not loop.last }}
 		{%- endfor %}
 
 		<br/><br/>
 
-		{% import 'partials/charts_tracks_tiles.jinja' as cht %}
 
-		{% for range in xcurrent %}
-			<span class="stat_module_toptracks toptracks_{{ range.identifier }}" style="display:none;">
-				{{ cht.charts_tracks_tiles({},{"timerange":range.range}) }}
+		{% for r in xcurrent %}
+			<span class="stat_module_toptracks toptracks_{{ r.identifier }}" style="display:none;">
+				{% with limitkeys = {"timerange":r.range} %}
+				{% include 'partials/charts_tracks_tiles.jinja' %}
+				{% endwith %}
 			</span>
 		{% endfor %}
 

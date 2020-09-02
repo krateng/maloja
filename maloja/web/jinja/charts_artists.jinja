@@ -35,8 +35,7 @@
 </table>
 
 {% if settings('CHARTS_DISPLAY_TILES') %}
-	{% import 'partials/charts_artists_tiles.jinja' as charts_artists_tiles %}
-	{{ charts_artists_tiles.charts_artists_tiles(limitkeys,amountkeys,compare=true) }}
+	{% include 'partials/charts_artists_tiles.jinja' %}
 	<br/><br/>
 {% endif %}
 
