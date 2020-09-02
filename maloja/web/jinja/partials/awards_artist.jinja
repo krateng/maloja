@@ -31,7 +31,7 @@
 
 {% macro topweeks(info) %}
 
-{% set encodedartist = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':info.artist})) %}
+{% set encodedartist = mlj_uri.uriencode({'artist':info.artist}) %}
 
 
 <!-- TOPWEEKS -->

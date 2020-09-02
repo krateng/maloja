@@ -28,7 +28,7 @@
 
 {% macro topweeks(info) %}
 
-{% set encodedtrack = urihandler.compose_querystring(urihandler.internal_to_uri({'track':info.track})) %}
+{% set encodedtrack = mlj_uri.uriencode({'track':info.track}) %}
 
 <!-- TOPWEEKS -->
 <span>
