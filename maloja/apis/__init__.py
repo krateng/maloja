@@ -11,7 +11,3 @@ def init_apis(server):
 
 	for api in apis:
 		apis[api].mount(server=server,path="apis/"+api)
-
-		# backwards compatibility
-		nativeapi = copy.deepcopy(apis["mlj_1"])
-		nativeapi.mount(server=server,path="api")

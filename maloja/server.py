@@ -15,7 +15,7 @@ from . import malojatime
 from . import utilities
 from . import malojauri
 from .utilities import resolveImage
-from .malojauri import uri_to_internal, remove_identical
+from .malojauri import uri_to_internal, remove_identical, compose_querystring
 from . import globalconf
 from .jinjaenv.context import jinja_environment
 # doreah toolkit
@@ -57,6 +57,24 @@ auth.authapi.mount(server=webserver)
 
 from .apis import init_apis
 init_apis(webserver)
+
+
+
+
+# redirects for backwards compatibility
+@webserver.get("/api/s/<pth:path>")
+@webserver.post("/api/s/<pth:path>")
+def deprecated_api_s(pth):
+	redirect("/apis/" + pth + "?" + compose_querystring(request.query))
+
+@webserver.get("/api/<pth:path>")
+@webserver.post("/api/<pth:path>")
+def deprecated_api(pth):
+	redirect("/apis/mlj_1/" + pth + "?" + compose_querystring(request.query))
+
+
+
+
 
 pthjoin = os.path.join
 
