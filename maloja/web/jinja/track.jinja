@@ -18,7 +18,7 @@
 {% set initialrange ='month' %}
 
 
-{% set encodedtrack = urihandler.compose_querystring(urihandler.internal_to_uri({'track':track})) %}
+{% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
 
 
 {% block content %}

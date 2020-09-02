@@ -1,7 +1,7 @@
 from .. import database_packed
 from . import filters
 
-from .. import database, database_packed, malojatime, utilities, urihandler, malojauri
+from .. import database, database_packed, malojatime, utilities, malojauri
 from doreah import settings
 from doreah.regular import repeatdaily
 
@@ -29,7 +29,6 @@ def update_jinja_environment():
 		"dbp":dbp,
 		"malojatime": malojatime,
 		"utilities": utilities,
-		"urihandler": urihandler,
 		"mlj_uri": malojauri,
 		"settings": settings.get_settings,
 		# external

@@ -15,9 +15,7 @@ from . import malojatime
 from . import utilities
 from . import malojauri
 from .utilities import resolveImage
-from .urihandler import remove_identical
-from .malojauri import uri_to_internal
-from . import urihandler
+from .malojauri import uri_to_internal, remove_identical
 from . import globalconf
 from .jinjaenv.context import jinja_environment
 # doreah toolkit

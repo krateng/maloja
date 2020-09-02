@@ -24,8 +24,7 @@
 {% endif %}
 
 
-{% set encodedartist = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':artist})) %}
-{% set encodedcredited = urihandler.compose_querystring(urihandler.internal_to_uri({'artist':credited})) %}
+{% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
 
 {% block content %}
@@ -57,7 +56,7 @@
 					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>
 				{% endif %}
 
-			<p class="stats"><a href="/scrobbles?{{ encodedartist }}">{{ info['scrobbles'] }} Scrobbles</a></p>
+			<p class="stats"><a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a></p>
 
 
 
@@ -115,7 +114,7 @@
 		</td>
 		<td>
 			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
-			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/performance",filterkeys) }}'>Performance</a></h2>
+			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/performance",{'artist':credited}) }}'>Performance</a></h2>
 			{% if not competes %}<span class="afterheader">of {{ links.link(credited) }}</span>
 			{% endif %}
 			<br/>

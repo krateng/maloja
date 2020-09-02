@@ -63,11 +63,14 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 
 def create_uri(path,*keydicts):
+	return path + "?" + uriencode(*keydicts)
+
+def uriencode(*keydicts):
 	keyd = {}
 	for kd in keydicts:
 		keyd.update(kd)
 
-	return path + "?" + compose_querystring(internal_to_uri(keyd))
+	return compose_querystring(internal_to_uri(keyd))
 
 
 def internal_to_uri(keys):
