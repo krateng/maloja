@@ -44,7 +44,7 @@ class Listenbrainz(APIHandler):
 					try:
 						timestamp = int(listen["listened_at"])
 					except:
-						timestamp = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+						timestamp = None
 		except:
 			raise MalformedJSONException()
 

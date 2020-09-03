@@ -53,7 +53,10 @@ class Audioscrobbler(APIHandler):
 			if "track" in keys and "artist" in keys:
 				artiststr,titlestr = keys["artist"], keys["track"]
 				#(artists,title) = cla.fullclean(artiststr,titlestr)
-				timestamp = int(keys["timestamp"])
+				try:
+					timestamp = int(keys["timestamp"])
+				except:
+					timestamp = None
 				#database.createScrobble(artists,title,timestamp)
 				self.scrobble(artiststr,titlestr,time=timestamp)
 				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
@@ -66,3 +69,19 @@ class Audioscrobbler(APIHandler):
 						#database.createScrobble(artists,title,timestamp)
 						self.scrobble(artiststr,titlestr,time=timestamp)
 				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
+
+
+import hashlib
+import random
+
+def md5(input):
+	m = hashlib.md5()
+	m.update(bytes(input,encoding="utf-8"))
+	return m.hexdigest()
+
+def generate_key(ls):
+	key = ""
+	for i in range(64):
+		key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+	ls.append(key)
+	return key

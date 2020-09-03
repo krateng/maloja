@@ -6,6 +6,7 @@ from ._exceptions import *
 from copy import deepcopy
 from types import FunctionType
 import sys
+import datetime
 
 from doreah.logging import log
 
@@ -87,6 +88,7 @@ class APIHandler:
 	def scrobble(self,artiststr,titlestr,time=None,duration=None,album=None):
 		logmsg = "Incoming scrobble (API: {api}): ARTISTS: {artiststr}, TRACK: {titlestr}"
 		log(logmsg.format(api=self.__apiname__,artiststr=artiststr,titlestr=titlestr))
+		if time is None: time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 		try:
 			(artists,title) = cla.fullclean(artiststr,titlestr)
 			database.createScrobble(artists,title,time)
