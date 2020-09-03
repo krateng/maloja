@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 native_apis = [
 	native_v1.api
 ]
-thirdparty_apis = [
+standardized_apis = [
 	Listenbrainz(),
 	Audioscrobbler()
 ]
@@ -18,7 +18,7 @@ def init_apis(server):
 	for api in native_apis:
 		api.mount(server=server,path="apis/"+api.__apipath__)
 
-	for api in thirdparty_apis:
+	for api in standardized_apis:
 		aliases = api.__aliases__
 		canonical = aliases[0]
 		api.nimrodelapi.mount(server=server,path="apis/" + canonical)
