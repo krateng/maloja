@@ -6,7 +6,6 @@ from .cleanup import CleanerAgent, CollectorAgent
 from . import utilities
 from .malojatime import register_scrobbletime, time_stamps, ranges
 from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
-from . import compliant_api
 
 from .thirdparty import proxy_scrobble_all
 

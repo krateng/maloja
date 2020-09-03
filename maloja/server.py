@@ -18,6 +18,7 @@ from .utilities import resolveImage
 from .malojauri import uri_to_internal, remove_identical, compose_querystring
 from . import globalconf
 from .jinjaenv.context import jinja_environment
+from jinja2.exceptions import TemplateNotFound
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -112,8 +113,8 @@ def mainpage():
 def customerror(error):
 	errorcode = error.status_code
 	errordesc = error.status
-	traceback = error.traceback.strip()
-
+	traceback = error.traceback
+	traceback = traceback.strip() if traceback is not None else "No Traceback"
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	template = jinja_environment.get_template('error.jinja')
