@@ -7,6 +7,10 @@ import datetime
 class Listenbrainz(APIHandler):
 	__apiname__ = "Listenbrainz"
 	__doclink__ = "https://listenbrainz.readthedocs.io/en/production/"
+	__aliases__ = [
+		"listenbrainz/1",
+		"lbrnz/1"
+	]
 
 	def init(self):
 		self.methods = {

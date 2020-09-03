@@ -5,6 +5,11 @@ from .. import database
 class Audioscrobbler(APIHandler):
 	__apiname__ = "Audioscrobbler"
 	__doclink__ = "https://www.last.fm/api/scrobbling"
+	__aliases__ = [
+		"audioscrobbler/2.0",
+		"gnufm/2.0",
+		"gnukebox/2.0",
+	]
 
 	def init(self):
 

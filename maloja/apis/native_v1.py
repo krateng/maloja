@@ -12,6 +12,7 @@ from nimrodel import Multi
 
 
 api = API(delay=True)
+api.__apipath__ = "mlj_1"
 
 
 @api.get("test")

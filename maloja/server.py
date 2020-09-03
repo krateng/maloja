@@ -59,9 +59,6 @@ auth.authapi.mount(server=webserver)
 from .apis import init_apis
 init_apis(webserver)
 
-
-
-
 # redirects for backwards compatibility
 @webserver.get("/api/s/<pth:path>")
 @webserver.post("/api/s/<pth:path>")
