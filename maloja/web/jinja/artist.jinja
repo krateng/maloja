@@ -74,9 +74,10 @@
 
 <h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 
-{% import 'partials/charts_tracks.jinja' as charts_tracks %}
 
-{{ charts_tracks.charts_tracks(filterkeys,limitkeys,{"perpage":15,"page":0},compare=false) }}
+{% with amountkeys={"perpage":15,"page":0} %}
+{% include 'partials/charts_tracks.jinja' %}
+{% endwith %}
 
 <br/>
 

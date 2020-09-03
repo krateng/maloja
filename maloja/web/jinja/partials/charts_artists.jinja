@@ -1,9 +1,7 @@
 {% import 'snippets/links.jinja' as links %}
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
-{% macro charts_artists(limitkeys,amountkeys,charts=None,compare=False) %}
-
-{% if charts is none %}
+{% if charts is undefined %}
 	{% set charts = dbp.get_charts_artists(limitkeys) %}
 {% endif %}
 
@@ -59,7 +57,3 @@
 		{% endif %}
 	{% endfor %}
 </table>
-
-
-
-{%- endmacro %}

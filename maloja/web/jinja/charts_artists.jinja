@@ -39,8 +39,9 @@
 	<br/><br/>
 {% endif %}
 
-{% import 'partials/charts_artists.jinja' as charts_artists %}
-{{ charts_artists.charts_artists(limitkeys,amountkeys,compare=true) }}
+{% with compare=true %}
+{% include 'partials/charts_artists.jinja' %}
+{% endwith %}
 
 {% import 'snippets/pagination.jinja' as pagination %}
 {{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
