@@ -1006,7 +1006,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 	for a in artist:
 		keys.append("artist",a)
 	if title is not None: keys.append("title",title)
-	k_filter, _, _, _ = uri_to_internal(keys)
+	k_filter, _, _, _, _ = uri_to_internal(keys)
 	if "track" in k_filter: k_filter = k_filter["track"]
 	utilities.set_image(b64,**k_filter)
 

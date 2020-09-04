@@ -1,4 +1,5 @@
 import datetime
+from datetime import datetime as dtm
 from calendar import monthrange
 from os.path import commonprefix
 import math
@@ -377,6 +378,27 @@ y = MTime(2020)
 
 
 
+def today():
+	tod = datetime.datetime.utcnow()
+	return MTime(tod.year,tod.month,tod.day)
+def thisweek():
+	tod = datetime.datetime.utcnow()
+	tod = datetime.date(tod.year,tod.month,tod.day)
+	y,w,_ = tod.chrcalendar()
+	return MTimeWeek(y,w)
+def thismonth():
+	tod = datetime.datetime.utcnow()
+	return MTime(tod.year,tod.month)
+def thisyear():
+	tod = datetime.datetime.utcnow()
+	return MTime(tod.year)
+def alltime():
+	return MRange(None,None)
+
+
+
+
+
 def range_desc(r,**kwargs):
 	if r is None: return ""
 	return r.desc(**kwargs)
@@ -385,37 +407,58 @@ def time_str(t):
 	obj = time_fix(t)
 	return obj.desc()
 
+
+currenttime_string_representations = (
+	(today,["today","day"]),
+	(thisweek,["week","thisweek"]),
+	(thismonth,["month","thismonth"]),
+	(thisyear,["year","thisyear"]),
+	(lambda:None,["alltime"])
+)
+month_string_representations = (
+	["january","jan"],
+	["february","feb"],
+	["march","mar"],
+	["april","apr"],
+	["may"],
+	["june","jun"],
+	["july","jul"],
+	["august","aug"],
+	["september","sep"],
+	["october","oct"],
+	["november","nov"],
+	["december","dec"],
+)
+weekday_string_representations = (
+	["sunday","sun"],
+	["monday","mon"],
+	["tuesday","tue"],
+	["wednesday","wed"],
+	["thursday","thu"],
+	["friday","fri"],
+	["saturday","sat"]
+)
+
+def get_last_instance(category,current,target,amount):
+	offset = (target-current) % -(amount)
+	return category().next(offset)
+
+str_to_time_range = {
+	**{s:callable for callable,strlist in currenttime_string_representations for s in strlist},
+	**{s:(lambda i=index:get_last_instance(thismonth,dtm.utcnow().month,i,12)) for index,strlist in enumerate(month_string_representations,1) for s in strlist},
+	**{s:(lambda i=index:get_last_instance(today,dtm.utcnow().isoweekday()+1%7,i,7)) for index,strlist in enumerate(weekday_string_representations,1) for s in strlist}
+}
+
+
 # converts strings and stuff to objects
 def time_fix(t):
-	if t is None: return None
-	if isinstance(t,MRangeDescriptor): return t
+	if t is None or isinstance(t,MRangeDescriptor): return t
 
 	if isinstance(t, str):
-		if t in ["alltime"]: return None
-		tod = datetime.datetime.utcnow()
-		months = ["january","february","march","april","may","june","july","august","september","october","november","december"]
-		weekdays = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"]
+		t = t.lower()
 
-		if t.lower() in ["today","day"]:
-			return today()
-		elif t.lower() in ["month","thismonth"]:
-			return thismonth()
-		elif t.lower() in ["year","thisyear"]:
-			return thisyear()
-		elif t.lower() in ["week","thisweek"]:
-			return thisweek()
-
-
-		elif t.lower() in months:
-			#diff = (tod.month - months.index(t.lower()) - 1)
-			month = months.index(t.lower()) + 1
-			t = [tod.year,month]
-			if month > tod.month: t[0] -= 1
-		elif t.lower() in weekdays:
-			weekday = weekdays.index(t.lower())
-			diff = (tod.isoweekday() - weekday) % 7
-			dt = tod - datetime.timedelta(diff)
-			t = [dt.year,dt.month,dt.day]
+		if t in str_to_time_range:
+			return str_to_time_range[t]()
 
 	if isinstance(t,str): t = t.split("/")
 	#if isinstance(t,tuple): t = list(t)
@@ -608,22 +651,7 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 
 
 
-def today():
-	tod = datetime.datetime.utcnow()
-	return MTime(tod.year,tod.month,tod.day)
-def thisweek():
-	tod = datetime.datetime.utcnow()
-	tod = datetime.date(tod.year,tod.month,tod.day)
-	y,w,_ = tod.chrcalendar()
-	return MTimeWeek(y,w)
-def thismonth():
-	tod = datetime.datetime.utcnow()
-	return MTime(tod.year,tod.month)
-def thisyear():
-	tod = datetime.datetime.utcnow()
-	return MTime(tod.year)
-def alltime():
-	return MRange(None,None)
+
 
 #def _get_start_of(timestamp,unit):
 #	date = datetime.datetime.utcfromtimestamp(timestamp)

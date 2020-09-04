@@ -12,6 +12,7 @@ import random
 import base64
 from threading import Thread, Timer
 import re
+import datetime
 
 
 if globalconf.USE_THUMBOR:
