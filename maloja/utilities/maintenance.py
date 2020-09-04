@@ -22,23 +22,20 @@ def update_medals():
 
 
 	MEDALS.clear()
+	MEDALS_TRACKS.clear()
+
 	for year in range(firstyear,currentyear):
+		charts_artists = get_charts_artists(within=[year])
+		charts_tracks = get_charts_tracks(within=[year])
 
-		charts = get_charts_artists(within=[year])
-		for a in charts:
-
+		for a in charts_artists:
 			artist = a["artist"]
 			if a["rank"] == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
 			elif a["rank"] == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
 			elif a["rank"] == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
 			else: break
 
-	MEDALS_TRACKS.clear()
-	for year in range(firstyear,currentyear):
-
-		charts = get_charts_tracks(within=[year])
-		for t in charts:
-
+		for t in charts_tracks:
 			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
 			if t["rank"] == 1: MEDALS_TRACKS.setdefault(track,{}).setdefault("gold",[]).append(year)
 			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
@@ -60,10 +57,12 @@ def update_weekly():
 		for a in get_charts_artists(timerange=week):
 			artist = a["artist"]
 			if a["rank"] == 1: WEEKLY_TOPARTISTS[artist] = WEEKLY_TOPARTISTS.setdefault(artist,0) + 1
+			else: break
 
 		for t in get_charts_tracks(timerange=week):
 			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
 			if t["rank"] == 1: WEEKLY_TOPTRACKS[track] = WEEKLY_TOPTRACKS.setdefault(track,0) + 1
+			else: break
 
 
 @daily
