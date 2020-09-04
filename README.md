@@ -129,14 +129,14 @@ You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) o
 
 GNU FM | &nbsp;
 ------ | ---------
-Gnukebox URL | Your Maloja URL followed by `/api/s/audioscrobbler`
-Username | Any name, doesn't matter
+Gnukebox URL | Your Maloja URL followed by `/apis/audioscrobbler`
+Username | Any name, doesn't matter (don't leave empty)
 Password | Any of your API keys
 
 ListenBrainz | &nbsp;
 ------ | ---------
-API URL | Your Maloja URL followed by `/api/s/listenbrainz`
-Username | Any name, doesn't matter
+API URL | Your Maloja URL followed by `/apis/listenbrainz`
+Username | Any name, doesn't matter (don't leave empty)
 Auth Token | Any of your API keys
 
 These are tested with the Pano Scrobbler and the Simple Last.fm Scrobbler for Android. I'm thankful for any feedback whether other scrobblers work!

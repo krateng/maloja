@@ -15,9 +15,10 @@ from . import malojatime
 from . import utilities
 from . import malojauri
 from .utilities import resolveImage
-from .malojauri import uri_to_internal, remove_identical
+from .malojauri import uri_to_internal, remove_identical, compose_querystring
 from . import globalconf
 from .jinjaenv.context import jinja_environment
+from jinja2.exceptions import TemplateNotFound
 # doreah toolkit
 from doreah import settings
 from doreah.logging import log
@@ -55,6 +56,24 @@ DATAFOLDER = DATA_DIR
 webserver = Bottle()
 auth.authapi.mount(server=webserver)
 
+from .apis import init_apis
+init_apis(webserver)
+
+# redirects for backwards compatibility
+@webserver.get("/api/s/<pth:path>")
+@webserver.post("/api/s/<pth:path>")
+def deprecated_api_s(pth):
+	redirect("/apis/" + pth + "?" + compose_querystring(request.query))
+
+@webserver.get("/api/<pth:path>")
+@webserver.post("/api/<pth:path>")
+def deprecated_api(pth):
+	redirect("/apis/mlj_1/" + pth + "?" + compose_querystring(request.query))
+
+
+
+
+
 pthjoin = os.path.join
 
 def generate_css():
@@ -91,8 +110,8 @@ def mainpage():
 def customerror(error):
 	errorcode = error.status_code
 	errordesc = error.status
-	traceback = error.traceback.strip()
-
+	traceback = error.traceback
+	traceback = traceback.strip() if traceback is not None else "No Traceback"
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	template = jinja_environment.get_template('error.jinja')
@@ -246,7 +265,6 @@ setproctitle.setproctitle("Maloja")
 
 ## start database
 database.start_db()
-database.dbserver.mount(server=webserver)
 
 log("Starting up Maloja server...")
 #run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
