@@ -468,7 +468,7 @@ def time_fix(t):
 	except:
 		pass
 
-	if isinstance(t[1],str) and t[1].startswith("W"):
+	if isinstance(t[1],str) and t[1].startswith("w"):
 		try:
 			year = int(t[0])
 			weeknum = int(t[1][1:])
