@@ -150,11 +150,4 @@ def remove_identical(*dicts):
 				v = d.get(k)
 				keys.append(k,v)
 
-	new = FormsDict()
-	for k in keys:
-		#values = set(keys.getall(k))
-		values = keys.getall(k)		# NO IDENTICAL REMOVAL FOR NOW
-		for v in values:
-			new.append(k,v)
-
-	return new
+	return keys
