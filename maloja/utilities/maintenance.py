@@ -7,6 +7,43 @@ from doreah.logging import log
 import datetime
 import json
 import urllib
+import itertools
+
+
+
+get_track = lambda x:(frozenset(x["track"]["artists"]),x["track"]["title"])
+get_artist = lambda x:x["artist"]
+
+def group_by_attribute(sequence,attribute):
+	grouped = itertools.groupby(sequence,key=lambda x:x[attribute])
+	for attrvalue,members in grouped:
+		yield attrvalue,list(members)
+
+def collect_rankings(chart,identify,collection,iteration=None,count=True):
+	grouped = group_by_attribute(chart,"rank")
+	for rank, members in grouped:
+		if not count and rank not in rankmedals: break
+		if count and rank != 1: break
+
+		for m in members:
+			# get the actual object that we're counting
+			entity = identify(m)
+
+			# count no1 spots
+			if count:
+				collection[entity] = collection.setdefault(entity,0) + 1
+
+			# collect instances of top3 spots
+			else:
+				medal = rankmedals[rank]
+				collection.setdefault(entity,{}).setdefault(medal,[]).append(iteration)
+
+
+rankmedals = {
+	1:'gold',
+	2:'silver',
+	3:'bronze'
+}
 
 @yearly
 def update_medals():
@@ -28,19 +65,9 @@ def update_medals():
 		charts_artists = get_charts_artists(within=[year])
 		charts_tracks = get_charts_tracks(within=[year])
 
-		for a in charts_artists:
-			artist = a["artist"]
-			if a["rank"] == 1: MEDALS.setdefault(artist,{}).setdefault("gold",[]).append(year)
-			elif a["rank"] == 2: MEDALS.setdefault(artist,{}).setdefault("silver",[]).append(year)
-			elif a["rank"] == 3: MEDALS.setdefault(artist,{}).setdefault("bronze",[]).append(year)
-			else: break
+		collect_rankings(charts_artists,get_artist,MEDALS,iteration=year,count=False)
+		collect_rankings(charts_tracks,get_track,MEDALS_TRACKS,iteration=year,count=False)
 
-		for t in charts_tracks:
-			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
-			if t["rank"] == 1: MEDALS_TRACKS.setdefault(track,{}).setdefault("gold",[]).append(year)
-			elif t["rank"] == 2: MEDALS_TRACKS.setdefault(track,{}).setdefault("silver",[]).append(year)
-			elif t["rank"] == 3: MEDALS_TRACKS.setdefault(track,{}).setdefault("bronze",[]).append(year)
-			else: break
 
 @daily
 def update_weekly():
@@ -54,15 +81,12 @@ def update_weekly():
 
 	for week in ranges(step="week"):
 		if week == thisweek(): break
-		for a in get_charts_artists(timerange=week):
-			artist = a["artist"]
-			if a["rank"] == 1: WEEKLY_TOPARTISTS[artist] = WEEKLY_TOPARTISTS.setdefault(artist,0) + 1
-			else: break
 
-		for t in get_charts_tracks(timerange=week):
-			track = (frozenset(t["track"]["artists"]),t["track"]["title"])
-			if t["rank"] == 1: WEEKLY_TOPTRACKS[track] = WEEKLY_TOPTRACKS.setdefault(track,0) + 1
-			else: break
+		charts_artists = get_charts_artists(timerange=week)
+		charts_tracks = get_charts_tracks(timerange=week)
+
+		collect_rankings(charts_artists,get_artist,WEEKLY_TOPARTISTS)
+		collect_rankings(charts_tracks,get_track,WEEKLY_TOPTRACKS)
 
 
 @daily
