@@ -1,5 +1,4 @@
 
-
 chrome.tabs.onUpdated.addListener(onTabUpdated);
 chrome.tabs.onRemoved.addListener(onTabRemoved);
 //chrome.tabs.onActivated.addListener(onTabChanged);
@@ -303,21 +302,25 @@ class Controller {
 
 function scrobble(artist,title,seconds,secondsago=0) {
 	console.log("Scrobbling " + artist + " - " + title + "; " + seconds + " seconds playtime, " + secondsago + " seconds ago")
-	var artiststring = encodeURIComponent(artist)
-	var titlestring = encodeURIComponent(title)
 	var d = new Date()
 	var time = Math.floor(d.getTime()/1000) - secondsago
 	//console.log("Time: " + time)
-	var requestbody = "artist=" + artiststring + "&title=" + titlestring + "&duration=" + seconds + "&time=" + time
-	chrome.storage.local.get("apikey",function(result) {
-		APIKEY = result["apikey"]
-		chrome.storage.local.get("serverurl",function(result) {
-			URL = result["serverurl"]
-			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST",URL + "/api/newscrobble",true);
-			xhttp.send(requestbody + "&key=" + APIKEY)
-			//console.log("Sent: " + requestbody)
-		});
+	var payload = {
+		"artist":artist,
+		"title":title,
+		"duration":seconds,
+		"time":time
+	}
+
+	chrome.storage.local.get(["serverurl","apikey"],function(result) {
+		payload["key"] = result["apikey"];
+		var xhttp = new XMLHttpRequest();
+		xhttp.open("POST",result["serverurl"] + "/apis/mlj_1/newscrobble",true);
+		xhttp.setRequestHeader("Content-Type", "application/json");
+		//xhttp.send(requestbody + "&key=" + APIKEY)
+		var body = JSON.stringify(payload);
+		xhttp.send(body)
+		//console.log("Sent: " + body)
 	});
 
 

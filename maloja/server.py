@@ -239,7 +239,10 @@ def static_html(name):
 	lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
 
 	template = jinja_environment.get_template(name + '.jinja')
-	res = template.render(**LOCAL_CONTEXT)
+	try:
+		res = template.render(**LOCAL_CONTEXT)
+	except ValueError as e:
+		abort(404,"Entity does not exist")
 
 	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
 

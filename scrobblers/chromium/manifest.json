@@ -3,8 +3,8 @@
 	"version": "1.6",
 	"description": "Scrobbles tracks from various sites to your Maloja server",
 	"manifest_version": 2,
-	"permissions": ["activeTab",
-		"declarativeContent",
+	"permissions": [
+		"activeTab",
 		"tabs",
 		"storage",
 		"http://*/",
