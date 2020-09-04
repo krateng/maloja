@@ -1,9 +1,9 @@
 # Maloja
 
 [![](https://img.shields.io/pypi/v/malojaserver?style=for-the-badge)](https://pypi.org/project/malojaserver/)
-[![](https://img.shields.io/pypi/dm/malojaserver?style=for-the-badge)](https://pypi.org/project/malojaserver/)
-[![](https://img.shields.io/github/stars/krateng/maloja?style=for-the-badge&color=purple)](https://github.com/krateng/maloja/stargazers)
 [![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
+[![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
+
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
