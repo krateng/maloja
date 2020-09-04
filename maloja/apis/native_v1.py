@@ -198,7 +198,8 @@ def compare_external(**keys):
 @api.post("newscrobble")
 @authenticated_api_with_alternate(api_key_correct)
 def post_scrobble(artist:Multi,**keys):
-	artists = "/".join(artist)
+	#artists = "/".join(artist)
+	artists = artist
 	title = keys.get("title")
 	album = keys.get("album")
 	duration = keys.get("seconds")
