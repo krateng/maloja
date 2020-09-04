@@ -29,10 +29,10 @@
 	<body>
 		<div id="wat">
 			<span id="checkmark_url"></span> <span>Server:</span><br />
-			<input type="text" id="serverurl" value="http://localhost:42010" />
+			<input type="text" id="serverurl" oninput="saveConfig()" />
 			<br /><br />
 			<span id="checkmark_key"></span> <span>API key:</span><br />
-			<input type="text" id="apikey" />
+			<input type="text" id="apikey" oninput="saveConfig()" />
 			<br/><br/>
 			<span>Tabs:</span>
 			<list id="playinglist">

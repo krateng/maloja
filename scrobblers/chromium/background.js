@@ -207,6 +207,14 @@ class Controller {
 		}
 	}
 
+	backlog_scrobble() {
+		while (this.alreadyPlayed > this.currentLength) {
+			this.alreadyPlayed = this.alreadyPlayed - this.currentLength
+			var secondsago = this.alreadyPlayed
+			scrobble(this.currentArtist,this.currentTitle,this.currentLength,secondsago)
+		}
+	}
+
 
 
 
@@ -216,12 +224,8 @@ class Controller {
 		if (artist == this.currentArtist && title == this.currentTitle && !this.currentlyPlaying) {
 			console.log("Resuming playback of " + this.currentTitle)
 
-			// Already played full song
-			while (this.alreadyPlayed > this.currentLength) {
-				this.alreadyPlayed = this.alreadyPlayed - this.currentLength
-				var secondsago = this.alreadyPlayed
-				scrobble(this.currentArtist,this.currentTitle,this.currentLength,secondsago)
-			}
+			// Already played full song?
+			this.backlog_scrobble()
 
 			this.setUpdate()
 			this.currentlyPlaying = true
@@ -263,12 +267,8 @@ class Controller {
 		}
 
 
-		// Already played full song
-		while (this.alreadyPlayed > this.currentLength) {
-			this.alreadyPlayed = this.alreadyPlayed - this.currentLength
-			var secondsago = this.alreadyPlayed
-			scrobble(this.currentArtist,this.currentTitle,this.currentLength,secondsago)
-		}
+		// Already played full song?
+		this.backlog_scrobble()
 
 		this.currentlyPlaying = false
 

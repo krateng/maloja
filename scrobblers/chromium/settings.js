@@ -1,7 +1,10 @@
+var config_defaults = {
+	serverurl:"http://localhost:42010",
+	apikey:"BlackPinkInYourArea"
+}
+
 
 document.addEventListener("DOMContentLoaded",function() {
-	document.getElementById("serverurl").addEventListener("input",updateServer);
-	document.getElementById("apikey").addEventListener("input",updateAPIKey);
 
 	document.getElementById("serverurl").addEventListener("change",checkServer);
 	document.getElementById("apikey").addEventListener("change",checkServer);
@@ -12,15 +15,12 @@ document.addEventListener("DOMContentLoaded",function() {
 
 	chrome.runtime.onMessage.addListener(onInternalMessage);
 
-
-	chrome.storage.local.get({"serverurl":"http://localhost:42010"},function(result) {
-		document.getElementById("serverurl").value = result["serverurl"]
-		checkServerMaybe()
-	});
-	chrome.storage.local.get({"apikey":"BlackPinkInYourArea"},function(result) {
-		document.getElementById("apikey").value = result["apikey"]
-		checkServerMaybe()
-	});
+	chrome.storage.local.get(config_defaults,function(result){
+		for (var key in result) {
+			document.getElementById(key).value = result[key];
+		}
+		checkServer();
+	})
 
 	chrome.runtime.sendMessage({"type":"query"})
 
@@ -28,17 +28,6 @@ document.addEventListener("DOMContentLoaded",function() {
 
 });
 
-
-//this makes sure only the second call actually makes a request (the first request is pointless
-//when the other element isn't filled yet and might actually overwrite the correct result because
-//of a race condition)
-var done = 0
-function checkServerMaybe() {
-	done++;
-	if (done == 2) {
-		checkServer()
-	}
-}
 
 function onInternalMessage(request,sender) {
 	if (request.type == "response") {
@@ -58,17 +47,11 @@ function onInternalMessage(request,sender) {
 
 
 
-function updateServer() {
-
-	text = document.getElementById("serverurl").value
-
-
-	chrome.storage.local.set({"serverurl":text})
-}
-
-function updateAPIKey() {
-	text = document.getElementById("apikey").value
-	chrome.storage.local.set({"apikey":text})
+function saveConfig() {
+	for (var key in config_defaults) {
+		var value = document.getElementById(key).value;
+		chrome.storage.local.set({ [key]: value });
+	}
 }
 
 function checkServer() {
