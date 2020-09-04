@@ -17,7 +17,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 		filterkeys = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
 	elif "artist" in keys and not forceTrack:
 		filterkeys = {"artist":keys.get("artist")}
-		if "associated" in keys: resultkeys1["associated"] = True
+		if "associated" in keys: filterkeys["associated"] = True
 	else:
 		filterkeys = {}
 
