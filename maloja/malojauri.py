@@ -134,7 +134,7 @@ def compose_querystring(*dicts,exclude=[]):
 		values = keys.getall(k)
 		st += "&".join([urllib.parse.urlencode({k:v},safe="/") for v in values])
 		st += "&"
-	return st
+	return st[:-1] if st.endswith("&") else st  # remove last ampersand
 
 
 # takes any number of multidicts and normal dicts and creates a formsdict with duplicate values removed

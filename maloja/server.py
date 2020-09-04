@@ -68,7 +68,7 @@ def deprecated_api_s(pth):
 @webserver.get("/api/<pth:path>")
 @webserver.post("/api/<pth:path>")
 def deprecated_api(pth):
-	redirect("/apis/mlj_1/" + pth + "?" + compose_querystring(request.query))
+	redirect("/apis/mlj_1/" + pth + "?" + request.query_string)
 
 
 
