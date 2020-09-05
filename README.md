@@ -14,7 +14,7 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 > **IMPORTANT**: With the update 2.7, the backend has been reworked to use a password. With a normal installation, you are asked to provide a password on setup. If you use docker or skip the setup for other reasons, you need to provide the environment variable `MALOJA_FORCE_PASSWORD` on first startup.
 
-> **IMPORTANT**: With the update 2.9, the API endpoints have changed. I tried to make it backwards compatible, but if your scrobbler breaks, try to update the url first.
+> **IMPORTANT**: With the update 2.9, the API endpoints have changed. I tried to make it backwards compatible, but if your scrobbler breaks, try to update the URL first.
 
 ## Table of Contents
 * [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)

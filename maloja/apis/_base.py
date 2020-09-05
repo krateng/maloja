@@ -81,6 +81,8 @@ class APIHandler:
 			methodname = self.get_method(path,keys)
 			method = self.methods[methodname]
 		except:
+			log("Could not find a handler for method " + methodname + " in API " + self.__apiname__,module="debug")
+			log("Keys: " + str(keys),module="debug")
 			raise InvalidMethodException()
 		return method(path,keys)
 
