@@ -12,7 +12,9 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 > **IMPORTANT**: With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, see [below](#update).
 
-> **IMPORTANT**: With the update 2.7, the backend has been reworked to use a password. With a normal installation, you are asked to provide a password on setup. If you use docker or skip the setup for other reasons, you need to provide the environment variable `MALOJA_DEFAULT_PASSWORD`. If you have already started the server once and generated a random password that you don't know, you can also overwrite that with `MALOJA_FORCE_PASSWORD`.
+> **IMPORTANT**: With the update 2.7, the backend has been reworked to use a password. With a normal installation, you are asked to provide a password on setup. If you use docker or skip the setup for other reasons, you need to provide the environment variable `MALOJA_FORCE_PASSWORD` on first startup.
+
+> **IMPORTANT**: With the update 2.9, the API endpoints have changed. I tried to make it backwards compatible, but if your scrobbler breaks, try to update the url first.
 
 ## Table of Contents
 * [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
