@@ -141,7 +141,9 @@ API URL | Your Maloja URL followed by `/apis/listenbrainz`
 Username | Any name, doesn't matter (don't leave empty)
 Auth Token | Any of your API keys
 
-These are tested with the Pano Scrobbler and the Simple Last.fm Scrobbler for Android. I'm thankful for any feedback whether other scrobblers work!
+My recommendations are to use [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android and [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for the browser. Not that Web Scrobbler requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`).
+
+I'm thankful for any feedback whether other scrobblers work!
 
 It is recommended to define a different API key for every scrobbler you use in `clients/authenticated_machines.tsv` in your Maloja folder.
 

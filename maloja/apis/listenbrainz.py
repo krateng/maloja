@@ -49,11 +49,16 @@ class Listenbrainz(APIHandler):
 						timestamp = int(listen["listened_at"])
 					except:
 						timestamp = None
+			elif listentype == "playing_now":
+				pass
 		except:
 			raise MalformedJSONException()
 
-		self.scrobble(artiststr,titlestr,timestamp)
-		return 200,{"status":"ok"}
+
+		if listentype == "playing_now": return 200,{"status":"ok"}
+		else:
+			self.scrobble(artiststr,titlestr,timestamp)
+			return 200,{"status":"ok"}
 
 	def validate_token(self,pathnodes,keys):
 		try:
