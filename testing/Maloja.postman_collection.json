@@ -18,12 +18,10 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/mlj_1/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
-							"protocol": "http",
+							"raw": "{{url}}/apis/mlj_1/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
 								"mlj_1",
@@ -51,25 +49,12 @@
 					"name": "Query String Redirect",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
+						"header": [],
 						"url": {
-							"raw": "http://localhost:42010/api/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
-							"protocol": "http",
+							"raw": "{{url}}/api/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"api",
 								"newscrobble"
@@ -118,12 +103,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/mlj_1/newscrobble",
-							"protocol": "http",
+							"raw": "{{url}}/apis/mlj_1/newscrobble",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
 								"mlj_1",
@@ -137,14 +120,7 @@
 					"name": "Formdata Redirect",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "formdata",
 							"formdata": [
@@ -166,12 +142,10 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:42010/api/newscrobble",
-							"protocol": "http",
+							"raw": "{{url}}/api/newscrobble",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"api",
 								"newscrobble"
@@ -197,12 +171,10 @@
 							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{example_artist}}\",\n    \"title\": \"{{example_song}}\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/mlj_1/newscrobble",
-							"protocol": "http",
+							"raw": "{{url}}/apis/mlj_1/newscrobble",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
 								"mlj_1",
@@ -229,12 +201,10 @@
 							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{example_artist}}\",\n    \"title\": \"{{example_song}}\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/api/newscrobble",
-							"protocol": "http",
+							"raw": "{{url}}/api/newscrobble",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"api",
 								"newscrobble"
@@ -270,12 +240,10 @@
 							"raw": "{\n\t\"listen_type\":\"single\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/listenbrainz/1/submit-listens",
-							"protocol": "http",
+							"raw": "{{url}}/apis/listenbrainz/1/submit-listens",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
 								"listenbrainz",
@@ -308,12 +276,10 @@
 							"raw": "{\n\t\"listen_type\":\"single\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/api/s/listenbrainz/1/submit-listens",
-							"protocol": "http",
+							"raw": "{{url}}/api/s/listenbrainz/1/submit-listens",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"api",
 								"s",
@@ -359,14 +325,56 @@
 							"raw": "{\n\t\"method\":\"track.scrobble\",\n\t\"artist\":\"{{example_artist}}\",\n\t\"track\":\"{{example_song}}\",\n\t\"sk\":\"{{session_key}}\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/audioscrobbler/2.0/",
-							"protocol": "http",
+							"raw": "{{url}}/apis/audioscrobbler/2.0/",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
+								"audioscrobbler",
+								"2.0",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON Redirect",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "60551e90-aea5-4489-aded-a93c6d2ae055",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\":\"track.scrobble\",\n\t\"artist\":\"{{example_artist}}\",\n\t\"track\":\"{{example_song}}\",\n\t\"sk\":\"{{session_key}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/api/s/audioscrobbler/2.0/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"s",
 								"audioscrobbler",
 								"2.0",
 								""
@@ -407,12 +415,10 @@
 							"raw": "{\n\t\"method\":\"auth.getMobileSession\",\n\t\"authToken\":\"abc\",\n\t\"username\":\"someguy\",\n\t\"password\":\"{{api_key}}\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:42010/apis/audioscrobbler/2.0/",
-							"protocol": "http",
+							"raw": "{{url}}/apis/audioscrobbler/2.0/",
 							"host": [
-								"localhost"
+								"{{url}}"
 							],
-							"port": "42010",
 							"path": [
 								"apis",
 								"audioscrobbler",
@@ -450,19 +456,25 @@
 	],
 	"variable": [
 		{
-			"id": "eb45f6b6-71a3-44e9-93a2-e2cfc27b45a4",
+			"id": "0206e63b-eeb7-49cc-9824-5398b18f7736",
+			"key": "url",
+			"value": "http://localhost:42010",
+			"type": "string"
+		},
+		{
+			"id": "0c6402d8-dfb7-4c87-a6ca-9b6675b8d9a1",
 			"key": "api_key",
 			"value": "localdevtestkey",
 			"type": "string"
 		},
 		{
-			"id": "15c9b0cb-71ba-47d3-8199-3dd3fef47e0f",
+			"id": "bae7cf4e-fe0e-490d-8446-56a8ac51373d",
 			"key": "example_artist",
 			"value": "EXID ft. Jeremy Soule",
 			"type": "string"
 		},
 		{
-			"id": "49b2ac00-8775-4af9-8c74-1dac087d83a0",
+			"id": "70454e83-de63-471b-a58c-8545cef4e749",
 			"key": "example_song",
 			"value": "Why is the Rum gone?",
 			"type": "string"
