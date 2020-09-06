@@ -63,12 +63,12 @@ init_apis(webserver)
 @webserver.get("/api/s/<pth:path>")
 @webserver.post("/api/s/<pth:path>")
 def deprecated_api_s(pth):
-	redirect("/apis/" + pth + "?" + request.query_string)
+	redirect("/apis/" + pth + "?" + request.query_string,307)
 
 @webserver.get("/api/<pth:path>")
 @webserver.post("/api/<pth:path>")
 def deprecated_api(pth):
-	redirect("/apis/mlj_1/" + pth + "?" + request.query_string)
+	redirect("/apis/mlj_1/" + pth + "?" + request.query_string,307)
 
 
 

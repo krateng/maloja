@@ -48,7 +48,7 @@ Also neat: You can use your **custom artist or track images**.
 
 ### Environment
 
-I can support you with issues best if you use **Alpine Linux**. In my experience, **2 GB RAM** should do nicely, but higher amounts allow more caching and reduce page load times for complicated statistics.
+I can support you with issues best if you use **Alpine Linux**. In my experience, **2 GB RAM** should do nicely, but higher amounts allow more caching and reduce page load times for complicated statistics. My personal recommendation is using a dedicated LXC container (e.g. on Proxmox), but of course Maloja will also run on a VM, in Docker or on bare metal.
 
 ### New Installation
 
