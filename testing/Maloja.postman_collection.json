@@ -1,0 +1,471 @@
+{
+	"info": {
+		"_postman_id": "98472441-3ca2-4aba-9148-81f8d1a61b16",
+		"name": "Maloja",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Scrobble Native",
+			"item": [
+				{
+					"name": "Query String",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/mlj_1/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"mlj_1",
+								"newscrobble"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist}}"
+								},
+								{
+									"key": "title",
+									"value": "{{example_song}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query String Redirect",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:42010/api/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"api",
+								"newscrobble"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{api_key}}"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist}}"
+								},
+								{
+									"key": "title",
+									"value": "{{example_song}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Formdata",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "key",
+									"value": "{{api_key}}",
+									"type": "text"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist}}",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "{{example_song}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/mlj_1/newscrobble",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"mlj_1",
+								"newscrobble"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Formdata Redirect",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "key",
+									"value": "{{api_key}}",
+									"type": "text"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist}}",
+									"type": "text"
+								},
+								{
+									"key": "title",
+									"value": "{{example_song}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:42010/api/newscrobble",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"api",
+								"newscrobble"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{example_artist}}\",\n    \"title\": \"{{example_song}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/mlj_1/newscrobble",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"mlj_1",
+								"newscrobble"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON Redirect",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{example_artist}}\",\n    \"title\": \"{{example_song}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/api/newscrobble",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"api",
+								"newscrobble"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Scrobble Listenbrainz",
+			"item": [
+				{
+					"name": "JSON",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "token {{api_key}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"listen_type\":\"single\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/listenbrainz/1/submit-listens",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"listenbrainz",
+								"1",
+								"submit-listens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON Redirect",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "token {{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"listen_type\":\"single\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/api/s/listenbrainz/1/submit-listens",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"api",
+								"s",
+								"listenbrainz",
+								"1",
+								"submit-listens"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Scrobble Audioscrobbler",
+			"item": [
+				{
+					"name": "JSON",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "60551e90-aea5-4489-aded-a93c6d2ae055",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\":\"track.scrobble\",\n\t\"artist\":\"{{example_artist}}\",\n\t\"track\":\"{{example_song}}\",\n\t\"sk\":\"{{session_key}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/audioscrobbler/2.0/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"audioscrobbler",
+								"2.0",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorize",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "28214541-89bf-4184-ad9b-dd49dbcfc35d",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"session_key\", data.session.key);",
+									"",
+									"tests[\"gotkey\"] = true;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"method\":\"auth.getMobileSession\",\n\t\"authToken\":\"abc\",\n\t\"username\":\"someguy\",\n\t\"password\":\"{{api_key}}\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/audioscrobbler/2.0/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"audioscrobbler",
+								"2.0",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "6659b674-ce6f-48b5-bb64-880356ce6739",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "09c3ea43-30e4-4e83-b32f-dd06c1884bab",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "eb45f6b6-71a3-44e9-93a2-e2cfc27b45a4",
+			"key": "api_key",
+			"value": "localdevtestkey",
+			"type": "string"
+		},
+		{
+			"id": "15c9b0cb-71ba-47d3-8199-3dd3fef47e0f",
+			"key": "example_artist",
+			"value": "EXID ft. Jeremy Soule",
+			"type": "string"
+		},
+		{
+			"id": "49b2ac00-8775-4af9-8c74-1dac087d83a0",
+			"key": "example_song",
+			"value": "Why is the Rum gone?",
+			"type": "string"
+		}
+	]
+}
