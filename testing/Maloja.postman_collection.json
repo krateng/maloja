@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "98472441-3ca2-4aba-9148-81f8d1a61b16",
+		"_postman_id": "e7d73aae-396b-4ada-b5d7-b18f48fb26b5",
 		"name": "Maloja",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -243,7 +243,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Scrobble Listenbrainz",
@@ -268,6 +269,44 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"listen_type\":\"single\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:42010/apis/listenbrainz/1/submit-listens",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "42010",
+							"path": [
+								"apis",
+								"listenbrainz",
+								"1",
+								"submit-listens"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON Import",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "token {{api_key}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"listen_type\":\"import\",\n\t\"payload\":[\n\t\t{\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist}}\",\n\t\t\t\t\"track_name\":\"{{example_song}}\"\n\t\t\t}\n\t\t},\n        {\n\t\t\t\"track_metadata\":{\n\t\t\t\t\"artist_name\":\"{{example_artist_2}}\",\n\t\t\t\t\"track_name\":\"{{example_song_2}}\"\n\t\t\t}\n\t\t}\n\t]\n}"
 						},
 						"url": {
 							"raw": "http://localhost:42010/apis/listenbrainz/1/submit-listens",
@@ -325,7 +364,8 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Scrobble Audioscrobbler",
@@ -336,7 +376,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "60551e90-aea5-4489-aded-a93c6d2ae055",
+								"id": "e95e07a0-d30b-4996-b13b-f809af674fd9",
 								"exec": [
 									""
 								],
@@ -381,7 +421,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "28214541-89bf-4184-ad9b-dd49dbcfc35d",
+								"id": "b077623a-19e3-4ce7-8295-b06c955fb867",
 								"exec": [
 									"var data = JSON.parse(responseBody);",
 									"postman.setEnvironmentVariable(\"session_key\", data.session.key);",
@@ -423,14 +463,15 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "6659b674-ce6f-48b5-bb64-880356ce6739",
+				"id": "03d4c3d2-b29b-41dd-aa41-d5ef17d1e9ce",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -440,7 +481,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "09c3ea43-30e4-4e83-b32f-dd06c1884bab",
+				"id": "5e85e80d-8380-4095-be7e-e0176cb5f637",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -450,22 +491,30 @@
 	],
 	"variable": [
 		{
-			"id": "eb45f6b6-71a3-44e9-93a2-e2cfc27b45a4",
+			"id": "258fd51c-dd75-4bdf-9750-0c9883ac0cf4",
 			"key": "api_key",
-			"value": "localdevtestkey",
-			"type": "string"
+			"value": "localdevtestkey"
 		},
 		{
-			"id": "15c9b0cb-71ba-47d3-8199-3dd3fef47e0f",
+			"id": "d0c27e11-ca38-4c05-935b-80436b385307",
 			"key": "example_artist",
-			"value": "EXID ft. Jeremy Soule",
-			"type": "string"
+			"value": "EXID ft. Jeremy Soule"
 		},
 		{
-			"id": "49b2ac00-8775-4af9-8c74-1dac087d83a0",
+			"id": "84fa952f-b997-4696-b41e-104b6c76b63f",
 			"key": "example_song",
-			"value": "Why is the Rum gone?",
-			"type": "string"
+			"value": "Why is the Rum gone?"
+		},
+		{
+			"id": "a4d6e47b-63c0-4795-b4f1-990f2086e2a0",
+			"key": "example_artist_2",
+			"value": "TWICE ft Tiffany Alvord"
+		},
+		{
+			"id": "ad9c92a6-686b-4aca-89e3-0f9712f4ef78",
+			"key": "example_song_2",
+			"value": "They're taking the hobbits to Isengard"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
