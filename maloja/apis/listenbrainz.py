@@ -40,25 +40,27 @@ class Listenbrainz(APIHandler):
 		try:
 			listentype = keys["listen_type"]
 			payload = keys["payload"]
-			if listentype in ["single","import"]:
-				for listen in payload:
+		except:
+			raise MalformedJSONException()
+
+		if listentype == "playing_now":
+			return 200,{"status":"ok"}
+		elif listentype in ["single","import"]:
+			for listen in payload:
+				try:
 					metadata = listen["track_metadata"]
 					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
-					#(artists,title) = cla.fullclean(artiststr,titlestr)
 					try:
 						timestamp = int(listen["listened_at"])
 					except:
 						timestamp = None
-			elif listentype == "playing_now":
-				pass
-		except:
-			raise MalformedJSONException()
+				except:
+					raise MalformedJSONException()
+					
+				self.scrobble(artiststr,titlestr,timestamp)
 
-
-		if listentype == "playing_now": return 200,{"status":"ok"}
-		else:
-			self.scrobble(artiststr,titlestr,timestamp)
 			return 200,{"status":"ok"}
+
 
 	def validate_token(self,pathnodes,keys):
 		try:
