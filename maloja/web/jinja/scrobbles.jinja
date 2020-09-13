@@ -31,8 +31,9 @@
 				<br/>
 				<p class="stats">{{ scrobbles.__len__() }} Scrobbles</p>
 				<br/>
-				{% import 'snippets/timeselection.jinja' as timeselection %}
-				{{ timeselection.selector(filterkeys,limitkeys,delimitkeys) }}
+				{% with delimitkeys = {} %}
+				{% include 'snippets/timeselection.jinja' %}
+				{% endwith %}
 
 			</td>
 		</tr>

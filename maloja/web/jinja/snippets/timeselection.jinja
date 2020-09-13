@@ -1,13 +1,10 @@
-{% macro selector(filterkeys,limitkeys,delimitkeys,amountkeys,limit=True,delimit=False) %}
 
-	<!-- drop keys that are not relevant so they don't clutter the URI -->
-	{% if not limit %}{% set limitkeys = {} %}{% endif %}
-	{% if not delimit %}{% set delimitkeys = {} %}{% endif %}
+
 
 	{% set allkeys = [filterkeys,limitkeys,delimitkeys,amountkeys] | combine_dicts %}
 
 
-	{% if limit %}
+	{% if limitkeys != {} %}
 
 		<div>
 			{% set thisrange = limitkeys.timerange %}
@@ -42,7 +39,7 @@
 	{% endif %}
 
 
-	{% if delimit %}
+	{% if delimitkeys != {} %}
 		<div>
 			{% for cat in [xdelimiters,xtrails] %}
 				{% for r in cat %}
@@ -59,6 +56,3 @@
 		</div>
 
 	{% endif %}
-
-
-{% endmacro %}

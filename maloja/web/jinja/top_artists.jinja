@@ -20,8 +20,7 @@
 					<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 
 					<br/><br/>
-					{% import 'snippets/timeselection.jinja' as timeselection %}
-					{{ timeselection.selector(filterkeys,limitkeys,delimitkeys,delimit=True) }}
+					{% include 'snippets/timeselection.jinja' %}
 				</td>
 			</tr>
 		</table>

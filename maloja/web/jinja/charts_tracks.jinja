@@ -29,8 +29,9 @@
 			{% if filterkeys.get('artist') is not none %}by {{ links.link(filterkeys.get('artist')) }}{% endif %}
 			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
 			<br/><br/>
-			{% import 'snippets/timeselection.jinja' as timeselection %}
-			{{ timeselection.selector(filterkeys,limitkeys,delimitkeys) }}
+			{% with delimitkeys = {} %}
+			{% include 'snippets/timeselection.jinja' %}
+			{% endwith %}
 
 		</td>
 	</tr>

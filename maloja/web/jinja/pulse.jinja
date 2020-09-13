@@ -25,8 +25,7 @@
 					<br/>
 					{{ filterdesc.desc(filterkeys,limitkeys,prefix='of') }}
 					<br/><br/>
-					{% import 'snippets/timeselection.jinja' as timeselection %}
-					{{ timeselection.selector(filterkeys,limitkeys,delimitkeys,delimit=True) }}
+					{% include 'snippets/timeselection.jinja' %}
 
 				</td>
 			</tr>
