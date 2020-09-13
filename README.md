@@ -17,7 +17,7 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 > **IMPORTANT**: With the update 2.9, the API endpoints have changed. I tried to make it backwards compatible, but if your scrobbler breaks, try to update the URL first.
 
 ## Table of Contents
-* [Why not Last.fm / Libre.fm / GNU FM?](#why-not-lastfm--librefm--gnu-fm)
+* [Features](#features)
 * [How to install](#how-to-install)
 	* [Environment](#environment)
 	* [New Installation](#new-installation)
@@ -33,15 +33,16 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 	* [Manual](#manual)
 * [How to extend](#how-to-extend)
 
-## Why not Last.fm / Libre.fm / GNU FM?
+## Features
 
-Maloja is **self-hosted**. You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can **follow your own tagging schema** or even **group associated artists together** in your charts.
-
-Maloja also gets **rid of all the extra stuff**: social networking, radios, recommendations, etc. It only keeps track of your listening history and lets you analyze it.
-
-Maloja's database has one big advantage: It supports **multiple artists per track**. This means artists who are often just "featuring" in the track title get a place in your charts, and **collaborations between several artists finally get credited to all participants**. This allows you to get an actual idea of your artist preferences over time.
-
-Also neat: You can use your **custom artist or track images**.
+* **Self-hosted**: You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can follow your own tagging schema.
+* **Associated Artists**: Compare different artist's popularity in your listening habits including subunits, collaboration projects or solo performances by their members. Change these associations at any time without losing any information.
+* **Multi-Artist Tracks**: Some artists often collaborate with others or are listed under "featuring" in the track title. Instead of tracking each combination of artists, each individual artist competes in your charts.
+* **Custom Images**: Don't rely on the community to select the best pictures for your favorite artists. Upload your own so that your start page looks like you want it to look.
+* **Proxy Scrobble**: No need to fully commit or set up every client twice - you can configure your Maloja server to forward your scrobbles to other services.
+* **Standard-compliant API**: Use existing, mature apps or extensions to scrobble to your Maloja server.
+* **Manual Scrobbling**: Listening to vinyl or elevator background music? Simply submit a scrobble with the web interface.
+* **Keep it Simple**: Unlike Last.fm and similar alternatives, Maloja doesn't have social networking, radios, recommendations or any other gimmicks. It's a tool to keep track of your listening habits over time.
 
 
 ## How to install
