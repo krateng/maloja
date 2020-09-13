@@ -36,11 +36,10 @@
 
 <!-- TOPWEEKS -->
 <span>
-	{% if info.topweeks > 0 %}
+	{% if info.topweeks > 0 -%}
 	<a title="{{ info.topweeks }} weeks on #1" href="/performance?{{ encodedartist }}&step=week">
-		<img class="star" src="/media/star.png" />{{ info.topweeks }}
-	</a>
-	{% endif %}
+		<img class="star" src="/media/star.png" />{{ info.topweeks }}</a>
+	{%- endif %}
 </span>
 
 {%- endmacro %}
