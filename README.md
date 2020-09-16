@@ -10,11 +10,9 @@ Simple self-hosted music scrobble database to create personal listening statisti
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
 
 
-> **IMPORTANT**: With the update 2.0, Maloja has been refactored into a Python package and the old update script no longer works. If you're still on version 1, see [below](#update).
-
 > **IMPORTANT**: With the update 2.7, the backend has been reworked to use a password. With a normal installation, you are asked to provide a password on setup. If you use docker or skip the setup for other reasons, you need to provide the environment variable `MALOJA_FORCE_PASSWORD` on first startup.
 
-> **IMPORTANT**: With the update 2.9, the API endpoints have changed. I tried to make it backwards compatible, but if your scrobbler breaks, try to update the URL first.
+> **IMPORTANT**: With the update 2.9, the API endpoints have changed. All old endpoints should be redirected properly, but I recommend updating your clients to use the new ones.
 
 ## Table of Contents
 * [Features](#features)
@@ -79,7 +77,7 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/foxxmd/maloja) kindly provided by FoxxMD.
 
-You might want to set the environment variables `MALOJA_DEFAULT_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
+You might want to set the environment variables `MALOJA_FORCE_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
 
 
 ## How to use
