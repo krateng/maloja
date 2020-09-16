@@ -59,11 +59,11 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 4) (Recommended) Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4. If you're running Maloja in a container, make sure to expose port 32400 (or whichever port you have chosen in your settings).
 
-5) (Recommended) Until I have a proper service implemented, I would recommend setting two cronjobs for maloja:
+5) (Optional) You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
 
 ```
 @reboot sleep 15 && maloja start
-42 0 * * 2 maloja restart
+42 0 7 * * maloja restart
 ```
 
 
