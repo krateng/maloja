@@ -48,7 +48,7 @@ def server_info():
 
 @api.get("scrobbles")
 def get_scrobbles_external(**keys):
-	k_filter, k_time, _, k_amount = uri_to_internal(keys)
+	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles(**ckeys)
@@ -69,7 +69,7 @@ def info_external(**keys):
 
 @api.get("numscrobbles")
 def get_scrobbles_num_external(**keys):
-	k_filter, k_time, _, k_amount = uri_to_internal(keys)
+	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles_num(**ckeys)
@@ -98,7 +98,7 @@ def get_artists_external():
 
 @api.get("charts/artists")
 def get_charts_artists_external(**keys):
-	_, k_time, _, _ = uri_to_internal(keys)
+	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
 	result = get_charts_artists(**ckeys)
@@ -119,7 +119,7 @@ def get_charts_tracks_external(**keys):
 
 @api.get("pulse")
 def get_pulse_external(**keys):
-	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
+	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
 	results = get_pulse(**ckeys)
@@ -130,7 +130,7 @@ def get_pulse_external(**keys):
 
 @api.get("performance")
 def get_performance_external(**keys):
-	k_filter, k_time, k_internal, k_amount = uri_to_internal(keys)
+	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
 	results = get_performance(**ckeys)
@@ -141,7 +141,8 @@ def get_performance_external(**keys):
 
 @api.get("top/artists")
 def get_top_artists_external(**keys):
-	_, k_time, k_internal, _ = uri_to_internal(keys)
+	print(uri_to_internal(keys))
+	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
 	results = get_top_artists(**ckeys)
@@ -152,7 +153,7 @@ def get_top_artists_external(**keys):
 
 @api.get("top/tracks")
 def get_top_tracks_external(**keys):
-	_, k_time, k_internal, _ = uri_to_internal(keys)
+	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
