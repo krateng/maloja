@@ -67,6 +67,7 @@ class APIHandler:
 			if exceptiontype in self.errors:
 				response.status,result = self.errors[exceptiontype]
 			else:
+				log("Unhandled Exception with " + self.__apiname__ + ": " + str(exceptiontype))
 				response.status,result = 500,{"status":"Unknown error","code":500}
 
 		return result
@@ -81,7 +82,7 @@ class APIHandler:
 			methodname = self.get_method(path,keys)
 			method = self.methods[methodname]
 		except:
-			log("Could not find a handler for method " + methodname + " in API " + self.__apiname__,module="debug")
+			log("Could not find a handler for method " + str(methodname) + " in API " + self.__apiname__,module="debug")
 			log("Keys: " + str(keys),module="debug")
 			raise InvalidMethodException()
 		return method(path,keys)

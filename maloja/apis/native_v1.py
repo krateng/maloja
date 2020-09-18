@@ -141,7 +141,6 @@ def get_performance_external(**keys):
 
 @api.get("top/artists")
 def get_top_artists_external(**keys):
-	print(uri_to_internal(keys))
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
