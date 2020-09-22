@@ -16,7 +16,20 @@ else:
 	except:
 		HOME_DIR = os.path.join(os.environ["HOME"],".local/share/")
 
-	DATA_DIR = os.path.join(HOME_DIR,"maloja")
+	OLD_DATA_DIR = os.path.join(HOME_DIR,"maloja")
+	NEW_DATA_DIR = "/etc/maloja"
+
+	if os.path.exists(OLD_DATA_DIR):
+		DATA_DIR = OLD_DATA_DIR
+	else:
+		try:
+			#check if we have permissions
+			os.makedirs(NEW_DATA_DIR,exist_ok=True)
+			os.mknod(os.path.join(NEW_DATA_DIR,".test"))
+			os.remove(os.path.join(NEW_DATA_DIR,".test"))
+			DATA_DIR = NEW_DATA_DIR
+		except:
+			DATA_DIR = OLD_DATA_DIR
 
 os.makedirs(DATA_DIR,exist_ok=True)
 

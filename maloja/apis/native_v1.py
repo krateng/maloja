@@ -195,9 +195,21 @@ def compare_external(**keys):
 
 
 @api.get("newscrobble")
+def get_post_scrobble(*args,**kwargs):
+	"""DEPRECATED. Use the equivalent POST method instead."""
+	return post_scrobble(*args,**kwargs)
+
 @api.post("newscrobble")
 @authenticated_api_with_alternate(api_key_correct)
 def post_scrobble(artist:Multi,**keys):
+	"""Submit a new scrobble.
+
+	:param string artist: Artists. Can be multiple.
+	:param string title: Title of the track.
+	:param string album: Name of the album.
+	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
+	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
+	"""
 	#artists = "/".join(artist)
 	artists = artist
 	title = keys.get("title")
