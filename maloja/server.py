@@ -34,7 +34,7 @@ import os
 import setproctitle
 import pkg_resources
 import math
-from htmlmin.decorator import htmlmin
+from css_html_js_minify import html_minify
 # url handling
 import urllib
 
@@ -88,6 +88,10 @@ def generate_css():
 	return css
 
 css = generate_css()
+
+
+def clean_html(inp):
+	return html_minify(inp)
 
 #os.makedirs("web/css",exist_ok=True)
 #with open("web/css/style.css","w") as f:
@@ -219,7 +223,6 @@ def static_html_private(name):
 def static_html_public(name):
 	return static_html(name)
 
-@htmlmin
 def static_html(name):
 	if name in aliases: redirect(aliases[name])
 	linkheaders = ["</style.css>; rel=preload; as=style"]
@@ -247,7 +250,7 @@ def static_html(name):
 	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
 
 	log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
-	return res
+	return clean_html(res)
 
 
 # Shortlinks
