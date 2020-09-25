@@ -57,3 +57,33 @@
 		{% endif %}
 	</a>
 {%- endmacro %}
+
+
+{% macro link_search(entity) -%}
+	{% set track = entity.title %}
+	{% set artists = entity.artists|join(', ') %}
+
+	{% if settings('TRACK_SEARCH_PROVIDER') == 'YouTube' %}
+		{% set provider = 'https://www.youtube.com/results?search_query=' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'YouTube Music' %}
+		{% set provider = 'https://music.youtube.com/search?q=' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'Spotify' %}
+		{% set provider = 'https://open.spotify.com/search/' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'Tidal' %}
+		{% set provider = 'https://listen.tidal.com/search/tracks?q=' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'SoundCloud' %}
+		{% set provider = 'https://soundcloud.com/search?q=' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'Amazon Music' %}
+		{% set provider = 'https://music.amazon.com/search/' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'Deezer' %}
+		{% set provider = 'https://www.deezer.com/search/' %}
+	{% elif settings('TRACK_SEARCH_PROVIDER') == 'Apple' %}
+		{% set provider = 'https://music.apple.com/us/search/song?term=' %}
+	{% else %}
+		{% set provider = 'https://www.google.com/search?q=' %}
+	{% endif %}
+
+	{% set icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-6 h-6" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/></svg>' %}
+
+	<a href="{{ provider }}{{ artists }} {{ track }}">{{ icon }}</a>
+{%- endmacro %}
