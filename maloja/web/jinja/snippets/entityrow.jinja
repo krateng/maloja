@@ -10,6 +10,9 @@
 
 <td class='icon'><div style="background-image:url('{{ img }}')"></div></td>
 {% if "artists" in entity %}
+	{% if settings('TRACK_SEARCH_PROVIDER') != 'None' %}
+		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
+	{% endif %}
 	<td class='track'>
 		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
 	</td>
