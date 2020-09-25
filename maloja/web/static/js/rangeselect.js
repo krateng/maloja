@@ -52,12 +52,6 @@ document.addEventListener('DOMContentLoaded',function() {
 		if (val != null) {
 			showRange(type,val);
 		}
-		else {
-			var val = neo.getCookie("rangeselect_" + type);
-			if (val != undefined) {
-				showRangeManual(type,val);	//sets local storage
-			}
-		}
 
 
 	}

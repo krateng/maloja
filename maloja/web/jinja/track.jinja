@@ -87,7 +87,7 @@
 
 			<span
 				class="stat_module_pulse pulse_{{ r.identifier }}"
-				style="{{ 'display:none;' if initialrange==r.identifier else '' }}"
+				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 
 			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
@@ -117,7 +117,7 @@
 
 			<span
 				class="stat_module_pulse pulse_{{ r.identifier }}"
-				style="{{ 'display:none;' if initialrange==r.identifier else '' }}"
+				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 
 			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
