@@ -8,10 +8,10 @@
 
 
 		function replaceurls() {
-			url = window.location.origin
-			s = document.getElementsByName("serverurl")
+			url = window.location.origin;
+			s = document.getElementsByName("serverurl");
 			for (var i=0;i<s.length;i++) {
-				s[i].innerHTML = url
+				s[i].innerHTML = url;
 			}
 		}
 
@@ -21,26 +21,26 @@
 		}
 
 		function activateRuleModule(e,filename) {
-			keys = "filename=" + encodeURIComponent(filename)
-			console.log(keys)
+			keys = "filename=" + encodeURIComponent(filename);
+			console.log(keys);
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST","/api/importrules", true);
 			xhttp.send(keys);
 
-			e.innerHTML = e.innerHTML.replace("Add","Remove")
-			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("activate","deactivate")
+			e.innerHTML = e.innerHTML.replace("Add","Remove");
+			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("activate","deactivate");
 			/* Nobody ever look at this code please */
 		}
 
 		function deactivateRuleModule(e,filename) {
-			keys = "remove&filename=" + encodeURIComponent(filename)
+			keys = "remove&filename=" + encodeURIComponent(filename);
 
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST","/api/importrules", true);
 			xhttp.send(keys);
 
-			e.innerHTML = e.innerHTML.replace("Remove","Add")
-			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("deactivate","activate")
+			e.innerHTML = e.innerHTML.replace("Remove","Add");
+			e.getAttributeNode("onclick").value = e.getAttribute("onclick").replace("deactivate","activate");
 		}
 
 		document.addEventListener("DOMContentLoaded",replace);

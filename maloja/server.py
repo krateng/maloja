@@ -91,7 +91,8 @@ css = generate_css()
 
 
 def clean_html(inp):
-	return html_minify(inp)
+	if settings.get_settings("DEV_MODE"): return inp
+	else: return html_minify(inp)
 
 #os.makedirs("web/css",exist_ok=True)
 #with open("web/css/style.css","w") as f:

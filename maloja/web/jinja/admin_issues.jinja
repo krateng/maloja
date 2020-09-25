@@ -7,26 +7,26 @@
 {% block scripts %}
 	<script>
 		function newrule() {
-			keys = ""
+			keys = "";
 			for (var i = 1; i < arguments.length; i++) {
-				keys += encodeURIComponent(arguments[i]) + "&"
+				keys += encodeURIComponent(arguments[i]) + "&";
 			}
-			console.log(keys)
+			console.log(keys);
 
 
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST","/api/newrule?", true);
 			xhttp.send(keys);
-			e = arguments[0]
-			line = e.parentNode
-			line.parentNode.removeChild(line)
+			e = arguments[0];
+			line = e.parentNode;
+			line.parentNode.removeChild(line);
 		}
 
 		function fullrebuild() {
 
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("POST","/api/rebuild", true);
-			xhttp.send()
+			xhttp.send();
 			window.location = "/wait";
 
 		}
