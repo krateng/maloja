@@ -79,7 +79,7 @@ def get_scrobbles_num_external(**keys):
 
 @api.get("tracks")
 def get_tracks_external(**keys):
-	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
 	result = get_tracks(**ckeys)
@@ -108,7 +108,7 @@ def get_charts_artists_external(**keys):
 
 @api.get("charts/tracks")
 def get_charts_tracks_external(**keys):
-	k_filter, k_time, _, _ = uri_to_internal(keys,forceArtist=True)
+	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
 	result = get_charts_tracks(**ckeys)
@@ -165,7 +165,7 @@ def get_top_tracks_external(**keys):
 
 @api.get("artistinfo")
 def artistInfo_external(**keys):
-	k_filter, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
 	results = artistInfo(**ckeys)
@@ -179,7 +179,7 @@ def trackInfo_external(artist:Multi[str],**keys):
 	keys = FormsDict(keys)
 	for a in artist:
 		keys.append("artist",a)
-	k_filter, _, _, _ = uri_to_internal(keys,forceTrack=True)
+	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
 	results = trackInfo(**ckeys)
