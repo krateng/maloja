@@ -81,7 +81,9 @@ class Audioscrobbler(APIHandler):
 						timestamp = None
 					#database.createScrobble(artists,title,timestamp)
 					self.scrobble(artiststr,titlestr,time=timestamp)
+					count += 1
 				else:
+					iterating = False
 					return 200,"OK"
 
 
