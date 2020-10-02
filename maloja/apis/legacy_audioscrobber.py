@@ -34,6 +34,7 @@ class Audioscrobbler(APIHandler):
 		auth = keys.get("a")
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
+		host = keys.get("Host")
 		# expect username and password
 		if user is not None and apikey is None:
 			receivedToken = lastfmToken(password, timestamp)
