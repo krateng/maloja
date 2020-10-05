@@ -33,8 +33,8 @@ class MusicBrainz(MetadataInterface):
 		self.lock.acquire()
 		try:
 			artists, title = track
-			artiststring = urllib.parse.quote(", ".join(artists))
-			titlestring = urllib.parse.quote(title)
+			artiststring = ", ".join(artists) #Join artists collection into string
+			titlestring = title
 			querystr = urllib.parse.urlencode({
 				"fmt":"json",
 				"query":"{title} {artist}".format(artist=artiststring,title=titlestring)
