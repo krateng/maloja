@@ -55,7 +55,7 @@ def update_jinja_environment():
 			{"identifier":"alltime","localisation":"All Time","range":malojatime.alltime()}
 		],
 		"xdelimiters": [
-			{"identifier":"daily","replacekeys":{"step":"day","stepn":1},"localisation":"Daily"},
+			{"identifier":"daily","replacekeys":{"step":"day","stepn":1},"localisation":"Daily","heavy":True},
 			{"identifier":"weekly","replacekeys":{"step":"week","stepn":1},"localisation":"Weekly"},
 			{"identifier":"fortnightly","replacekeys":{"step":"week","stepn":2},"localisation":"Fortnightly"},
 			{"identifier":"monthly","replacekeys":{"step":"month","stepn":1},"localisation":"Monthly"},
@@ -66,8 +66,8 @@ def update_jinja_environment():
 			{"identifier":"standard","replacekeys":{"trail":1},"localisation":"Standard"},
 			{"identifier":"trailing","replacekeys":{"trail":2},"localisation":"Trailing"},
 			{"identifier":"longtrailing","replacekeys":{"trail":3},"localisation":"Long Trailing"},
-			{"identifier":"inert","replacekeys":{"trail":10},"localisation":"Inert"},
-			{"identifier":"cumulative","replacekeys":{"trail":math.inf},"localisation":"Cumulative"}
+			{"identifier":"inert","replacekeys":{"trail":10},"localisation":"Inert","heavy":True},
+			{"identifier":"cumulative","replacekeys":{"trail":math.inf},"localisation":"Cumulative","heavy":True}
 		]
 	}
 
