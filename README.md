@@ -122,7 +122,7 @@ You can set up any amount of API keys in the file `authenticated_machines.tsv` i
 
 If you use Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music on Chromium, you can use the included extension (also available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh)). Make sure to enter the random key Maloja generates on first startup in the extension settings.
 
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/api/newscrobble` with the keys `artist`, `title` and `key` - either as form-data or json.
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/apis/mlj_1/newscrobble` with the keys `artist`, `title` and `key` - either as form-data or json.
 
 ### Standard-compliant API
 
