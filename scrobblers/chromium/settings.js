@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded",function() {
 	document.getElementById("serverurl").addEventListener("focusout",checkServer);
 	document.getElementById("apikey").addEventListener("focusout",checkServer);
 
+	document.getElementById("serverurl").addEventListener("input",saveConfig);
+	document.getElementById("apikey").addEventListener("input",saveConfig);
+
 
 	chrome.runtime.onMessage.addListener(onInternalMessage);
 
