@@ -116,13 +116,20 @@ to run the server in the foreground.
 
 ## How to scrobble
 
-You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `~/.local/share/maloja/clients` folder.
+You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `~/.local/share/maloja/clients` folder. It is recommended to define a different API key for every scrobbler you use.
+
+### Native support
+
+These solutions allow you to directly setup scrobbling to your Maloja server:
+* [Tauon](https://tauonmusicbox.rocks) Desktop Player
+* [Albula](https://github.com/krateng/albula) Music Server
+* [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
 
 ### Native API
 
-If you use Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music on Chromium, you can use the included extension (also available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh)). Make sure to enter the random key Maloja generates on first startup in the extension settings.
+If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/apis/mlj_1/newscrobble` with the keys `artist`, `title` and `key` (and optionally `album`,`duration` (in seconds) and `time`(for cached scrobbles)) - either as form-data or json.
 
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/apis/mlj_1/newscrobble` with the keys `artist`, `title` and `key` - either as form-data or json.
+If you're the maintainer of a music player or server and would like to implement native Maloja scrobbling, feel free to reach out - I'll try my best to help.
 
 ### Standard-compliant API
 
@@ -140,11 +147,13 @@ API URL | Your Maloja URL followed by `/apis/listenbrainz`
 Username | Any name, doesn't matter (don't leave empty)
 Auth Token | Any of your API keys
 
-My recommendations are to use [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android and [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers. Note that Web Scrobbler requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`).
+Known working scrobblers:
+* [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android
+* [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 
 I'm thankful for any feedback whether other scrobblers work!
 
-It is recommended to define a different API key for every scrobbler you use in `clients/authenticated_machines.tsv` in your Maloja folder.
+
 
 ### Manual
 

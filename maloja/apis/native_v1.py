@@ -17,6 +17,12 @@ api.__apipath__ = "mlj_1"
 
 @api.get("test")
 def test_server(key=None):
+	"""Pings the server. If an API key is supplied, the server will respond with 200
+	if the key is correct and 403 if it isn't. If no key is supplied, the server will
+	always respond with 200.
+
+	:param string key: An API key to be tested. Optional.
+	"""
 	response.set_header("Access-Control-Allow-Origin","*")
 	if key is not None and not (checkAPIkey(key)):
 		response.status = 403
@@ -26,8 +32,6 @@ def test_server(key=None):
 		response.status = 200
 		return {"status":"ok"}
 
-	# 200	Database server is up and operational
-	# 403	Database server is up, but provided API key is not valid
 
 @api.get("serverinfo")
 def server_info():
@@ -213,7 +217,7 @@ def post_scrobble(artist:Multi,**keys):
 
 	:param string artist: Artists. Can be multiple.
 	:param string title: Title of the track.
-	:param string album: Name of the album.
+	:param string album: Name of the album. Optional.
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
 	"""
