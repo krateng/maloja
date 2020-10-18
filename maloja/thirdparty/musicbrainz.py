@@ -55,7 +55,9 @@ class MusicBrainz(MetadataInterface):
 			)
 			responsedata = response.read()
 			data = json.loads(responsedata)
-			return self.metadata_parse_response_track(data)
+			imgurl = self.metadata_parse_response_track(data)
+			if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+			return imgurl
 
 		except:
 			return None
