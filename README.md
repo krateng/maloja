@@ -26,6 +26,7 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 	* [Data](#data)
 	* [Customization](#customization)
 * [How to scrobble](#how-to-scrobble)
+	* [Native support](#native-support)
 	* [Native API](#native-api)
 	* [Standard-compliant API](#standard-compliant-api)
 	* [Manual](#manual)
