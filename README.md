@@ -151,6 +151,8 @@ Auth Token | Any of your API keys
 Known working scrobblers:
 * [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android
 * [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
+* [Simple Scrobbler](https://simple-last-fm-scrobbler.github.io) for Android
+* [Airsonic Advanced](https://github.com/airsonic-advanced/airsonic-advanced) (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 
 I'm thankful for any feedback whether other scrobblers work!
 
