@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual .build-deps \
     linux-headers \
     && \
     pip3 install psutil && \
-    pip3 install malojaserver && \
+    pip3 install --no-cache-dir malojaserver && \
     apk del .build-deps
 
 EXPOSE 42010
