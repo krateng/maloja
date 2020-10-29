@@ -28,9 +28,9 @@ class AudioscrobblerLegacy(APIHandler):
 
 	def get_method(self,pathnodes,keys):
 		if keys.get("hs") == 'true': return 'handshake'
+		else: return pathnodes[0]
 
 	def handshake(self,pathnodes,keys):
-		print(keys)
 		user = keys.get("u")
 		auth = keys.get("a")
 		timestamp = keys.get("t")
@@ -66,25 +66,21 @@ class AudioscrobblerLegacy(APIHandler):
 		if keys.get("s") is None or keys.get("s") not in self.mobile_sessions:
 			raise InvalidSessionKey()
 		else:
-			iterating = True
-			count = 0
-			while iterating:
-				t = "t"+str(count) # track
-				a = "a"+str(count) # artist
-				i = "i"+str(count) # timestamp
-				if t in keys and a in keys:
-					artiststr,titlestr = keys[a], keys[t]
-					#(artists,title) = cla.fullclean(artiststr,titlestr)
+			for count in range(0,50):
+				artist_key = f"a[{count}]"
+				track_key = f"t[{count}]"
+				time_key = f"i[{count}]"
+				if artist_key in keys and track_key in keys:
+					artiststr,titlestr = keys[artist_key], keys[track_key]
 					try:
-						timestamp = int(keys[i])
+						timestamp = int(keys[time_key])
 					except:
 						timestamp = None
 					#database.createScrobble(artists,title,timestamp)
 					self.scrobble(artiststr,titlestr,time=timestamp)
-					count += 1
 				else:
-					iterating = False
 					return 200,"OK"
+			return 200,"OK"
 
 
 import hashlib
