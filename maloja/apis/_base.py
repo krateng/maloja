@@ -69,6 +69,7 @@ class APIHandler:
 			else:
 				log("Unhandled Exception with " + self.__apiname__ + ": " + str(exceptiontype))
 				response.status,result = 500,{"status":"Unknown error","code":500}
+				raise
 
 		return result
 		#else:

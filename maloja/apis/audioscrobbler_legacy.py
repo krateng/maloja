@@ -6,7 +6,7 @@ class AudioscrobblerLegacy(APIHandler):
 	__apiname__ = "Legacy Audioscrobbler"
 	__doclink__ = "https://web.archive.org/web/20190531021725/https://www.last.fm/api/submissions"
 	__aliases__ = [
-		"audioscrobbler/1.2",
+		"audioscrobbler_legacy",
 	]
 
 	def init(self):
@@ -27,28 +27,27 @@ class AudioscrobblerLegacy(APIHandler):
 		}
 
 	def get_method(self,pathnodes,keys):
-		return keys.get("method")
+		if keys.get("hs") == 'true': return 'handshake'
 
 	def handshake(self,pathnodes,keys):
+		print(keys)
 		user = keys.get("u")
 		auth = keys.get("a")
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
 		host = keys.get("Host")
+		protocol = 'https'
 		# expect username and password
-		if user is not None and apikey is None:
-			receivedToken = lastfmToken(password, timestamp)
-			authenticated = False
+		if auth is not None:
 			for key in database.allAPIkeys():
-				if checkPassword(receivedToken, key, timestamp):
-					authenticated = True
-					break
-			if authenticated:
-				sessionkey = generate_key(self.mobile_sessions)
-				return 200, "OK\n" +
-					sessionkey + "\n" +
-					protocol + "://"+domain+":"+port+"/apis/legacyaudioscrobbler/nowplaying" + "\n" +
-					protocol + "://"+domain+":"+port+"/apis/legacyaudioscrobbler/scrobble" + "\n"
+				if check_token(auth, key, timestamp):
+					sessionkey = generate_key(self.mobile_sessions)
+					return 200, (
+						"OK\n"
+						f"{sessionkey}\n"
+						f"{protocol}://{host}/apis/audioscrobbler_legacy/nowplaying\n"
+						f"{protocol}://{host}/apis/audioscrobbler_legacy/scrobble\n"
+						)
 			else:
 				raise InvalidAuthException()
 		else:
@@ -103,9 +102,9 @@ def generate_key(ls):
 	ls.append(key)
 	return key
 
-def lastfmToken(password, ts):
-	return md5(md5(password), ts)
+def lastfm_token(password, ts):
+	return md5(md5(password) + ts)
 
-def checkPassword(receivedToken, expectedKey, ts):
-	expectedToken = lastfmToken(expectedKey, ts)
-	return receivedToken == expectedToken
+def check_token(received_token, expected_key, ts):
+	expected_token = lastfm_token(expected_key, ts)
+	return received_token == expected_token
