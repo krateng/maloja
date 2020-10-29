@@ -108,7 +108,7 @@ to run the server in the foreground.
 
 ### Customization
 
-* Have a look at the `default.ini` file in the `~/.local/share/maloja/settings` folder to see what settings are available. Specify your own choices in `settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
+* Have a look at the [available settings](settings.md) and specifiy your choices in `~/.local/share/maloja/settings/settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
 
 * If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `~/.local/share/maloja/images` folder.
 
