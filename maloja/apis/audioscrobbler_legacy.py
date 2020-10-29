@@ -7,6 +7,7 @@ class AudioscrobblerLegacy(APIHandler):
 	__doclink__ = "https://web.archive.org/web/20190531021725/https://www.last.fm/api/submissions"
 	__aliases__ = [
 		"audioscrobbler_legacy",
+		"audioscrobbler/1.2"
 	]
 
 	def init(self):
@@ -21,9 +22,9 @@ class AudioscrobblerLegacy(APIHandler):
 		self.errors = {
 			BadAuthException:(200,"BADAUTH"),
 			InvalidAuthException:(200,"BADAUTH"),
-			InvalidMethodException:(200,{"error":3,"message":"Invalid method"}),
+			InvalidMethodException:(200,"FAILED"),
 			InvalidSessionKey:(200,"BADSESSION"),
-			ScrobblingException:(500,{"error":8,"message":"Operation failed"})
+			ScrobblingException:(500,"FAILED")
 		}
 
 	def get_method(self,pathnodes,keys):

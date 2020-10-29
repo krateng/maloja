@@ -308,6 +308,16 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9928c378-cf37-4e20-b653-51f5dde51192",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -389,7 +399,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "28214541-89bf-4184-ad9b-dd49dbcfc35d",
+								"id": "addc7f42-1de5-4b6d-a840-bb3075bd2cdc",
 								"exec": [
 									"var data = JSON.parse(responseBody);",
 									"postman.setEnvironmentVariable(\"session_key\", data.session.key);",
@@ -430,6 +440,113 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Scrobble Audioscrobbler Legacy",
+			"item": [
+				{
+					"name": "Authorize",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "01f6143f-3134-4006-9792-6e61a2be323d",
+								"exec": [
+									"var data = responseBody.split(\"\\n\");",
+									"postman.setEnvironmentVariable(\"session_key\", data[1]);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b97afa75-ab8c-4099-a6cf-6b45d653a10d",
+								"exec": [
+									"apikey = pm.variables.get(\"api_key\");",
+									"ts = 565566;",
+									"",
+									"token = CryptoJS.MD5(CryptoJS.MD5(apikey) + ts)",
+									"",
+									"postman.setEnvironmentVariable(\"legacy_token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/apis/audioscrobbler_legacy/?hs=true&t=565566&a={{legacy_token}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"apis",
+								"audioscrobbler_legacy",
+								""
+							],
+							"query": [
+								{
+									"key": "hs",
+									"value": "true"
+								},
+								{
+									"key": "t",
+									"value": "565566"
+								},
+								{
+									"key": "a",
+									"value": "{{legacy_token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scrobble",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/apis/audioscrobbler_legacy/scrobble?t=565566&a={{legacy_token}}&s={{session_key}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"apis",
+								"audioscrobbler_legacy",
+								"scrobble"
+							],
+							"query": [
+								{
+									"key": "t",
+									"value": "565566"
+								},
+								{
+									"key": "a",
+									"value": "{{legacy_token}}"
+								},
+								{
+									"key": "s",
+									"value": "{{session_key}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
@@ -456,28 +573,34 @@
 	],
 	"variable": [
 		{
-			"id": "0206e63b-eeb7-49cc-9824-5398b18f7736",
+			"id": "3e20a0c6-11fa-4976-8bcb-5c31014e40e7",
 			"key": "url",
-			"value": "http://localhost:42010",
-			"type": "string"
+			"value": "http://localhost:42010"
 		},
 		{
-			"id": "0c6402d8-dfb7-4c87-a6ca-9b6675b8d9a1",
+			"id": "bd31b51f-645d-4ab4-83e1-8eb407978ea8",
 			"key": "api_key",
-			"value": "localdevtestkey",
-			"type": "string"
+			"value": "localdevtestkey"
 		},
 		{
-			"id": "bae7cf4e-fe0e-490d-8446-56a8ac51373d",
+			"id": "5ea9cbf8-34f9-4c5e-80b3-42857f014f80",
 			"key": "example_artist",
-			"value": "EXID ft. Jeremy Soule",
-			"type": "string"
+			"value": "EXID ft. Jeremy Soule"
 		},
 		{
-			"id": "70454e83-de63-471b-a58c-8545cef4e749",
+			"id": "fa4d0af7-6f09-4fc6-88ee-39cb6b91b844",
 			"key": "example_song",
-			"value": "Why is the Rum gone?",
-			"type": "string"
+			"value": "Why is the Rum gone?"
+		},
+		{
+			"id": "e078ab40-4135-4be3-a251-9df21b2601c1",
+			"key": "example_artist_2",
+			"value": "BLACKPINK ft. Tzuyu"
+		},
+		{
+			"id": "3748cc0f-2bdc-4572-8b17-94a630fa751c",
+			"key": "example_song_2",
+			"value": "POP/STARS"
 		}
 	]
 }
