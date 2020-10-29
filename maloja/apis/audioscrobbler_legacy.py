@@ -2,11 +2,11 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 
-class Audioscrobbler(APIHandler):
+class AudioscrobblerLegacy(APIHandler):
 	__apiname__ = "Legacy Audioscrobbler"
 	__doclink__ = "https://web.archive.org/web/20190531021725/https://www.last.fm/api/submissions"
 	__aliases__ = [
-		"legacyaudioscrobbler"
+		"audioscrobbler/1.2",
 	]
 
 	def init(self):

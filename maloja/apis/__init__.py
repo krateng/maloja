@@ -1,5 +1,6 @@
 from . import native_v1
 from .audioscrobbler import Audioscrobbler
+from .audioscrobbler_legacy import AudioscrobblerLegacy
 from .listenbrainz import Listenbrainz
 
 import copy
@@ -11,7 +12,8 @@ native_apis = [
 ]
 standardized_apis = [
 	Listenbrainz(),
-	Audioscrobbler()
+	Audioscrobbler(),
+	AudioscrobblerLegacy()
 ]
 
 def init_apis(server):
