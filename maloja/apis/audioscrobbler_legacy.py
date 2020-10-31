@@ -20,11 +20,11 @@ class AudioscrobblerLegacy(APIHandler):
 			"scrobble":self.submit_scrobble
 		}
 		self.errors = {
-			BadAuthException:(200,"BADAUTH"),
-			InvalidAuthException:(200,"BADAUTH"),
-			InvalidMethodException:(200,"FAILED"),
-			InvalidSessionKey:(200,"BADSESSION"),
-			ScrobblingException:(500,"FAILED")
+			BadAuthException:(403,"BADAUTH\n"),
+			InvalidAuthException:(403,"BADAUTH\n"),
+			InvalidMethodException:(400,"FAILED\n"),
+			InvalidSessionKey:(403,"BADSESSION\n"),
+			ScrobblingException:(500,"FAILED\n")
 		}
 
 	def get_method(self,pathnodes,keys):
@@ -61,7 +61,7 @@ class AudioscrobblerLegacy(APIHandler):
 		if keys.get("s") is None or keys.get("s") not in self.mobile_sessions:
 			raise InvalidSessionKey()
 		else:
-			return "OK"
+			return 200,"OK\n"
 
 	def submit_scrobble(self,pathnodes,keys):
 		if keys.get("s") is None or keys.get("s") not in self.mobile_sessions:
@@ -80,8 +80,8 @@ class AudioscrobblerLegacy(APIHandler):
 					#database.createScrobble(artists,title,timestamp)
 					self.scrobble(artiststr,titlestr,time=timestamp)
 				else:
-					return 200,"OK"
-			return 200,"OK"
+					return 200,"OK\n"
+			return 200,"OK\n"
 
 
 import hashlib
