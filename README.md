@@ -139,19 +139,19 @@ You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) o
 GNU FM | &nbsp;
 ------ | ---------
 Gnukebox URL | Your Maloja URL followed by `/apis/audioscrobbler`
-Username | Any name, doesn't matter (don't leave empty)
+Username | Doesn't matter
 Password | Any of your API keys
 
 ListenBrainz | &nbsp;
 ------ | ---------
 API URL | Your Maloja URL followed by `/apis/listenbrainz`
-Username | Any name, doesn't matter (don't leave empty)
+Username | Doesn't matter
 Auth Token | Any of your API keys
 
 Audioscrobbler v1.2 | &nbsp;
 ------ | ---------
 Server URL | Your Maloja URL followed by `/apis/audioscrobbler_legacy`
-Username | `nossl` if your server isn't behind an SSL reverse proxy (http instead of https)
+Username | Doesn't matter
 Password | Any of your API keys
 
 Known working scrobblers:
@@ -159,6 +159,7 @@ Known working scrobblers:
 * [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 * [Simple Scrobbler](https://simple-last-fm-scrobbler.github.io) for Android
 * [Airsonic Advanced](https://github.com/airsonic-advanced/airsonic-advanced) (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
+* [Funkwhale](https://dev.funkwhale.audio/funkwhale/funkwhale) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
 
 I'm thankful for any feedback whether other scrobblers work!
 

@@ -2,6 +2,8 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 
+from bottle import request
+
 class AudioscrobblerLegacy(APIHandler):
 	__apiname__ = "Legacy Audioscrobbler"
 	__doclink__ = "https://web.archive.org/web/20190531021725/https://www.last.fm/api/submissions"
@@ -36,9 +38,9 @@ class AudioscrobblerLegacy(APIHandler):
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
 		host = keys.get("Host")
-		protocol = 'http' if (keys.get("u") == 'nossl') else 'https'
-		# we utilize the useless username field for the protocol
-		
+		protocol = request.urlparts.scheme
+		if (keys.get("u") == 'nossl'): protocol = 'http' #user override
+
 		if auth is not None:
 			for key in database.allAPIkeys():
 				if check_token(auth, key, timestamp):

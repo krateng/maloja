@@ -485,7 +485,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{url}}/apis/audioscrobbler_legacy/?hs=true&t={{timestamp}}&a={{legacy_token}}&u=nossl",
+							"raw": "{{url}}/apis/audioscrobbler_legacy/?hs=true&t={{timestamp}}&a={{legacy_token}}",
 							"host": [
 								"{{url}}"
 							],
@@ -506,10 +506,6 @@
 								{
 									"key": "a",
 									"value": "{{legacy_token}}"
-								},
-								{
-									"key": "u",
-									"value": "nossl"
 								}
 							]
 						}
@@ -590,32 +586,32 @@
 	],
 	"variable": [
 		{
-			"id": "5c4cf10d-6008-4aff-8afe-cbf3b4be64e9",
+			"id": "88c0d6ae-fb1a-420d-aa65-494f561090ff",
 			"key": "url",
 			"value": "http://localhost:42010"
 		},
 		{
-			"id": "f86e3a7a-f14e-4e88-a2bd-f07a2486d413",
+			"id": "4cd70ff6-d2d8-4ff9-bb51-ee0ac46a0c7a",
 			"key": "api_key",
 			"value": "localdevtestkey"
 		},
 		{
-			"id": "c85768d8-7407-4b97-a8d7-29d15e7c9147",
+			"id": "bb5a3d1f-34a7-421d-a60a-eaa6dd3cac61",
 			"key": "example_artist",
 			"value": "EXID ft. Jeremy Soule"
 		},
 		{
-			"id": "938a104d-a775-42b3-a760-8389e4fb0f20",
+			"id": "6a344668-55f0-44de-ae9b-bb7df916f5fd",
 			"key": "example_song",
 			"value": "Why is the Rum gone?"
 		},
 		{
-			"id": "682dd4b1-fbde-414e-a1e2-245554cd19ba",
+			"id": "17fc8bb2-4fc3-461c-8581-48573f640f7c",
 			"key": "example_artist_2",
 			"value": "BLACKPINK ft. Tzuyu"
 		},
 		{
-			"id": "51f38a46-5ca1-4548-9ba8-1203edc06376",
+			"id": "b87d84f6-3f3a-4732-becf-b34794a1c178",
 			"key": "example_song_2",
 			"value": "POP/STARS"
 		}
