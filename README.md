@@ -148,6 +148,12 @@ API URL | Your Maloja URL followed by `/apis/listenbrainz`
 Username | Any name, doesn't matter (don't leave empty)
 Auth Token | Any of your API keys
 
+Audioscrobbler v1.2 | &nbsp;
+------ | ---------
+Server URL | Your Maloja URL followed by `/apis/audioscrobbler_legacy`
+Username | `nossl` if your server isn't behind an SSL reverse proxy (http instead of https)
+Password | Any of your API keys
+
 Known working scrobblers:
 * [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android
 * [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))

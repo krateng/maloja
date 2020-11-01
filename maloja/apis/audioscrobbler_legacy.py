@@ -32,13 +32,13 @@ class AudioscrobblerLegacy(APIHandler):
 		else: return pathnodes[0]
 
 	def handshake(self,pathnodes,keys):
-		user = keys.get("u")
 		auth = keys.get("a")
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
 		host = keys.get("Host")
-		protocol = 'https'
-		# expect username and password
+		protocol = 'http' if (keys.get("u") == 'nossl') else 'https'
+		# we utilize the useless username field for the protocol
+		
 		if auth is not None:
 			for key in database.allAPIkeys():
 				if check_token(auth, key, timestamp):

@@ -453,7 +453,8 @@
 								"id": "01f6143f-3134-4006-9792-6e61a2be323d",
 								"exec": [
 									"var data = responseBody.split(\"\\n\");",
-									"postman.setEnvironmentVariable(\"session_key\", data[1]);"
+									"postman.setEnvironmentVariable(\"session_key\", data[1]);",
+									"postman.setEnvironmentVariable(\"scrobble_url\", data[3]);"
 								],
 								"type": "text/javascript"
 							}
@@ -464,10 +465,9 @@
 								"id": "b97afa75-ab8c-4099-a6cf-6b45d653a10d",
 								"exec": [
 									"apikey = pm.variables.get(\"api_key\");",
-									"ts = 565566;",
+									"ts = pm.variables.get(\"timestamp\");",
 									"",
 									"token = CryptoJS.MD5(CryptoJS.MD5(apikey) + ts)",
-									"",
 									"postman.setEnvironmentVariable(\"legacy_token\", token);"
 								],
 								"type": "text/javascript"
@@ -485,7 +485,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{url}}/apis/audioscrobbler_legacy/?hs=true&t=565566&a={{legacy_token}}",
+							"raw": "{{url}}/apis/audioscrobbler_legacy/?hs=true&t={{timestamp}}&a={{legacy_token}}&u=nossl",
 							"host": [
 								"{{url}}"
 							],
@@ -501,11 +501,15 @@
 								},
 								{
 									"key": "t",
-									"value": "565566"
+									"value": "{{timestamp}}"
 								},
 								{
 									"key": "a",
 									"value": "{{legacy_token}}"
+								},
+								{
+									"key": "u",
+									"value": "nossl"
 								}
 							]
 						}
@@ -518,27 +522,38 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/apis/audioscrobbler_legacy/scrobble?t=565566&a={{legacy_token}}&s={{session_key}}",
+							"raw": "{{scrobble_url}}?s={{session_key}}&a[0]={{example_artist}}&t[0]={{example_song}}&a[1]={{example_artist_2}}&t[1]={{example_song_2}}&i[0]={{timestamp}}&i[1]={{timestamp_2}}",
 							"host": [
-								"{{url}}"
-							],
-							"path": [
-								"apis",
-								"audioscrobbler_legacy",
-								"scrobble"
+								"{{scrobble_url}}"
 							],
 							"query": [
 								{
-									"key": "t",
-									"value": "565566"
-								},
-								{
-									"key": "a",
-									"value": "{{legacy_token}}"
-								},
-								{
 									"key": "s",
 									"value": "{{session_key}}"
+								},
+								{
+									"key": "a[0]",
+									"value": "{{example_artist}}"
+								},
+								{
+									"key": "t[0]",
+									"value": "{{example_song}}"
+								},
+								{
+									"key": "a[1]",
+									"value": "{{example_artist_2}}"
+								},
+								{
+									"key": "t[1]",
+									"value": "{{example_song_2}}"
+								},
+								{
+									"key": "i[0]",
+									"value": "{{timestamp}}"
+								},
+								{
+									"key": "i[1]",
+									"value": "{{timestamp_2}}"
 								}
 							]
 						}
@@ -556,7 +571,9 @@
 				"id": "6659b674-ce6f-48b5-bb64-880356ce6739",
 				"type": "text/javascript",
 				"exec": [
-					""
+					"var current_timestamp = Math.floor(Date.now() / 1000);",
+					"postman.setEnvironmentVariable(\"timestamp\", current_timestamp);",
+					"postman.setEnvironmentVariable(\"timestamp_2\", current_timestamp - 200);"
 				]
 			}
 		},
@@ -573,32 +590,32 @@
 	],
 	"variable": [
 		{
-			"id": "3e20a0c6-11fa-4976-8bcb-5c31014e40e7",
+			"id": "5c4cf10d-6008-4aff-8afe-cbf3b4be64e9",
 			"key": "url",
 			"value": "http://localhost:42010"
 		},
 		{
-			"id": "bd31b51f-645d-4ab4-83e1-8eb407978ea8",
+			"id": "f86e3a7a-f14e-4e88-a2bd-f07a2486d413",
 			"key": "api_key",
 			"value": "localdevtestkey"
 		},
 		{
-			"id": "5ea9cbf8-34f9-4c5e-80b3-42857f014f80",
+			"id": "c85768d8-7407-4b97-a8d7-29d15e7c9147",
 			"key": "example_artist",
 			"value": "EXID ft. Jeremy Soule"
 		},
 		{
-			"id": "fa4d0af7-6f09-4fc6-88ee-39cb6b91b844",
+			"id": "938a104d-a775-42b3-a760-8389e4fb0f20",
 			"key": "example_song",
 			"value": "Why is the Rum gone?"
 		},
 		{
-			"id": "e078ab40-4135-4be3-a251-9df21b2601c1",
+			"id": "682dd4b1-fbde-414e-a1e2-245554cd19ba",
 			"key": "example_artist_2",
 			"value": "BLACKPINK ft. Tzuyu"
 		},
 		{
-			"id": "3748cc0f-2bdc-4572-8b17-94a630fa751c",
+			"id": "51f38a46-5ca1-4548-9ba8-1203edc06376",
 			"key": "example_song_2",
 			"value": "POP/STARS"
 		}
