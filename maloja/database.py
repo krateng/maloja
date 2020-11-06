@@ -566,13 +566,13 @@ def compare(remoteurl):
 	}
 
 
-def incoming_scrobble(artists,title,album=None,duration=None,time=None):
-	artists = "/".join(artists)
+def incoming_scrobble(artists,title,album=None,duration=None,time=None,fix=True):
 	if time is None:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
 	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
-	(artists,title) = cla.fullclean(artists,title)
+	if fix:
+		(artists,title) = cla.fullclean("/".join(artists),title)
 	trackdict = createScrobble(artists,title,time,album,duration)
 
 	sync()

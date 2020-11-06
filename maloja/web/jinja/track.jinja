@@ -7,7 +7,7 @@
 	<script src="/rangeselect.js"></script>
 	<script>
 		function scrobble(encodedtrack) {
-			neo.xhttprequest('/apis/mlj_1/newscrobble?' + encodedtrack,method="POST").then(response=>{window.location.reload()});
+			neo.xhttprequest('/apis/mlj_1/newscrobble?nofix&' + encodedtrack,data={},method="POST").then(response=>{window.location.reload()});
 		}
 	</script>
 {% endblock %}

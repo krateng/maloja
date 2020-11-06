@@ -227,9 +227,10 @@ def post_scrobble(artist:Multi,**keys):
 	album = keys.get("album")
 	duration = keys.get("seconds")
 	time = keys.get("time")
+	nofix = keys.get("nofix") is not None
 	if time is not None: time = int(time)
 
-	return incoming_scrobble(artists,title,album=album,duration=duration,time=time)
+	return incoming_scrobble(artists,title,album=album,duration=duration,time=time,fix=not nofix)
 
 
 
