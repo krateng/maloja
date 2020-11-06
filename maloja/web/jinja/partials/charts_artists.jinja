@@ -51,8 +51,8 @@
 			{{ entityrow.row(e['artist']) }}
 
 			<!-- scrobbles -->
-			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
-			<td class="bar">{{ links.link_scrobbles([{'artist':e['artist'],'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
+			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
+			<td class="bar">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
 		</tr>
 		{% endif %}
 	{% endfor %}

@@ -160,6 +160,7 @@ Known working scrobblers:
 * [Simple Scrobbler](https://simple-last-fm-scrobbler.github.io) for Android
 * [Airsonic Advanced](https://github.com/airsonic-advanced/airsonic-advanced) (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 * [Funkwhale](https://dev.funkwhale.audio/funkwhale/funkwhale) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
+* [mpdscribble](https://github.com/MusicPlayerDaemon/mpdscribble) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
 
 I'm thankful for any feedback whether other scrobblers work!
 
