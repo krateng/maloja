@@ -250,7 +250,7 @@ def static_html(name):
 
 	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
 
-	log("Generated page {name} in {time:.5f}s (Jinja)".format(name=name,time=clock.stop()),module="debug_performance")
+	log("Generated page {name} in {time:.5f}s".format(name=name,time=clock.stop()),module="debug_performance")
 	return clean_html(res)
 
 
