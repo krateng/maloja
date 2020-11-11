@@ -19,7 +19,7 @@
 			result = JSON.parse(response.responseText);
 			latestvers = result.info.version.split(".");
 
-			neo.xhttprequest("/api/serverinfo",{},"GET",json=true).then((response)=>{
+			neo.xhttprequest("/apis/mlj_1/serverinfo",{},"GET",json=true).then((response)=>{
 
 				result = JSON.parse(response.responseText);
 				thisvers = result.version;
@@ -68,7 +68,7 @@
 		<li>upload artist and track art by dropping a file on the existing image on an artist or track page</li>
 		<li>see more detailed error pages</li>
 	</ul>
-	
+
 	{% if adminmode %}
 	<span id="adminmodebutton" class="button" onclick="deactivate()">Deactivate</span>
 	{% else %}
