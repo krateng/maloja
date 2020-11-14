@@ -34,6 +34,7 @@ from collections import namedtuple
 from threading import Lock
 import yaml
 import lru
+import math
 
 # url handling
 from importlib.machinery import SourceFileLoader
@@ -262,11 +263,10 @@ def api_key_correct(request):
 
 
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track","max_"]})
-	#if keys.get("max_") is not None:
-	#	return r[:int(keys.get("max_"))]
-	#else:
-	#	return r
+	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
+	offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
+	r = r[offset:]
+	if keys.get('perpage') is not math.inf: r = r[:keys.get('perpage')]
 	return r
 
 

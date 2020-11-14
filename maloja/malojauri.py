@@ -4,7 +4,7 @@ import urllib
 import math
 
 # this also sets defaults!
-def uri_to_internal(keys,forceTrack=False,forceArtist=False):
+def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
 
 	# output:
 	# 1	keys that define the filtered object like artist or track
@@ -46,7 +46,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False):
 
 
 	#4
-	amountkeys = {"page":0,"perpage":100}
+	amountkeys = {"page":0,"perpage":math.inf if api else 100} # api doesnt paginate per default
 	if "max" in keys: amountkeys["page"],amountkeys["perpage"] = 0, int(keys["max"])
 	#different max than the internal one! the user doesn't get to disable pagination
 	if "page" in keys: amountkeys["page"] = int(keys["page"])

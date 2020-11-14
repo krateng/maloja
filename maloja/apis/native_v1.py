@@ -52,7 +52,7 @@ def server_info():
 
 @api.get("scrobbles")
 def get_scrobbles_external(**keys):
-	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
+	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles(**ckeys)
