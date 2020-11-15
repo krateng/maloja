@@ -94,17 +94,19 @@ class CleanerAgent:
 				return self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + \
 						self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
 
-		for d in self.delimiters_formal:
-			if (d in a):
-				ls = []
-				for i in a.split(d):
-					ls += self.parseArtists(i)
-				return ls
+
 
 		for d in (self.delimiters_feat + self.delimiters):
 			if ((" " + d + " ") in a):
 				ls = []
 				for i in a.split(" " + d + " "):
+					ls += self.parseArtists(i)
+				return ls
+
+		for d in self.delimiters_formal:
+			if (d in a):
+				ls = []
+				for i in a.split(d):
 					ls += self.parseArtists(i)
 				return ls
 
