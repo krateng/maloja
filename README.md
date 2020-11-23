@@ -123,7 +123,7 @@ You can set up any amount of API keys in the file `authenticated_machines.tsv` i
 
 These solutions allow you to directly setup scrobbling to your Maloja server:
 * [Tauon](https://tauonmusicbox.rocks) Desktop Player
-* [Spotify Scrobbler](https://github.com/FoxxMD/spotify-scrobbler) App
+* [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Scrobble from Spotify, Plex, or Tautulli
 * [Albula](https://github.com/krateng/albula) Music Server
 * [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
 
