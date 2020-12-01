@@ -1,9 +1,13 @@
 import datetime
 from datetime import datetime as dtm
+from datetime import timezone, timedelta
 from calendar import monthrange
 from os.path import commonprefix
 import math
+from doreah.settings import get_settings
 
+OFFSET = get_settings("TIMEZONE")
+TIMEZONE = timezone(timedelta(hours=OFFSET))
 
 FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
 
@@ -545,7 +549,7 @@ def timestamp_desc(t,short=False):
 
 		return timeobject.strftime("%Y")
 	else:
-		timeobject = datetime.datetime.fromtimestamp(t)
+		timeobject = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
 		return timeobject.strftime("%d. %b %Y %I:%M %p")
 
 
