@@ -18,6 +18,7 @@ from doreah import tsv
 from doreah import settings
 from doreah.caching import Cache, DeepCache
 from doreah.auth import authenticated_api, authenticated_api_with_alternate
+from doreah.io import ProgressBar
 try:
 	from doreah.persistence import DiskDict
 except: pass
@@ -767,6 +768,9 @@ def build_db():
 
 	# parse files
 	db = tsv.parse_all(datadir("scrobbles"),"int","string","string",comments=False)
+	scrobblenum = len(db)
+	log(f"Found {scrobblenum} scrobbles...")
+	pbar = ProgressBar(max=scrobblenum,prefix="Loading scrobbles")
 	#db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
@@ -774,7 +778,10 @@ def build_db():
 		time = sc[0]
 
 		readScrobble(artists,title,time)
+		pbar.progress()
 
+	pbar.done()
+	log("Database loaded, optimizing...")
 
 	# optimize database
 	SCROBBLES.sort(key = lambda tup: tup[1])

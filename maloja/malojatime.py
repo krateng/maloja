@@ -590,10 +590,10 @@ def delimit_desc_p(d):
 
 def delimit_desc(step="month",stepn=1,trail=1):
 	txt = ""
-	if stepn is not 1: txt += str(stepn) + "-"
+	if stepn != 1: txt += str(stepn) + "-"
 	txt += {"year":"Yearly","month":"Monthly","week":"Weekly","day":"Daily"}[step.lower()]
 	if trail is math.inf: txt += " Cumulative"
-	elif trail is not 1: txt += " Trailing" #we don't need all the info in the title
+	elif trail != 1: txt += " Trailing" #we don't need all the info in the title
 
 	return txt
 
