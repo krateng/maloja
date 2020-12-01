@@ -182,10 +182,10 @@ class MTime(MRangeDescriptor):
 
 	def first_stamp(self):
 		day = self.first_day().dateobject
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp())
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
 	def last_stamp(self):
 		day = self.last_day().dateobject + datetime.timedelta(days=1)
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp() - 1)
 
 	# next range of equal length (not exactly same amount of days, but same precision level)
 	def next(self,step=1):
