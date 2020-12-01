@@ -383,18 +383,18 @@ y = MTime(2020)
 
 
 def today():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year,tod.month,tod.day)
 def thisweek():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	tod = datetime.date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
 	return MTimeWeek(y,w)
 def thismonth():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year,tod.month)
 def thisyear():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year)
 def alltime():
 	return MRange(None,None)
