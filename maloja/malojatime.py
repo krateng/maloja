@@ -6,8 +6,13 @@ from os.path import commonprefix
 import math
 from doreah.settings import get_settings
 
+# use system timezone as default
+# https://stackoverflow.com/a/39079819/1469797
+TIMEZONE = datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo
+# if user specifies a timezone in settings then try to use that instead
 OFFSET = get_settings("TIMEZONE")
-TIMEZONE = timezone(timedelta(hours=OFFSET))
+if OFFSET is not None:
+	TIMEZONE = timezone(timedelta(hours=OFFSET))
 
 FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
 
