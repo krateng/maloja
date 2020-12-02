@@ -43,7 +43,8 @@ def server_info():
 	return {
 		"name":settings.get_settings("NAME"),
 		"version":version,
-		"versionstring":".".join(str(n) for n in version)
+		"versionstring":".".join(str(n) for n in version),
+		"db_status":dbstatus
 	}
 
 
@@ -257,6 +258,7 @@ def import_rulemodule(**keys):
 def rebuild(**keys):
 	log("Database rebuild initiated!")
 	sync()
+	dbstatus['rebuildinprogress'] = True
 	from ..proccontrol.tasks.fixexisting import fix
 	fix()
 	global cla, coa

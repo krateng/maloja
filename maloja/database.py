@@ -44,6 +44,10 @@ import urllib
 
 
 dblock = Lock() #global database lock
+dbstatus = {
+	"healthy":False,
+	"rebuildinprogress":False
+}
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
@@ -747,6 +751,9 @@ def start_db():
 
 def build_db():
 
+	global dbstatus
+	dbstatus['healthy'] = False
+	dbstatus['rebuildinprogress'] = True
 
 	log("Building database...")
 
@@ -809,6 +816,9 @@ def build_db():
 
 	global ISSUES
 	ISSUES = check_issues()
+
+	dbstatus['healthy'] = True
+	dbstatus['rebuildinprogress'] = False
 
 	log("Database fully built!")
 
