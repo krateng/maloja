@@ -49,7 +49,7 @@ def fix():
 						a,t = re.sub(exp,r"\3",l), re.sub(exp,r"\5",l)
 						r1,r2,r3 = re.sub(exp,r"\1\2",l),re.sub(exp,r"\4",l),re.sub(exp,r"\6",l)
 
-						a = a.replace("␟",";")
+						a = a.split("␟")
 
 						(al,t) = wendigo.fullclean(a,t)
 						a = "␟".join(al)
@@ -59,7 +59,7 @@ def fix():
 			#os.system("diff " + "scrobbles/" + fn + "_new" + " " + "scrobbles/" + fn)
 			with open(datadir("scrobbles",filename_new),"r") as newfile, open(datadir("scrobbles",filename),"r") as oldfile:
 
-				diff = difflib.unified_diff(oldfile.read().split("\n"),newfile.read().split("\n"),lineterm="")
+				diff = difflib.unified_diff(oldfile.read().split("\n"),newfile.read().split("\n"),lineterm="",n=0)
 				diff = list(diff)
 
 				with open(os.path.join(patchfolder,filename + ".diff"),"w") as patchfile:

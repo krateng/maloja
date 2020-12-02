@@ -10,7 +10,7 @@
 {% block scripts %}
 <script>
 	var pending = false;
-	setInterval(probeServer,1500);
+	setInterval(probeServer,3500);
 
 	function probeServer() {
 		if (!pending) {
@@ -32,7 +32,7 @@
 			var status = response['db_status'];
 			console.log(response);
 			if (status['healthy'] && !status['rebuildinprogress']) {
-				window.location = "/issues";
+				window.location = "/admin_issues";
 			}
 			pending = false;
 		}

@@ -48,9 +48,12 @@ class CleanerAgent:
 		return (artists,title)
 
 	def removespecial(self,s):
-		s = s.replace("\t","").replace("␟","").replace("\n","")
-		s = re.sub(" +"," ",s)
-		return s
+		if isinstance(s,list):
+			return [self.removespecial(se) for se in s]
+		else:
+			s = s.replace("\t","").replace("␟","").replace("\n","")
+			s = re.sub(" +"," ",s)
+			return s
 
 
 	# if an artist appears in any created rule, we can assume that artist is meant to exist and be spelled like that
@@ -66,6 +69,10 @@ class CleanerAgent:
 	delimiters_formal = ["; ",";","/"]
 
 	def parseArtists(self,a):
+
+		if isinstance(a,list):
+			res = [self.parseArtists(art) for art in a]
+			return [a for group in res for a in group]
 
 		if a.strip() in settings.get_settings("INVALID_ARTISTS"):
 			return []

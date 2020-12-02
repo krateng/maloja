@@ -577,7 +577,7 @@ def incoming_scrobble(artists,title,album=None,duration=None,time=None,fix=True)
 
 	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	if fix:
-		(artists,title) = cla.fullclean("/".join(artists),title)
+		(artists,title) = cla.fullclean(artists,title)
 	trackdict = createScrobble(artists,title,time,album,duration)
 
 	sync()
