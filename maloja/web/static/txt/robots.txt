@@ -1,4 +1,2 @@
 User-agent: *
-Disallow: /api/
-Disallow: /pulse/
-Disallow: /performance/
+Disallow: *

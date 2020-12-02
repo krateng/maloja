@@ -257,7 +257,7 @@ def import_rulemodule(**keys):
 def rebuild(**keys):
 	log("Database rebuild initiated!")
 	sync()
-	from .proccontrol.tasks.fixexisting import fix
+	from ..proccontrol.tasks.fixexisting import fix
 	fix()
 	global cla, coa
 	cla = CleanerAgent()

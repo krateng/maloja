@@ -65,7 +65,7 @@ def fix():
 				with open(os.path.join(patchfolder,filename + ".diff"),"w") as patchfile:
 					patchfile.write("\n".join(diff))
 
-			os.rename(datadir("scrobbles",filename_new),datadir("scrobbles",filename))
+			os.replace(datadir("scrobbles",filename_new),datadir("scrobbles",filename))
 
 
 	log("Database fixed!")
