@@ -1,5 +1,5 @@
 import re
-from . import utilities
+#from . import utilities
 from doreah import tsv, settings
 from .globalconf import datadir
 import pkg_resources
