@@ -57,7 +57,6 @@ def convert(input,output):
 
 
 				entry = "\t".join([str(timestamp),artistsstr,title,album])
-				entry = entry.replace("#",r"\num")
 
 				outputlog.write(entry)
 				outputlog.write("\n")
