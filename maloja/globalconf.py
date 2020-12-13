@@ -57,9 +57,6 @@ config(
 	caching={
 		"folder": datadir("cache")
 	},
-	regular={
-		"autostart": False
-	},
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
@@ -74,6 +71,10 @@ settingsconfig._readpreconfig()
 config(
 	logging={
 		"logfolder": datadir("logs") if get_settings("LOGGING") else None
+	},
+	regular={
+		"autostart": False,
+		"offset": get_settings("TIMEZONE")
 	}
 )
 
