@@ -777,7 +777,12 @@ def build_db():
 	db = tsv.parse_all(datadir("scrobbles"),"int","string","string",comments=False)
 	scrobblenum = len(db)
 	log(f"Found {scrobblenum} scrobbles...")
-	pbar = ProgressBar(max=scrobblenum,prefix="Loading scrobbles")
+
+	usebar = not settings.get_settings("CLEAN_OUTPUT")
+	if usebar: pbar = ProgressBar(max=scrobblenum,prefix="Loading scrobbles")
+	else:
+		n = 0
+		m = max(int(scrobblenum / 25),20)
 	#db = parseAllTSV("scrobbles","int","string","string",escape=False)
 	for sc in db:
 		artists = sc[1].split("␟")
@@ -785,9 +790,12 @@ def build_db():
 		time = sc[0]
 
 		readScrobble(artists,title,time)
-		pbar.progress()
+		if usebar: pbar.progress()
+		else:
+			n += 1
+			if n % m == 0: log(f"Loaded {n}/{scrobblenum}...")
 
-	pbar.done()
+	if usebar: pbar.done()
 	log("Database loaded, optimizing...")
 
 	# optimize database
