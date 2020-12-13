@@ -1,9 +1,14 @@
 import datetime
 from datetime import datetime as dtm
+from datetime import timezone, timedelta
 from calendar import monthrange
 from os.path import commonprefix
 import math
+from doreah.settings import get_settings
 
+
+OFFSET = get_settings("TIMEZONE")
+TIMEZONE = timezone(timedelta(hours=OFFSET))
 
 FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
 
@@ -178,10 +183,10 @@ class MTime(MRangeDescriptor):
 
 	def first_stamp(self):
 		day = self.first_day().dateobject
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp())
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
 	def last_stamp(self):
 		day = self.last_day().dateobject + datetime.timedelta(days=1)
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp() - 1)
 
 	# next range of equal length (not exactly same amount of days, but same precision level)
 	def next(self,step=1):
@@ -379,18 +384,18 @@ y = MTime(2020)
 
 
 def today():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year,tod.month,tod.day)
 def thisweek():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	tod = datetime.date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
 	return MTimeWeek(y,w)
 def thismonth():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year,tod.month)
 def thisyear():
-	tod = datetime.datetime.utcnow()
+	tod = datetime.datetime.now(tz=TIMEZONE)
 	return MTime(tod.year)
 def alltime():
 	return MRange(None,None)
@@ -545,7 +550,7 @@ def timestamp_desc(t,short=False):
 
 		return timeobject.strftime("%Y")
 	else:
-		timeobject = datetime.datetime.utcfromtimestamp(t)
+		timeobject = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
 		return timeobject.strftime("%d. %b %Y %I:%M %p")
 
 
