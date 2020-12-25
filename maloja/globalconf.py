@@ -152,19 +152,19 @@ from doreah import config
 config(
 	settings={
 		"files":[
-			datadir("settings/default.ini"),
-			datadir("settings/settings.ini")
+			data_dir['settings']("default.ini"),
+			data_dir['settings']("settings.ini")
 		],
 		"environ_prefix":"MALOJA_"
 	},
 	caching={
-		"folder": datadir("cache")
+		"folder": data_dir['cache']()
 	},
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
 		"stylesheets":["/style.css"],
-		"dbfile":datadir("auth/auth.ddb")
+		"dbfile":data_dir['auth']("auth.ddb")
 	}
 )
 
@@ -173,7 +173,7 @@ settingsconfig._readpreconfig()
 
 config(
 	logging={
-		"logfolder": datadir("logs") if get_settings("LOGGING") else None
+		"logfolder": data_dir['logs']() if get_settings("LOGGING") else None
 	},
 	regular={
 		"autostart": False,

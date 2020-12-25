@@ -1,5 +1,5 @@
 from .. import globalconf
-from ..globalconf import datadir
+from ..globalconf import data_dir
 from .. import thirdparty
 
 from doreah import settings, caching

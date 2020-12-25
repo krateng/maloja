@@ -246,10 +246,10 @@ def import_rulemodule(**keys):
 
 	if remove:
 		log("Deactivating predefined rulefile " + filename)
-		os.remove(datadir("rules/" + filename + ".tsv"))
+		os.remove(data_dir['rules'](filename + ".tsv"))
 	else:
 		log("Importing predefined rulefile " + filename)
-		os.symlink(datadir("rules/predefined/" + filename + ".tsv"),datadir("rules/" + filename + ".tsv"))
+		os.symlink(data_dir['rules']("predefined/" + filename + ".tsv"),data_dir['rules'](filename + ".tsv"))
 
 
 
@@ -320,5 +320,5 @@ def add_picture(b64,artist:Multi=[],title=None):
 @api.post("newrule")
 @authenticated_api
 def newrule(**keys):
-	tsv.add_entry(datadir("rules/webmade.tsv"),[k for k in keys])
+	tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])

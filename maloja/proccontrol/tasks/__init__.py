@@ -1,7 +1,7 @@
 import os
 from doreah.io import ask
 
-from ...globalconf import datadir
+from ...globalconf import data_dir
 
 
 
@@ -11,14 +11,13 @@ def loadlastfm(filename):
 		print("File could not be found.")
 		return
 
-	if os.path.exists(datadir("scrobbles/lastfmimport.tsv")):
+	if os.path.exists(data_dir['scrobbles']("lastfmimport.tsv")):
 		overwrite = ask("Already imported Last.FM data. Overwrite?",default=False)
 		if not overwrite: return
 	print("Please wait...")
 
 	from .lastfmconverter import convert
-	convert(filename,datadir("scrobbles/lastfmimport.tsv"))
-	#os.system("python3 -m maloja.lastfmconverter " + filename + " " + datadir("scrobbles/lastfmimport.tsv"))
+	convert(filename,data_dir['scrobbles']("lastfmimport.tsv"))
 	print("Successfully imported your Last.FM scrobbles!")
 
 

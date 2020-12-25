@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from .globalconf import datadir, DATA_DIR
+from .globalconf import data_dir, DATA_DIR
 
 
 # server stuff
@@ -154,18 +154,18 @@ def static_image(pth):
 
 	type = pth.split(".")[-1]
 	small_pth = pth + "-small"
-	if os.path.exists(datadir("images",small_pth)):
+	if os.path.exists(data_dir['images'](small_pth)):
 		response = static_file(pthjoin("images",small_pth),root=DATAFOLDER)
 	else:
 		try:
 			from wand.image import Image
-			img = Image(filename=datadir("images",pth))
+			img = Image(filename=data_dir['images'](pth))
 			x,y = img.size[0], img.size[1]
 			smaller = min(x,y)
 			if smaller > 300:
 				ratio = 300/smaller
 				img.resize(int(ratio*x),int(ratio*y))
-				img.save(filename=datadir("images",small_pth))
+				img.save(filename=data_dir['images'](small_pth))
 				response = static_file(pthjoin("images",small_pth),root=DATAFOLDER)
 			else:
 				response = static_file(pthjoin("images",pth),root=DATAFOLDER)

@@ -10,7 +10,7 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
-from .globalconf import datadir
+from .globalconf import data_dir
 
 # doreah toolkit
 from doreah.logging import log
@@ -83,7 +83,7 @@ lastsync = 0
 
 
 try:
-	with open(datadir("known_servers.yml"),"r") as f:
+	with open(data_dir['state']("known_servers.yml"),"r") as f:
 		KNOWN_SERVERS = set(yaml.safe_load(f))
 except:
 	KNOWN_SERVERS = set()
@@ -91,7 +91,7 @@ except:
 
 def add_known_server(url):
 	KNOWN_SERVERS.add(url)
-	with open(datadir("known_servers.yml"),"w") as f:
+	with open(data_dir['state']("known_servers.yml"),"w") as f:
 		f.write(yaml.dump(list(KNOWN_SERVERS)))
 
 
@@ -99,9 +99,9 @@ def add_known_server(url):
 ### symmetric keys are fine for now since we hopefully use HTTPS
 def loadAPIkeys():
 	global clients
-	tsv.create(datadir("clients/authenticated_machines.tsv"))
+	tsv.create(data_dir['clients']("authenticated_machines.tsv"))
 	#createTSV("clients/authenticated_machines.tsv")
-	clients = tsv.parse(datadir("clients/authenticated_machines.tsv"),"string","string")
+	clients = tsv.parse(data_dir['clients']("authenticated_machines.tsv"),"string","string")
 	#clients = parseTSV("clients/authenticated_machines.tsv","string","string")
 	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
@@ -690,7 +690,7 @@ def get_predefined_rulesets():
 
 	rulesets = []
 
-	for f in os.listdir(datadir("rules/predefined")):
+	for f in os.listdir(data_dir['rules']("predefined")):
 		if f.endswith(".tsv"):
 
 			rawf = f.replace(".tsv","")
@@ -704,7 +704,7 @@ def get_predefined_rulesets():
 			if not "_" in rawf: continue
 
 			try:
-				with open(datadir("rules/predefined",f)) as tsvfile:
+				with open(data_dir['rules']("predefined",f)) as tsvfile:
 					line1 = tsvfile.readline()
 					line2 = tsvfile.readline()
 
@@ -721,7 +721,7 @@ def get_predefined_rulesets():
 
 			ruleset = {"file":rawf}
 			rulesets.append(ruleset)
-			if os.path.exists(datadir("rules",f)):
+			if os.path.exists(data_dir['rules'](f)):
 				ruleset["active"] = True
 			else:
 				ruleset["active"] = False
@@ -774,7 +774,7 @@ def build_db():
 
 
 	# parse files
-	db = tsv.parse_all(datadir("scrobbles"),"int","string","string",comments=False)
+	db = tsv.parse_all(data_dir['scrobbles'](),"int","string","string",comments=False)
 	scrobblenum = len(db)
 	log(f"Found {scrobblenum} scrobbles...")
 
@@ -864,7 +864,7 @@ def sync():
 	#log("Sorted into months",module="debug")
 
 	for e in entries:
-		tsv.add_entries(datadir("scrobbles/" + e + ".tsv"),entries[e],comments=False)
+		tsv.add_entries(data_dir['scrobbles'](e + ".tsv"),entries[e],comments=False)
 		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
 
 	#log("Written files",module="debug")

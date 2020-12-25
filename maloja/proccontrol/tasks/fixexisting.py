@@ -1,5 +1,5 @@
 import os
-from ...globalconf import datadir
+from ...globalconf import data_dir
 import re
 from ...cleanup import CleanerAgent
 from doreah.logging import log
@@ -23,26 +23,25 @@ exp = r"([0-9]*)(\t+)([^\t]+?)(\t+)([^\t]+)([^\n]*)\n"
 
 def fix():
 
-	backup(level="minimal",folder=datadir("backups"))
+	backup(level="minimal",folder=data_dir['backups']())
 
 	now = datetime.datetime.utcnow()
 	nowstr = now.strftime("%Y_%m_%d_%H_%M_%S")
 	datestr = now.strftime("%Y/%m/%d")
 	timestr = now.strftime("%H:%M:%S")
 
-	patchfolder = datadir("logs","dbfix",nowstr)
+	patchfolder = data_dir['logs']("dbfix",nowstr)
 	os.makedirs(patchfolder)
 
-	#with open(datadir("logs","dbfix",nowstr + ".log"),"a") as logfile:
 
 	log("Fixing database...")
-	for filename in os.listdir(datadir("scrobbles")):
+	for filename in os.listdir(data_dir['scrobbles']()):
 		if filename.endswith(".tsv"):
 			log("Fix file " + filename)
 			filename_new = filename + "_new"
 
-			with open(datadir("scrobbles",filename_new),"w") as newfile:
-				with open(datadir("scrobbles",filename),"r") as oldfile:
+			with open(data_dir['scrobbles'](filename_new),"w") as newfile:
+				with open(data_dir['scrobbles'](filename),"r") as oldfile:
 
 					for l in oldfile:
 
@@ -57,7 +56,7 @@ def fix():
 
 
 			#os.system("diff " + "scrobbles/" + fn + "_new" + " " + "scrobbles/" + fn)
-			with open(datadir("scrobbles",filename_new),"r") as newfile, open(datadir("scrobbles",filename),"r") as oldfile:
+			with open(data_dir['scrobbles'](filename_new),"r") as newfile, open(data_dir['scrobbles'](filename),"r") as oldfile:
 
 				diff = difflib.unified_diff(oldfile.read().split("\n"),newfile.read().split("\n"),lineterm="",n=0)
 				diff = list(diff)
@@ -65,7 +64,7 @@ def fix():
 				with open(os.path.join(patchfolder,filename + ".diff"),"w") as patchfile:
 					patchfile.write("\n".join(diff))
 
-			os.replace(datadir("scrobbles",filename_new),datadir("scrobbles",filename))
+			os.replace(data_dir['scrobbles'](filename_new),data_dir['scrobbles'](filename))
 
 
 	log("Database fixed!")

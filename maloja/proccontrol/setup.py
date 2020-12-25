@@ -5,7 +5,7 @@ from doreah.io import col, ask, prompt
 from doreah import auth
 import os
 
-from ..globalconf import datadir
+from ..globalconf import data_dir
 
 
 # EXTERNAL API KEYS
@@ -50,14 +50,14 @@ def setup():
 
 
 	# OWN API KEY
-	if os.path.exists(datadir("clients/authenticated_machines.tsv")):
+	if os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
 		pass
 	else:
 		answer = ask("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database.",default=True,skip=SKIP)
 		if answer:
 			key = randomstring(64)
 			print("Your API Key: " + col["yellow"](key))
-			with open(datadir("clients/authenticated_machines.tsv"),"w") as keyfile:
+			with open(data_dir['clients']("authenticated_machines.tsv"),"w") as keyfile:
 				keyfile.write(key + "\t" + "Default Generated Key")
 		else:
 			pass

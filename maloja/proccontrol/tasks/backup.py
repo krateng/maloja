@@ -2,7 +2,7 @@ import tarfile
 from datetime import datetime
 import glob
 import os
-from ...globalconf import datadir
+from ...globalconf import data_dir
 from pathlib import PurePath
 
 from doreah.logging import log
