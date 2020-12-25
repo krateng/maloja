@@ -14,7 +14,6 @@ sys.path.insert(0,".")
 
 pkginfo = importlib.import_module(".__pkginfo__",package=packagename)
 pkginfo = pkginfo.__dict__
-print(pkginfo)
 
 
 # extract info
