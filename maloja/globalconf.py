@@ -111,15 +111,8 @@ for dirtype in dir_settings:
 			except:
 				pass
 
-from pprint import pprint
-print("")
-print("")
-pprint(dir_settings)
-print("")
-print("")
 
-if any((dir_settings[s] is None) for s in dir_settings):
-	print("NOT ALL DIRECTORIES SET!")
+assert all((dir_settings[s] is not None) for s in dir_settings)
 
 
 data_directories = {
@@ -133,12 +126,6 @@ data_directories = {
 	"logs":pthj(dir_settings['logs']),
 	"cache":pthj(dir_settings['cache']),
 }
-
-print("")
-print("")
-pprint(data_directories)
-print("")
-print("")
 
 
 data_dir = {

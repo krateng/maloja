@@ -30,10 +30,8 @@ def backup(folder,level="full"):
 		for g in selected_files[cat]:
 			real_files[cat] += glob.glob(catfolder(g))
 
-	log("Creating backup of " + str(len(real_files)) + " files...")
+	log("Creating backup...")
 
-	from pprint import pprint
-	pprint(real_files)
 
 	now = datetime.utcnow()
 	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")

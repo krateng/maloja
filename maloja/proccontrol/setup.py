@@ -50,7 +50,6 @@ def setup():
 
 
 	# OWN API KEY
-	print(data_dir['clients']("authenticated_machines.tsv"))
 	if os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
 		pass
 	else:
