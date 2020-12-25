@@ -4,12 +4,6 @@ from doreah.settings import config as settingsconfig
 
 pthj = os.path.join
 
-try:
-	HOME_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
-	assert os.path.exists(HOME_DIR)
-except:
-	HOME_DIR = os.path.join(os.environ["HOME"],".local/share/")
-
 
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
 # but with asynnetrical structure, cache and logs in subfolders
@@ -23,7 +17,11 @@ except:
 # if not, use the first we have permissions for
 # after we decide which to use, fix it in settings to avoid future heuristics
 
-
+try:
+	HOME_DIR = os.environ["XDG_DATA_HOME"].split(":")[0]
+	assert os.path.exists(HOME_DIR)
+except:
+	HOME_DIR = os.path.join(os.environ["HOME"],".local/share/")
 usrfol = pthj(HOME_DIR,"maloja")
 etccfg = '/etc/maloja'
 varlib = '/var/lib/maloja'
@@ -49,22 +47,22 @@ dir_settings = {
 dir_options = {
 	"config":[
 		"/etc/maloja",
-		pthj(HOME_DIR,"maloja")
+		usrfol
 	],
 	"state":[
 		"/var/lib/maloja",
 		"/etc/maloja",
-		pthj(HOME_DIR,"maloja")
+		usrfol
 	],
 	"logs":[
 		"/var/log/maloja",
 		"/etc/maloja/logs",
-		pthj(HOME_DIR,"maloja","logs")
+		pthj(usrfol,"logs")
 	],
 	"cache":[
 		"/var/cache/maloja",
 		"/etc/maloja/cache",
-		pthj(HOME_DIR,"maloja","cache")
+		pthj(usrfol,"cache")
 	]
 }
 
