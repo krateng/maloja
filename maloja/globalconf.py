@@ -113,10 +113,10 @@ for dirtype in dir_settings:
 			except:
 				pass
 
-
+from pprint import pprint
 print("")
 print("")
-print(dir_settings)
+pprint(dir_settings)
 print("")
 print("")
 
@@ -136,9 +136,15 @@ data_directories = {
 	"cache":pthj(dir_settings['cache']),
 }
 
+print("")
+print("")
+pprint(data_directories)
+print("")
+print("")
+
 
 data_dir = {
-	k:lambda *x: pthj(data_directories[k],*x)  for k in data_directories
+	k:lambda *x,k=k: pthj(data_directories[k],*x)  for k in data_directories
 }
 
 

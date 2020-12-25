@@ -58,7 +58,7 @@ def get_all_possible_filenames(artist=None,artists=None,title=None):
 	else: return []
 
 
-	superfolder = "images/tracks/" if track else "images/artists/"
+	superfolder = "tracks/" if track else "artists/"
 
 	filenames = []
 
@@ -117,14 +117,14 @@ def local_files(artist=None,artists=None,title=None):
 		# direct files
 		for ext in ["png","jpg","jpeg","gif"]:
 			#for num in [""] + [str(n) for n in range(0,10)]:
-			if os.path.exists(datadir(purename + "." + ext)):
-				images.append("/" + purename + "." + ext)
+			if os.path.exists(data_dir['images'](purename + "." + ext)):
+				images.append("/images/" + purename + "." + ext)
 
 		# folder
 		try:
-			for f in os.listdir(datadir(purename)):
+			for f in os.listdir(data_dir['images'](purename)):
 				if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
-					images.append("/" + purename + "/" + f)
+					images.append("/images/" + purename + "/" + f)
 		except:
 			pass
 
@@ -297,8 +297,8 @@ def set_image(b64,**keys):
 	b64 = base64.b64decode(b64)
 	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
 	for folder in get_all_possible_filenames(**keys):
-		if os.path.exists(datadir(folder)):
-			with open(datadir(folder,filename),"wb") as f:
+		if os.path.exists(data_dir['images'](folder)):
+			with open(data_dir['images'](folder,filename),"wb") as f:
 				f.write(b64)
 
 			# set as current picture in rotation
@@ -307,8 +307,8 @@ def set_image(b64,**keys):
 			return
 
 	folder = get_all_possible_filenames(**keys)[0]
-	os.makedirs(datadir(folder))
-	with open(datadir(folder,filename),"wb") as f:
+	os.makedirs(data_dir['images'](folder))
+	with open(data_dir['images'](folder,filename),"wb") as f:
 		f.write(b64)
 
 	# set as current picture in rotation

@@ -5,7 +5,7 @@ from doreah.io import col, ask, prompt
 from doreah import auth
 import os
 
-from ..globalconf import data_dir
+from ..globalconf import data_dir, dir_settings
 
 
 # EXTERNAL API KEYS
@@ -20,8 +20,8 @@ apikeys = {
 
 def copy_initial_local_files():
 	folder = pkg_resources.resource_filename("maloja","data_files")
-	#shutil.copy(folder,DATA_DIR)
-	dir_util.copy_tree(folder,datadir(),update=False)
+	for cat in dir_settings:
+		dir_util.copy_tree(os.path.join(folder,cat),dir_settings[cat],update=False)
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):
@@ -44,12 +44,13 @@ def setup():
 		elif key == "ASK":
 			print("\t" + "Please enter your " + apikeys[k] + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = prompt("",types=(str,),default=None,skip=SKIP)
-			settings.update_settings(datadir("settings/settings.ini"),{k:key},create_new=True)
+			settings.update_settings(data_dir['settings']("settings.ini"),{k:key},create_new=True)
 		else:
 			print("\t" + apikeys[k] + " found.")
 
 
 	# OWN API KEY
+	print(data_dir['clients']("authenticated_machines.tsv"))
 	if os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
 		pass
 	else:
@@ -91,11 +92,11 @@ def setup():
 
 	if settings.get_settings("NAME") is None:
 		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Generic Maloja User",skip=SKIP)
-		settings.update_settings(datadir("settings/settings.ini"),{"NAME":name},create_new=True)
+		settings.update_settings(data_dir['settings']("settings.ini"),{"NAME":name},create_new=True)
 
 	if settings.get_settings("SEND_STATS") is None:
 		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)
 		if answer:
-			settings.update_settings(datadir("settings/settings.ini"),{"SEND_STATS":True,"PUBLIC_URL":None},create_new=True)
+			settings.update_settings(data_dir['settings']("settings.ini"),{"SEND_STATS":True,"PUBLIC_URL":None},create_new=True)
 		else:
-			settings.update_settings(datadir("settings/settings.ini"),{"SEND_STATS":False},create_new=True)
+			settings.update_settings(data_dir['settings']("settings.ini"),{"SEND_STATS":False},create_new=True)
