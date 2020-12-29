@@ -123,7 +123,8 @@ You can set up any amount of API keys in the file `authenticated_machines.tsv` i
 
 These solutions allow you to directly setup scrobbling to your Maloja server:
 * [Tauon](https://tauonmusicbox.rocks) Desktop Player
-* [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Scrobble from Spotify, Plex, or Tautulli
+* [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) Browser Extension
+* [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Desktop Application
 * [Albula](https://github.com/krateng/albula) Music Server
 * [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
 
@@ -157,7 +158,6 @@ Password | Any of your API keys
 
 Known working scrobblers:
 * [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android
-* [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) for desktop browsers (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 * [Simple Scrobbler](https://simple-last-fm-scrobbler.github.io) for Android
 * [Airsonic Advanced](https://github.com/airsonic-advanced/airsonic-advanced) (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
 * [Funkwhale](https://dev.funkwhale.audio/funkwhale/funkwhale) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
