@@ -1,4 +1,5 @@
 from ..__pkginfo__ import version
+from ..malojatime import ranges, thisweek, thisyear
 
 from doreah.regular import yearly, daily
 from doreah import settings
@@ -51,19 +52,15 @@ def update_medals():
 
 	from ..database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
 
-	currentyear = datetime.datetime.utcnow().year
-	try:
-		firstyear = datetime.datetime.utcfromtimestamp(STAMPS[0]).year
-	except:
-		firstyear = currentyear
-
 
 	MEDALS.clear()
 	MEDALS_TRACKS.clear()
 
-	for year in range(firstyear,currentyear):
-		charts_artists = get_charts_artists(within=[year])
-		charts_tracks = get_charts_tracks(within=[year])
+	for year in ranges(step="year"):
+		if year == thisyear(): break
+
+		charts_artists = get_charts_artists(timerange=year)
+		charts_tracks = get_charts_tracks(timerange=year)
 
 		collect_rankings(charts_artists,get_artist,MEDALS,iteration=year,count=False)
 		collect_rankings(charts_tracks,get_track,MEDALS_TRACKS,iteration=year,count=False)
@@ -73,7 +70,6 @@ def update_medals():
 def update_weekly():
 
 	from ..database import WEEKLY_TOPTRACKS, WEEKLY_TOPARTISTS, get_charts_artists, get_charts_tracks
-	from ..malojatime import ranges, thisweek
 
 
 	WEEKLY_TOPARTISTS.clear()

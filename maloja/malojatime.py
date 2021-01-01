@@ -9,24 +9,14 @@ from doreah.settings import get_settings
 
 OFFSET = get_settings("TIMEZONE")
 TIMEZONE = timezone(timedelta(hours=OFFSET))
+UTC = datetime.timezone.utc
 
-FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
+FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=UTC).timestamp())
 
 def register_scrobbletime(timestamp):
 	global FIRST_SCROBBLE
 	if timestamp < FIRST_SCROBBLE:
 		FIRST_SCROBBLE = int(timestamp)
-
-def start_of_scrobbling():
-	global FIRST_SCROBBLE
-	f = datetime.datetime.utcfromtimestamp(FIRST_SCROBBLE)
-	return [f.year]
-
-def end_of_scrobbling():
-	global FIRST_SCROBBLE
-	f = datetime.datetime.now()
-	return [f.year]
-
 
 
 
@@ -67,7 +57,7 @@ class MRangeDescriptor:
 		}
 
 	def uri(self):
-		return "&".join(k + "=" + self.urikeys[k] for k in self.urikeys)
+		return "&".join(k + "=" + self.urikeys()[k] for k in self.urikeys())
 
 	def unlimited(self):
 		return False
