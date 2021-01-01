@@ -50,10 +50,10 @@ rankmedals = {
 def update_medals():
 
 
-	from ..database import MEDALS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
+	from ..database import MEDALS_ARTISTS, MEDALS_TRACKS, STAMPS, get_charts_artists, get_charts_tracks
 
 
-	MEDALS.clear()
+	MEDALS_ARTISTS.clear()
 	MEDALS_TRACKS.clear()
 
 	for year in ranges(step="year"):
@@ -62,7 +62,7 @@ def update_medals():
 		charts_artists = get_charts_artists(timerange=year)
 		charts_tracks = get_charts_tracks(timerange=year)
 
-		collect_rankings(charts_artists,get_artist,MEDALS,iteration=year,count=False)
+		collect_rankings(charts_artists,get_artist,MEDALS_ARTISTS,iteration=year,count=False)
 		collect_rankings(charts_tracks,get_track,MEDALS_TRACKS,iteration=year,count=False)
 
 

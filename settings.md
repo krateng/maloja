@@ -3,8 +3,14 @@ Technically, each setting can be set via environment variable or the settings fi
 Settings File			| Environment Variable			| Type			| Description
 ------					| ---------						| ---------		| ---------
 **Setup**
+&nbsp;					| `MALOJA_DATA_DIRECTORY`  | String | Use this directory to store all application files. Useful for docker. Overwrites all individually specified directories below.
+&nbsp;					| `MALOJA_DIRECTORY_CONFIG`  | String | Use this directory to store configuration files.
+`DIRECTORY_STATE`	| `MALOJA_DIRECTORY_STATE`  | String | Use this directory to store state files.
+`DIRECTORY_LOGS`	| `MALOJA_DIRECTORY_LOGS`  | String | Use this directory to store log files.
+`DIRECTORY_CACHE`	| `MALOJA_DIRECTORY_CACHE`  | String | Use this directory to store cache files.
 `SKIP_SETUP`			| `MALOJA_SKIP_SETUP`		| Boolean		| Whether to make server startup non-interactive. Vital for docker.
 &nbsp;					| `MALOJA_FORCE_PASSWORD`			| String		| Sets password for admin login in web interface. This should normally be done via the interactive prompt.
+`CLEAN_OUTPUT`  | `MALOJA_CLEAN_OUTPUT`   | Boolean | Avoid mutable console output. Use if console output will be redirected e.g. to a web interface.
 **Debug**
 `LOGGING`				| `MALOJA_LOGGING`				| Boolean		| Enable logging
 `DEV_MODE`				| `MALOJA_DEV_MODE`				| Boolean		| Enable developer mode

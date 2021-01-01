@@ -68,7 +68,7 @@ ARTISTS_NORMALIZED = []
 ARTISTS_NORMALIZED_SET = set()
 TRACKS_NORMALIZED_SET = set()
 
-MEDALS = {}	#literally only changes once per year, no need to calculate that on the fly
+MEDALS_ARTISTS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
 WEEKLY_TOPTRACKS = {}
 WEEKLY_TOPARTISTS = {}
@@ -477,7 +477,7 @@ def artistInfo(artist):
 			"scrobbles":scrobbles,
 			"position":position,
 			"associated":others,
-			"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS.get(artist,{})},
+			"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS_ARTISTS.get(artist,{})},
 			"topweeks":WEEKLY_TOPARTISTS.get(artist,0)
 		}
 	except:
