@@ -70,7 +70,7 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 ### Update
 
-* If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `~/.local/share/maloja` folder.
+* If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `/etc/maloja` folder.
 * Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
 
 
@@ -108,16 +108,16 @@ to run the server in the foreground.
 
 ### Customization
 
-* Have a look at the [available settings](settings.md) and specifiy your choices in `~/.local/share/maloja/settings/settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
+* Have a look at the [available settings](settings.md) and specifiy your choices in `/etc/maloja/settings/settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
 
-* If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `~/.local/share/maloja/images` folder.
+* If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `/var/lib/maloja/images` folder.
 
-* To specify custom rules, consult the `rules.info` file in `~/.local/share/maloja/rules`. You can also apply some predefined rules on the `/setup` page of your server.
+* To specify custom rules, consult the `rules.info` file in `/etc/maloja/rules`. You can also apply some predefined rules on the `/setup` page of your server.
 
 
 ## How to scrobble
 
-You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `~/.local/share/maloja/clients` folder. It is recommended to define a different API key for every scrobbler you use.
+You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `/etc/maloja/clients` folder. It is recommended to define a different API key for every scrobbler you use.
 
 ### Native support
 
