@@ -62,11 +62,14 @@ class CleanerAgent:
 		return (a in confirmed)
 
 	#Delimiters used for extra artists, even when in the title field
-	delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]
+	#delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]
+	delimiters_feat = settings.get_settings("DELIMITERS_FEAT")
 	#Delimiters in informal artist strings, spaces expected around them
-	delimiters = ["vs.","vs","&"]
+	#delimiters = ["vs.","vs","&"]
+	delimiters = settings.get_settings("DELIMITERS_INFORMAL")
 	#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
-	delimiters_formal = ["; ",";","/"]
+	#delimiters_formal = ["; ",";","/"]
+	delimiters_formal = settings.get_settings("DELIMITERS_FORMAL")
 
 	def parseArtists(self,a):
 

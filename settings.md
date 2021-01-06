@@ -42,6 +42,9 @@ Settings File			| Environment Variable			| Type			| Description
 **Database**
 `INVALID_ARTISTS`		| &nbsp;						| List (String)	| Artists that should be discarded immediately
 `REMOVE_FROM_TITLE`		| &nbsp;						| List (String)	| Phrases that should be removed from song titles
+`DELIMITERS_FEAT`   | &nbsp;						| List (String)	| Delimiters used for extra artists, even when in the title field
+`DELIMITERS_INFORMAL`   | &nbsp;						| List (String)	| Delimiters in informal artist strings with spaces expected around them
+`DELIMITERS_FORMAL`   | &nbsp;						| List (String)	| Delimiters used to tag multiple artists when only one tag field is available
 **Web Interface**
 `DEFAULT_RANGE_CHARTS_ARTISTS`	| &nbsp;				| String		| What range is shown per default for the tile view on the start page
 `DEFAULT_RANGE_CHARTS_TRACKS`	| &nbsp;				| String		| What range is shown per default for the tile view on the start page
