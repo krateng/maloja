@@ -53,7 +53,7 @@ function scrobbleNew() {
 	var artistnodes = document.getElementById("artists_td").getElementsByTagName("span");
 	var artists = [];
 	for (let node of artistnodes) {
-		artists.push(node.innerHTML);
+		artists.push(node.textContent);
 	}
 	var title = document.getElementById("title").value;
 	scrobble(artists,title);
@@ -86,8 +86,8 @@ function scrobbledone(req) {
 	txt = result["track"]["title"] + " by " + result["track"]["artists"][0];
 	if (result["track"]["artists"].length > 1) {
 		txt += " et al.";
-	document.getElementById("notification").innerHTML = "Scrobbled " + txt + "!";
 	}
+	document.getElementById("notification").innerHTML = "Scrobbled " + txt + "!";
 
 }
 
