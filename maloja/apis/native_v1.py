@@ -214,17 +214,18 @@ def get_post_scrobble(artist:Multi,**keys):
 
 @api.post("newscrobble")
 @authenticated_api_with_alternate(api_key_correct)
-def post_scrobble(artist:Multi,**keys):
+def post_scrobble(artist:Multi=None,**keys):
 	"""Submit a new scrobble.
 
-	:param string artist: Artists. Can be multiple.
+	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
+	:param string artists: List of artists. Overwritten by artist parameter.
 	:param string title: Title of the track.
 	:param string album: Name of the album. Optional.
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
 	"""
 	#artists = "/".join(artist)
-	artists = artist
+	artists = artist if artist is not None else keys.get("artists")
 	title = keys.get("title")
 	album = keys.get("album")
 	duration = keys.get("seconds")
