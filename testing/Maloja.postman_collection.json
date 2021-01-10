@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "98472441-3ca2-4aba-9148-81f8d1a61b16",
+		"_postman_id": "632b8649-8470-43d3-934d-8c89dc90464c",
 		"name": "Maloja",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -18,7 +18,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{url}}/apis/mlj_1/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
+							"raw": "{{url}}/apis/mlj_1/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}&artist={{example_artist_2}}",
 							"host": [
 								"{{url}}"
 							],
@@ -39,6 +39,10 @@
 								{
 									"key": "title",
 									"value": "{{example_song}}"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist_2}}"
 								}
 							]
 						}
@@ -51,7 +55,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}",
+							"raw": "{{url}}/api/newscrobble?key={{api_key}}&artist={{example_artist}}&title={{example_song}}&artist={{example_artist_2}}",
 							"host": [
 								"{{url}}"
 							],
@@ -71,6 +75,10 @@
 								{
 									"key": "title",
 									"value": "{{example_song}}"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist_2}}"
 								}
 							]
 						}
@@ -98,6 +106,11 @@
 								{
 									"key": "title",
 									"value": "{{example_song}}",
+									"type": "text"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist_2}}",
 									"type": "text"
 								}
 							]
@@ -138,6 +151,11 @@
 									"key": "title",
 									"value": "{{example_song}}",
 									"type": "text"
+								},
+								{
+									"key": "artist",
+									"value": "{{example_artist_2}}",
+									"type": "text"
 								}
 							]
 						},
@@ -169,6 +187,36 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{example_artist}}\",\n    \"title\": \"{{example_song}}\"\n}"
+						},
+						"url": {
+							"raw": "{{url}}/apis/mlj_1/newscrobble",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"apis",
+								"mlj_1",
+								"newscrobble"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JSON Multiartist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artists\": [\"{{example_artist}}\",\"{{example_artist_2}}\"],\n    \"title\": \"{{example_song}}\"\n}"
 						},
 						"url": {
 							"raw": "{{url}}/apis/mlj_1/newscrobble",
@@ -302,7 +350,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "60551e90-aea5-4489-aded-a93c6d2ae055",
 								"exec": [
 									""
 								],
@@ -312,7 +359,6 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "9928c378-cf37-4e20-b653-51f5dde51192",
 								"exec": [
 									""
 								],
@@ -355,7 +401,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "60551e90-aea5-4489-aded-a93c6d2ae055",
 								"exec": [
 									""
 								],
@@ -399,7 +444,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "addc7f42-1de5-4b6d-a840-bb3075bd2cdc",
 								"exec": [
 									"var data = JSON.parse(responseBody);",
 									"postman.setEnvironmentVariable(\"session_key\", data.session.key);",
@@ -450,7 +494,6 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "01f6143f-3134-4006-9792-6e61a2be323d",
 								"exec": [
 									"var data = responseBody.split(\"\\n\");",
 									"postman.setEnvironmentVariable(\"session_key\", data[1]);",
@@ -462,7 +505,6 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "b97afa75-ab8c-4099-a6cf-6b45d653a10d",
 								"exec": [
 									"apikey = pm.variables.get(\"api_key\");",
 									"ts = pm.variables.get(\"timestamp\");",
@@ -556,15 +598,13 @@
 					},
 					"response": []
 				}
-			],
-			"protocolProfileBehavior": {}
+			]
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "6659b674-ce6f-48b5-bb64-880356ce6739",
 				"type": "text/javascript",
 				"exec": [
 					"var current_timestamp = Math.floor(Date.now() / 1000);",
@@ -576,7 +616,6 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "09c3ea43-30e4-4e83-b32f-dd06c1884bab",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -586,32 +625,26 @@
 	],
 	"variable": [
 		{
-			"id": "88c0d6ae-fb1a-420d-aa65-494f561090ff",
 			"key": "url",
 			"value": "http://localhost:42010"
 		},
 		{
-			"id": "4cd70ff6-d2d8-4ff9-bb51-ee0ac46a0c7a",
 			"key": "api_key",
 			"value": "localdevtestkey"
 		},
 		{
-			"id": "bb5a3d1f-34a7-421d-a60a-eaa6dd3cac61",
 			"key": "example_artist",
 			"value": "EXID ft. Jeremy Soule"
 		},
 		{
-			"id": "6a344668-55f0-44de-ae9b-bb7df916f5fd",
 			"key": "example_song",
 			"value": "Why is the Rum gone?"
 		},
 		{
-			"id": "17fc8bb2-4fc3-461c-8581-48573f640f7c",
 			"key": "example_artist_2",
 			"value": "BLACKPINK ft. Tzuyu"
 		},
 		{
-			"id": "b87d84f6-3f3a-4732-becf-b34794a1c178",
 			"key": "example_song_2",
 			"value": "POP/STARS"
 		}
