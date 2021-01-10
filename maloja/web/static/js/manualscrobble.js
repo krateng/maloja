@@ -64,15 +64,13 @@ function scrobble(artists,title) {
 	lastArtists = artists;
 	lastTrack = title;
 
-
-	var artist = artists.join(";");
+	var payload = {
+		"artists":artists,
+		"title":title
+	}
 
 	if (title != "" && artists.length > 0) {
-		xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = scrobbledone
-		xhttp.open("GET","/api/newscrobble?artist=" + encodeURIComponent(artist) +
-			"&title=" + encodeURIComponent(title), true);
-		xhttp.send();
+		neo.xhttpreq("/apis/mlj_1/newscrobble",data=payload,method="POST",callback=scrobbledone,json=true)
 	}
 
 	document.getElementById("title").value = "";
@@ -83,14 +81,12 @@ function scrobble(artists,title) {
 	}
 }
 
-function scrobbledone() {
-	if (this.readyState == 4 && this.status == 200) {
-		result = JSON.parse(this.responseText);
-		txt = result["track"]["title"] + " by " + result["track"]["artists"][0];
-		if (result["track"]["artists"].length > 1) {
-			txt += " et al.";
-		}
-		document.getElementById("notification").innerHTML = "Scrobbled " + txt + "!";
+function scrobbledone(req) {
+	result = req.response;
+	txt = result["track"]["title"] + " by " + result["track"]["artists"][0];
+	if (result["track"]["artists"].length > 1) {
+		txt += " et al.";
+	document.getElementById("notification").innerHTML = "Scrobbled " + txt + "!";
 	}
 
 }
