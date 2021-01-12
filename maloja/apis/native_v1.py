@@ -57,6 +57,11 @@ def get_scrobbles_external(**keys):
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = get_scrobbles(**ckeys)
+
+	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
+	result = result[offset:]
+	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
+	
 	return {"list":result}
 
 

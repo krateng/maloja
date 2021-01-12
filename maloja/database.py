@@ -269,9 +269,9 @@ def api_key_correct(request):
 
 def get_scrobbles(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
-	offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
-	r = r[offset:]
-	if keys.get('perpage') is not math.inf: r = r[:keys.get('perpage')]
+	#offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
+	#r = r[offset:]
+	#if keys.get('perpage') is not math.inf: r = r[:keys.get('perpage')]
 	return r
 
 
