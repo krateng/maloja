@@ -45,7 +45,7 @@ class expandeddate(date):
 	def chrcalendar(self):
 		tomorrow = self + timedelta(days=1)
 		cal = tomorrow.isocalendar()
-		return (cal[0],cal[1],cal[2] % 7)
+		return (cal[0],cal[1],cal[2])
 
 
 datetime.date = expandeddate

@@ -207,23 +207,15 @@ class MTimeWeek(MRangeDescriptor):
 		self.year = year
 		self.week = week
 
-		# assume the first day of the first week of this year is 1/1
-		firstday = datetime.date(year,1,1)
-		y,w,d = firstday.chrcalendar()
-		if y == self.year:
-			firstday -= datetime.timedelta(days=(d-1))
-		else:
-			firstday += datetime.timedelta(days=8-d)
-		# now we know the real first day, add the weeks we need
-		firstday = firstday + datetime.timedelta(days=7*(week-1))
-		lastday = firstday + datetime.timedelta(days=6)
-		# turn them into local overwritten date objects
-		self.firstday = datetime.date(firstday.year,firstday.month,firstday.day)
-		self.lastday = datetime.date(lastday.year,lastday.month,lastday.day)
+		thisisoyear_firstday = datetime.date.fromisocalendar(year,1,1) - datetime.timedelta(days=1)
+		self.firstday = thisisoyear_firstday + datetime.timedelta(days=7*(week-1))
+
+		self.lastday = self.firstday + datetime.timedelta(days=6)
+
 		# now check if we're still in the same year
 		y,w,_ = self.firstday.chrcalendar()
 		self.year,self.week = y,w
-		# firstday and lastday are already correct
+
 
 
 	def __str__(self):
@@ -596,16 +588,16 @@ def delimit_desc(step="month",stepn=1,trail=1):
 
 
 def day_from_timestamp(stamp):
-	dt = datetime.datetime.utcfromtimestamp(stamp)
+	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTime(dt.year,dt.month,dt.day)
 def month_from_timestamp(stamp):
-	dt = datetime.datetime.utcfromtimestamp(stamp)
+	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTime(dt.year,dt.month)
 def year_from_timestamp(stamp):
-	dt = datetime.datetime.utcfromtimestamp(stamp)
+	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTime(dt.year)
 def week_from_timestamp(stamp):
-	dt = datetime.datetime.utcfromtimestamp(stamp)
+	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	d = datetime.date(dt.year,dt.month,dt.day)
 	y,w,_ = d.chrcalendar()
 	return MTimeWeek(y,w)
