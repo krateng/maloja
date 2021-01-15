@@ -205,7 +205,7 @@ class MTime(MRangeDescriptor):
 class MTimeWeek(MRangeDescriptor):
 	def __init__(self,year=None,week=None):
 
-		thisisoyear_firstday = datetime.date.fromisocalendar(year,1,1) - datetime.timedelta(days=1) #sunday instead of monday
+		thisisoyear_firstday = datetime.date.fromchrcalendar(year,1,1)
 		self.firstday = thisisoyear_firstday + datetime.timedelta(days=7*(week-1))
 		# do this so we can construct the week with overflow (eg 2020/-3)
 

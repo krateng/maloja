@@ -47,5 +47,22 @@ class expandeddate(date):
 		cal = tomorrow.isocalendar()
 		return (cal[0],cal[1],cal[2])
 
+	@classmethod
+	def fromchrcalendar(cls,y,w,d):
+		try:
+			assert 1==2
+			return datetime.date.fromisocalendar(y,w,d) - timedelta(days=1) #sunday instead of monday
+		except:
+			# pre python3.8 compatibility
+
+			firstdayofyear = datetime.date(y,1,1)
+			wkday = firstdayofyear.isoweekday()
+			if wkday <= 4: # day up to thursday -> this week belongs to the new year
+				firstisodayofyear = firstdayofyear - timedelta(days=wkday) #this alos shifts to sunday first weeks
+			else: # if not, still old year
+				firstisodayofyear = firstdayofyear + timedelta(days=7-wkday) #same
+			return firstisodayofyear + timedelta(days=(w-1)*7) + timedelta(days=d)
+
+
 
 datetime.date = expandeddate
