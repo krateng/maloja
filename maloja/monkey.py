@@ -50,7 +50,6 @@ class expandeddate(date):
 	@classmethod
 	def fromchrcalendar(cls,y,w,d):
 		try:
-			assert 1==2
 			return datetime.date.fromisocalendar(y,w,d) - timedelta(days=1) #sunday instead of monday
 		except:
 			# pre python3.8 compatibility
