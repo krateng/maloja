@@ -11,7 +11,7 @@ links = {
 	"pypi":"malojaserver",
 	"github":"maloja"
 }
-
+python_version = ">=3.6"
 requires = [
 	"bottle>=0.12.16",
 	"waitress>=1.3",
