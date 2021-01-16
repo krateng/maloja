@@ -300,17 +300,15 @@ def set_image(b64,**keys):
 		if os.path.exists(data_dir['images'](folder)):
 			with open(data_dir['images'](folder,filename),"wb") as f:
 				f.write(b64)
+			break
+	else:
+		folder = get_all_possible_filenames(**keys)[0]
+		os.makedirs(data_dir['images'](folder))
+		with open(data_dir['images'](folder,filename),"wb") as f:
+			f.write(b64)
 
-			# set as current picture in rotation
-			if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join(folder,filename))
-			else: local_artist_cache.add(keys["artist"],os.path.join(folder,filename))
-			return
-
-	folder = get_all_possible_filenames(**keys)[0]
-	os.makedirs(data_dir['images'](folder))
-	with open(data_dir['images'](folder,filename),"wb") as f:
-		f.write(b64)
+	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 
 	# set as current picture in rotation
-	if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join(folder,filename))
-	else: local_artist_cache.add(keys["artist"],os.path.join(folder,filename))
+	if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join("/images",folder,filename))
+	else: local_artist_cache.add(keys["artist"],os.path.join("/images",folder,filename))
