@@ -28,20 +28,26 @@ def proxy_scrobble_all(artists,title,timestamp):
 
 def get_image_track_all(track):
 	for service in services["metadata"]:
-		res = service.get_image_track(track)
-		if res is not None:
-			log("Got track image for " + str(track) + " from " + service.name)
-			return res
-		else:
-			log("Could not get track image for " + str(track) + " from " + service.name)
+		try:
+			res = service.get_image_track(track)
+			if res is not None:
+				log("Got track image for " + str(track) + " from " + service.name)
+				return res
+			else:
+				log("Could not get track image for " + str(track) + " from " + service.name)
+		except Exception as e:
+			log("Error getting track image from " + service.name + ": " + str(e))
 def get_image_artist_all(artist):
 	for service in services["metadata"]:
-		res = service.get_image_artist(artist)
-		if res is not None:
-			log("Got artist image for " + str(artist) + " from " + service.name)
-			return res
-		else:
-			log("Could not get artist image for " + str(artist) + " from " + service.name)
+		try:
+			res = service.get_image_artist(artist)
+			if res is not None:
+				log("Got artist image for " + str(artist) + " from " + service.name)
+				return res
+			else:
+				log("Could not get artist image for " + str(artist) + " from " + service.name)
+		except Exception as e:
+			log("Error getting artist image from " + service.name + ": " + str(e))
 
 
 

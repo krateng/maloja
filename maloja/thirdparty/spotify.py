@@ -36,7 +36,7 @@ class Spotify(MetadataInterface):
 		req = urllib.request.Request(**keys)
 		response = urllib.request.urlopen(req)
 		responsedata = json.loads(response.read())
-		expire = responsedata["expires_in"]
+		expire = responsedata.get("expires_in",3600)
 		self.settings["token"] = responsedata["access_token"]
 		Timer(expire,self.authorize).start()
 		return True
