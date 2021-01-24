@@ -267,10 +267,10 @@ class MTimeWeek(MRangeDescriptor):
 
 	def first_stamp(self):
 		day = self.firstday
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp())
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
 	def last_stamp(self):
 		day = self.lastday + datetime.timedelta(days=1)
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=datetime.timezone.utc)).timestamp() - 1)
+		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp() - 1)
 
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
