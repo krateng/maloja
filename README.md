@@ -125,6 +125,7 @@ These solutions allow you to directly setup scrobbling to your Maloja server:
 * [Tauon](https://tauonmusicbox.rocks) Desktop Player
 * [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) Browser Extension
 * [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Desktop Application
+* [Cmus-maloja-scrobbler](https://git.sr.ht/~xyank/cmus-maloja-scrobbler) Script
 * [Albula](https://github.com/krateng/albula) Music Server
 * [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
 
