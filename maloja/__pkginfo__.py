@@ -2,7 +2,7 @@ name = "maloja"
 desc = "Self-hosted music scrobble database"
 author = {
 	"name":"Johannes Krattenmacher",
-	"email":"maloja@krateng.dev",
+	"email":"maloja@dev.krateng.ch",
 	"github": "krateng"
 }
 version = 2,12,5
