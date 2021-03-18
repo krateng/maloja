@@ -134,7 +134,7 @@ These solutions allow you to directly setup scrobbling to your Maloja server:
 
 If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/apis/mlj_1/newscrobble` with the keys `artist`, `title` and `key` (and optionally `album`,`duration` (in seconds) and `time`(for cached scrobbles)) - either as form-data or json.
 
-If you're the maintainer of a music player or server and would like to implement native Maloja scrobbling, feel free to reach out - I'll try my best to help.
+If you're the maintainer of a music player or server and would like to implement native Maloja scrobbling, feel free to reach out - I'll try my best to help. For Python applications, you can simply use the [`malojalib` package](https://pypi.org/project/maloja-lib/) for a consistent interface even with future updates.
 
 ### Standard-compliant API
 
