@@ -46,6 +46,8 @@ Settings File			| Environment Variable			| Type			| Description
 `DELIMITERS_INFORMAL`   | &nbsp;						| List (String)	| Delimiters in informal artist strings with spaces expected around them
 `DELIMITERS_FORMAL`   | &nbsp;						| List (String)	| Delimiters used to tag multiple artists when only one tag field is available
 **Web Interface**
+`TIMEZONE`  |   &nbsp;              | String | Timezone Offset (-8)
+`TIMEZONE_NAME`     | &nbsp;        | String | Timezone Name (Etc/UTC)
 `DEFAULT_RANGE_CHARTS_ARTISTS`	| &nbsp;				| String		| What range is shown per default for the tile view on the start page
 `DEFAULT_RANGE_CHARTS_TRACKS`	| &nbsp;				| String		| What range is shown per default for the tile view on the start page
 `DEFAULT_STEP_PULSE`	| &nbsp;				| String		| What steps are shown per default for the pulse view on the start page
