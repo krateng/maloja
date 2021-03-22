@@ -4,10 +4,16 @@ from datetime import timezone, timedelta
 from calendar import monthrange
 from os.path import commonprefix
 import math
+import pytz
 from doreah.settings import get_settings
 
 
 OFFSET = get_settings("TIMEZONE")
+TZ_NAME = get_settings("TIMEZONE_NAME")
+if TZ_NAME != "":
+	TIMEZONE_DT = datetime.datetime.now(pytz.timezone(TZ_NAME))
+	OFFSET = TIMEZONE_DT.utcoffset().total_seconds()/60/60
+
 TIMEZONE = timezone(timedelta(hours=OFFSET))
 UTC = datetime.timezone.utc
 
