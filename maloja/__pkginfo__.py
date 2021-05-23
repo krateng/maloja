@@ -5,7 +5,7 @@ author = {
 	"email":"maloja@dev.krateng.ch",
 	"github": "krateng"
 }
-version = 2,12,6
+version = 2,12,7
 versionstr = ".".join(str(n) for n in version)
 links = {
 	"pypi":"malojaserver",
@@ -30,6 +30,7 @@ resources = [
 	"web/*",
 	"data_files/*/*",
 	"data_files/*/*/*",
+	"data_files/*/*/*/*",
 	"*/*.py",
 	"*/*/*.py",
 	"*/*/*/*.py"
