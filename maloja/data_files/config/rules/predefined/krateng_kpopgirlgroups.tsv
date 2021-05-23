@@ -170,6 +170,7 @@ replacetitle	달라달라 (DALLA DALLA)			Dalla Dalla
 
 # K/DA
 belongtogether	K/DA
+countas			Akali				K/DA
 
 # (G)I-DLE
 countas				Soyeon			(G)I-DLE
@@ -181,6 +182,14 @@ countas			CL						2NE1
 
 # WJSN
 replaceartist	Cosmic Girls			WJSN
+countas				WJSN Chocome			WJSN
+countas				WJSN The Black			WJSN
+
+# IZ*ONE
+countas				3Won				IZ*ONE
+replaceartist	ChaeYenJin	ACE
+countas				ACE					IZ*ONE
+countas				Chaewon			IZ*ONE
 
 # Popular Remixes
 artistintitle	Areia Remix				Areia
