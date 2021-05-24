@@ -273,5 +273,10 @@ setproctitle.setproctitle("Maloja")
 database.start_db()
 
 log("Starting up Maloja server...")
-#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
-waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
+
+try:
+	#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+	waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
+except OSError:
+	log("Error. Is another Maloja process already running?")
+	raise

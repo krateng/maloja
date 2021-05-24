@@ -40,7 +40,7 @@ def start():
 
 			port = settings.get_settings("WEB_PORT")
 
-			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /setup to get started.")
+			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /admin_setup to get started.")
 			print("If you're installing this on your local machine, these links should get you there:")
 			print("\t" + col["blue"]("http://localhost:" + str(port)))
 			print("\t" + col["blue"]("http://localhost:" + str(port) + "/admin_setup"))

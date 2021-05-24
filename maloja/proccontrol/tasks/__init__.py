@@ -1,5 +1,5 @@
 import os
-from doreah.io import ask
+from doreah.io import ask,col
 
 from ...globalconf import data_dir
 
@@ -17,9 +17,10 @@ def loadlastfm(filename):
 	print("Please wait...")
 
 	from .lastfmconverter import convert
-	convert(filename,data_dir['scrobbles']("lastfmimport.tsv"))
-	print("Successfully imported your Last.FM scrobbles!")
-
+	imported,failed = convert(filename,data_dir['scrobbles']("lastfmimport.tsv"))
+	print("Successfully imported",imported,"Last.FM scrobbles!")
+	if failed > 0:
+		print(col['red'](str(failed) + " Errors!"))
 
 def backuphere():
 	from .backup import backup
