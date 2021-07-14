@@ -1,0 +1,13 @@
+# NAME: K-Pop
+# DESC: Groups various side projects together
+
+# LOONA
+belongtogether	LOOΠΔ / ODD EYE CIRCLE
+belongtogether	LOOΠΔ 1/3
+belongtogether	LOONA/yyxy
+countas	LOOΠΔ / ODD EYE CIRCLE	LOOΠΔ
+countas	LOOΠΔ 1/3	LOOΠΔ
+countas	LOONA/yyxy	LOOΠΔ
+countas	Chuu	LOOΠΔ
+countas	JinSoul	LOOΠΔ
+replaceartist	LOONA	LOOΠΔ
