@@ -1,4 +1,4 @@
-Technically, each setting can be set via environment variable or the settings file. The columns are filled according to what is reasonable. Please do not configure each aspect of your server via environment variables!
+Technically, each setting can be set via environment variable or the settings file - simply add the prefix `MALOJA_` for environment variables. The columns are filled according to what is reasonable, it is recommended to use the settings file where possible and not configure each aspect of your server via environment variables!
 
 Settings File			| Environment Variable			| Type			| Description
 ------					| ---------						| ---------		| ---------
