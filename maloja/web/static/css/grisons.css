@@ -2,33 +2,33 @@
 	COMMON STYLES FOR MALOJA, ALBULA AND POSSIBLY OTHERS
 **/
 
+:root {
+	--base-color: #232327;
+	--base-color-dark: #090909;
+	--base-color-light: #343437;
 
-@BASE_COLOR: #333337;
-@BASE_COLOR_DARK: #0a0a0a;
-@BASE_COLOR_LIGHT: #444447;
+	--text-color: beige;
+	--text-color-selected: fadeout(var(--text-color),40%);
+	--text-color-secondary: #bbb;
+	--text-color-tertiary: grey;
+	--text-color-focus: yellow;
 
-@TEXT_COLOR: beige;
-@TEXT_COLOR_SELECTED: fadeout(@TEXT_COLOR,40%);
-@TEXT_COLOR_SECONDARY: #bbb;
-@TEXT_COLOR_TERTIARY: grey;
-@FOCUS_COLOR: yellow;
+	--ctrl-element-color-bg: rgba(0,255,255,0.1);
+	--ctrl-element-color-main: rgba(103,85,0,0.7);
+	--ctrl-element-color-focus: gold;
 
-@CONTROL_ELEMENT_BG_COLOR: rgba(0,255,255,0.1);
-@CONTROL_ELEMENT_FG_COLOR: rgba(103,85,0,0.7);
-@CONTROL_ELEMENT_FOCUS_COLOR: gold;
-
-@BUTTON_BG_COLOR: @TEXT_COLOR;
-@BUTTON_FOCUS_BG_COLOR: @FOCUS_COLOR;
-@BUTTON_FG_COLOR: @BASE_COLOR;
-@BUTTON_FOCUS_FG_COLOR: @BASE_COLOR;
+	--button-color-bg: var(--text-color);
+	--button-color-bg-focus: var(--focus-color);
+	--button-color-fg: var(--base-color);
+	--button-color-fg-focus: var(--base-color);
+}
 
 
-//@import url('https://fonts.googleapis.com/css?family=Ubuntu');
 
 
 body {
-	background-color: @BASE_COLOR;
-	color: @TEXT_COLOR;
+	background-color: var(--base-color);
+	color: var(--text-color);
 	font-family:"Ubuntu";
 }
 
@@ -78,13 +78,13 @@ table.top_info td.text table.image_row td:hover {
 }
 ::-webkit-scrollbar-track {
   background: grey;
-  background-color: @CONTROL_ELEMENT_BG_COLOR;
+  background-color: var(--ctrl-element-color-bg);
 }
 ::-webkit-scrollbar-thumb {
-background-color: @CONTROL_ELEMENT_FG_COLOR;
+background-color: var(--ctrl-element-color-main);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: @CONTROL_ELEMENT_FOCUS_COLOR;
+  background: var(--ctrl-element-color-focus);
 }
 
 
@@ -99,14 +99,14 @@ background-color: @CONTROL_ELEMENT_FG_COLOR;
 
 
 div.grisons_bar {
-	background-color: @CONTROL_ELEMENT_BG_COLOR;
+	background-color: var(--ctrl-element-color-bg);
 }
 div.grisons_bar>div {
 	height:100%;
-	background-color: @CONTROL_ELEMENT_FG_COLOR;
+	background-color: var(--ctrl-element-color-main);
 }
 div.grisons_bar:hover>div {
-	background-color: @CONTROL_ELEMENT_FOCUS_COLOR;
+	background-color: var(--ctrl-element-color-focus);
 }
 
 
@@ -116,22 +116,23 @@ div.grisons_bar:hover>div {
 /** LINKS **/
 
 
- a {
- 	color:inherit;
- 	text-decoration:none;
- }
+a {
+	color:inherit;
+	text-decoration:none;
+}
+a:hover {
+ text-decoration:underline;
+}
 
 // for links in running text
- a.textlink {
- 	color:@FOCUS_COLOR;
- }
- a.hidelink:hover {
- 	text-decoration:none;
- }
+a.textlink {
+	color: var(--text-color-focus);
+}
+a.hidelink:hover {
+	text-decoration:none;
+}
 
- a:hover {
- 	text-decoration:underline;
- }
+
 
 
 

@@ -59,10 +59,10 @@ div#settingsicon {
 	position:fixed;
 	right:30px;
 	top:30px;
-	fill:@TEXT_COLOR;
+	fill: var(--text-color);
 }
 div#settingsicon:hover {
-	fill:@FOCUS_COLOR;
+	fill: var(--text-color-focus);
 }
 
 
@@ -74,7 +74,7 @@ div.footer {
 	position:fixed;
 	height:20px;
 	/**width:100%;**/
-	background-color:@BASE_COLOR_DARK;
+	background-color: var(--base-color-dark);
 	bottom:0px;
 	left:0px;
 	right:0px;
@@ -183,7 +183,7 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 		position:fixed;
 		/*height:30px;*/
 		/**width:100%;**/
-		background-color:@BASE_COLOR_DARK;
+		background-color: var(--base-color-dark);
 		bottom:0px;
 		left:0px;
 		right:0px;
@@ -247,14 +247,14 @@ table.top_info + .stat_module_toptracks table {
 
 
 .stats {
-	color:@TEXT_COLOR_TERTIARY;
+	color: var(--text-color-tertiary);
 }
 .rank {
 	text-align:right;
-	color:@TEXT_COLOR_TERTIARY;
+	color: var(--text-color-tertiary);
 }
 .extra {
-	color:@TEXT_COLOR_TERTIARY;
+	color: var(--text-color-tertiary);
 	font-size:80%;
 }
 
@@ -273,14 +273,14 @@ input#apikey {
 
 input.simpleinput {
 	font-family:'Ubuntu';
-	color:@TEXT_COLOR;
+	color: var(--text-color);
 	outline:none;
 	border-top: 0px solid;
 	border-left: 0px solid;
 	border-right: 0px solid;
 	padding:2px;
 	background-color:inherit;
-	border-bottom: 1px solid @TEXT_COLOR;
+	border-bottom: 1px solid var(--text-color);
 }
 
 
@@ -303,7 +303,7 @@ h2.headerwithextra {
 	margin-top:15px;
 }
 h2.headerwithextra+span.afterheader {
-	color:@TEXT_COLOR_TERTIARY;
+	color: var(--text-color-tertiary);
 }
 
 /* SHINY*/
@@ -423,13 +423,13 @@ img.star {
 	padding:3px;
 	padding-right:6px;
 	padding-left:6px;
-	background-color:@BUTTON_BG_COLOR;
-	color:@BUTTON_FG_COLOR;
+	background-color: var(--button-color-bg);
+	color: var(--button-color-fg);
 	cursor:pointer;
 }
 .button:hover {
-	background-color:@BUTTON_FOCUS_BG_COLOR;
-	color:@BUTTON_FOCUS_FG_COLOR;
+	background-color: var(--button-color-bg-focus);
+	color: var(--button-color-fg-focus);
 }
 .button.locked {
 	background-color:grey;
@@ -488,7 +488,7 @@ table.list tr:hover {
 
 table.list td.time {
 	width:11%;
-	color:@TEXT_COLOR_TERTIARY;
+	color: var(--text-color-tertiary);
 }
 
 
@@ -534,7 +534,7 @@ table.list td.artists,td.artist,td.title,td.track {
 }
 
 table.list td.track span.artist_in_trackcolumn {
-	color:@TEXT_COLOR_SECONDARY;
+	color: var(--text-color-secondary);
 }
 
 table.list td.searchProvider {
@@ -587,25 +587,25 @@ table.list td.amount {
 }
 table.list td.bar {
 	width:500px;
-	background-color:@BASE_COLOR;
+	background-color: var(--base-color);
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
 table.list td.bar div {
-	background-color:@TEXT_COLOR;
+	background-color: var(--text-color);
 	height:20px; /* can only do this absolute apparently */
 	position:relative;
 	display:inline-block;
 	margin-bottom:-3px;
 }
 table.list tr:hover td.bar div {
-	background-color:@FOCUS_COLOR;
+	background-color: var(--text-color-focus);
 	cursor:pointer;
 }
 
 table.list td.chart {
 	width:500px;
-	background-color:@BASE_COLOR;
+	background-color: var(--base-color);
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
@@ -651,14 +651,14 @@ table.list tr td.button {
 
 
 table.list td.button div {
-	background-color:@BUTTON_BG_COLOR;
-	color:@BUTTON_FG_COLOR;
+	background-color: var(--button-color-bg);
+	color: var(--button-color-fg);
 	padding:3px;
 	border-radius:4px;
 }
 table.list td.button div:hover {
-	background-color:@BUTTON_FOCUS_BG_COLOR;
-	color:@BUTTON_FOCUS_FG_COLOR;
+	background-color: var(--button-color-bg-focus);
+	color: var(--button-color-fg-focus);
 	padding:3px;
 	border-radius:4px;
 }
@@ -829,7 +829,7 @@ div.sidelist {
 	top:0px;
 	width:40%;
 	height:100%;
-	background-color:#444447;
+	background-color: var(--base-color-light);
 	padding-left:30px;
 	padding-right:30px;
 }

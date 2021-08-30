@@ -34,7 +34,7 @@ import os
 import setproctitle
 import pkg_resources
 import math
-from css_html_js_minify import html_minify
+from css_html_js_minify import html_minify, css_minify
 # url handling
 import urllib
 
@@ -73,17 +73,13 @@ def deprecated_api(pth):
 
 
 
-pthjoin = os.path.join
-
 def generate_css():
-	import lesscpy
-	from io import StringIO
-	less = ""
-	for f in os.listdir(pthjoin(STATICFOLDER,"less")):
-		with open(pthjoin(STATICFOLDER,"less",f),"r") as lessf:
-			less += lessf.read()
+	css = ""
+	for f in os.listdir(os.path.join(STATICFOLDER,"css")):
+		with open(os.path.join(STATICFOLDER,"css",f),"r") as fd:
+			css += fd.read()
 
-	css = lesscpy.compile(StringIO(less),minify=True)
+	css = css_minify(css)
 	return css
 
 css = generate_css()
@@ -93,9 +89,6 @@ def clean_html(inp):
 	if settings.get_settings("DEV_MODE"): return inp
 	else: return html_minify(inp)
 
-#os.makedirs("web/css",exist_ok=True)
-#with open("web/css/style.css","w") as f:
-#	f.write(css)
 
 
 @webserver.route("")
