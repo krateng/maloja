@@ -535,7 +535,8 @@ def timestamp_desc(t,short=False):
 		return timeobject.strftime("%Y")
 	else:
 		timeobject = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
-		return timeobject.strftime("%d. %b %Y %I:%M %p")
+		format = get_settings("TIME_FORMAT")
+		return timeobject.strftime(format)
 
 
 
