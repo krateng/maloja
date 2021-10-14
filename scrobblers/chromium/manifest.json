@@ -4,12 +4,10 @@
 	"description": "Scrobbles tracks from various sites to your Maloja server",
 	"manifest_version": 2,
 	"permissions": [
-		"activeTab",
 		"tabs",
 		"storage",
 		"http://*/",
-    		"https://*/",
-		"<all_urls>"
+    		"https://*/"
 	],
 	"background":
 	{

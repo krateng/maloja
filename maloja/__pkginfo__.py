@@ -19,7 +19,7 @@ requires = [
 	"nimrodel>=0.6.5",
 	"setproctitle>=1.1.10",
 	"wand>=0.5.4",
-	"jinja2>2.11",
+	"jinja2>=2.11",
 	"lru-dict>=1.1.6",
 	"css_html_js_minify>=2.5.5"
 ]
