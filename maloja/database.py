@@ -1154,20 +1154,13 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,arti
 
 # Search for strings
 def db_search(query,type=None):
+	results = []
 	if type=="ARTIST":
-		results = []
-		for a in ARTISTS:
-			#if query.lower() in a.lower():
-			if simplestr(query) in simplestr(a):
-				results.append(a)
-
+		results = [a for a in ARTISTS if simplestr(query) in simplestr(a)]
 	if type=="TRACK":
-		results = []
-		for t in TRACKS:
-			#if query.lower() in t[1].lower():
-			if simplestr(query) in simplestr(t[1]):
-				results.append(get_track_dict(t))
-
+		results = [
+		    get_track_dict(t) for t in TRACKS if simplestr(query) in simplestr(t[1])
+		]
 	return results
 
 
