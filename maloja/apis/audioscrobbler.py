@@ -54,26 +54,25 @@ class Audioscrobbler(APIHandler):
 	def submit_scrobble(self,pathnodes,keys):
 		if keys.get("sk") is None or keys.get("sk") not in self.mobile_sessions:
 			raise InvalidSessionKey()
+		if "track" in keys and "artist" in keys:
+			artiststr,titlestr = keys["artist"], keys["track"]
+			#(artists,title) = cla.fullclean(artiststr,titlestr)
+			try:
+				timestamp = int(keys["timestamp"])
+			except:
+				timestamp = None
+			#database.createScrobble(artists,title,timestamp)
+			self.scrobble(artiststr,titlestr,time=timestamp)
 		else:
-			if "track" in keys and "artist" in keys:
-				artiststr,titlestr = keys["artist"], keys["track"]
-				#(artists,title) = cla.fullclean(artiststr,titlestr)
-				try:
-					timestamp = int(keys["timestamp"])
-				except:
-					timestamp = None
-				#database.createScrobble(artists,title,timestamp)
-				self.scrobble(artiststr,titlestr,time=timestamp)
-				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
-			else:
-				for num in range(50):
-					if "track[" + str(num) + "]" in keys:
-						artiststr,titlestr = keys["artist[" + str(num) + "]"], keys["track[" + str(num) + "]"]
-						#(artists,title) = cla.fullclean(artiststr,titlestr)
-						timestamp = int(keys["timestamp[" + str(num) + "]"])
-						#database.createScrobble(artists,title,timestamp)
-						self.scrobble(artiststr,titlestr,time=timestamp)
-				return 200,{"scrobbles":{"@attr":{"ignored":0}}}
+			for num in range(50):
+				if "track[" + str(num) + "]" in keys:
+					artiststr,titlestr = keys["artist[" + str(num) + "]"], keys["track[" + str(num) + "]"]
+					#(artists,title) = cla.fullclean(artiststr,titlestr)
+					timestamp = int(keys["timestamp[" + str(num) + "]"])
+					#database.createScrobble(artists,title,timestamp)
+					self.scrobble(artiststr,titlestr,time=timestamp)
+
+		return 200,{"scrobbles":{"@attr":{"ignored":0}}}
 
 
 import hashlib
