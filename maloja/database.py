@@ -206,20 +206,17 @@ def getArtistID(name):
 		return i
 
 def getTrackID(artists,title):
-	artistset = set()
-	for a in artists:
-		artistset.add(getArtistID(name=a))
+	artistset = {getArtistID(name=a) for a in artists}
 	obj = Track(artists=frozenset(artistset),title=title)
 	obj_normalized = Track(artists=frozenset(artistset),title=normalize_name(title))
 
 	if obj_normalized in TRACKS_NORMALIZED_SET:
 		return TRACKS_NORMALIZED.index(obj_normalized)
-	else:
-		i = len(TRACKS)
-		TRACKS.append(obj)
-		TRACKS_NORMALIZED_SET.add(obj_normalized)
-		TRACKS_NORMALIZED.append(obj_normalized)
-		return i
+	i = len(TRACKS)
+	TRACKS.append(obj)
+	TRACKS_NORMALIZED_SET.add(obj_normalized)
+	TRACKS_NORMALIZED.append(obj_normalized)
+	return i
 
 import unicodedata
 
