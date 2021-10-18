@@ -1227,7 +1227,7 @@ def scrobbles_in_range(start,end,reverse=False):
 # for performance testing
 def generateStuff(num=0,pertrack=0,mult=0):
 	import random
-	for i in range(num):
+	for _ in range(num):
 		track = random.choice(TRACKS)
 		t = get_track_dict(track)
 		time = random.randint(STAMPS[0],STAMPS[-1])
@@ -1235,7 +1235,7 @@ def generateStuff(num=0,pertrack=0,mult=0):
 
 	for track in TRACKS:
 		t = get_track_dict(track)
-		for i in range(pertrack):
+		for _ in range(pertrack):
 			time = random.randint(STAMPS[0],STAMPS[-1])
 			createScrobble(t["artists"],t["title"],time,volatile=True)
 
