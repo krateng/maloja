@@ -38,8 +38,7 @@ class AudioscrobblerLegacy(APIHandler):
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
 		host = keys.get("Host")
-		protocol = request.urlparts.scheme
-		if (keys.get("u") == 'nossl'): protocol = 'http' #user override
+		protocol = 'http' if (keys.get("u") == 'nossl') else request.urlparts.scheme
 
 		if auth is not None:
 			for key in database.allAPIkeys():
