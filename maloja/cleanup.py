@@ -239,6 +239,6 @@ def flatten(lis):
 		if isinstance(l, str):
 			newlist.append(l)
 		else:
-			newlist = newlist + l
+			newlist += l
 
 	return list(set(newlist))
