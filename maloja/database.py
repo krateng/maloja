@@ -325,11 +325,7 @@ def get_scrobbles_num(**keys):
 
 def get_tracks(artist=None):
 
-	if artist is not None:
-		artistid = ARTISTS.index(artist)
-	else:
-		artistid = None
-
+	artistid = ARTISTS.index(artist) if artist is not None else None
 	# Option 1
 	return [get_track_dict(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
 
@@ -689,14 +685,9 @@ def get_predefined_rulesets():
 		if f.endswith(".tsv"):
 
 			rawf = f.replace(".tsv","")
-			valid = True
-			for char in rawf:
-				if char not in validchars:
-					valid = False
-					break # don't even show up invalid filenames
-
+			valid = all(char in validchars for char in rawf)
 			if not valid: continue
-			if not "_" in rawf: continue
+			if "_" not in rawf: continue
 
 			try:
 				with open(data_dir['rules']("predefined",f)) as tsvfile:
@@ -706,21 +697,14 @@ def get_predefined_rulesets():
 					if "# NAME: " in line1:
 						name = line1.replace("# NAME: ","")
 					else: name = rawf.split("_")[1]
-					if "# DESC: " in line2:
-						desc = line2.replace("# DESC: ","")
-					else: desc = ""
-
+					desc = line2.replace("# DESC: ","") if "# DESC: " in line2 else ""
 					author = rawf.split("_")[0]
 			except:
 				continue
 
 			ruleset = {"file":rawf}
 			rulesets.append(ruleset)
-			if os.path.exists(data_dir['rules'](f)):
-				ruleset["active"] = True
-			else:
-				ruleset["active"] = False
-
+			ruleset["active"] = bool(os.path.exists(data_dir['rules'](f)))
 			ruleset["name"] = name
 			ruleset["author"] = author
 			ruleset["desc"] = desc
