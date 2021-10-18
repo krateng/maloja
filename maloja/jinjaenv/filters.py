@@ -49,4 +49,4 @@ def compare_key_in_dicts(key,d1,d2):
 	return d1[key] == d2[key]
 
 def alltrue(seq):
-	return all(s for s in seq)
+	return all(seq)
