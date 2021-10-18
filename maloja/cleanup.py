@@ -35,12 +35,12 @@ class CleanerAgent:
 			reqartists, allartists = self.rules_addartists[title.lower()]
 			reqartists = reqartists.split("␟")
 			allartists = allartists.split("␟")
-			if set(reqartists).issubset(set(a.lower() for a in artists)):
+			if set(reqartists).issubset({a.lower() for a in artists}):
 				artists += allartists
 		elif title.lower() in self.rules_fixartists:
 			allartists = self.rules_fixartists[title.lower()]
 			allartists = allartists.split("␟")
-			if len(set(a.lower() for a in allartists) & set(a.lower() for a in artists)) > 0:
+			if len({a.lower() for a in allartists} & {a.lower() for a in artists}) > 0:
 				artists = allartists
 		artists = list(set(artists))
 		artists.sort()
@@ -218,7 +218,7 @@ class CollectorAgent:
 	# this function is there to check for artists that we should include in the
 	# database even though they never have any scrobble.
 	def getAllArtists(self):
-		return list(set([self.rules_countas[a] for a in self.rules_countas]))
+		return list({self.rules_countas[a] for a in self.rules_countas})
 		# artists that count can be nonexisting (counting HyunA as 4Minute even
 		# though 4Minute has never been listened to)
 		# but artists that are counted as someone else are only relevant if they
