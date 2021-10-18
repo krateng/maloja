@@ -205,9 +205,7 @@ class CollectorAgent:
 
 	# get all credited artists for the artists given
 	def getCreditedList(self,artists):
-		updatedArtists = []
-		for artist in artists:
-			updatedArtists.append(self.getCredited(artist))
+		updatedArtists = [self.getCredited(artist) for artist in artists]
 		return list(set(updatedArtists))
 
 	# get artists who the given artist is given credit for
