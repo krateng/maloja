@@ -26,10 +26,7 @@ def copy_initial_local_files():
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):
 	import random
-	key = ""
-	for i in range(length):
-		key += str(random.choice(charset))
-	return key
+	return "".join(str(random.choice(charset)) for _ in range(length))
 
 def setup():
 
