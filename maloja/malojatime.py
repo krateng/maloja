@@ -155,8 +155,8 @@ class MTime(MRangeDescriptor):
 
 	# gets object with one higher precision that starts this one
 	def start(self):
-		if self.precision == 1: return MTime(self.tup + (1,))
-		elif self.precision == 2: return MTime(self.tup + (1,))
+		if self.precision in [1, 2]: return MTime(self.tup + (1,))
+
 	# gets object with one higher precision that ends this one
 	def end(self):
 		if self.precision == 1: return MTime(self.tup + (12,))
