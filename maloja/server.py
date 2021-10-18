@@ -94,8 +94,7 @@ def clean_html(inp):
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
-	response = static_html("start")
-	return response
+	return static_html("start")
 
 @webserver.error(400)
 @webserver.error(403)
@@ -112,8 +111,12 @@ def customerror(error):
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	template = jinja_environment.get_template('error.jinja')
-	res = template.render(errorcode=errorcode,errordesc=errordesc,traceback=traceback,adminmode=adminmode)
-	return res
+	return template.render(
+	    errorcode=errorcode,
+	    errordesc=errordesc,
+	    traceback=traceback,
+	    adminmode=adminmode,
+	)
 
 
 
