@@ -784,7 +784,7 @@ def build_db():
 	STAMPS.sort()
 
 	# inform malojatime module about earliest scrobble
-	if len(STAMPS) > 0: register_scrobbletime(STAMPS[0])
+	if STAMPS: register_scrobbletime(STAMPS[0])
 
 	# NOT NEEDED BECAUSE WE DO THAT ON ADDING EVERY ARTIST ANYWAY
 	# get extra artists with no real scrobbles from countas rules
