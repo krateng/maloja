@@ -149,10 +149,9 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 	i = getTrackID(artists,title)
 
 	# idempotence
-	if time in SCROBBLESDICT:
-		if i == SCROBBLESDICT[time].track:
-			dblock.release()
-			return get_track_dict(TRACKS[i])
+	if time in SCROBBLESDICT and i == SCROBBLESDICT[time].track:
+		dblock.release()
+		return get_track_dict(TRACKS[i])
 	# timestamp as unique identifier
 	while (time in SCROBBLESDICT):
 		time += 1
