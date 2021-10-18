@@ -50,10 +50,9 @@ class CleanerAgent:
 	def removespecial(self,s):
 		if isinstance(s,list):
 			return [self.removespecial(se) for se in s]
-		else:
-			s = s.replace("\t","").replace("␟","").replace("\n","")
-			s = re.sub(" +"," ",s)
-			return s
+		s = s.replace("\t","").replace("␟","").replace("\n","")
+		s = re.sub(" +"," ",s)
+		return s
 
 
 	# if an artist appears in any created rule, we can assume that artist is meant to exist and be spelled like that
