@@ -104,9 +104,7 @@ class MTime(MRangeDescriptor):
 		if tod.year == self.year:
 			if tod.month > self.month: return False
 			if self.precision == 2: return True
-			if tod.month == self.month:
-				if tod.day > self.day: return False
-
+			if tod.month == self.month and tod.day > self.day: return False
 		return True
 
 
@@ -251,8 +249,7 @@ class MTimeWeek(MRangeDescriptor):
 		return self.desc()
 
 	def contextual_desc(self,other):
-		if isinstance(other,MTimeWeek):
-			if other.year == self.year: return "Week " + str(self.week)
+		if isinstance(other, MTimeWeek) and other.year == self.year: return "Week " + str(self.week)
 		return self.desc()
 
 	def start(self):
