@@ -630,7 +630,7 @@ def check_issues():
 				duplicates.append((a,ar))
 
 		st = st.replace("&","").replace("and","").replace("with","").strip()
-		if st != "" and st != a:
+		if st not in ["", a]:
 			if len(st) < 5 and len(lis) == 1:
 				#check if we havent just randomly found the string in another word
 				#if (" " + st + " ") in lis[0] or (lis[0].endswith(" " + st)) or (lis[0].startswith(st + " ")):
