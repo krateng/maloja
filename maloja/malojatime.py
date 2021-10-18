@@ -142,16 +142,16 @@ class MTime(MRangeDescriptor):
 
 	# describes only the parts that are different than another range object
 	def contextual_desc(self,other):
-		if isinstance(other,MTime):
-			relevant = self.desc().split(" ")
-			if self.year == other.year:
+		if not isinstance(other, MTime):
+			return self.desc()
+		relevant = self.desc().split(" ")
+		if self.year == other.year:
+			relevant.pop()
+			if self.precision > 1 and other.precision > 1 and self.month == other.month:
 				relevant.pop()
-				if self.precision > 1 and other.precision > 1 and self.month == other.month:
+				if self.precision > 2 and other.precision > 2 and self.day == other.day:
 					relevant.pop()
-					if self.precision > 2 and other.precision > 2 and self.day == other.day:
-						relevant.pop()
-			return " ".join(relevant)
-		return self.desc()
+		return " ".join(relevant)
 
 	# gets object with one higher precision that starts this one
 	def start(self):
