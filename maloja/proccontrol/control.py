@@ -11,16 +11,14 @@ from . import tasks
 def getInstance():
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
-		pid = int(output)
-		return pid
+		return int(output)
 	except:
 		return None
 
 def getInstanceSupervisor():
 	try:
 		output = subprocess.check_output(["pidof","maloja_supervisor"])
-		pid = int(output)
-		return pid
+		return int(output)
 	except:
 		return None
 
