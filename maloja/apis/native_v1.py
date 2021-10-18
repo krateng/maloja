@@ -292,8 +292,10 @@ def search(**keys):
 	# add links
 	artists_result = []
 	for a in artists:
-		result = {"name":a}
-		result["link"] = "/artist?" + compose_querystring(internal_to_uri({"artist":a}))
+		result = {
+		    'name': a,
+		    'link': "/artist?" + compose_querystring(internal_to_uri({"artist": a})),
+		}
 		result["image"] = "/image?" + compose_querystring(internal_to_uri({"artist":a}))
 		artists_result.append(result)
 
