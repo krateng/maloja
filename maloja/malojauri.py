@@ -132,7 +132,7 @@ def compose_querystring(*dicts,exclude=[]):
 	for k in keys:
 		if k in exclude: continue
 		values = keys.getall(k)
-		st += "&".join([urllib.parse.urlencode({k:v},safe="/") for v in values])
+		st += "&".join(urllib.parse.urlencode({k:v},safe="/") for v in values)
 		st += "&"
 	return st[:-1] if st.endswith("&") else st  # remove last ampersand
 
