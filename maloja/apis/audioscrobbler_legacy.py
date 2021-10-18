@@ -92,9 +92,12 @@ def md5(input):
 	return m.hexdigest()
 
 def generate_key(ls):
-	key = ""
-	for i in range(64):
-		key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+	key = "".join(
+	    str(
+	        random.choice(
+	            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
+	            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
+
 	ls.append(key)
 	return key
 
