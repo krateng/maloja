@@ -47,18 +47,13 @@ def setup():
 
 
 	# OWN API KEY
-	if os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
-		pass
-	else:
+	if not os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
 		answer = ask("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database.",default=True,skip=SKIP)
 		if answer:
 			key = randomstring(64)
 			print("Your API Key: " + col["yellow"](key))
 			with open(data_dir['clients']("authenticated_machines.tsv"),"w") as keyfile:
 				keyfile.write(key + "\t" + "Default Generated Key")
-		else:
-			pass
-
 
 	# PASSWORD
 	defaultpassword = settings.get_settings("DEFAULT_PASSWORD")
@@ -78,14 +73,11 @@ def setup():
 			if newpw is None:
 				newpw = defaultpassword
 				print("Generated password:",newpw)
-			auth.defaultuser.setpw(newpw)
 		else:
 			# docker installation (or settings file, but don't do that)
 			# we still 'ask' the user to set one, but for docker this will be skipped
 			newpw = prompt("Please set a password for web backend access. Leave this empty to use the default password.",skip=SKIP,default=defaultpassword,secret=True)
-			auth.defaultuser.setpw(newpw)
-
-
+		auth.defaultuser.setpw(newpw)
 	if settings.get_settings("NAME") is None:
 		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Generic Maloja User",skip=SKIP)
 		settings.update_settings(data_dir['settings']("settings.ini"),{"NAME":name},create_new=True)
