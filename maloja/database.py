@@ -191,19 +191,18 @@ def getArtistID(name):
 	if obj_normalized in ARTISTS_NORMALIZED_SET:
 		return ARTISTS_NORMALIZED.index(obj_normalized)
 
-	else:
-		i = len(ARTISTS)
-		ARTISTS.append(obj)
-		ARTISTS_NORMALIZED_SET.add(obj_normalized)
-		ARTISTS_NORMALIZED.append(obj_normalized)
+	i = len(ARTISTS)
+	ARTISTS.append(obj)
+	ARTISTS_NORMALIZED_SET.add(obj_normalized)
+	ARTISTS_NORMALIZED.append(obj_normalized)
 
-		# with a new artist added, we might also get new artists that they are credited as
-		cr = coa.getCredited(name)
-		getArtistID(cr)
+	# with a new artist added, we might also get new artists that they are credited as
+	cr = coa.getCredited(name)
+	getArtistID(cr)
 
-		coa.updateIDs(ARTISTS)
+	coa.updateIDs(ARTISTS)
 
-		return i
+	return i
 
 def getTrackID(artists,title):
 	artistset = {getArtistID(name=a) for a in artists}
