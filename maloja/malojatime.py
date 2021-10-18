@@ -77,7 +77,7 @@ class MRangeDescriptor:
 class MTime(MRangeDescriptor):
 	def __init__(self,*ls):
 		# in case we want to call with non-unpacked arguments
-		if isinstance(ls[0],tuple) or isinstance(ls[0],list):
+		if isinstance(ls[0], (tuple, list)):
 			ls = ls[0]
 
 		self.tup = tuple(ls)
