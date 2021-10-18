@@ -159,11 +159,10 @@ def getTrackImage(artists,title,fast=False):
 		#result = cachedTracks[(frozenset(artists),title)]
 		result = track_cache.get((frozenset(artists),title)) #track_from_cache(artists,title)
 		if result is not None: return result
-		else:
-			for a in artists:
-				res = getArtistImage(artist=a,fast=True)
-				if res != "": return res
-			return ""
+		for a in artists:
+			res = getArtistImage(artist=a,fast=True)
+			if res != "": return res
+		return ""
 	except:
 		pass
 
@@ -173,7 +172,9 @@ def getTrackImage(artists,title,fast=False):
 
 
 	# fast request only retuns cached and local results, generates redirect link for rest
-	if fast: return "/image?title=" + urllib.parse.quote(title) + "&" + "&".join(["artist=" + urllib.parse.quote(a) for a in artists])
+	if fast:
+		return ("/image?title=" + urllib.parse.quote(title) + "&" + "&".join(
+		    "artist=" + urllib.parse.quote(a) for a in artists))
 
 	# non-fast lookup (essentially only the resolver lookup)
 	result = thirdparty.get_image_track_all((artists,title))
@@ -184,11 +185,10 @@ def getTrackImage(artists,title,fast=False):
 
 	# return either result or redirect to artist
 	if result is not None: return result
-	else:
-		for a in artists:
-			res = getArtistImage(artist=a,fast=False)
-			if res != "": return res
-		return ""
+	for a in artists:
+		res = getArtistImage(artist=a,fast=False)
+		if res != "": return res
+	return ""
 
 
 def getArtistImage(artist,fast=False):
