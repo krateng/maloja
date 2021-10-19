@@ -1,8 +1,6 @@
 import setuptools
 import importlib
 import os
-import shutil
-import glob
 import sys
 
 packagename = 'maloja'

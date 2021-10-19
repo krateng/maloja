@@ -35,12 +35,12 @@ class CleanerAgent:
 			reqartists, allartists = self.rules_addartists[title.lower()]
 			reqartists = reqartists.split("␟")
 			allartists = allartists.split("␟")
-			if set(reqartists).issubset(set(a.lower() for a in artists)):
+			if set(reqartists).issubset({a.lower() for a in artists}):
 				artists += allartists
 		elif title.lower() in self.rules_fixartists:
 			allartists = self.rules_fixartists[title.lower()]
 			allartists = allartists.split("␟")
-			if len(set(a.lower() for a in allartists) & set(a.lower() for a in artists)) > 0:
+			if len({a.lower() for a in allartists} & {a.lower() for a in artists}) > 0:
 				artists = allartists
 		artists = list(set(artists))
 		artists.sort()
@@ -50,10 +50,9 @@ class CleanerAgent:
 	def removespecial(self,s):
 		if isinstance(s,list):
 			return [self.removespecial(se) for se in s]
-		else:
-			s = s.replace("\t","").replace("␟","").replace("\n","")
-			s = re.sub(" +"," ",s)
-			return s
+		s = s.replace("\t","").replace("␟","").replace("\n","")
+		s = re.sub(" +"," ",s)
+		return s
 
 
 	# if an artist appears in any created rule, we can assume that artist is meant to exist and be spelled like that
@@ -206,9 +205,7 @@ class CollectorAgent:
 
 	# get all credited artists for the artists given
 	def getCreditedList(self,artists):
-		updatedArtists = []
-		for artist in artists:
-			updatedArtists.append(self.getCredited(artist))
+		updatedArtists = [self.getCredited(artist) for artist in artists]
 		return list(set(updatedArtists))
 
 	# get artists who the given artist is given credit for
@@ -218,7 +215,7 @@ class CollectorAgent:
 	# this function is there to check for artists that we should include in the
 	# database even though they never have any scrobble.
 	def getAllArtists(self):
-		return list(set([self.rules_countas[a] for a in self.rules_countas]))
+		return list({self.rules_countas[a] for a in self.rules_countas})
 		# artists that count can be nonexisting (counting HyunA as 4Minute even
 		# though 4Minute has never been listened to)
 		# but artists that are counted as someone else are only relevant if they
@@ -239,6 +236,6 @@ def flatten(lis):
 		if isinstance(l, str):
 			newlist.append(l)
 		else:
-			newlist = newlist + l
+			newlist += l
 
 	return list(set(newlist))

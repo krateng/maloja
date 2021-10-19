@@ -149,10 +149,9 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 	i = getTrackID(artists,title)
 
 	# idempotence
-	if time in SCROBBLESDICT:
-		if i == SCROBBLESDICT[time].track:
-			dblock.release()
-			return get_track_dict(TRACKS[i])
+	if time in SCROBBLESDICT and i == SCROBBLESDICT[time].track:
+		dblock.release()
+		return get_track_dict(TRACKS[i])
 	# timestamp as unique identifier
 	while (time in SCROBBLESDICT):
 		time += 1
@@ -192,35 +191,31 @@ def getArtistID(name):
 	if obj_normalized in ARTISTS_NORMALIZED_SET:
 		return ARTISTS_NORMALIZED.index(obj_normalized)
 
-	else:
-		i = len(ARTISTS)
-		ARTISTS.append(obj)
-		ARTISTS_NORMALIZED_SET.add(obj_normalized)
-		ARTISTS_NORMALIZED.append(obj_normalized)
+	i = len(ARTISTS)
+	ARTISTS.append(obj)
+	ARTISTS_NORMALIZED_SET.add(obj_normalized)
+	ARTISTS_NORMALIZED.append(obj_normalized)
 
-		# with a new artist added, we might also get new artists that they are credited as
-		cr = coa.getCredited(name)
-		getArtistID(cr)
+	# with a new artist added, we might also get new artists that they are credited as
+	cr = coa.getCredited(name)
+	getArtistID(cr)
 
-		coa.updateIDs(ARTISTS)
+	coa.updateIDs(ARTISTS)
 
-		return i
+	return i
 
 def getTrackID(artists,title):
-	artistset = set()
-	for a in artists:
-		artistset.add(getArtistID(name=a))
+	artistset = {getArtistID(name=a) for a in artists}
 	obj = Track(artists=frozenset(artistset),title=title)
 	obj_normalized = Track(artists=frozenset(artistset),title=normalize_name(title))
 
 	if obj_normalized in TRACKS_NORMALIZED_SET:
 		return TRACKS_NORMALIZED.index(obj_normalized)
-	else:
-		i = len(TRACKS)
-		TRACKS.append(obj)
-		TRACKS_NORMALIZED_SET.add(obj_normalized)
-		TRACKS_NORMALIZED.append(obj_normalized)
-		return i
+	i = len(TRACKS)
+	TRACKS.append(obj)
+	TRACKS_NORMALIZED_SET.add(obj_normalized)
+	TRACKS_NORMALIZED.append(obj_normalized)
+	return i
 
 import unicodedata
 
@@ -330,11 +325,7 @@ def get_scrobbles_num(**keys):
 
 def get_tracks(artist=None):
 
-	if artist is not None:
-		artistid = ARTISTS.index(artist)
-	else:
-		artistid = None
-
+	artistid = ARTISTS.index(artist) if artist is not None else None
 	# Option 1
 	return [get_track_dict(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
 
@@ -639,7 +630,7 @@ def check_issues():
 				duplicates.append((a,ar))
 
 		st = st.replace("&","").replace("and","").replace("with","").strip()
-		if st != "" and st != a:
+		if st not in ["", a]:
 			if len(st) < 5 and len(lis) == 1:
 				#check if we havent just randomly found the string in another word
 				#if (" " + st + " ") in lis[0] or (lis[0].endswith(" " + st)) or (lis[0].startswith(st + " ")):
@@ -694,14 +685,9 @@ def get_predefined_rulesets():
 		if f.endswith(".tsv"):
 
 			rawf = f.replace(".tsv","")
-			valid = True
-			for char in rawf:
-				if char not in validchars:
-					valid = False
-					break # don't even show up invalid filenames
-
+			valid = all(char in validchars for char in rawf)
 			if not valid: continue
-			if not "_" in rawf: continue
+			if "_" not in rawf: continue
 
 			try:
 				with open(data_dir['rules']("predefined",f)) as tsvfile:
@@ -711,21 +697,14 @@ def get_predefined_rulesets():
 					if "# NAME: " in line1:
 						name = line1.replace("# NAME: ","")
 					else: name = rawf.split("_")[1]
-					if "# DESC: " in line2:
-						desc = line2.replace("# DESC: ","")
-					else: desc = ""
-
+					desc = line2.replace("# DESC: ","") if "# DESC: " in line2 else ""
 					author = rawf.split("_")[0]
 			except:
 				continue
 
 			ruleset = {"file":rawf}
 			rulesets.append(ruleset)
-			if os.path.exists(data_dir['rules'](f)):
-				ruleset["active"] = True
-			else:
-				ruleset["active"] = False
-
+			ruleset["active"] = bool(os.path.exists(data_dir['rules'](f)))
 			ruleset["name"] = name
 			ruleset["author"] = author
 			ruleset["desc"] = desc
@@ -805,7 +784,7 @@ def build_db():
 	STAMPS.sort()
 
 	# inform malojatime module about earliest scrobble
-	if len(STAMPS) > 0: register_scrobbletime(STAMPS[0])
+	if STAMPS: register_scrobbletime(STAMPS[0])
 
 	# NOT NEEDED BECAUSE WE DO THAT ON ADDING EVERY ARTIST ANYWAY
 	# get extra artists with no real scrobbles from countas rules
@@ -1155,20 +1134,13 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,arti
 
 # Search for strings
 def db_search(query,type=None):
+	results = []
 	if type=="ARTIST":
-		results = []
-		for a in ARTISTS:
-			#if query.lower() in a.lower():
-			if simplestr(query) in simplestr(a):
-				results.append(a)
-
+		results = [a for a in ARTISTS if simplestr(query) in simplestr(a)]
 	if type=="TRACK":
-		results = []
-		for t in TRACKS:
-			#if query.lower() in t[1].lower():
-			if simplestr(query) in simplestr(t[1]):
-				results.append(get_track_dict(t))
-
+		results = [
+		    get_track_dict(t) for t in TRACKS if simplestr(query) in simplestr(t[1])
+		]
 	return results
 
 
@@ -1227,7 +1199,7 @@ def scrobbles_in_range(start,end,reverse=False):
 # for performance testing
 def generateStuff(num=0,pertrack=0,mult=0):
 	import random
-	for i in range(num):
+	for _ in range(num):
 		track = random.choice(TRACKS)
 		t = get_track_dict(track)
 		time = random.randint(STAMPS[0],STAMPS[-1])
@@ -1235,7 +1207,7 @@ def generateStuff(num=0,pertrack=0,mult=0):
 
 	for track in TRACKS:
 		t = get_track_dict(track)
-		for i in range(pertrack):
+		for _ in range(pertrack):
 			time = random.randint(STAMPS[0],STAMPS[-1])
 			createScrobble(t["artists"],t["title"],time,volatile=True)
 

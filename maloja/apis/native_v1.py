@@ -72,8 +72,7 @@ def info_external(**keys):
 	response.set_header("Access-Control-Allow-Origin","*")
 	response.set_header("Content-Type","application/json")
 
-	result = info()
-	return result
+	return info()
 
 
 
@@ -178,8 +177,7 @@ def artistInfo_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	results = artistInfo(**ckeys)
-	return results
+	return artistInfo(**ckeys)
 
 
 
@@ -192,15 +190,12 @@ def trackInfo_external(artist:Multi[str],**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
-	results = trackInfo(**ckeys)
-	return results
+	return trackInfo(**ckeys)
 
 
 @api.get("compare")
 def compare_external(**keys):
-
-	results = compare(keys["remote"])
-	return results
+	return compare(keys["remote"])
 
 
 
@@ -297,8 +292,10 @@ def search(**keys):
 	# add links
 	artists_result = []
 	for a in artists:
-		result = {"name":a}
-		result["link"] = "/artist?" + compose_querystring(internal_to_uri({"artist":a}))
+		result = {
+		    'name': a,
+		    'link': "/artist?" + compose_querystring(internal_to_uri({"artist": a})),
+		}
 		result["image"] = "/image?" + compose_querystring(internal_to_uri({"artist":a}))
 		artists_result.append(result)
 

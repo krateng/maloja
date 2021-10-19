@@ -39,8 +39,8 @@ def backup(folder,level="full"):
 	archivefile = os.path.join(folder,filename)
 	assert not os.path.exists(archivefile)
 	with tarfile.open(name=archivefile,mode="x:gz") as archive:
-		for cat in real_files:
-			for f in real_files[cat]:
+		for cat, value in real_files.items():
+			for f in value:
 				p = PurePath(f)
 				r = p.relative_to(data_dir[cat]())
 				archive.add(f,arcname=os.path.join(cat,r))

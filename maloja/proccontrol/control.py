@@ -11,16 +11,14 @@ from . import tasks
 def getInstance():
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
-		pid = int(output)
-		return pid
+		return int(output)
 	except:
 		return None
 
 def getInstanceSupervisor():
 	try:
 		output = subprocess.check_output(["pidof","maloja_supervisor"])
-		pid = int(output)
-		return pid
+		return int(output)
 	except:
 		return None
 
@@ -60,11 +58,11 @@ def stop():
 	if pid is not None:
 		os.kill(pid,signal.SIGTERM)
 
-	if pid is not None or pid_sv is not None:
-		print("Maloja stopped!")
-		return True
-	else:
+	if pid is None and pid_sv is None:
 		return False
+
+	print("Maloja stopped!")
+	return True
 
 
 

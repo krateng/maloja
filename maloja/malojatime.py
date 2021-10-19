@@ -77,7 +77,7 @@ class MRangeDescriptor:
 class MTime(MRangeDescriptor):
 	def __init__(self,*ls):
 		# in case we want to call with non-unpacked arguments
-		if isinstance(ls[0],tuple) or isinstance(ls[0],list):
+		if isinstance(ls[0], (tuple, list)):
 			ls = ls[0]
 
 		self.tup = tuple(ls)
@@ -104,9 +104,7 @@ class MTime(MRangeDescriptor):
 		if tod.year == self.year:
 			if tod.month > self.month: return False
 			if self.precision == 2: return True
-			if tod.month == self.month:
-				if tod.day > self.day: return False
-
+			if tod.month == self.month and tod.day > self.day: return False
 		return True
 
 
@@ -144,21 +142,21 @@ class MTime(MRangeDescriptor):
 
 	# describes only the parts that are different than another range object
 	def contextual_desc(self,other):
-		if isinstance(other,MTime):
-			relevant = self.desc().split(" ")
-			if self.year == other.year:
+		if not isinstance(other, MTime):
+			return self.desc()
+		relevant = self.desc().split(" ")
+		if self.year == other.year:
+			relevant.pop()
+			if self.precision > 1 and other.precision > 1 and self.month == other.month:
 				relevant.pop()
-				if self.precision > 1 and other.precision > 1 and self.month == other.month:
+				if self.precision > 2 and other.precision > 2 and self.day == other.day:
 					relevant.pop()
-					if self.precision > 2 and other.precision > 2 and self.day == other.day:
-						relevant.pop()
-			return " ".join(relevant)
-		return self.desc()
+		return " ".join(relevant)
 
 	# gets object with one higher precision that starts this one
 	def start(self):
-		if self.precision == 1: return MTime(self.tup + (1,))
-		elif self.precision == 2: return MTime(self.tup + (1,))
+		if self.precision in [1, 2]: return MTime(self.tup + (1,))
+
 	# gets object with one higher precision that ends this one
 	def end(self):
 		if self.precision == 1: return MTime(self.tup + (12,))
@@ -251,8 +249,7 @@ class MTimeWeek(MRangeDescriptor):
 		return self.desc()
 
 	def contextual_desc(self,other):
-		if isinstance(other,MTimeWeek):
-			if other.year == self.year: return "Week " + str(self.week)
+		if isinstance(other, MTimeWeek) and other.year == self.year: return "Week " + str(self.week)
 		return self.desc()
 
 	def start(self):

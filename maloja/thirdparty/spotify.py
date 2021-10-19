@@ -1,5 +1,4 @@
 from . import MetadataInterface, utf, b64
-import hashlib
 import urllib.parse, urllib.request
 import json
 from threading import Timer

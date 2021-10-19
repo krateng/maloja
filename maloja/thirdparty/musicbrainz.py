@@ -1,5 +1,4 @@
-from . import MetadataInterface, utf, b64
-import hashlib
+from . import MetadataInterface
 import urllib.parse, urllib.request
 import json
 import time

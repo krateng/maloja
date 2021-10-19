@@ -12,7 +12,7 @@ def serialize(obj):
 		try:
 			return json.dumps(obj)
 		except:
-			if isinstance(obj,list) or isinstance(obj,tuple):
+			if isinstance(obj, (list, tuple)):
 				return "[" + ",".join(serialize(o) for o in obj) + "]"
 			elif isinstance(obj,dict):
 				return "{" + ",".join(serialize(o) + ":" + serialize(obj[o]) for o in obj) + "}"

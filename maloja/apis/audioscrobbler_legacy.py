@@ -38,8 +38,7 @@ class AudioscrobblerLegacy(APIHandler):
 		timestamp = keys.get("t")
 		apikey = keys.get("api_key")
 		host = keys.get("Host")
-		protocol = request.urlparts.scheme
-		if (keys.get("u") == 'nossl'): protocol = 'http' #user override
+		protocol = 'http' if (keys.get("u") == 'nossl') else request.urlparts.scheme
 
 		if auth is not None:
 			for key in database.allAPIkeys():
@@ -68,22 +67,20 @@ class AudioscrobblerLegacy(APIHandler):
 	def submit_scrobble(self,pathnodes,keys):
 		if keys.get("s") is None or keys.get("s") not in self.mobile_sessions:
 			raise InvalidSessionKey()
-		else:
-			for count in range(0,50):
-				artist_key = f"a[{count}]"
-				track_key = f"t[{count}]"
-				time_key = f"i[{count}]"
-				if artist_key in keys and track_key in keys:
-					artiststr,titlestr = keys[artist_key], keys[track_key]
-					try:
-						timestamp = int(keys[time_key])
-					except:
-						timestamp = None
-					#database.createScrobble(artists,title,timestamp)
-					self.scrobble(artiststr,titlestr,time=timestamp)
-				else:
-					return 200,"OK\n"
-			return 200,"OK\n"
+		for count in range(50):
+			artist_key = f"a[{count}]"
+			track_key = f"t[{count}]"
+			time_key = f"i[{count}]"
+			if artist_key not in keys or track_key not in keys:
+				return 200,"OK\n"
+			artiststr,titlestr = keys[artist_key], keys[track_key]
+			try:
+				timestamp = int(keys[time_key])
+			except:
+				timestamp = None
+			#database.createScrobble(artists,title,timestamp)
+			self.scrobble(artiststr,titlestr,time=timestamp)
+		return 200,"OK\n"
 
 
 import hashlib
@@ -95,9 +92,12 @@ def md5(input):
 	return m.hexdigest()
 
 def generate_key(ls):
-	key = ""
-	for i in range(64):
-		key += str(random.choice(list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")))
+	key = "".join(
+	    str(
+	        random.choice(
+	            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
+	            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
+
 	ls.append(key)
 	return key
 

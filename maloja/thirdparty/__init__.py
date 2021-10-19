@@ -177,17 +177,14 @@ class MetadataInterface(GenericInterface,abstract=True):
 	# default function to parse response by descending down nodes
 	# override if more complicated
 	def metadata_parse_response_artist(self,data):
-		res = data
-		for node in self.metadata["response_parse_tree_artist"]:
-			try:
-				res = res[node]
-			except:
-				return None
-		return res
+		return self._parse_response("response_parse_tree_artist", data)
 
 	def metadata_parse_response_track(self,data):
+		return self._parse_response("response_parse_tree_track", data)
+
+	def _parse_response(self, resp, data):
 		res = data
-		for node in self.metadata["response_parse_tree_track"]:
+		for node in self.metadata[resp]:
 			try:
 				res = res[node]
 			except:
