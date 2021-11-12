@@ -3,6 +3,8 @@ from ._exceptions import *
 from .. import database
 import datetime
 
+from doreah.settings import get_settings
+
 
 class Listenbrainz(APIHandler):
 	__apiname__ = "Listenbrainz"
@@ -70,7 +72,7 @@ class Listenbrainz(APIHandler):
 		if token not in database.allAPIkeys():
 			raise InvalidAuthException()
 		else:
-			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":"n/a"}
+			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":get_settings("NAME") or 'Maloja User'}
 
 	def get_token_from_request_keys(self,keys):
 		if 'token' in keys:
