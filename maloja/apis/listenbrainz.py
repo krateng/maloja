@@ -30,7 +30,7 @@ class Listenbrainz(APIHandler):
 
 	def submit(self,pathnodes,keys):
 		try:
-			token = keys.get("Authorization").replace("token ","").replace("Token ","").strip()
+			token = self.get_token_from_request_keys(keys)
 		except:
 			raise BadAuthException()
 
@@ -56,7 +56,7 @@ class Listenbrainz(APIHandler):
 						timestamp = None
 				except:
 					raise MalformedJSONException()
-					
+
 				self.scrobble(artiststr,titlestr,timestamp)
 
 			return 200,{"status":"ok"}
@@ -64,10 +64,21 @@ class Listenbrainz(APIHandler):
 
 	def validate_token(self,pathnodes,keys):
 		try:
-			token = keys.get("token").strip()
+			token = self.get_token_from_request_keys(keys)
 		except:
 			raise BadAuthException()
 		if token not in database.allAPIkeys():
 			raise InvalidAuthException()
 		else:
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":"n/a"}
+
+	def get_token_from_request_keys(self,keys):
+		if 'token' in keys:
+			return keys.get("token").strip()
+		if 'Authorization' in keys:
+			auth = keys.get("Authorization")
+			if auth.startswith('token '):
+				return auth.replace("token ","",1).strip()
+			if auth.startswith('Token '):
+				return auth.replace("Token ","",1).strip()
+		raise BadAuthException()
