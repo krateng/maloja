@@ -474,7 +474,7 @@ table.list tr td {
 }
 
 table.list tr:nth-child(even) {
-	background-color:#37373B;
+	background-color:var(--base-color-accent);
 }
 
 table.list tr:nth-child(5n) td {
@@ -587,7 +587,7 @@ table.list td.amount {
 }
 table.list td.bar {
 	width:500px;
-	background-color: var(--base-color);
+	/* background-color: var(--base-color); */
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
@@ -605,7 +605,7 @@ table.list tr:hover td.bar div {
 
 table.list td.chart {
 	width:500px;
-	background-color: var(--base-color);
+	/* background-color: var(--base-color); */
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
 }
@@ -614,7 +614,7 @@ table.list td.chart div {
 	height:4px;
 	*/
 	height:20px;
-	background-color: rgba(0,0,0,0.1);
+	background-color: var(--text-color-tertiary);
 	border-radius: 0px 30px 30px 0px;
 	background-image:url("/media/chartpos_normal.png");
 	background-position: right;

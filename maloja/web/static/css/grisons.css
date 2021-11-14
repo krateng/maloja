@@ -6,6 +6,7 @@
 	--base-color: #232327;
 	--base-color-dark: #090909;
 	--base-color-light: #343437;
+	--base-color-accent: #26262A;
 
 	--text-color: beige;
 	--text-color-selected: fadeout(var(--text-color),40%);
