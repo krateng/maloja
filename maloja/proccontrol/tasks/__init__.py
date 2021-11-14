@@ -34,3 +34,9 @@ def update():
 def fixdb():
 	from .fixexisting import fix
 	fix()
+
+def generate_scrobbles():
+	targetfile = data_dir['scrobbles']("randomgenerated.tsv")
+
+	from .generate import generate
+	generate(targetfile)

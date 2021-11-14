@@ -1194,24 +1194,3 @@ def scrobbles_in_range(start,end,reverse=False):
 			if stamp < start: continue
 			if stamp > end: return
 			yield SCROBBLESDICT[stamp]
-
-
-# for performance testing
-def generateStuff(num=0,pertrack=0,mult=0):
-	import random
-	for _ in range(num):
-		track = random.choice(TRACKS)
-		t = get_track_dict(track)
-		time = random.randint(STAMPS[0],STAMPS[-1])
-		createScrobble(t["artists"],t["title"],time,volatile=True)
-
-	for track in TRACKS:
-		t = get_track_dict(track)
-		for _ in range(pertrack):
-			time = random.randint(STAMPS[0],STAMPS[-1])
-			createScrobble(t["artists"],t["title"],time,volatile=True)
-
-	for scrobble in SCROBBLES:
-		s = get_scrobble_dict(scrobble)
-		for i in range(mult):
-			createScrobble(s["artists"],s["title"],s["time"] - i*500,volatile=True)

@@ -71,7 +71,6 @@ def direct():
 	from .. import server
 
 
-
 @mainfunction({"l":"level"},shield=True)
 def main(action,*args,**kwargs):
 	actions = {
@@ -84,7 +83,8 @@ def main(action,*args,**kwargs):
 		"import":tasks.loadlastfm,
 		"backup":tasks.backuphere,
 	#	"update":update,
-		"fix":tasks.fixdb
+		"fix":tasks.fixdb,
+		"generate":tasks.generate_scrobbles
 	}
 	if action in actions: actions[action](*args,**kwargs)
 	else: print("Valid commands: " + " ".join(a for a in actions))
