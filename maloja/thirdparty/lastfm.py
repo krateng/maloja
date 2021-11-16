@@ -21,9 +21,8 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 	metadata = {
 		"trackurl": "https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track={title}&artist={artist}&api_key={apikey}&format=json",
 		"response_type":"json",
-		"response_parse_tree_track": ["track","album","image",3,"#text"],
+		"response_parse_tree_track": ["track","album","image",-1,"#text"],
 		"required_settings": ["apikey"],
-		"activated_setting": "METADATA_LASTFM"
 	}
 
 	def get_image_artist(self,artist):

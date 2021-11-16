@@ -2,6 +2,7 @@ from . import MetadataInterface, utf, b64
 import urllib.parse, urllib.request
 import json
 from threading import Timer
+from doreah.logging import log
 
 class Spotify(MetadataInterface):
 	name = "Spotify"
@@ -19,7 +20,6 @@ class Spotify(MetadataInterface):
 		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"],
 		"response_parse_tree_artist": ["artists","items",0,"images",0,"url"],
 		"required_settings": ["apiid","secret"],
-		"activated_setting": "METADATA_SPOTIFY"
 	}
 
 	def authorize(self):
@@ -32,10 +32,18 @@ class Spotify(MetadataInterface):
 			},
 			"data":bytes(urllib.parse.urlencode({"grant_type":"client_credentials"}),encoding="utf-8")
 		}
-		req = urllib.request.Request(**keys)
-		response = urllib.request.urlopen(req)
-		responsedata = json.loads(response.read())
-		expire = responsedata.get("expires_in",3600)
-		self.settings["token"] = responsedata["access_token"]
+		try:
+			req = urllib.request.Request(**keys)
+			response = urllib.request.urlopen(req)
+			responsedata = json.loads(response.read())
+			if "error" in responsedata:
+				log("Error authenticating with Spotify: " + responsedata['error_description'])
+				expire = 3600
+			else:
+				expire = responsedata.get("expires_in",3600)
+				self.settings["token"] = responsedata["access_token"]
+		except Exception as e:
+			log("Error while authenticating with Spotify: " + str(e))
+			expire = 3600
 		Timer(expire,self.authorize).start()
 		return True

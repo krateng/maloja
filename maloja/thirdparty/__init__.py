@@ -36,7 +36,7 @@ def get_image_track_all(track):
 			else:
 				log("Could not get track image for " + str(track) + " from " + service.name)
 		except Exception as e:
-			log("Error getting track image from " + service.name + ": " + str(e))
+			log("Error getting track image from " + service.name + ": " + repr(e))
 def get_image_artist_all(artist):
 	for service in services["metadata"]:
 		try:
@@ -47,7 +47,7 @@ def get_image_artist_all(artist):
 			else:
 				log("Could not get artist image for " + str(artist) + " from " + service.name)
 		except Exception as e:
-			log("Error getting artist image from " + service.name + ": " + str(e))
+			log("Error getting artist image from " + service.name + ": " + repr(e))
 
 
 
@@ -70,8 +70,7 @@ class GenericInterface:
 		# avoid constant disk access, restart on adding services is acceptable
 		for key in self.settings:
 			self.settings[key] = get_settings(self.settings[key])
-		try: self.authorize()
-		except: pass
+		self.authorize()
 
 	def __init_subclass__(cls,abstract=False):
 		if not abstract:

@@ -20,7 +20,6 @@ class MusicBrainz(MetadataInterface):
 		"response_type":"json",
 		"response_parse_tree_track": ["images",0,"image"],
 		"required_settings": [],
-		"activated_setting": "METADATA_MUSICBRAINZ"
 	}
 
 	def get_image_artist(self,artist):
