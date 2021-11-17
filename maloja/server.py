@@ -39,10 +39,6 @@ from css_html_js_minify import html_minify, css_minify
 import urllib
 
 
-
-
-
-
 #settings.config(files=["settings/default.ini","settings/settings.ini"])
 #settings.update("settings/default.ini","settings/settings.ini")
 MAIN_PORT = settings.get_settings("WEB_PORT")
@@ -265,14 +261,17 @@ signal.signal(signal.SIGTERM, graceful_exit)
 #rename process, this is now required for the daemon manager to work
 setproctitle.setproctitle("Maloja")
 
-## start database
-database.start_db()
+def run_server():
+	## start database
+	database.start_db()
 
-log("Starting up Maloja server...")
+	log("Starting up Maloja server...")
 
-try:
-	#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
-	waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
-except OSError:
-	log("Error. Is another Maloja process already running?")
-	raise
+	try:
+		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+		waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
+	except OSError:
+		log("Error. Is another Maloja process already running?")
+		raise
+
+run_server()
