@@ -7,6 +7,8 @@
 	--base-color-dark: #090909;
 	--base-color-light: #343437;
 	--base-color-accent: #26262A;
+	--base-color-accent-dark: #1d1d21;
+	--base-color-accent-light: #404044;
 
 	--text-color: beige;
 	--text-color-selected: fadeout(var(--text-color),40%);
@@ -28,7 +30,8 @@
 
 
 body {
-	background-color: var(--base-color);
+	--current-bg-color: var(--base-color); /* drag this information through inheritances */
+	background-color: var(--current-bg-color);
 	color: var(--text-color);
 	font-family:"Ubuntu";
 }

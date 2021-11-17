@@ -464,7 +464,7 @@ table.list {
 
 table.list tr td {
 	border-bottom:2px solid;
-	border-color:rgba(0,0,0,0);
+	border-color:var(--current-bg-color);
 	white-space: nowrap;
 	overflow:hidden;
 	text-overflow:ellipsis;
@@ -474,7 +474,11 @@ table.list tr td {
 }
 
 table.list tr:nth-child(even) {
-	background-color:var(--base-color-accent);
+	/* background-color:var(--base-color-accent); */
+	--current-bg-color: rgba(255,255,255,0.05);
+	background-color: var(--current-bg-color);
+	border-color: var(--current-bg-color);
+	/* make rows distinguishable with respect to any bg color */
 }
 
 table.list tr:nth-child(5n) td {
@@ -483,7 +487,9 @@ table.list tr:nth-child(5n) td {
 }
 
 table.list tr:hover {
-	background-color:#404044;
+	--current-bg-color: rgba(255,255,255,0.2);
+	background-color: var(--current-bg-color);
+	border-color: var(--current-bg-color);
 }
 
 table.list td.time {
@@ -614,7 +620,7 @@ table.list td.chart div {
 	height:4px;
 	*/
 	height:20px;
-	background-color: var(--base-color-dark);
+	background-color: var(--base-color-accent-dark);
 	border-radius: 0px 30px 30px 0px;
 	background-image:url("/media/chartpos_normal.png");
 	background-position: right;
@@ -829,7 +835,8 @@ div.sidelist {
 	top:0px;
 	width:40%;
 	height:100%;
-	background-color: var(--base-color-light);
+	--current-bg-color: var(--base-color-light); /* drag this information through inheritances */
+	background-color: var(--current-bg-color);
 	padding-left:30px;
 	padding-right:30px;
 }
