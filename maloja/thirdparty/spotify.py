@@ -42,8 +42,9 @@ class Spotify(MetadataInterface):
 			else:
 				expire = responsedata.get("expires_in",3600)
 				self.settings["token"] = responsedata["access_token"]
+				log("Successfully authenticated with Spotify")
 		except Exception as e:
-			log("Error while authenticating with Spotify: " + str(e))
-			expire = 3600
+			log("Error while authenticating with Spotify: " + repr(e))
+			expire = 1200
 		Timer(expire,self.authorize).start()
 		return True

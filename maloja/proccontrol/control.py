@@ -7,6 +7,15 @@ import signal
 
 from .setup import setup
 from . import tasks
+from .. import __pkginfo__ as info
+
+print()
+print("#####")
+print("Maloja v" + info.versionstr)
+print("https://github.com/" + info.author['github'] + "/" + info.links['github'])
+print("#####")
+print()
+
 
 def getInstance():
 	try:

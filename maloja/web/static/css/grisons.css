@@ -19,7 +19,7 @@
 	--ctrl-element-color-focus: gold;
 
 	--button-color-bg: var(--text-color);
-	--button-color-bg-focus: var(--focus-color);
+	--button-color-bg-focus: var(--text-color-focus);
 	--button-color-fg: var(--base-color);
 	--button-color-fg-focus: var(--base-color);
 }
