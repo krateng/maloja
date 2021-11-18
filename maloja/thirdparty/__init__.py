@@ -72,6 +72,9 @@ class GenericInterface:
 			self.settings[key] = get_settings(self.settings[key])
 		self.authorize()
 
+	# this makes sure that of every class we define, we immediately create an
+	# instance (de facto singleton). then each instance checks if the requirements
+	# are met to use that service in each particular role and registers as such
 	def __init_subclass__(cls,abstract=False):
 		if not abstract:
 			s = cls()
@@ -97,6 +100,8 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 		"activated_setting":None
 	}
 
+	# service provides this role only if the setting is active AND all
+	# necessary auth settings exist
 	def active_proxyscrobble(self):
 		return (
 			all(self.settings[key] not in [None,"ASK"] for key in self.proxyscrobble["required_settings"]) and
@@ -120,6 +125,8 @@ class ImportInterface(GenericInterface,abstract=True):
 		"activated_setting":None
 	}
 
+	# service provides this role only if the setting is active AND all
+	# necessary auth settings exist
 	def active_import(self):
 		return (
 			all(self.settings[key] not in [None,"ASK"] for key in self.scrobbleimport["required_settings"]) and
@@ -135,6 +142,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		"activated_setting":None
 	}
 
+	# service provides this role only if the setting is active AND all
+	# necessary auth settings exist
 	def active_metadata(self):
 		return (
 			all(self.settings[key] not in [None,"ASK"] for key in self.metadata["required_settings"]) and
