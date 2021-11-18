@@ -13,23 +13,32 @@ adjectives = [
 	"Long","Short","Last","First","Final","Huge","Tiny","Important"
 ]
 nouns = [
-	"Ship","Princess","Castle","Monastery","Sword","War","Battle","Temple","Army",
-	"Valley","River","Waterfall","Mountain","Tree","Forest","Sea","Desert","Montains","Clouds","Glacier",
-	"Penguin","Tiger","Phoenix","Qilin","Dragon","Tortoise","Bird","Toucan"
+	"Ship","Princess","Castle","Monastery","Sword","War","Battle","Temple","Army","Horse",
+	"Valley","River","Waterfall","Mountain","Tree","Forest","Sea","Desert","Montains","Clouds","Glacier","Sun","Moon",
+	"Dusk","Dawn","Twilight","Nightfall","Sunset","Sunrise",
+	"Penguin","Tiger","Phoenix","Qilin","Dragon","Tortoise","Bird","Toucan",
+	"Area","Region","Land","Span","Gate","Arch","Country","Field",
+	"Cherry","Pear","Olive","Apple","Peach","Berry",
+	"Sapphire","Emerald","Jade","Ruby"
 ]
 prepositions = ["in","of","over","under","about","across","inside","toward","on","within","with"]
-verbs = ["Lifting","Stealing","Dancing","Running","Jumping","Singing"]
+verbs = [
+	"Lifting","Stealing","Dancing","Running","Jumping","Singing","Moving","Climbing","Walking","Wandering",
+	"Fighting","Entering","Leaving","Meeting","Watching","Eating"
+]
 
 patterns = [
-	"{n1} {p1} the {a1} {n2}",
-	"The {a1} {n1}",
-	"{p1} the {a1} {n1}",
+	"{n1} {p1} the {a1} {n2}", # Land of the Golden Sun
+	"The {a1} {n1}", # The Green Dragon
+	"{p1} the {a1} {n1}", # Under the Dark Span
 	"{a1} {n1} {p1} the {a2} {n2}",
 	"{v1} the {a1} {n1}",
 	"{v1} {p1} the {a1} {n1}",
 	"{v1} and {v2}",
 	"{a1} {n1} {p1} the {n2} {n3}",
-	"{a1} {n1} and the {n2} {n3}"
+	"{a1} {n1} and the {n2} {n3}", # Black Horse and the Cherry Tree
+	"{a1} {a2} {p1} your {n1}", # Black Pink in your Area
+	"Forward {p1} {n1}"
 ]
 
 def generate_track():
