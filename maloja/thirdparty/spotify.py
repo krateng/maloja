@@ -24,27 +24,27 @@ class Spotify(MetadataInterface):
 
 	def authorize(self):
 
-		keys = {
-			"url":"https://accounts.spotify.com/api/token",
-			"method":"POST",
-			"headers":{
-				"Authorization":"Basic " + b64(utf(self.settings["apiid"] + ":" + self.settings["secret"])).decode("utf-8")
-			},
-			"data":bytes(urllib.parse.urlencode({"grant_type":"client_credentials"}),encoding="utf-8")
-		}
-		try:
-			req = urllib.request.Request(**keys)
-			response = urllib.request.urlopen(req)
-			responsedata = json.loads(response.read())
-			if "error" in responsedata:
-				log("Error authenticating with Spotify: " + responsedata['error_description'])
-				expire = 3600
-			else:
-				expire = responsedata.get("expires_in",3600)
-				self.settings["token"] = responsedata["access_token"]
-				log("Successfully authenticated with Spotify")
-		except Exception as e:
-			log("Error while authenticating with Spotify: " + repr(e))
-			expire = 1200
-		Timer(expire,self.authorize).start()
-		return True
+		if self.active_metadata():
+
+			try:
+				keys = {
+					"url":"https://accounts.spotify.com/api/token",
+					"method":"POST",
+					"headers":{
+						"Authorization":"Basic " + b64(utf(self.settings["apiid"] + ":" + self.settings["secret"])).decode("utf-8")
+					},
+					"data":bytes(urllib.parse.urlencode({"grant_type":"client_credentials"}),encoding="utf-8")
+				}
+				req = urllib.request.Request(**keys)
+				response = urllib.request.urlopen(req)
+				responsedata = json.loads(response.read())
+				if "error" in responsedata:
+					log("Error authenticating with Spotify: " + responsedata['error_description'])
+					expire = 3600
+				else:
+					expire = responsedata.get("expires_in",3600)
+					self.settings["token"] = responsedata["access_token"]
+					log("Successfully authenticated with Spotify")
+				Timer(expire,self.authorize).start()
+			except Exception as e:
+				log("Error while authenticating with Spotify: " + repr(e))
