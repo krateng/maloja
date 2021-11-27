@@ -220,7 +220,9 @@ def b64(inp):
 __all__ = [
 	"lastfm",
 	"spotify",
-	"musicbrainz"
+	"musicbrainz",
+	"audiodb",
+	"deezer"
 ]
 from . import *
 
