@@ -104,7 +104,7 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 	# necessary auth settings exist
 	def active_proxyscrobble(self):
 		return (
-			all(self.settings[key] not in [None,"ASK"] for key in self.proxyscrobble["required_settings"]) and
+			all(self.settings[key] not in [None,"ASK",False] for key in self.proxyscrobble["required_settings"]) and
 			get_settings(self.proxyscrobble["activated_setting"])
 		)
 
@@ -129,7 +129,7 @@ class ImportInterface(GenericInterface,abstract=True):
 	# necessary auth settings exist
 	def active_import(self):
 		return (
-			all(self.settings[key] not in [None,"ASK"] for key in self.scrobbleimport["required_settings"]) and
+			all(self.settings[key] not in [None,"ASK",False] for key in self.scrobbleimport["required_settings"]) and
 			get_settings(self.scrobbleimport["activated_setting"])
 		)
 
@@ -146,7 +146,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 	# necessary auth settings exist
 	def active_metadata(self):
 		return (
-			all(self.settings[key] not in [None,"ASK"] for key in self.metadata["required_settings"]) and
+			all(self.settings[key] not in [None,"ASK",False] for key in self.metadata["required_settings"]) and
 			self.identifier in get_settings("METADATA_PROVIDERS")
 		)
 

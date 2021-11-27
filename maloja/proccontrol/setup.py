@@ -11,9 +11,10 @@ from ..globalconf import data_dir, dir_settings
 # EXTERNAL API KEYS
 apikeys = {
 	"LASTFM_API_KEY":"Last.fm API Key",
-	"FANARTTV_API_KEY":"Fanart.tv API Key",
+	#"FANARTTV_API_KEY":"Fanart.tv API Key",
 	"SPOTIFY_API_ID":"Spotify Client ID",
-	"SPOTIFY_API_SECRET":"Spotify Client Secret"
+	"SPOTIFY_API_SECRET":"Spotify Client Secret",
+	"AUDIODB_API_KEY":"TheAudioDB API Key"
 }
 
 
@@ -36,11 +37,11 @@ def setup():
 	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
 	for k in apikeys:
 		key = settings.get_settings(k)
-		if key is None:
+		if key is False:
 			print("\t" + "Currently not using a " + apikeys[k] + " for image display.")
-		elif key == "ASK":
-			print("\t" + "Please enter your " + apikeys[k] + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
-			key = prompt("",types=(str,),default=None,skip=SKIP)
+		elif key is None or key == "ASK":
+			print("\t" + "Please enter your " + col['gold'](apikeys[k]) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
+			key = prompt("",types=(str,),default=False,skip=SKIP)
 			settings.update_settings(data_dir['settings']("settings.ini"),{k:key},create_new=True)
 		else:
 			print("\t" + apikeys[k] + " found.")
