@@ -219,15 +219,9 @@ def login():
 	return auth.get_login_page()
 
 @webserver.route("/<name>.<ext>")
-def static(name,ext):
-	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
-	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
-	response.set_header("Cache-Control", "public, max-age=3600")
-	return response
-
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
-	assert ext in ["ico","jpeg","jpg","png"]
+	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
 	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
@@ -319,12 +313,11 @@ signal.signal(signal.SIGTERM, graceful_exit)
 
 
 def run_server():
-
-	Thread(target=database.start_db).start()
-	## start database
-
-
 	log("Starting up Maloja server...")
+
+	## start database
+	Thread(target=database.start_db).start()
+
 
 	try:
 		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')

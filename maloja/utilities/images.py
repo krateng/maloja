@@ -139,26 +139,27 @@ local_track_cache = caching.Cache(maxage=local_cache_age)
 
 def getTrackImage(artists,title,fast=False):
 
-	if settings.get_settings("USE_LOCAL_IMAGES"):
+	hashable_track = (frozenset(artists),title)
 
+	# Prio 1: Local image
+	if settings.get_settings("USE_LOCAL_IMAGES"):
 		try:
-			return local_track_cache.get((frozenset(artists),title))
+			return thumborize(local_track_cache.get(hashable_track))
 		except:
 			images = local_files(artists=artists,title=title)
 			if len(images) != 0:
-				#return random.choice(images)
 				res = random.choice(images)
-				local_track_cache.add((frozenset(artists),title),res)
+				local_track_cache.add(hashable_track,res)
 				return urllib.parse.quote(res)
 
 
+	# Prio 2: Cached remote link
 	try:
-		# check our cache
-		# if we have cached the nonexistence of that image, we immediately return the redirect to the artist and let the resolver handle it
+		result = track_cache.get(hashable_track)
+		if result is not None: return thumborize(result)
+		# if we have cached the nonexistence of that image, we immediately return
+		# the redirect to the artist and let the resolver handle it
 		# (even if we're not in a fast lookup right now)
-		#result = cachedTracks[(frozenset(artists),title)]
-		result = track_cache.get((frozenset(artists),title)) #track_from_cache(artists,title)
-		if result is not None: return result
 		for a in artists:
 			res = getArtistImage(artist=a,fast=True)
 			if res != "": return res
@@ -166,25 +167,19 @@ def getTrackImage(artists,title,fast=False):
 	except:
 		pass
 
-	# do we have an api key?
-#	apikey = settings.get_settings("LASTFM_API_KEY")
-#	if apikey is None: return "" # DO NOT CACHE THAT
 
-
-	# fast request only retuns cached and local results, generates redirect link for rest
+	# fast request will not go further than this, but now generate redirect link
 	if fast:
 		return ("/image?title=" + urllib.parse.quote(title) + "&" + "&".join(
 		    "artist=" + urllib.parse.quote(a) for a in artists))
 
-	# non-fast lookup (essentially only the resolver lookup)
+
+	# Prio 3 (only non-fast lookup): actually call third parties
 	result = thirdparty.get_image_track_all((artists,title))
-
 	# cache results (even negative ones)
-	#cachedTracks[(frozenset(artists),title)] = result
-	track_cache.add((frozenset(artists),title),result) #cache_track(artists,title,result)
-
+	track_cache.add(hashable_track,result)
 	# return either result or redirect to artist
-	if result is not None: return result
+	if result is not None: return thumborize(result)
 	for a in artists:
 		res = getArtistImage(artist=a,fast=False)
 		if res != "": return res
@@ -193,24 +188,20 @@ def getTrackImage(artists,title,fast=False):
 
 def getArtistImage(artist,fast=False):
 
+	# Prio 1: Local image
 	if settings.get_settings("USE_LOCAL_IMAGES"):
-
 		try:
 			return thumborize(local_artist_cache.get(artist))
-			# Local cached image
 		except:
-			# Get all local images, select one if present
 			images = local_files(artist=artist)
 			if len(images) != 0:
-				#return random.choice(images)
 				res = random.choice(images)
 				local_artist_cache.add(artist,res)
 				return thumborize(urllib.parse.quote(res))
 
 
-	# if no local images (or setting to not use them)
+	# Prio 2: Cached remote link
 	try:
-		# check cache for foreign image
 		result = artist_cache.get(artist)
 		if result is not None: return thumborize(result)
 		else: return ""
@@ -220,22 +211,14 @@ def getArtistImage(artist,fast=False):
 		# no cache entry, go on
 
 
-
-	# do we have an api key?
-#	apikey = settings.get_settings("LASTFM_API_KEY")
-#	if apikey is None: return "" # DO NOT CACHE THAT
-
-
-	# fast request only retuns cached and local results, generates redirect link for rest
+	# fast request will not go further than this, but now generate redirect link
 	if fast: return "/image?artist=" + urllib.parse.quote(artist)
 
-	# non-fast lookup (essentially only the resolver lookup)
+
+	# Prio 3 (only non-fast lookup): actually call third parties
 	result = thirdparty.get_image_artist_all(artist)
-
 	# cache results (even negative ones)
-	#cachedArtists[artist] = result
 	artist_cache.add(artist,result) #cache_artist(artist,result)
-
 	if result is not None: return thumborize(result)
 	else: return ""
 
