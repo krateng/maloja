@@ -270,8 +270,8 @@ def register_endpoints_web_dynamic():
 		template = jinja_environment.get_template(name + '.jinja')
 		try:
 			res = template.render(**LOCAL_CONTEXT)
-		except ValueError as e:
-			abort(404,"Entity does not exist")
+		except (ValueError, IndexError) as e:
+			abort(404,"This Artist or Track does not exist")
 
 		if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
 

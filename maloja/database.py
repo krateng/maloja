@@ -51,9 +51,11 @@ dbstatus = {
 }
 class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
-		super().__init__()
-		self.status = 503
-		self.body = "The Maloja Database is still being built. Try again in a few seconds."
+		super().__init__(
+			status=503,
+			body="The Maloja Database is still being built. Try again in a few seconds.",
+			headers={"Retry-After":10}
+		)
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
