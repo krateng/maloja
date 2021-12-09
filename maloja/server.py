@@ -331,33 +331,13 @@ signal.signal(signal.SIGTERM, graceful_exit)
 #####
 
 
-
-def register_temp_endpoint():
-
-	@webserver.route("/<path:path>")
-	@webserver.route("")
-	@webserver.route("/")
-	def notyet(*args,**kwargs):
-		abort(503,"Database is still being built")
-
-def unregister_temp_endpoint():
-	pass
-	# TODO
-
-def wait_for_db():
-
-	register_endpoints_web_static()
-	register_endpoints_api()
-	register_endpoints_web_dynamic()
-
-	database.start_db()
-
-
-
-
 def run_server():
 
-	Thread(target=wait_for_db).start()
+	register_endpoints_api()
+	register_endpoints_web_static()
+	register_endpoints_web_dynamic()
+
+	Thread(target=database.start_db).start()
 	## start database
 
 
