@@ -128,7 +128,7 @@ a:hover {
  text-decoration:underline;
 }
 
-// for links in running text
+/* for links in running text */
 a.textlink {
 	color: var(--text-color-focus);
 }
