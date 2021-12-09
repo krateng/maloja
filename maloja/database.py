@@ -1,5 +1,5 @@
 # server
-from bottle import request, response, FormsDict
+from bottle import request, response, FormsDict, HTTPError
 
 # rest of the project
 from .cleanup import CleanerAgent, CollectorAgent
@@ -48,6 +48,11 @@ dbstatus = {
 	"healthy":False,
 	"rebuildinprogress":False
 }
+class DatabaseNotBuilt(HTTPError):
+	def __init__(self):
+		super().__init__()
+		self.status = 503
+		self.body = "The Maloja Database is still being built. Try again in a few seconds."
 
 SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
 ARTISTS = []	# Format: artist
@@ -263,6 +268,7 @@ def api_key_correct(request):
 
 
 def get_scrobbles(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
 	#offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
 	#r = r[offset:]
@@ -271,6 +277,7 @@ def get_scrobbles(**keys):
 
 
 def info():
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	totalscrobbles = get_scrobbles_num()
 	artists = {}
 
@@ -286,6 +293,7 @@ def info():
 
 
 def get_scrobbles_num(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
 	return len(r)
 
@@ -324,6 +332,7 @@ def get_scrobbles_num(**keys):
 
 
 def get_tracks(artist=None):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	artistid = ARTISTS.index(artist) if artist is not None else None
 	# Option 1
@@ -335,34 +344,22 @@ def get_tracks(artist=None):
 
 
 def get_artists():
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	return ARTISTS #well
 
 
 
-
-
-
 def get_charts_artists(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
 
 
-
-
-
-
-
 def get_charts_tracks(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
 
-
-
-
-
-
-
-
-
 def get_pulse(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -373,10 +370,8 @@ def get_pulse(**keys):
 	return results
 
 
-
-
-
 def get_performance(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -401,13 +396,8 @@ def get_performance(**keys):
 	return results
 
 
-
-
-
-
-
-
 def get_top_artists(**keys):
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -1027,6 +1017,7 @@ def reduce_caches_if_low_ram():
 # Queries the database
 def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,timerange=None,associated=False,max_=None):
 
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly
@@ -1078,7 +1069,7 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 # Queries that... well... aggregate
 def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,artist=None):
 
-
+	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
 
 	if isinstance(artist, str):
