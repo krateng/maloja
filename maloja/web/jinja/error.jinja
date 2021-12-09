@@ -8,7 +8,8 @@
 				<div style="background-image:url('/favicon.png')"></div>
 			</td>
 			<td class="text">
-				<h1>{{ errordesc }}</h1><br/>
+				<h1>{{ error_desc }}</h1><br/>
+				{{ error_full_desc }}
 
 			</td>
 		</tr>
@@ -23,7 +24,7 @@
 			{{ traceback }}
 		{%- endautoescape %}</div>
 	{% else %}
-		A team of Korean schoolgirls with katanas has been dispatched to deal with this situation.
+		Kazuma, Aqua, Darkness and Megumin have been dispatched to deal with this situation.
 	{% endif %}
 
 

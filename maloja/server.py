@@ -117,18 +117,20 @@ def clean_html(inp):
 @webserver.error(503)
 @webserver.error(505)
 def customerror(error):
-	errorcode = error.status_code
-	errordesc = error.status
-	traceback = error.traceback or error.body
+	error_code = error.status_code
+	error_desc = error.status
+	traceback = error.traceback
+	body = error.body or ""
 	traceback = traceback.strip() if traceback is not None else "No Traceback"
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
 	template = jinja_environment.get_template('error.jinja')
 	return template.render(
-	    errorcode=errorcode,
-	    errordesc=errordesc,
-	    traceback=traceback,
-	    adminmode=adminmode,
+		error_code=error_code,
+		error_desc=error_desc,
+		traceback=traceback,
+		error_full_desc=body,
+		adminmode=adminmode,
 	)
 
 
@@ -345,14 +347,13 @@ def unregister_temp_endpoint():
 def wait_for_db():
 
 	register_endpoints_web_static()
-	register_temp_endpoint()
-
-	database.start_db()
-
 	register_endpoints_api()
 	register_endpoints_web_dynamic()
 
-	unregister_temp_endpoint()
+	database.start_db()
+
+
+
 
 def run_server():
 
