@@ -46,7 +46,8 @@ import urllib
 dblock = Lock() #global database lock
 dbstatus = {
 	"healthy":False,
-	"rebuildinprogress":False
+	"rebuildinprogress":False,
+	"complete":False
 }
 class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
@@ -268,7 +269,6 @@ def api_key_correct(request):
 
 
 def get_scrobbles(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
 	#offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
 	#r = r[offset:]
@@ -277,7 +277,6 @@ def get_scrobbles(**keys):
 
 
 def info():
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	totalscrobbles = get_scrobbles_num()
 	artists = {}
 
@@ -293,7 +292,6 @@ def info():
 
 
 def get_scrobbles_num(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
 	return len(r)
 
@@ -332,7 +330,6 @@ def get_scrobbles_num(**keys):
 
 
 def get_tracks(artist=None):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	artistid = ARTISTS.index(artist) if artist is not None else None
 	# Option 1
@@ -350,16 +347,13 @@ def get_artists():
 
 
 def get_charts_artists(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
 
 
 def get_charts_tracks(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
 
 def get_pulse(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -371,7 +365,6 @@ def get_pulse(**keys):
 
 
 def get_performance(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -397,7 +390,6 @@ def get_performance(**keys):
 
 
 def get_top_artists(**keys):
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
@@ -722,6 +714,7 @@ def build_db():
 
 	global dbstatus
 	dbstatus['healthy'] = False
+	dbstatus['complete'] = False
 	dbstatus['rebuildinprogress'] = True
 
 	log("Building database...")
@@ -765,6 +758,8 @@ def build_db():
 			if n % m == 0: log(f"Loaded {n}/{scrobblenum}...")
 
 	if usebar: pbar.done()
+
+
 	log("Database loaded, optimizing...")
 
 	# optimize database
@@ -785,6 +780,9 @@ def build_db():
 	#		ARTISTS.append(artist)
 	# coa.updateIDs(ARTISTS)
 
+	dbstatus['healthy'] = True
+
+
 	#start regular tasks
 	utilities.update_medals()
 	utilities.update_weekly()
@@ -794,7 +792,8 @@ def build_db():
 	global ISSUES
 	ISSUES = check_issues()
 
-	dbstatus['healthy'] = True
+
+	dbstatus['complete'] = True
 	dbstatus['rebuildinprogress'] = False
 
 	log("Database fully built!")
