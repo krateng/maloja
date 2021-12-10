@@ -28,12 +28,12 @@ def register_scrobbletime(timestamp):
 # (e.g. 2019/03 is not the same as 2019/03/01 - 2019/03/31)
 
 
-# generic range
-class MRangeDescriptor:
+# Generic Time Range
+class MTRangeGeneric:
 
 	# despite the above, ranges that refer to the exact same real time range should evaluate as equal
 	def __eq__(self,other):
-		if not isinstance(other,MRangeDescriptor): return False
+		if not isinstance(other,MTRangeGeneric): return False
 		return (self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp())
 
 	# gives a hashable object that uniquely identifies this time range
@@ -63,9 +63,19 @@ class MRangeDescriptor:
 	def active(self):
 		return (self.last_stamp() > datetime.datetime.utcnow().timestamp())
 
+# Any range that has one defining base unit, whether week, year, etc.
+class MTRangeSingular(MTRangeGeneric):
+	def fromstr(self):
+		return str(self)
+	def tostr(self):
+		return str(self)
+
+	def urikeys(self):
+		return {"in":str(self)}
+
 
 # a range that is exactly a gregorian calendar unit (year, month or day)
-class MTime(MRangeDescriptor):
+class MTRangeGregorian(MTRangeSingular):
 	def __init__(self,*ls):
 		# in case we want to call with non-unpacked arguments
 		if isinstance(ls[0], (tuple, list)): ls = ls[0]
@@ -82,10 +92,7 @@ class MTime(MRangeDescriptor):
 
 	def __str__(self):
 		return "/".join(str(part) for part in self.tup)
-	def fromstr(self):
-		return str(self)
-	def tostr(self):
-		return str(self)
+
 
 	# whether we currently live or will ever again live in this range
 # USE GENERIC SUPER METHOD INSTEAD
@@ -100,9 +107,6 @@ class MTime(MRangeDescriptor):
 #		return True
 
 
-
-	def urikeys(self):
-		return {"in":str(self)}
 
 	def desc(self,prefix=False):
 		prefixes = (None,'in ','in ','on ')
@@ -129,7 +133,7 @@ class MTime(MRangeDescriptor):
 	# describes only the parts that are different than another range object
 	def contextual_desc(self,other):
 		# TODO: more elegant maybe?
-		if not isinstance(other, MTime): return self.desc()
+		if not isinstance(other, MTRangeGregorian): return self.desc()
 
 		relevant = self.desc().split(" ")
 		if self.year == other.year:
@@ -143,11 +147,11 @@ class MTime(MRangeDescriptor):
 
 	# get objects with one higher precision that start or end this one
 	def start(self):
-		if self.precision in [1, 2]: return MTime(*self.tup,1)
+		if self.precision in [1, 2]: return MTRangeGregorian(*self.tup,1)
 		return self
 	def end(self):
-		if self.precision == 1: return MTime(*self.tup,12)
-		elif self.precision == 2: return MTime(*self.tup,monthrange(self.year,self.month)[1])
+		if self.precision == 1: return MTRangeGregorian(*self.tup,12)
+		elif self.precision == 2: return MTRangeGregorian(*self.tup,monthrange(self.year,self.month)[1])
 		return self
 
 	# get highest precision objects (day) that start or end this one
@@ -170,7 +174,7 @@ class MTime(MRangeDescriptor):
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
 		if self.precision == 1:
-			return MTime(self.year + step)
+			return MTRangeGregorian(self.year + step)
 		elif self.precision == 2:
 			dt = [self.year,self.month]
 			dt[1] += step
@@ -180,17 +184,17 @@ class MTime(MRangeDescriptor):
 			while dt[1] < 1:
 				dt[1] += 12
 				dt[0] -= 1
-			return MTime(*dt)
+			return MTRangeGregorian(*dt)
 		elif self.precision == 3:
 			newdate = self.dateobject + datetime.timedelta(days=step)
-			return MTime(newdate.year,newdate.month,newdate.day)
+			return MTRangeGregorian(newdate.year,newdate.month,newdate.day)
 	def prev(self,step=1):
 		return self.next(step*(-1))
 
 
 
 # a range that is exactly one christian week (starting on sunday)
-class MTimeWeek(MRangeDescriptor):
+class MTRangeWeek(MTRangeSingular):
 	def __init__(self,year=None,week=None):
 
 		# do this so we can construct the week with overflow (eg 2020/-3)
@@ -209,13 +213,8 @@ class MTimeWeek(MRangeDescriptor):
 
 	def __str__(self):
 		return f"{self.year}/W{self.week}"
-	def fromstr(self):
-		return str(self)
-	def tostr(self):
-		return str(self)
 
-	def urikeys(self):
-		return {"in":str(self)}
+
 
 	def desc(self,prefix=False):
 		if prefix:
@@ -229,7 +228,7 @@ class MTimeWeek(MRangeDescriptor):
 		return self.desc()
 
 	def contextual_desc(self,other):
-		if isinstance(other, MTimeWeek) and other.year == self.year: return f"Week {self.week}"
+		if isinstance(other, MTRangeWeek) and other.year == self.year: return f"Week {self.week}"
 		return self.desc()
 
 	def start(self):
@@ -238,9 +237,9 @@ class MTimeWeek(MRangeDescriptor):
 		return self.last_day()
 
 	def first_day(self):
-		return MTime(self.firstday.year,self.firstday.month,self.firstday.day)
+		return MTRangeGregorian(self.firstday.year,self.firstday.month,self.firstday.day)
 	def last_day(self):
-		return MTime(self.lastday.year,self.lastday.month,self.lastday.day)
+		return MTRangeGregorian(self.lastday.year,self.lastday.month,self.lastday.day)
 
 	def first_stamp(self):
 		day = self.firstday
@@ -251,17 +250,17 @@ class MTimeWeek(MRangeDescriptor):
 
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
-		return MTimeWeek(self.year,self.week + step)
+		return MTRangeWeek(self.year,self.week + step)
 
 # a range that is defined by separate start and end
-class MRange(MRangeDescriptor):
+class MTRangeComposite(MTRangeGeneric):
 
 	def __init__(self,since=None,to=None):
 		since,to = time_pad(since,to)
 		self.since = since
 		self.to = to
-		if isinstance(self.since,MRange): self.since = self.since.start()
-		if isinstance(self.to,MRange): self.to = self.to.end()
+		if isinstance(self.since,MTRangeComposite): self.since = self.since.start()
+		if isinstance(self.to,MTRangeComposite): self.to = self.to.end()
 
 	def __str__(self):
 		return f"{self.since} - {self.to}"
@@ -332,7 +331,7 @@ class MRange(MRangeDescriptor):
 		newstart = self.since.next(step=diff*step)
 		newend = self.to.next(step=diff*step)
 
-		return MRange(newstart,newend)
+		return MTRangeComposite(newstart,newend)
 
 
 
@@ -341,20 +340,20 @@ class MRange(MRangeDescriptor):
 
 def today():
 	tod = datetime.datetime.now(tz=TIMEZONE)
-	return MTime(tod.year,tod.month,tod.day)
+	return MTRangeGregorian(tod.year,tod.month,tod.day)
 def thisweek():
 	tod = datetime.datetime.now(tz=TIMEZONE)
 	tod = datetime.date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
-	return MTimeWeek(y,w)
+	return MTRangeWeek(y,w)
 def thismonth():
 	tod = datetime.datetime.now(tz=TIMEZONE)
-	return MTime(tod.year,tod.month)
+	return MTRangeGregorian(tod.year,tod.month)
 def thisyear():
 	tod = datetime.datetime.now(tz=TIMEZONE)
-	return MTime(tod.year)
+	return MTRangeGregorian(tod.year)
 def alltime():
-	return MRange(None,None)
+	return MTRangeComposite(None,None)
 
 
 
@@ -413,7 +412,7 @@ str_to_time_range = {
 
 # converts strings and stuff to objects
 def time_fix(t):
-	if t is None or isinstance(t,MRangeDescriptor): return t
+	if t is None or isinstance(t,MTRangeGeneric): return t
 
 	if isinstance(t, str):
 		t = t.lower()
@@ -425,7 +424,7 @@ def time_fix(t):
 	#if isinstance(t,tuple): t = list(t)
 	try:
 		t = [int(p) for p in t]
-		return MTime(t[:3])
+		return MTRangeGregorian(t[:3])
 	except:
 		pass
 
@@ -433,7 +432,7 @@ def time_fix(t):
 		try:
 			year = int(t[0])
 			weeknum = int(t[1][1:])
-			return MTimeWeek(year=year,week=weeknum)
+			return MTRangeWeek(year=year,week=weeknum)
 		except:
 			raise
 
@@ -450,7 +449,7 @@ def get_range_object(since=None,to=None,within=None):
 	if within is not None:
 		return within
 	else:
-		return MRange(since,to)
+		return MTRangeComposite(since,to)
 
 
 
@@ -461,12 +460,12 @@ def time_pad(f,t,full=False):
 	if f is None or t is None: return f,t
 
 	# week handling
-	if isinstance(f,MTimeWeek) and isinstance(t,MTimeWeek):
+	if isinstance(f,MTRangeWeek) and isinstance(t,MTRangeWeek):
 		if full: return f.start(),t.end()
 		else: return f,t
-	if not isinstance(f,MTimeWeek) and isinstance(t,MTimeWeek):
+	if not isinstance(f,MTRangeWeek) and isinstance(t,MTRangeWeek):
 		t = t.end()
-	if isinstance(f,MTimeWeek) and not isinstance(t,MTimeWeek):
+	if isinstance(f,MTRangeWeek) and not isinstance(t,MTRangeWeek):
 		f = f.start()
 
 	while (f.precision < t.precision) or (full and f.precision < 3):
@@ -541,18 +540,18 @@ def delimit_desc(step="month",stepn=1,trail=1):
 
 def day_from_timestamp(stamp):
 	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
-	return MTime(dt.year,dt.month,dt.day)
+	return MTRangeGregorian(dt.year,dt.month,dt.day)
 def month_from_timestamp(stamp):
 	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
-	return MTime(dt.year,dt.month)
+	return MTRangeGregorian(dt.year,dt.month)
 def year_from_timestamp(stamp):
 	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
-	return MTime(dt.year)
+	return MTRangeGregorian(dt.year)
 def week_from_timestamp(stamp):
 	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	d = datetime.date(dt.year,dt.month,dt.day)
 	y,w,_ = d.chrcalendar()
-	return MTimeWeek(y,w)
+	return MTRangeWeek(y,w)
 
 def from_timestamp(stamp,unit):
 	if unit == "day": return day_from_timestamp(stamp)
@@ -579,8 +578,8 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 			yield current_start
 			#ranges.append(current_start)
 		else:
-			yield MRange(current_start,current_end)
-			#ranges.append(MRange(current_start,current_end))
+			yield MTRangeComposite(current_start,current_end)
+			#ranges.append(MTRangeComposite(current_start,current_end))
 		current_end = current_end.next(stepn)
 		current_start = current_end.next((stepn*trail-1)*-1)
 
