@@ -488,22 +488,24 @@ def timestamp_desc(t,short=False):
 
 	if short:
 		now = datetime.datetime.now(tz=datetime.timezone.utc)
+
 		difference = int(now.timestamp() - t)
+		timeobj = datetime.datetime.utcfromtimestamp(t)
 
-		if difference < 10: return "just now"
-		if difference < 60: return str(difference) + " seconds ago"
-		difference = int(difference/60)
-		if difference < 60: return str(difference) + " minutes ago" if difference>1 else str(difference) + " minute ago"
-		difference = int(difference/60)
-		if difference < 24: return str(difference) + " hours ago" if difference>1 else str(difference) + " hour ago"
-		difference = int(difference/24)
-		timeobject = datetime.datetime.utcfromtimestamp(t)
-		if difference < 5: return timeobject.strftime("%A")
-		if difference < 31: return str(difference) + " days ago" if difference>1 else str(difference) + " day ago"
-		if difference < 300 or timeobject.year == now.year: return timeobject.strftime("%B")
-		#if difference < 300: return tim.strftime("%B %Y")
+		thresholds = (
+			(10,"just now"),
+			(2*60,f"{difference} seconds ago"),
+			(2*60*60,f"{difference/60:.0f} minutes ago"),
+			(2*24*60*60,f"{difference/(60*60):.0f} hours ago"),
+			(5*24*60*60,f"{timeobj.strftime('%A')}"),
+			(31*24*60*60,f"{difference/(60*60*24):.0f} days ago"),
+			(12*31*24*60*60,f"{timeobj.strftime('%B')}"),
+			(math.inf,f"{timeobj.strftime('%Y')}")
+		)
 
-		return timeobject.strftime("%Y")
+		for t,s in thresholds:
+			if difference < t: return s.format(sec=difference,obj=datetime.datetime.utcfromtimestamp(t))
+
 	else:
 		timeobject = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
 		format = get_settings("TIME_FORMAT")
