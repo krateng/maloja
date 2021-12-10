@@ -22,12 +22,16 @@ def register_scrobbletime(timestamp):
 
 
 
-### EVERYTHING NEW AGAIN
+# Object that represents a contextual time range relevant for displaying chart information
+# there is no smaller unit than days
+# also, two distinct objects could represent the same timerange
+# (e.g. 2019/03 is not the same as 2019/03/01 - 2019/03/31)
 
-# only for ranges, timestamps are separate
 
+# generic range
 class MRangeDescriptor:
 
+	# despite the above, ranges that refer to the exact same real time range should evaluate as equal
 	def __eq__(self,other):
 		if not isinstance(other,MRangeDescriptor): return False
 		return (self.first_stamp() == other.first_stamp() and self.last_stamp() == other.last_stamp())
@@ -38,14 +42,7 @@ class MRangeDescriptor:
 
 
 	def info(self):
-		return {
-			"fromstring":self.fromstr(),
-			"tostr":self.tostr(),
-			"uri":self.uri(),
-			"fromstamp":self.first_stamp(),
-			"tostamp":self.last_stamp(),
-			"description":self.desc()
-		}
+		return {**self.__json__(),"uri":self.uri()}
 
 	def __json__(self):
 		return {
@@ -62,26 +59,20 @@ class MRangeDescriptor:
 	def unlimited(self):
 		return False
 
+	# whether we currently live or will ever again live in this range
 	def active(self):
 		return (self.last_stamp() > datetime.datetime.utcnow().timestamp())
 
-	# returns the description of the range including buttons to go back and forth
-	#def desc_interactive(self,**kwargs):
-	#	if self.next(1) is None:
-	#		return self.desc(**kwargs)
-	#	else:
-	#		prevrange = self.next(-1)
-	#		nextrange = self.next(1)
 
 # a range that is exactly a gregorian calendar unit (year, month or day)
 class MTime(MRangeDescriptor):
 	def __init__(self,*ls):
 		# in case we want to call with non-unpacked arguments
-		if isinstance(ls[0], (tuple, list)):
-			ls = ls[0]
+		if isinstance(ls[0], (tuple, list)): ls = ls[0]
 
 		self.tup = tuple(ls)
 		self.precision = len(ls)
+
 		self.year = ls[0]
 		if len(ls)>1: self.month = ls[1]
 		if len(ls)>2: self.day = ls[2]
@@ -97,15 +88,16 @@ class MTime(MRangeDescriptor):
 		return str(self)
 
 	# whether we currently live or will ever again live in this range
-	def active(self):
-		tod = datetime.datetime.utcnow().date()
-		if tod.year > self.year: return False
-		if self.precision == 1: return True
-		if tod.year == self.year:
-			if tod.month > self.month: return False
-			if self.precision == 2: return True
-			if tod.month == self.month and tod.day > self.day: return False
-		return True
+# USE GENERIC SUPER METHOD INSTEAD
+#	def active(self):
+#		tod = datetime.datetime.utcnow().date()
+#		if tod.year > self.year: return False
+#		if self.precision == 1: return True
+#		if tod.year == self.year:
+#			if tod.month > self.month: return False
+#			if self.precision == 2: return True
+#			if tod.month == self.month and tod.day > self.day: return False
+#		return True
 
 
 
@@ -113,23 +105,17 @@ class MTime(MRangeDescriptor):
 		return {"in":str(self)}
 
 	def desc(self,prefix=False):
-		if self.precision == 3:
-			if prefix:
-				return "on " + self.dateobject.strftime("%d. %B %Y")
-			else:
-				return self.dateobject.strftime("%d. %B %Y")
-		if self.precision == 2:
-			if prefix:
-				return "in " + self.dateobject.strftime("%B %Y")
-			else:
-				return self.dateobject.strftime("%B %Y")
-		if self.precision == 1:
-			if prefix:
-				return "in " + self.dateobject.strftime("%Y")
-			else:
-				return self.dateobject.strftime("%Y")
+		prefixes = (None,'in ','in ','on ')
+		formats = ('%Y','%B','%d')
+
+		timeformat = ' '.join(reversed(formats[0:self.precision]))
+
+		if prefix: return prefixes[self.precision] + self.dateobject.strftime(timeformat)
+		else: return self.dateobject.strftime(timeformat)
+
 
 	def informal_desc(self):
+		# TODO: ignore year when same year etc
 		now = datetime.datetime.now(tz=datetime.timezone.utc)
 		today = datetime.date(now.year,now.month,now.day)
 		if self.precision == 3:
@@ -142,8 +128,9 @@ class MTime(MRangeDescriptor):
 
 	# describes only the parts that are different than another range object
 	def contextual_desc(self,other):
-		if not isinstance(other, MTime):
-			return self.desc()
+		# TODO: more elegant maybe?
+		if not isinstance(other, MTime): return self.desc()
+
 		relevant = self.desc().split(" ")
 		if self.year == other.year:
 			relevant.pop()
@@ -153,15 +140,17 @@ class MTime(MRangeDescriptor):
 					relevant.pop()
 		return " ".join(relevant)
 
-	# gets object with one higher precision that starts this one
+
+	# get objects with one higher precision that start or end this one
 	def start(self):
-		if self.precision in [1, 2]: return MTime(self.tup + (1,))
-
-	# gets object with one higher precision that ends this one
+		if self.precision in [1, 2]: return MTime(*self.tup,1)
+		return self
 	def end(self):
-		if self.precision == 1: return MTime(self.tup + (12,))
-		elif self.precision == 2: return MTime(self.tup + (monthrange(self.year,self.month)[1],))
+		if self.precision == 1: return MTime(*self.tup,12)
+		elif self.precision == 2: return MTime(*self.tup,monthrange(self.year,self.month)[1])
+		return self
 
+	# get highest precision objects (day) that start or end this one
 	def first_day(self):
 		if self.precision == 3: return self
 		else: return self.start().first_day()
@@ -169,6 +158,7 @@ class MTime(MRangeDescriptor):
 		if self.precision == 3: return self
 		else: return self.end().last_day()
 
+	# get first or last timestamp of this range
 	def first_stamp(self):
 		day = self.first_day().dateobject
 		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
@@ -192,10 +182,10 @@ class MTime(MRangeDescriptor):
 				dt[0] -= 1
 			return MTime(*dt)
 		elif self.precision == 3:
-			dt = self.dateobject
-			d = datetime.timedelta(days=step)
-			newdate = dt + d
+			newdate = self.dateobject + datetime.timedelta(days=step)
 			return MTime(newdate.year,newdate.month,newdate.day)
+	def prev(self,step=1):
+		return self.next(step*(-1))
 
 
 
@@ -213,43 +203,33 @@ class MTimeWeek(MRangeDescriptor):
 		self.lastday = self.firstday + datetime.timedelta(days=6)
 
 		# now get the actual year and week number (in case of overflow)
-		y,w,_ = self.firstday.chrcalendar()
 		self.year,self.week,_ = self.firstday.chrcalendar()
 
 
 
 	def __str__(self):
-		return str(self.year) + "/W" + str(self.week)
+		return f"{self.year}/W{self.week}"
 	def fromstr(self):
 		return str(self)
 	def tostr(self):
 		return str(self)
-
-	# whether we currently live or will ever again live in this range
-#	def active(self):
-#		tod = datetime.date.today()
-#		if tod.year > self.year: return False
-#		if tod.year == self.year:
-#			if tod.chrcalendar()[1] > self.week: return False
-#
-#		return True
 
 	def urikeys(self):
 		return {"in":str(self)}
 
 	def desc(self,prefix=False):
 		if prefix:
-			return "in " + "Week " + str(self.week) + " " + str(self.year)
+			return f"in Week {self.week} {self.year}"
 		else:
-			return "Week " + str(self.week) + " " + str(self.year)
+			return f"Week {self.week} {self.year}"
 
 	def informal_desc(self):
 		now = datetime.datetime.now(tz=datetime.timezone.utc)
-		if now.year == self.year: return "Week " + str(self.week)
+		if now.year == self.year: return f"Week {self.week}"
 		return self.desc()
 
 	def contextual_desc(self,other):
-		if isinstance(other, MTimeWeek) and other.year == self.year: return "Week " + str(self.week)
+		if isinstance(other, MTimeWeek) and other.year == self.year: return f"Week {self.week}"
 		return self.desc()
 
 	def start(self):
@@ -284,7 +264,7 @@ class MRange(MRangeDescriptor):
 		if isinstance(self.to,MRange): self.to = self.to.end()
 
 	def __str__(self):
-		return str(self.since) + " - " + str(self.to)
+		return f"{self.since} - {self.to}"
 	def fromstr(self):
 		return str(self.since)
 	def tostr(self):
@@ -307,13 +287,13 @@ class MRange(MRangeDescriptor):
 	def desc(self,prefix=False):
 		if self.since is not None and self.to is not None:
 			if prefix:
-				return "from " + self.since.contextual_desc(self.to) + " to " + self.to.desc()
+				return f"from {self.since.contextual_desc(self.to)} to {self.to.desc()}"
 			else:
-				return self.since.contextual_desc(self.to) + " to " + self.to.desc()
+				return f"{self.since.contextual_desc(self.to)} to {self.to.desc()}"
 		if self.since is not None and self.to is None:
-			return "since " + self.since.desc()
+			return f"since {self.since.desc()}"
 		if self.since is None and self.to is not None:
-			return "until " + self.to.desc()
+			return f"until {self.to.desc()}"
 		if self.since is None and self.to is None:
 			return ""
 
@@ -355,12 +335,7 @@ class MRange(MRangeDescriptor):
 		return MRange(newstart,newend)
 
 
-## test
 
-w = MTimeWeek(2018,40)
-d = MTime(2019,4,9)
-m = MTime(2019,7)
-y = MTime(2020)
 
 
 
@@ -546,30 +521,7 @@ def time_stamps(since=None,to=None,within=None,range=None):
 
 	if range is None: range = get_range_object(since=since,to=to,within=within)
 	return range.first_stamp(),range.last_stamp()
-	#print(range.desc())
-#	if (since==None): stamp1 = FIRST_SCROBBLE
-#	else: stamp1 = range.first_stamp()
-#	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
-#	else: stamp2 = range.last_stamp()
-#	return stamp1,stamp2
-#	if (since==None): stamp1 = FIRST_SCROBBLE
-#	else:
-#		stamp1 = since1
-#		since = time_fix(since)
-#		date = [1970,1,1]
-#		date[:len(since)] = since
-#		stamp1 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
-#
-#	if (to==None): stamp2 = int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
-#	else:
-#		to = time_fix(to)
-#		to = _get_next(to)
-#		date = [1970,1,1]
-#		date[:len(to)] = to
-#		stamp2 = int(datetime.datetime(date[0],date[1],date[2],tzinfo=datetime.timezone.utc).timestamp())
-#
-#
-#	return (stamp1,stamp2-1)
+
 
 
 def delimit_desc_p(d):
@@ -635,79 +587,3 @@ def ranges(since=None,to=None,within=None,timerange=None,step="month",stepn=1,tr
 		i += 1
 
 	#return ranges
-
-
-
-
-
-#def _get_start_of(timestamp,unit):
-#	date = datetime.datetime.utcfromtimestamp(timestamp)
-#	if unit == "year":
-#		#return [date.year,1,1]
-#		return [date.year]
-#	elif unit == "month":
-#		#return [date.year,date.month,1]
-#		return [date.year,date.month]
-#	elif unit == "day":
-#		return [date.year,date.month,date.day]
-#	elif unit == "week":
-#		change = (date.weekday() + 1) % 7
-#		d = datetime.timedelta(days=change)
-#		newdate = date - d
-#		return [newdate.year,newdate.month,newdate.day]
-#
-#def _get_next(time,unit="auto",step=1):
-#	result = time[:]
-#	if unit == "auto":
-#		if is_week(time): unit = "week"
-#		# see how long the list is, increment by the last specified unit
-#		else: unit = [None,"year","month","day"][len(time)]
-#	#while len(time) < 3:
-#	#	time.append(1)
-#
-#	if unit == "year":
-#		#return [time[0] + step,time[1],time[2]]
-#		result[0] += step
-#		return result
-#	elif unit == "month":
-#		#result = [time[0],time[1] + step,time[2]]
-#		result[1] += step
-#		while result[1] > 12:
-#			result[1] -= 12
-#			result[0] += 1
-#		while result[1] < 1:
-#			result[1] += 12
-#			result[0] -= 1
-#		return result
-#	elif unit == "day":
-#		dt = datetime.datetime(time[0],time[1],time[2])
-#		d = datetime.timedelta(days=step)
-#		newdate = dt + d
-#		return [newdate.year,newdate.month,newdate.day]
-#		#eugh
-#	elif unit == "week":
-#		return _get_next(time,"day",step * 7)
-#
-# like _get_next(), but gets the last INCLUDED day / month whatever
-#def _get_end(time,unit="auto",step=1):
-#	if step == 1:
-#		if unit == "auto": return time[:]
-#		if unit == "year" and len(time) == 1: return time[:]
-#		if unit == "month" and len(time) == 2: return time[:]
-#		if unit == "day" and len(time) == 3: return time[:]
-#	exc = _get_next(time,unit,step)
-#	inc = _get_next(exc,"auto",-1)
-#	return inc
-#
-
-
-#def _is_past(date,limit):
-#	date_, limit_ = date[:], limit[:]
-#	while len(date_) != 3: date_.append(1)
-#	while len(limit_) != 3: limit_.append(1)
-#	if not date_[0] == limit_[0]:
-#		return date_[0] > limit_[0]
-#	if not date_[1] == limit_[1]:
-#		return date_[1] > limit_[1]
-#	return (date_[2] > limit_[2])
-##
