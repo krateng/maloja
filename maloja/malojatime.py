@@ -486,11 +486,10 @@ def time_pad(f,t,full=False):
 
 def timestamp_desc(t,short=False):
 
-	if short:
-		now = datetime.datetime.now(tz=datetime.timezone.utc)
+	timeobj = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
 
-		difference = int(now.timestamp() - t)
-		timeobj = datetime.datetime.utcfromtimestamp(t)
+	if short:
+		difference = int(datetime.datetime.now().timestamp() - t)
 
 		thresholds = (
 			(10,"just now"),
@@ -503,13 +502,10 @@ def timestamp_desc(t,short=False):
 			(math.inf,f"{timeobj.strftime('%Y')}")
 		)
 
-		for t,s in thresholds:
-			if difference < t: return s.format(sec=difference,obj=datetime.datetime.utcfromtimestamp(t))
+		for t,s in thresholds: if difference < t: return s
 
 	else:
-		timeobject = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
-		format = get_settings("TIME_FORMAT")
-		return timeobject.strftime(format)
+		return timeobj.strftime(get_settings("TIME_FORMAT"))
 
 
 
