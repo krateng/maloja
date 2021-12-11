@@ -16,15 +16,17 @@
 	</table>
 
 
-
+	Kazuma, Aqua, Darkness and Megumin have been dispatched to deal with this situation.<br/><br/>
 	{% if adminmode %}
 		You are only seeing this information because you are in admin mode:
 		<br/><br/>
 		<div style="white-space: pre-wrap; font-family: monospace;">{% autoescape true -%}
 			{{ traceback }}
 		{%- endautoescape %}</div>
-	{% else %}
-		Kazuma, Aqua, Darkness and Megumin have been dispatched to deal with this situation.
+		<br/><br/>
+		If you think this shouldn't have happened, consider
+		<a class='textlink' href="https://github.com/krateng/maloja/issues/new">opening an issue</a>
+		describing the situation.
 	{% endif %}
 
 

@@ -486,25 +486,25 @@ def timestamp_desc(t,short=False):
 
 	timeobj = datetime.fromtimestamp(t,tz=TIMEZONE)
 
-	if short:
-		difference = int(datetime.now().timestamp() - t)
+	if not short: return timeobj.strftime(get_settings("TIME_FORMAT"))
 
-		thresholds = (
-			(10,"just now"),
-			(2*60,f"{difference} seconds ago"),
-			(2*60*60,f"{difference/60:.0f} minutes ago"),
-			(2*24*60*60,f"{difference/(60*60):.0f} hours ago"),
-			(5*24*60*60,f"{timeobj.strftime('%A')}"),
-			(31*24*60*60,f"{difference/(60*60*24):.0f} days ago"),
-			(12*31*24*60*60,f"{timeobj.strftime('%B')}"),
-			(math.inf,f"{timeobj.strftime('%Y')}")
-		)
+	difference = int(datetime.now().timestamp() - t)
 
-		for t,s in thresholds:
-			if difference < t: return s
+	thresholds = (
+		(10,"just now"),
+		(2*60,f"{difference} seconds ago"),
+		(2*60*60,f"{difference/60:.0f} minutes ago"),
+		(2*24*60*60,f"{difference/(60*60):.0f} hours ago"),
+		(5*24*60*60,f"{timeobj.strftime('%A')}"),
+		(31*24*60*60,f"{difference/(60*60*24):.0f} days ago"),
+		(12*31*24*60*60,f"{timeobj.strftime('%B')}"),
+		(math.inf,f"{timeobj.strftime('%Y')}")
+	)
 
-	else:
-		return timeobj.strftime(get_settings("TIME_FORMAT"))
+	for t,s in thresholds:
+		if difference < t: return s
+
+
 
 
 
