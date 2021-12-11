@@ -1,6 +1,4 @@
-import datetime
-from datetime import datetime as dtm
-from datetime import timezone, timedelta
+from datetime import timezone, timedelta, date, time, datetime
 from calendar import monthrange
 from os.path import commonprefix
 import math
@@ -9,9 +7,9 @@ from doreah.settings import get_settings
 
 OFFSET = get_settings("TIMEZONE")
 TIMEZONE = timezone(timedelta(hours=OFFSET))
-UTC = datetime.timezone.utc
+UTC = timezone.utc
 
-FIRST_SCROBBLE = int(datetime.datetime.utcnow().replace(tzinfo=UTC).timestamp())
+FIRST_SCROBBLE = int(datetime.utcnow().replace(tzinfo=UTC).timestamp())
 
 def register_scrobbletime(timestamp):
 	global FIRST_SCROBBLE
@@ -61,7 +59,7 @@ class MTRangeGeneric:
 
 	# whether we currently live or will ever again live in this range
 	def active(self):
-		return (self.last_stamp() > datetime.datetime.utcnow().timestamp())
+		return (self.last_stamp() > datetime.utcnow().timestamp())
 
 # Any range that has one defining base unit, whether week, year, etc.
 class MTRangeSingular(MTRangeGeneric):
@@ -88,7 +86,7 @@ class MTRangeGregorian(MTRangeSingular):
 		if len(ls)>2: self.day = ls[2]
 		dt = [1970,1,1]
 		dt[:len(ls)] = ls
-		self.dateobject = datetime.date(dt[0],dt[1],dt[2])
+		self.dateobject = date(dt[0],dt[1],dt[2])
 
 	def __str__(self):
 		return "/".join(str(part) for part in self.tup)
@@ -120,8 +118,8 @@ class MTRangeGregorian(MTRangeSingular):
 
 	def informal_desc(self):
 		# TODO: ignore year when same year etc
-		now = datetime.datetime.now(tz=datetime.timezone.utc)
-		today = datetime.date(now.year,now.month,now.day)
+		now = datetime.now(tz=timezone.utc)
+		today = date(now.year,now.month,now.day)
 		if self.precision == 3:
 			diff = (today - dateobject).days
 			if diff == 0: return "Today"
@@ -165,10 +163,10 @@ class MTRangeGregorian(MTRangeSingular):
 	# get first or last timestamp of this range
 	def first_stamp(self):
 		day = self.first_day().dateobject
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
+		return int(datetime.combine(day,time(tzinfo=TIMEZONE)).timestamp())
 	def last_stamp(self):
-		day = self.last_day().dateobject + datetime.timedelta(days=1)
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp() - 1)
+		day = self.last_day().dateobject + timedelta(days=1)
+		return int(datetime.combine(day,time(tzinfo=TIMEZONE)).timestamp() - 1)
 
 	# next range of equal length (not exactly same amount of days, but same precision level)
 	def next(self,step=1):
@@ -186,7 +184,7 @@ class MTRangeGregorian(MTRangeSingular):
 				dt[0] -= 1
 			return MTRangeGregorian(*dt)
 		elif self.precision == 3:
-			newdate = self.dateobject + datetime.timedelta(days=step)
+			newdate = self.dateobject + timedelta(days=step)
 			return MTRangeGregorian(newdate.year,newdate.month,newdate.day)
 	def prev(self,step=1):
 		return self.next(step*(-1))
@@ -198,13 +196,13 @@ class MTRangeWeek(MTRangeSingular):
 	def __init__(self,year=None,week=None):
 
 		# do this so we can construct the week with overflow (eg 2020/-3)
-		thisisoyear_firstday = datetime.date.fromchrcalendar(year,1,1)
-		self.firstday = thisisoyear_firstday + datetime.timedelta(days=7*(week-1))
-		self.firstday = datetime.date(self.firstday.year,self.firstday.month,self.firstday.day)
+		thisisoyear_firstday = date.fromchrcalendar(year,1,1)
+		self.firstday = thisisoyear_firstday + timedelta(days=7*(week-1))
+		self.firstday = date(self.firstday.year,self.firstday.month,self.firstday.day)
 		# for compatibility with pre python3.8 (https://bugs.python.org/issue32417)
 
 
-		self.lastday = self.firstday + datetime.timedelta(days=6)
+		self.lastday = self.firstday + timedelta(days=6)
 
 		# now get the actual year and week number (in case of overflow)
 		self.year,self.week,_ = self.firstday.chrcalendar()
@@ -223,7 +221,7 @@ class MTRangeWeek(MTRangeSingular):
 			return f"Week {self.week} {self.year}"
 
 	def informal_desc(self):
-		now = datetime.datetime.now(tz=datetime.timezone.utc)
+		now = datetime.now(tz=timezone.utc)
 		if now.year == self.year: return f"Week {self.week}"
 		return self.desc()
 
@@ -243,10 +241,10 @@ class MTRangeWeek(MTRangeSingular):
 
 	def first_stamp(self):
 		day = self.firstday
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp())
+		return int(datetime.combine(day,time(tzinfo=TIMEZONE)).timestamp())
 	def last_stamp(self):
-		day = self.lastday + datetime.timedelta(days=1)
-		return int(datetime.datetime.combine(day,datetime.time(tzinfo=TIMEZONE)).timestamp() - 1)
+		day = self.lastday + timedelta(days=1)
+		return int(datetime.combine(day,time(tzinfo=TIMEZONE)).timestamp() - 1)
 
 	def next(self,step=1):
 		if abs(step) == math.inf: return None
@@ -315,7 +313,7 @@ class MTRangeComposite(MTRangeGeneric):
 		if self.since is None: return FIRST_SCROBBLE
 		else: return self.since.first_stamp()
 	def last_stamp(self):
-		if self.to is None: return int(datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).timestamp())
+		if self.to is None: return int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp())
 		else: return self.to.last_stamp()
 
 	def next(self,step=1):
@@ -339,18 +337,18 @@ class MTRangeComposite(MTRangeGeneric):
 
 
 def today():
-	tod = datetime.datetime.now(tz=TIMEZONE)
+	tod = datetime.now(tz=TIMEZONE)
 	return MTRangeGregorian(tod.year,tod.month,tod.day)
 def thisweek():
-	tod = datetime.datetime.now(tz=TIMEZONE)
-	tod = datetime.date(tod.year,tod.month,tod.day)
+	tod = datetime.now(tz=TIMEZONE)
+	tod = date(tod.year,tod.month,tod.day)
 	y,w,_ = tod.chrcalendar()
 	return MTRangeWeek(y,w)
 def thismonth():
-	tod = datetime.datetime.now(tz=TIMEZONE)
+	tod = datetime.now(tz=TIMEZONE)
 	return MTRangeGregorian(tod.year,tod.month)
 def thisyear():
-	tod = datetime.datetime.now(tz=TIMEZONE)
+	tod = datetime.now(tz=TIMEZONE)
 	return MTRangeGregorian(tod.year)
 def alltime():
 	return MTRangeComposite(None,None)
@@ -405,8 +403,8 @@ def get_last_instance(category,current,target,amount):
 
 str_to_time_range = {
 	**{s:callable for callable,strlist in currenttime_string_representations for s in strlist},
-	**{s:(lambda i=index:get_last_instance(thismonth,dtm.utcnow().month,i,12)) for index,strlist in enumerate(month_string_representations,1) for s in strlist},
-	**{s:(lambda i=index:get_last_instance(today,dtm.utcnow().isoweekday()+1%7,i,7)) for index,strlist in enumerate(weekday_string_representations,1) for s in strlist}
+	**{s:(lambda i=index:get_last_instance(thismonth,datetime.utcnow().month,i,12)) for index,strlist in enumerate(month_string_representations,1) for s in strlist},
+	**{s:(lambda i=index:get_last_instance(today,datetime.utcnow().isoweekday()+1%7,i,7)) for index,strlist in enumerate(weekday_string_representations,1) for s in strlist}
 }
 
 
@@ -486,10 +484,10 @@ def time_pad(f,t,full=False):
 
 def timestamp_desc(t,short=False):
 
-	timeobj = datetime.datetime.fromtimestamp(t,tz=TIMEZONE)
+	timeobj = datetime.fromtimestamp(t,tz=TIMEZONE)
 
 	if short:
-		difference = int(datetime.datetime.now().timestamp() - t)
+		difference = int(datetime.now().timestamp() - t)
 
 		thresholds = (
 			(10,"just now"),
@@ -502,7 +500,8 @@ def timestamp_desc(t,short=False):
 			(math.inf,f"{timeobj.strftime('%Y')}")
 		)
 
-		for t,s in thresholds: if difference < t: return s
+		for t,s in thresholds:
+			if difference < t: return s
 
 	else:
 		return timeobj.strftime(get_settings("TIME_FORMAT"))
@@ -537,17 +536,17 @@ def delimit_desc(step="month",stepn=1,trail=1):
 
 
 def day_from_timestamp(stamp):
-	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
+	dt = datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTRangeGregorian(dt.year,dt.month,dt.day)
 def month_from_timestamp(stamp):
-	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
+	dt = datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTRangeGregorian(dt.year,dt.month)
 def year_from_timestamp(stamp):
-	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
+	dt = datetime.fromtimestamp(stamp,tz=TIMEZONE)
 	return MTRangeGregorian(dt.year)
 def week_from_timestamp(stamp):
-	dt = datetime.datetime.fromtimestamp(stamp,tz=TIMEZONE)
-	d = datetime.date(dt.year,dt.month,dt.day)
+	dt = datetime.fromtimestamp(stamp,tz=TIMEZONE)
+	d = date(dt.year,dt.month,dt.day)
 	y,w,_ = d.chrcalendar()
 	return MTRangeWeek(y,w)
 
