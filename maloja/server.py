@@ -17,6 +17,7 @@ from . import malojauri
 from .utilities import resolveImage
 from .malojauri import uri_to_internal, remove_identical, compose_querystring
 from . import globalconf
+from .globalconf import malojaconfig
 from .jinjaenv.context import jinja_environment
 from jinja2.exceptions import TemplateNotFound
 # doreah toolkit
@@ -247,6 +248,7 @@ def static_html(name):
 
 	LOCAL_CONTEXT = {
 		"adminmode":adminmode,
+		"config":malojaconfig,
 		"apikey":request.cookies.get("apikey") if adminmode else None,
 		"_urikeys":keys, #temporary!
 	}

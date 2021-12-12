@@ -1,6 +1,8 @@
 import os
 from doreah.settings import get_settings
 from doreah.settings import config as settingsconfig
+from doreah.configuration import Configuration
+from doreah.configuration import types as tp
 
 pthj = os.path.join
 
@@ -190,3 +192,79 @@ try:
 except:
 	USE_THUMBOR = False
 	log("Thumbor could not be initialized. Is libthumbor installed?")
+
+
+
+
+
+
+
+
+# new config
+
+
+malojaconfig = Configuration(
+		settings={
+			"Setup":{
+				"directory_state":(tp.String(),										"State Directory",				"/var/lib/maloja"),
+				"directory_logs":(tp.String(),										"Log Directory",				"/var/log/maloja"),
+				"directory_cache":(tp.String(),										"Cache Directory",				"/var/cache/maloja"),
+				"skip_setup":(tp.Boolean(),											"Skip Setup",					False),
+				"force_password":(tp.String(),										"Force Password",				None),
+				"clean_output":(tp.Boolean(),										"Avoid Mutable Console Output",	False)
+			},
+			"Debug":{
+				"logging":(tp.Boolean(),											"Enable Logging",				True),
+				"dev_mode":(tp.Boolean(),											"Enable developer mode",		False),
+			},
+			"Network":{
+				"host":(tp.String(),												"Host",							"::"),
+				"port":(tp.Integer(),												"Port",							42010),
+			},
+			"Technical":{
+				"cache_expire_positive":(tp.Integer(),								"Days until images are refetched", 					300),
+				"cache_expire_negative":(tp.Integer(),								"Days until failed image fetches are reattempted",	30),
+				"use_db_cache":(tp.Boolean(),										"Use DB Cache",										True),
+				"cache_database_short":(tp.Boolean(),								"Use volatile Database Cache",						True),
+				"cache_database_perm":(tp.Boolean(),								"Use permanent Database Cache",						True),
+				"db_cache_entries":(tp.Integer(),									"Maximal Cache entries",							10000),
+				"db_max_memory":(tp.Integer(),										"RAM Percentage Theshold",							75)
+			},
+			"Fluff":{
+				"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250),
+				"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum",		500),
+				"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond",		1000),
+				"name":(tp.String(),												"Name",							"Maloja User")
+			},
+			"Third Party Services":{
+				"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','musicbrainz']),
+				"scrobble_lastfm":(tp.Boolean(),									"Proxy-Scrobble to Last.fm",	False),
+				"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
+				"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
+				"spotify_api_id":(tp.String(),										"Spotify API ID",				None),
+				"spotify_api_secret":(tp.String(),									"Spotify API Secret",			None),
+				"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
+				"track_search_provider":(tp.String(),								"Track Search Provider",		None)
+
+			},
+			"Database":{
+				"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"]),
+				"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"]),
+				"delimiters_feat":(tp.Set(tp.String()),								"Delimiters featuring",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]),
+				"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"]),
+				"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/"])
+			},
+			"Web Interface":{
+				"default_range_charts_artists":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Artist Charts",	"year"),
+				"default_range_charts_tracks":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Track Charts",	"year"),
+				"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
+				"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
+				"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False),
+				"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
+				"local_image_rotate":(tp.Integer(),									"Use Local Images",				3600),
+				"timezone":(tp.Integer(),											"UTC Offset",					0),
+				"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p")
+			}
+		}
+
+	)
