@@ -35,13 +35,13 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 ## Features
 
 * **Self-hosted**: You will always be able to access your data in an easily-parseable format. Your library is not synced with any public or official music database, so you can follow your own tagging schema.
-* **Associated Artists**: Compare different artist's popularity in your listening habits including subunits, collaboration projects or solo performances by their members. Change these associations at any time without losing any information.
+* **Associated Artists**: Compare different artists' popularity in your listening habits including subunits, collaboration projects or solo performances by their members. Change these associations at any time without losing any information.
 * **Multi-Artist Tracks**: Some artists often collaborate with others or are listed under "featuring" in the track title. Instead of tracking each combination of artists, each individual artist competes in your charts.
 * **Custom Images**: Don't rely on the community to select the best pictures for your favorite artists. Upload your own so that your start page looks like you want it to look.
 * **Proxy Scrobble**: No need to fully commit or set up every client twice - you can configure your Maloja server to forward your scrobbles to other services.
 * **Standard-compliant API**: Use existing, mature apps or extensions to scrobble to your Maloja server.
 * **Manual Scrobbling**: Listening to vinyl or elevator background music? Simply submit a scrobble with the web interface.
-* **Keep it Simple**: Unlike Last.fm and similar alternatives, Maloja doesn't have social networking, radios, recommendations or any other gimmicks. It's a tool to keep track of your listening habits over time.
+* **Keep it Simple**: Unlike Last.fm and similar alternatives, Maloja doesn't have social networking, radios, recommendations or any other gimmicks. It's a tool to keep track of your listening habits over time - and nothing more.
 
 
 ## How to install
@@ -138,7 +138,7 @@ If you're the maintainer of a music player or server and would like to implement
 
 ### Standard-compliant API
 
-You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) or the ListenBrainz protocol. This is still very experimental, but give it a try with these settings:
+You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) or the ListenBrainz protocol. This is still somewhat experimental, but give it a try with these settings:
 
 GNU FM | &nbsp;
 ------ | ---------

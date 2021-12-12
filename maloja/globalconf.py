@@ -123,6 +123,7 @@ data_directories = {
 	"rules":pthj(dir_settings['config'],"rules"),
 	"clients":pthj(dir_settings['config'],"clients"),
 	"settings":pthj(dir_settings['config'],"settings"),
+	"css":pthj(dir_settings['config'],"custom_css"),
 	"logs":pthj(dir_settings['logs']),
 	"cache":pthj(dir_settings['cache']),
 }

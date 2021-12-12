@@ -70,6 +70,11 @@ def generate_css():
 		with open(os.path.join(STATICFOLDER,"css",f),"r") as fd:
 			css += fd.read()
 
+	for f in os.listdir(data_dir['css']()):
+		if f.endswith(".css"):
+			with open(os.path.join(data_dir['css'](f)),"r") as fd:
+				css += fd.read()
+
 	css = css_minify(css)
 	return css
 
