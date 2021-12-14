@@ -707,8 +707,8 @@ def start_db():
 	log("Starting database...")
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	build_db()
 	loadAPIkeys()
+	build_db()
 	#run(dbserver, host='::', port=PORT, server='waitress')
 	log("Database reachable!")
 
