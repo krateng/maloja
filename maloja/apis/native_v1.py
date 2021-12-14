@@ -61,7 +61,7 @@ def get_scrobbles_external(**keys):
 	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
 	result = result[offset:]
 	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
-	
+
 	return {"list":result}
 
 
@@ -326,3 +326,11 @@ def add_picture(b64,artist:Multi=[],title=None):
 def newrule(**keys):
 	tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])
+
+
+@api.post("settings")
+@authenticated_api
+def settings(**keys):
+	from .. import globalconf
+	print(keys)
+	globalconf.malojaconfig.update(keys)

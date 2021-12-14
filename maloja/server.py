@@ -88,8 +88,10 @@ css = generate_css()
 #####
 
 def clean_html(inp):
-	if settings.get_settings("DEV_MODE"): return inp
-	else: return html_minify(inp)
+	return inp
+
+	#if settings.get_settings("DEV_MODE"): return inp
+	#else: return html_minify(inp)
 
 
 

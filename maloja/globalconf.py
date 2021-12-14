@@ -228,7 +228,7 @@ malojaconfig = Configuration(
 				"cache_database_short":(tp.Boolean(),								"Use volatile Database Cache",						True),
 				"cache_database_perm":(tp.Boolean(),								"Use permanent Database Cache",						True),
 				"db_cache_entries":(tp.Integer(),									"Maximal Cache entries",							10000),
-				"db_max_memory":(tp.Integer(),										"RAM Percentage Theshold",							75)
+				"db_max_memory":(tp.Integer(max=100,min=20),						"RAM Percentage Theshold",							75)
 			},
 			"Fluff":{
 				"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250),
@@ -250,7 +250,7 @@ malojaconfig = Configuration(
 			"Database":{
 				"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"]),
 				"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"]),
-				"delimiters_feat":(tp.Set(tp.String()),								"Delimiters featuring",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]),
+				"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]),
 				"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"]),
 				"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/"])
 			},
@@ -261,10 +261,12 @@ malojaconfig = Configuration(
 				"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
 				"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False),
 				"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
-				"local_image_rotate":(tp.Integer(),									"Use Local Images",				3600),
+				"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
 				"timezone":(tp.Integer(),											"UTC Offset",					0),
 				"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p")
 			}
-		}
+		},
+		configfile=data_dir['settings']("settings.ini"),
+		save_endpoint="/apis/mlj_1/settings"
 
 	)
