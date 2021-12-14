@@ -76,7 +76,7 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 ### Docker
 
-There is a Dockerfile in the repo that should work by itself. You can also use the unofficial [Dockerhub repository](https://hub.docker.com/r/joniator/maloja) kindly provided by joniator.
+You can use the [Dockerhub build](https://hub.docker.com/r/krateng/maloja) or the dockerfile in this repository.
 
 You might want to set the environment variables `MALOJA_FORCE_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
 
