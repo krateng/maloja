@@ -4,31 +4,27 @@ FROM python:3-alpine
 # https://gitlab.com/Joniator/docker-maloja
 # https://github.com/Joniator
 
-WORKDIR /usr/src/app
+ARG MALOJA_RELEASE
 
-# Copy project into dir
-COPY . .
+WORKDIR /usr/src/app
 
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
     libxml2-dev \
     libxslt-dev \
-    libc-dev \
-    # install pip3
     py3-pip \
-    linux-headers && \
+    libc-dev \
+    linux-headers \
+    && \
     pip3 install psutil && \
-    # use pip to install maloja project requirements
-    pip3 install --no-cache-dir -r requirements.txt && \
-    # use pip to install maloja as local project
-    pip3 install /usr/src/app && \
+    pip3 install malojaserver==$MALOJA_RELEASE && \
     apk del .build-deps
 
 RUN apk add --no-cache tzdata
 
+EXPOSE 42010
+
 # expected behavior for a default setup is for maloja to "just work"
 ENV MALOJA_SKIP_SETUP=yes
 
-EXPOSE 42010
-# use exec form for better signal handling https://docs.docker.com/engine/reference/builder/#entrypoint
 ENTRYPOINT ["maloja", "run"]
