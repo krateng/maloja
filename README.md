@@ -3,6 +3,7 @@
 [![](https://img.shields.io/pypi/v/malojaserver?style=for-the-badge)](https://pypi.org/project/malojaserver/)
 [![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
 [![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
+[![](https://img.shields.io/docker/pulls/krateng/maloja?style=for-the-badge)](https://hub.docker.com/r/krateng/maloja)
 
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
@@ -76,9 +77,26 @@ I can support you with issues best if you use **Alpine Linux**. In my experience
 
 ### Docker
 
-You can use the [Dockerhub build](https://hub.docker.com/r/krateng/maloja) or the dockerfile in this repository.
+All docker builds supply `MALOJA_SKIP_SETUP=yes` as a default environmental variable to make server startup non-interactive, which is necessary to make Maloja usable within a docker container.
 
-You might want to set the environment variables `MALOJA_FORCE_PASSWORD`, `MALOJA_SKIP_SETUP` and `MALOJA_DATA_DIRECTORY`.
+To configure Maloja use an ini file instead. Refer to the [settings documentation](settings.md) for available settings.
+
+Of note for docker users are these settings which should be passed as environmental variables to the container:
+
+* `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
+  * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
+* `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
+
+#### From Source
+
+The [`Dockerfile`](Dockerfile) builds Maloja from source. Images are available on [**Dockerhub**](https://hub.docker.com/r/krateng/maloja):
+
+* `latest` -- image is built from the `master` branch of this repository
+* `X.XX.XX` -- images are built from the [repository tags](https://github.com/krateng/maloja/tags) and *should* coincide with [pypi versions](https://pypi.org/project/malojaserver/) of maloja
+
+#### From PyPi
+
+Running a container using a [pypi version](https://pypi.org/project/malojaserver/) of maloja is possible using [`pip.Dockerfile`](pip.Dockerfile). Supply the version of Maloja you want to install with the `MALOJA_RELEASE` [ARG](https://docs.docker.com/engine/reference/builder/#arg)
 
 
 ## How to use
