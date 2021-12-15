@@ -88,6 +88,8 @@ Of note for docker users are these settings which should be passed as environmen
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
 * `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
 
+Be aware that Maloja uses IPv6 per default. Also make sure to bind the web port (default 42010).
+
 #### From Source
 
 The [`Dockerfile`](Dockerfile) builds Maloja from source. Images are available on [**Dockerhub**](https://hub.docker.com/r/krateng/maloja):
