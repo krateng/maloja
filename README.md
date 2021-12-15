@@ -1,10 +1,11 @@
 # Maloja
 
-[![](https://img.shields.io/pypi/v/malojaserver?style=for-the-badge)](https://pypi.org/project/malojaserver/)
+[![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge)](https://github.com/krateng/maloja)
+[![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge)](https://pypi.org/project/malojaserver/)
+[![](https://img.shields.io/docker/v/krateng/maloja?label=Docker&style=for-the-badge)](https://hub.docker.com/r/krateng/maloja)
+
 [![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
 [![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
-[![](https://img.shields.io/docker/pulls/krateng/maloja?style=for-the-badge)](https://hub.docker.com/r/krateng/maloja)
-
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
@@ -91,7 +92,7 @@ Of note for docker users are these settings which should be passed as environmen
 
 The [`Dockerfile`](Dockerfile) builds Maloja from source. Images are available on [**Dockerhub**](https://hub.docker.com/r/krateng/maloja):
 
-* `latest` -- image is built from the `master` branch of this repository
+* `latest` -- image is built from the latest official release
 * `X.XX.XX` -- images are built from the [repository tags](https://github.com/krateng/maloja/tags) and *should* coincide with [pypi versions](https://pypi.org/project/malojaserver/) of maloja
 
 #### From PyPi

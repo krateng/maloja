@@ -3,7 +3,7 @@ name: Publish Docker image to Dockerhub
 on:
   push:
     tags:
-      - '*.*.*'
+      - 'v*'
 
 jobs:
   push_to_registry:
@@ -27,11 +27,9 @@ jobs:
           images: krateng/maloja
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=raw,value=latest,enable=${{ endsWith(github.ref, 'master') }}
-            type=ref,event=branch,enable=${{ !endsWith(github.ref, 'master') }}
             type=semver,pattern={{version}}
           flavor: |
-            latest=false
+            latest=true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
