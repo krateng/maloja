@@ -1,3 +1,5 @@
+from .. import globalconf
+
 import subprocess
 from doreah import settings
 from doreah.control import mainfunction
