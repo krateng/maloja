@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish_to_pypi:
-    name: Publish a new version to PyPI
+    name: Push Package to PyPI
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -15,9 +15,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install wheel setuptools
-        
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+
+      - name: Install Doreah (imported on build)
+        run: pip install doreah
 
       - name: Build package
         run: python setup.py sdist bdist_wheel
