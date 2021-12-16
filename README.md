@@ -87,8 +87,15 @@ Of note for docker users are these settings which should be passed as environmen
 * `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
 * `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
+* `MALOJA_HOST` (Optional) -- Maloja uses IPv6 by default for the host. Set this to `0.0.0.0` if you cannot initially access the webserver
 
-Be aware that Maloja uses IPv6 per default. Also make sure to bind the web port (default 42010).
+You must also publish a port on your host machine to bind to the container's web port (default 42010)
+
+An example of a minimum run configuration when accessing maloja from an IPv4 address IE `localhost:42010`:
+
+```console
+docker run -p 42010:42010 -e MALOJA_HOST=0.0.0.0 maloja
+```
 
 #### From Source
 
