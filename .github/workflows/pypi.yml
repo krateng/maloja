@@ -15,6 +15,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install wheel setuptools
+        
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
 
       - name: Build package
         run: python setup.py sdist bdist_wheel
