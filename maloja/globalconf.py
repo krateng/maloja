@@ -169,7 +169,7 @@ config(
 	},
 	regular={
 		"autostart": False,
-		"offset": get_settings("TIMEZONE")
+		"offset": get_settings("TIMEZONE") or 0
 	}
 )
 
