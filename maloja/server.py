@@ -21,7 +21,6 @@ from .globalconf import malojaconfig
 from .jinjaenv.context import jinja_environment
 from jinja2.exceptions import TemplateNotFound
 # doreah toolkit
-from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
 from doreah import auth
@@ -44,10 +43,7 @@ import urllib
 ### TECHNICAL SETTINGS
 #####
 
-
-#settings.config(files=["settings/default.ini","settings/settings.ini"])
-#settings.update("settings/default.ini","settings/settings.ini")
-MAIN_PORT = malojaconfig["WEB_PORT"]
+PORT = malojaconfig["PORT"]
 HOST = malojaconfig["HOST"]
 THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
@@ -330,7 +326,7 @@ def run_server():
 
 	try:
 		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
-		waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
+		waitress.serve(webserver, host=HOST, port=PORT, threads=THREADS)
 	except OSError:
 		log("Error. Is another Maloja process already running?")
 		raise

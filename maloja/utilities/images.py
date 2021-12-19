@@ -1,8 +1,8 @@
 from .. import globalconf
-from ..globalconf import data_dir
+from ..globalconf import data_dir, malojaconfig
 from .. import thirdparty
 
-from doreah import settings, caching
+from doreah import caching
 from doreah.logging import log
 
 import itertools

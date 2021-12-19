@@ -3,7 +3,7 @@ from ._exceptions import *
 from .. import database
 import datetime
 
-from .globalconf import malojaconfig
+from ..globalconf import malojaconfig
 
 
 class Listenbrainz(APIHandler):

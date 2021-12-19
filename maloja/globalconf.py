@@ -246,7 +246,9 @@ malojaconfig = Configuration(
 				"spotify_api_id":(tp.String(),										"Spotify API ID",				None),
 				"spotify_api_secret":(tp.String(),									"Spotify API Secret",			None),
 				"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
-				"track_search_provider":(tp.String(),								"Track Search Provider",		None)
+				"audiodb_api_key":(tp.String(),										"TheAudioDB API Key",			None),
+				"track_search_provider":(tp.String(),								"Track Search Provider",		None),
+				"send_stats":(tp.Boolean(),											"Send Statistics",				None),
 
 			},
 			"Database":{

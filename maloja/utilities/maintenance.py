@@ -1,8 +1,8 @@
 from ..__pkginfo__ import version
 from ..malojatime import ranges, thisweek, thisyear
+from ..globalconf import malojaconfig
 
 from doreah.regular import yearly, daily
-from doreah import settings
 from doreah.logging import log
 
 import datetime

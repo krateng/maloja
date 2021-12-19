@@ -10,12 +10,11 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
-from .globalconf import data_dir
+from .globalconf import data_dir, malojaconfig
 
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
-from doreah import settings
 from doreah.caching import Cache, DeepCache
 from doreah.auth import authenticated_api, authenticated_api_with_alternate
 from doreah.io import ProgressBar
