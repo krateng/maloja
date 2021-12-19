@@ -206,19 +206,21 @@ except:
 malojaconfig = Configuration(
 		settings={
 			"Setup":{
-				"directory_state":(tp.String(),										"State Directory",				"/var/lib/maloja"),
-				"directory_logs":(tp.String(),										"Log Directory",				"/var/log/maloja"),
-				"directory_cache":(tp.String(),										"Cache Directory",				"/var/cache/maloja"),
-				"skip_setup":(tp.Boolean(),											"Skip Setup",					False),
-				"force_password":(tp.String(),										"Force Password",				None),
-				"clean_output":(tp.Boolean(),										"Avoid Mutable Console Output",	False)
+				"data_directory":(tp.String(),										"Data Directory",				None,					"Folder for all user data. Overwrites all choices for specific directories."),
+				"directory_config":(tp.String(),									"Config Directory",				"/etc/maloja",			"Folder for config data. Only applied when global data directory is not set."),
+				"directory_state":(tp.String(),										"State Directory",				"/var/lib/maloja",		"Folder for state data. Only applied when global data directory is not set."),
+				"directory_logs":(tp.String(),										"Log Directory",				"/var/log/maloja",		"Folder for log data. Only applied when global data directory is not set."),
+				"directory_cache":(tp.String(),										"Cache Directory",				"/var/cache/maloja",	"Folder for cache data. Only applied when global data directory is not set."),
+				"skip_setup":(tp.Boolean(),											"Skip Setup",					False,					"Make server setup process non-interactive"),
+				"force_password":(tp.String(),										"Force Password",				None,					"On startup, overwrite admin password with this one"),
+				"clean_output":(tp.Boolean(),										"Avoid Mutable Console Output",	False,					"No console output that will cause problems when piped to other outputs")
 			},
 			"Debug":{
 				"logging":(tp.Boolean(),											"Enable Logging",				True),
 				"dev_mode":(tp.Boolean(),											"Enable developer mode",		False),
 			},
 			"Network":{
-				"host":(tp.String(),												"Host",							"::"),
+				"host":(tp.String(),												"Host",							"::",					"Use :: for default IPv6, 0.0.0.0 for default IPv4"),
 				"port":(tp.Integer(),												"Port",							42010),
 			},
 			"Technical":{
