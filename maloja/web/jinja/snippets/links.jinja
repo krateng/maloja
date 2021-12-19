@@ -62,7 +62,7 @@
 {% macro link_search(entity) -%}
 	{% set searchstr = (entity.artists + [entity.title]) | join(" ") | urlencode %}
 
-	{% set searchprovider = settings('TRACK_SEARCH_PROVIDER') | lower | replace(' ','') %}
+	{% set searchprovider = settings['TRACK_SEARCH_PROVIDER'] | lower | replace(' ','') %}
 	{% set searchproviders =
 		{
 			"youtube":'https://www.youtube.com/results?search_query=',

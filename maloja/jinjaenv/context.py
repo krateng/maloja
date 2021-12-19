@@ -1,8 +1,8 @@
 from .. import database_packed
 from . import filters
+from .globalconf import malojaconfig
 
 from .. import database, database_packed, malojatime, utilities, malojauri
-from doreah import settings
 from doreah.regular import repeatdaily
 
 import urllib
@@ -30,7 +30,7 @@ def update_jinja_environment():
 		"malojatime": malojatime,
 		"utilities": utilities,
 		"mlj_uri": malojauri,
-		"settings": settings.get_settings,
+		"settings": malojaconfig,
 		# external
 		"urllib": urllib,
 		"math":math,

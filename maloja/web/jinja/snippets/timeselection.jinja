@@ -31,7 +31,7 @@
 			{% for r in xcurrent %}
 				{% if r.range == limitkeys.timerange %}
 					<span class='stat_selector' style='opacity:0.5;'>{{ r.localisation }}</span>
-				{% elif r.heavy and settings('DISCOURAGE_CPU_HEAVY_STATS') %}
+				{% elif r.heavy and settings['DISCOURAGE_CPU_HEAVY_STATS'] %}
 					<span class='stat_selector blocked' title="CPU heavy statistics are discouraged at the moment.">{{ r.localisation }}</span>
 				{% else %}
 					<a href='{{ mlj_uri.create_uri("",allkeys,{"timerange":r.range}) }}'><span class='stat_selector'>{{ r.localisation }}</span></a>
@@ -49,7 +49,7 @@
 					{# {% if all(r.keys[k] == allkeys[k] for k in r.keys) %} #}
 					{% if r.replacekeys | map('compare_key_in_dicts',r.replacekeys,allkeys) | alltrue %}
 						<span class='stat_selector' style='opacity:0.5;'>{{ r.localisation }}</span>
-					{% elif r.heavy and settings('DISCOURAGE_CPU_HEAVY_STATS') %}
+					{% elif r.heavy and settings['DISCOURAGE_CPU_HEAVY_STATS'] %}
 						<span class='stat_selector blocked' title="CPU heavy statistics are discouraged at the moment.">{{ r.localisation }}</span>
 					{% else %}
 						<a href='{{ mlj_uri.create_uri("",allkeys,r.replacekeys) }}'><span class='stat_selector'>{{ r.localisation }}</span></a>

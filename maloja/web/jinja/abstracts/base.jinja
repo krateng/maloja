@@ -48,7 +48,7 @@
 				<span>Get your own Maloja scrobble server on <a target="_blank" rel="noopener noreferrer" href="https://pypi.org/project/malojaserver/">PyPI</a></span>
 			</div>
 			<div>
-				<a href="/"><span style="font-weight:bold;">Maloja {% if settings("DEV_MODE") %}[Developer Mode]{% endif %}</span></a>
+				<a href="/"><span style="font-weight:bold;">Maloja {% if settings["DEV_MODE"] %}[Developer Mode]{% endif %}</span></a>
 			</div>
 			<div>
 				<span><input id="searchinput" placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
