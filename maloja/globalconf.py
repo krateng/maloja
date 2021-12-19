@@ -271,8 +271,7 @@ malojaconfig = Configuration(
 			}
 		},
 		configfile=data_dir['settings']("settings.ini"),
-		save_endpoint="/apis/mlj_1/settings"
+		save_endpoint="/apis/mlj_1/settings",
+		env_prefix="MALOJA_"
 
 	)
-
-malojaconfig.render_help("settings.md")

@@ -487,7 +487,7 @@ def timestamp_desc(t,short=False):
 
 	timeobj = datetime.fromtimestamp(t,tz=TIMEZONE)
 
-	if not short: return timeobj.strftime(malojaconfig["TIMEZONE"])
+	if not short: return timeobj.strftime(malojaconfig["TIME_FORMAT"])
 
 	difference = int(datetime.now().timestamp() - t)
 
