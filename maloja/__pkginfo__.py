@@ -15,7 +15,7 @@ python_version = ">=3.6"
 requires = [
 	"bottle>=0.12.16",
 	"waitress>=1.3",
-	"doreah>=1.6.12",
+	"doreah>=1.7.0",
 	"nimrodel>=0.7.0",
 	"setproctitle>=1.1.10",
 	"wand>=0.5.4",
