@@ -5,6 +5,7 @@
 *.note
 *.xcf
 nohup.out
+*-old
 
 # currently not using
 /screenshot*.png

@@ -211,35 +211,35 @@ malojaconfig = Configuration(
 				"directory_state":(tp.String(),										"State Directory",				"/var/lib/maloja",		"Folder for state data. Only applied when global data directory is not set."),
 				"directory_logs":(tp.String(),										"Log Directory",				"/var/log/maloja",		"Folder for log data. Only applied when global data directory is not set."),
 				"directory_cache":(tp.String(),										"Cache Directory",				"/var/cache/maloja",	"Folder for cache data. Only applied when global data directory is not set."),
-				"skip_setup":(tp.Boolean(),											"Skip Setup",					False,					"Make server setup process non-interactive"),
-				"force_password":(tp.String(),										"Force Password",				None,					"On startup, overwrite admin password with this one"),
-				"clean_output":(tp.Boolean(),										"Avoid Mutable Console Output",	False,					"No console output that will cause problems when piped to other outputs")
+				"skip_setup":(tp.Boolean(),											"Skip Setup",					False,					"Make server setup process non-interactive. Vital for Docker."),
+				"force_password":(tp.String(),										"Force Password",				None,					"On startup, overwrite admin password with this one. This should usually only be done via environment variable in Docker."),
+				"clean_output":(tp.Boolean(),										"Avoid Mutable Console Output",	False,					"Use if console output will be redirected e.g. to a web interface.")
 			},
 			"Debug":{
 				"logging":(tp.Boolean(),											"Enable Logging",				True),
 				"dev_mode":(tp.Boolean(),											"Enable developer mode",		False),
 			},
 			"Network":{
-				"host":(tp.String(),												"Host",							"::",					"Use :: for default IPv6, 0.0.0.0 for default IPv4"),
+				"host":(tp.String(),												"Host",							"::",					"Host for your server - most likely :: for IPv6 or 0.0.0.0 for IPv4"),
 				"port":(tp.Integer(),												"Port",							42010),
 			},
 			"Technical":{
-				"cache_expire_positive":(tp.Integer(),								"Days until images are refetched", 					300),
-				"cache_expire_negative":(tp.Integer(),								"Days until failed image fetches are reattempted",	30),
+				"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 							300,	"Days until images are refetched"),
+				"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",					30,		"Days until failed image fetches are reattempted"),
 				"use_db_cache":(tp.Boolean(),										"Use DB Cache",										True),
 				"cache_database_short":(tp.Boolean(),								"Use volatile Database Cache",						True),
 				"cache_database_perm":(tp.Boolean(),								"Use permanent Database Cache",						True),
 				"db_cache_entries":(tp.Integer(),									"Maximal Cache entries",							10000),
-				"db_max_memory":(tp.Integer(max=100,min=20),						"RAM Percentage Theshold",							75)
+				"db_max_memory":(tp.Integer(max=100,min=20),						"RAM Percentage Theshold",							75,		"Maximal percentage of RAM that should be used by whole system before Maloja discards cache entries. Use a higher number if your Maloja runs on a dedicated instance (e.g. a container)")
 			},
 			"Fluff":{
-				"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250),
-				"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum",		500),
-				"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond",		1000),
-				"name":(tp.String(),												"Name",							"Maloja User")
+				"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),
+				"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum",		500,				"How many scrobbles a track needs to be considered 'Platinum' status"),
+				"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond",		1000,				"How many scrobbles a track needs to be considered 'Diamond' status"),
+				"name":(tp.String(),												"Name",							"Generic Maloja User")
 			},
 			"Third Party Services":{
-				"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','musicbrainz']),
+				"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','musicbrainz'],	"Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
 				"scrobble_lastfm":(tp.Boolean(),									"Proxy-Scrobble to Last.fm",	False),
 				"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
 				"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
@@ -252,18 +252,18 @@ malojaconfig = Configuration(
 
 			},
 			"Database":{
-				"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"]),
-				"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"]),
-				"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]),
-				"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"]),
-				"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/"])
+				"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"],											"Artists that should be discarded immediately"),
+				"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"],	"Phrases that should be removed from song titles"),
+				"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"],				"Delimiters used for extra artists, even when in the title field"),
+				"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"],																			"Delimiters in informal artist strings with spaces expected around them"),
+				"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/"],																					"Delimiters used to tag multiple artists when only one tag field is available")
 			},
 			"Web Interface":{
 				"default_range_charts_artists":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Artist Charts",	"year"),
 				"default_range_charts_tracks":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Track Charts",	"year"),
 				"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
 				"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
-				"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False),
+				"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 				"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 				"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
 				"timezone":(tp.Integer(),											"UTC Offset",					0),
@@ -274,3 +274,5 @@ malojaconfig = Configuration(
 		save_endpoint="/apis/mlj_1/settings"
 
 	)
+
+malojaconfig.render_help("settings.md")

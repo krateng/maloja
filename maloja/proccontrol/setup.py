@@ -78,9 +78,11 @@ def setup():
 			# we still 'ask' the user to set one, but for docker this will be skipped
 			newpw = prompt("Please set a password for web backend access. Leave this empty to use the default password.",skip=SKIP,default=defaultpassword,secret=True)
 		auth.defaultuser.setpw(newpw)
-	if malojaconfig["NAME"] is None:
-		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Generic Maloja User",skip=SKIP)
+	if malojaconfig["NAME"] == "Generic Maloja User":
+		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Maloja User",skip=SKIP)
 		malojaconfig["NAME"] = name
+		# setting this as an actual setting instead of leaving the default fallback
+		# so we know not to ask again
 
 	if malojaconfig["SEND_STATS"] is None:
 		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)

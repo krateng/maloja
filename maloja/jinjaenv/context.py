@@ -1,6 +1,6 @@
 from .. import database_packed
 from . import filters
-from .globalconf import malojaconfig
+from ..globalconf import malojaconfig
 
 from .. import database, database_packed, malojatime, utilities, malojauri
 from doreah.regular import repeatdaily
