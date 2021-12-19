@@ -34,8 +34,8 @@ else:
 
 ### Caches
 
-cacheage = settings.get_settings("CACHE_EXPIRE_POSITIVE") * 24 * 3600
-cacheage_neg = settings.get_settings("CACHE_EXPIRE_NEGATIVE") * 24 * 3600
+cacheage = malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600
+cacheage_neg = malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600
 
 artist_cache = caching.Cache(name="imgcache_artists",maxage=cacheage,maxage_negative=cacheage_neg,persistent=True)
 track_cache = caching.Cache(name="imgcache_tracks",maxage=cacheage,maxage_negative=cacheage_neg,persistent=True)
@@ -133,7 +133,7 @@ def local_files(artist=None,artists=None,title=None):
 
 
 # these caches are there so we don't check all files every time, but return the same one
-local_cache_age = settings.get_settings("LOCAL_IMAGE_ROTATE")
+local_cache_age = malojaconfig["LOCAL_IMAGE_ROTATE"]
 local_artist_cache = caching.Cache(maxage=local_cache_age)
 local_track_cache = caching.Cache(maxage=local_cache_age)
 
@@ -142,7 +142,7 @@ def getTrackImage(artists,title,fast=False):
 	hashable_track = (frozenset(artists),title)
 
 	# Prio 1: Local image
-	if settings.get_settings("USE_LOCAL_IMAGES"):
+	if malojaconfig["USE_LOCAL_IMAGES"]:
 		try:
 			return thumborize(local_track_cache.get(hashable_track))
 		except:
@@ -189,7 +189,7 @@ def getTrackImage(artists,title,fast=False):
 def getArtistImage(artist,fast=False):
 
 	# Prio 1: Local image
-	if settings.get_settings("USE_LOCAL_IMAGES"):
+	if malojaconfig["USE_LOCAL_IMAGES"]:
 		try:
 			return thumborize(local_artist_cache.get(artist))
 		except:

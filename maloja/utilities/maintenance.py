@@ -87,7 +87,7 @@ def update_weekly():
 
 @daily
 def send_stats():
-	if settings.get_settings("SEND_STATS"):
+	if malojaconfig["SEND_STATS"]:
 
 		log("Sending daily stats report...")
 
@@ -98,8 +98,8 @@ def send_stats():
 			"method":"POST",
 			"headers":{"Content-Type": "application/json"},
 			"data":json.dumps({
-				"name":settings.get_settings("NAME"),
-				"url":settings.get_settings("PUBLIC_URL"),
+				"name":malojaconfig["NAME"],
+				"url":malojaconfig["PUBLIC_URL"],
 				"version":".".join(str(d) for d in version),
 				"artists":len(ARTISTS),
 				"tracks":len(TRACKS),

@@ -47,8 +47,8 @@ import urllib
 
 #settings.config(files=["settings/default.ini","settings/settings.ini"])
 #settings.update("settings/default.ini","settings/settings.ini")
-MAIN_PORT = settings.get_settings("WEB_PORT")
-HOST = settings.get_settings("HOST")
+MAIN_PORT = malojaconfig["WEB_PORT"]
+HOST = malojaconfig["HOST"]
 THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
@@ -90,7 +90,7 @@ css = generate_css()
 def clean_html(inp):
 	return inp
 
-	#if settings.get_settings("DEV_MODE"): return inp
+	#if malojaconfig["DEV_MODE"]: return inp
 	#else: return html_minify(inp)
 
 
@@ -218,7 +218,7 @@ def static_image(pth):
 def get_css():
 	response.content_type = 'text/css'
 	global css
-	if settings.get_settings("DEV_MODE"): css = generate_css()
+	if malojaconfig["DEV_MODE"]: css = generate_css()
 	return css
 
 
@@ -263,7 +263,7 @@ def static_html(name):
 	except (ValueError, IndexError) as e:
 		abort(404,"This Artist or Track does not exist")
 
-	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
+	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
 	log("Generated page {name} in {time:.5f}s".format(name=name,time=clock.stop()),module="debug_performance")
 	return clean_html(res)

@@ -2,10 +2,11 @@ from datetime import timezone, timedelta, date, time, datetime
 from calendar import monthrange
 from os.path import commonprefix
 import math
-from doreah.settings import get_settings
+
+from .globalconf import malojaconfig
 
 
-OFFSET = get_settings("TIMEZONE")
+OFFSET = malojaconfig["TIMEZONE"]
 TIMEZONE = timezone(timedelta(hours=OFFSET))
 UTC = timezone.utc
 
@@ -486,7 +487,7 @@ def timestamp_desc(t,short=False):
 
 	timeobj = datetime.fromtimestamp(t,tz=TIMEZONE)
 
-	if not short: return timeobj.strftime(get_settings("TIME_FORMAT"))
+	if not short: return timeobj.strftime(malojaconfig["TIMEZONE"])
 
 	difference = int(datetime.now().timestamp() - t)
 

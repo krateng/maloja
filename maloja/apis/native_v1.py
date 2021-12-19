@@ -1,5 +1,5 @@
 from ..database import *
-from doreah import settings
+from ..globalconf import malojaconfig
 from ..__pkginfo__ import version
 from ..malojauri import uri_to_internal
 from .. import utilities
@@ -41,7 +41,7 @@ def server_info():
 	response.set_header("Content-Type","application/json")
 
 	return {
-		"name":settings.get_settings("NAME"),
+		"name":malojaconfig["NAME"],
 		"version":version,
 		"versionstring":".".join(str(n) for n in version),
 		"db_status":dbstatus

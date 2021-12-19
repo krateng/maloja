@@ -1,7 +1,7 @@
 import re
 #from . import utilities
-from doreah import tsv, settings
-from .globalconf import data_dir
+from doreah import tsv
+from .globalconf import data_dir, malojaconfig
 import pkg_resources
 
 # need to do this as a class so it can retain loaded settings from file
@@ -62,13 +62,13 @@ class CleanerAgent:
 
 	#Delimiters used for extra artists, even when in the title field
 	#delimiters_feat = ["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"]
-	delimiters_feat = settings.get_settings("DELIMITERS_FEAT")
+	delimiters_feat = malojaconfig["DELIMITERS_FEAT"]
 	#Delimiters in informal artist strings, spaces expected around them
 	#delimiters = ["vs.","vs","&"]
-	delimiters = settings.get_settings("DELIMITERS_INFORMAL")
+	delimiters = malojaconfig["DELIMITERS_FEAT"]
 	#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
 	#delimiters_formal = ["; ",";","/"]
-	delimiters_formal = settings.get_settings("DELIMITERS_FORMAL")
+	delimiters_formal = malojaconfig["DELIMITERS_FEAT"]
 
 	def parseArtists(self,a):
 
@@ -76,7 +76,7 @@ class CleanerAgent:
 			res = [self.parseArtists(art) for art in a]
 			return [a for group in res for a in group]
 
-		if a.strip() in settings.get_settings("INVALID_ARTISTS"):
+		if a.strip() in malojaconfig["DELIMITERS_FEAT"]:
 			return []
 
 		if a.strip().lower() in self.rules_ignoreartist:
@@ -135,7 +135,7 @@ class CleanerAgent:
 		t = re.sub(r" \(originally by .*?\)","",t)
 		t = re.sub(r" \(.*?Remaster.*?\)","",t)
 
-		for s in settings.get_settings("REMOVE_FROM_TITLE"):
+		for s in malojaconfig["DELIMITERS_FEAT"]:
 			if s in t:
 				t = t.replace(s,"")
 

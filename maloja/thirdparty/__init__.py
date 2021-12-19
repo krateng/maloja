@@ -10,9 +10,9 @@ import xml.etree.ElementTree as ElementTree
 import json
 import urllib.parse, urllib.request
 import base64
-from doreah.settings import get_settings
 from doreah.logging import log
 
+from ..globalconf import malojaconfig
 
 
 services = {
@@ -69,7 +69,7 @@ class GenericInterface:
 		# populate from settings file once on creation
 		# avoid constant disk access, restart on adding services is acceptable
 		for key in self.settings:
-			self.settings[key] = get_settings(self.settings[key])
+			self.settings[key] = malojaconfig[self.settings[key]]
 		self.authorize()
 
 	# this makes sure that of every class we define, we immediately create an
@@ -105,7 +105,7 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 	def active_proxyscrobble(self):
 		return (
 			all(self.settings[key] not in [None,"ASK",False] for key in self.proxyscrobble["required_settings"]) and
-			get_settings(self.proxyscrobble["activated_setting"])
+			malojaconfig[self.proxyscrobble["activated_setting"]]
 		)
 
 	def scrobble(self,artists,title,timestamp):
@@ -130,7 +130,7 @@ class ImportInterface(GenericInterface,abstract=True):
 	def active_import(self):
 		return (
 			all(self.settings[key] not in [None,"ASK",False] for key in self.scrobbleimport["required_settings"]) and
-			get_settings(self.scrobbleimport["activated_setting"])
+			malojaconfig[self.scrobbleimport["activated_setting"]]
 		)
 
 
@@ -147,7 +147,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 	def active_metadata(self):
 		return (
 			all(self.settings[key] not in [None,"ASK",False] for key in self.metadata["required_settings"]) and
-			self.identifier in get_settings("METADATA_PROVIDERS")
+			self.identifier in malojaconfig["METADATA_PROVIDERS"]
 		)
 
 	def get_image_track(self,track):
@@ -228,5 +228,5 @@ from . import *
 
 
 services["metadata"].sort(
-	key=lambda provider : get_settings("METADATA_PROVIDERS").index(provider.identifier)
+	key=lambda provider : malojaconfig["METADATA_PROVIDERS"].index(provider.identifier)
 )

@@ -45,7 +45,7 @@ def start():
 			sp = subprocess.Popen(["python3","-m","maloja.proccontrol.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(col["green"]("Maloja started!"))
 
-			port = settings.get_settings("WEB_PORT")
+			port = malojaconfig["WEB_PORT"]
 
 			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /admin_setup to get started.")
 			print("If you're installing this on your local machine, these links should get you there:")
