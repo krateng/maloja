@@ -138,6 +138,20 @@ a.hidelink:hover {
 
 
 
+/** INPUTS **/
+
+input[type="text"], input[type="number"] {
+    background-color: transparent;
+    border: 0px;
+    border-bottom: 1px solid var(--text-color);
+    color: white;
+}
+
+input:focus {
+	outline: 0;
+	background-color: var(--base-color-accent-light);
+}
+
 
 
 

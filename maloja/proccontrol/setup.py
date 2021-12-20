@@ -37,13 +37,13 @@ def setup():
 	for k in apikeys:
 		key = malojaconfig[k]
 		if key is False:
-			print("\t" + "Currently not using a " + apikeys[k] + " for image display.")
+			print("\t" + "Currently not using a " + col['red'](apikeys[k]) + " for image display.")
 		elif key is None or key == "ASK":
 			print("\t" + "Please enter your " + col['gold'](apikeys[k]) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = prompt("",types=(str,),default=False,skip=SKIP)
 			malojaconfig[k] = key
 		else:
-			print("\t" + apikeys[k] + " found.")
+			print("\t" + col['green'](apikeys[k]) + " found.")
 
 
 	# OWN API KEY
