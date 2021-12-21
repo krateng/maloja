@@ -43,7 +43,7 @@ def setup():
 			key = prompt("",types=(str,),default=False,skip=SKIP)
 			malojaconfig[k] = key
 		else:
-			print("\t" + col['green'](apikeys[k]) + " found.")
+			print("\t" + col['lawngreen'](apikeys[k]) + " found.")
 
 
 	# OWN API KEY
@@ -56,7 +56,6 @@ def setup():
 				keyfile.write(key + "\t" + "Default Generated Key")
 
 	# PASSWORD
-	defaultpassword = malojaconfig["DEFAULT_PASSWORD"]
 	forcepassword = malojaconfig["FORCE_PASSWORD"]
 	# this is mainly meant for docker, supply password via environment variable
 
@@ -66,23 +65,12 @@ def setup():
 		print("Password has been set.")
 	elif auth.defaultuser.checkpw("admin"):
 		# if the actual pw is admin, it means we've never set this up properly (eg first start after update)
-		if defaultpassword is None:
-			# non-docker installation or user didn't set environment variable
-			defaultpassword = randomstring(32)
-			newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
-			if newpw is None:
-				newpw = defaultpassword
-				print("Generated password:",newpw)
-		else:
-			# docker installation (or settings file, but don't do that)
-			# we still 'ask' the user to set one, but for docker this will be skipped
-			newpw = prompt("Please set a password for web backend access. Leave this empty to use the default password.",skip=SKIP,default=defaultpassword,secret=True)
+		newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
+		if newpw is None:
+			newpw = randomstring(32)
+			print("Generated password:",newpw)
+
 		auth.defaultuser.setpw(newpw)
-	if malojaconfig["NAME"] == "Generic Maloja User":
-		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Maloja User",skip=SKIP)
-		malojaconfig["NAME"] = name
-		# setting this as an actual setting instead of leaving the default fallback
-		# so we know not to ask again
 
 	if malojaconfig["SEND_STATS"] is None:
 		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)
