@@ -1,0 +1,8 @@
+{% set page ='admin_settings' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - Settings{% endblock %}
+
+
+{% block maincontent %}
+{{ config.html() }}
+{% endblock %}

@@ -17,10 +17,10 @@ from . import malojauri
 from .utilities import resolveImage
 from .malojauri import uri_to_internal, remove_identical, compose_querystring
 from . import globalconf
+from .globalconf import malojaconfig
 from .jinjaenv.context import jinja_environment
 from jinja2.exceptions import TemplateNotFound
 # doreah toolkit
-from doreah import settings
 from doreah.logging import log
 from doreah.timing import Clock
 from doreah import auth
@@ -43,11 +43,8 @@ import urllib
 ### TECHNICAL SETTINGS
 #####
 
-
-#settings.config(files=["settings/default.ini","settings/settings.ini"])
-#settings.update("settings/default.ini","settings/settings.ini")
-MAIN_PORT = settings.get_settings("WEB_PORT")
-HOST = settings.get_settings("HOST")
+PORT = malojaconfig["PORT"]
+HOST = malojaconfig["HOST"]
 THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
@@ -87,8 +84,10 @@ css = generate_css()
 #####
 
 def clean_html(inp):
-	if settings.get_settings("DEV_MODE"): return inp
-	else: return html_minify(inp)
+	return inp
+
+	#if malojaconfig["DEV_MODE"]: return inp
+	#else: return html_minify(inp)
 
 
 
@@ -215,7 +214,7 @@ def static_image(pth):
 def get_css():
 	response.content_type = 'text/css'
 	global css
-	if settings.get_settings("DEV_MODE"): css = generate_css()
+	if malojaconfig["DEV_MODE"]: css = generate_css()
 	return css
 
 
@@ -247,6 +246,7 @@ def static_html(name):
 
 	LOCAL_CONTEXT = {
 		"adminmode":adminmode,
+		"config":malojaconfig,
 		"apikey":request.cookies.get("apikey") if adminmode else None,
 		"_urikeys":keys, #temporary!
 	}
@@ -259,7 +259,7 @@ def static_html(name):
 	except (ValueError, IndexError) as e:
 		abort(404,"This Artist or Track does not exist")
 
-	if settings.get_settings("DEV_MODE"): jinja_environment.cache.clear()
+	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
 	log("Generated page {name} in {time:.5f}s".format(name=name,time=clock.stop()),module="debug_performance")
 	return clean_html(res)
@@ -326,7 +326,7 @@ def run_server():
 
 	try:
 		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
-		waitress.serve(webserver, host=HOST, port=MAIN_PORT, threads=THREADS)
+		waitress.serve(webserver, host=HOST, port=PORT, threads=THREADS)
 	except OSError:
 		log("Error. Is another Maloja process already running?")
 		raise

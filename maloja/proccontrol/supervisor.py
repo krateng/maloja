@@ -5,8 +5,8 @@ import subprocess
 import setproctitle
 import signal
 from doreah.logging import log
-from doreah.settings import get_settings
 
+from .globalconf import malojaconfig
 from .control import getInstance
 
 
@@ -33,7 +33,7 @@ def start():
 
 while True:
 	log("Maloja is not running, starting...",module="supervisor")
-	if get_settings("UPDATE_AFTER_CRASH"):
+	if malojaconfig["UPDATE_AFTER_CRASH"]:
 		update()
 	process = start()
 

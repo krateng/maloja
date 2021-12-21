@@ -1,10 +1,12 @@
 # generic temporary / dev files
 *.pyc
-*.sh
-!/install_*.sh
 *.note
 *.xcf
 nohup.out
+*-old
+
+# local actions
+scripts/*
 
 # currently not using
 /screenshot*.png

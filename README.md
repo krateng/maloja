@@ -136,11 +136,11 @@ to run the server in the foreground.
 
 ### Customization
 
-* Have a look at the [available settings](settings.md) and specifiy your choices in `/etc/maloja/settings/settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
+* Have a look at the [available settings](settings.md) and specifiy your choices in `/etc/maloja/settings.ini`. You can also set each of these settings as an environment variable with the prefix `MALOJA_` (e.g. `MALOJA_SKIP_SETUP`).
 
 * If you have activated admin mode in your web interface, you can upload custom images for artists or tracks by simply dragging them onto the existing image on the artist or track page. You can also manage custom images directly in the file system - consult `images.info` in the `/var/lib/maloja/images` folder.
 
-* To specify custom rules, consult the `rules.info` file in `/etc/maloja/rules`. You can also apply some predefined rules on the `/setup` page of your server.
+* To specify custom rules, consult the `rules.info` file in `/etc/maloja/rules`. You can also apply some predefined rules on the `/admin_setup` page of your server.
 
 
 ## How to scrobble

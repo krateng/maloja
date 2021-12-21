@@ -4,9 +4,9 @@
 {% block scripts %}
 
 	<script>document.addEventListener('DOMContentLoaded',function() {
-		showRange('topartists','{{ settings("DEFAULT_RANGE_CHARTS_ARTISTS") }}');
-		showRange('toptracks','{{ settings("DEFAULT_RANGE_CHARTS_TRACKS") }}');
-		showRange('pulse','{{ settings("DEFAULT_STEP_PULSE") }}');
+		showRange('topartists','{{ settings["DEFAULT_RANGE_CHARTS_ARTISTS"] }}');
+		showRange('toptracks','{{ settings["DEFAULT_RANGE_CHARTS_TRACKS"] }}');
+		showRange('pulse','{{ settings["DEFAULT_STEP_PULSE"] }}');
 	})</script>
 	<script src="/rangeselect.js"></script>
 	<script src="/cookies.js"></script>

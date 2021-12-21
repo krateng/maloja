@@ -1,5 +1,5 @@
 from ..database import *
-from doreah import settings
+from ..globalconf import malojaconfig
 from ..__pkginfo__ import version
 from ..malojauri import uri_to_internal
 from .. import utilities
@@ -41,7 +41,7 @@ def server_info():
 	response.set_header("Content-Type","application/json")
 
 	return {
-		"name":settings.get_settings("NAME"),
+		"name":malojaconfig["NAME"],
 		"version":version,
 		"versionstring":".".join(str(n) for n in version),
 		"db_status":dbstatus
@@ -61,7 +61,7 @@ def get_scrobbles_external(**keys):
 	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
 	result = result[offset:]
 	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
-	
+
 	return {"list":result}
 
 
@@ -326,3 +326,10 @@ def add_picture(b64,artist:Multi=[],title=None):
 def newrule(**keys):
 	tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])
+
+
+@api.post("settings")
+@authenticated_api
+def set_settings(**keys):
+	from .. import globalconf
+	globalconf.malojaconfig.update(keys)

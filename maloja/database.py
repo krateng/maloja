@@ -10,12 +10,11 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
-from .globalconf import data_dir
+from .globalconf import data_dir, malojaconfig
 
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
-from doreah import settings
 from doreah.caching import Cache, DeepCache
 from doreah.auth import authenticated_api, authenticated_api_with_alternate
 from doreah.io import ProgressBar
@@ -283,7 +282,7 @@ def info():
 	artists = {}
 
 	return {
-		"name":settings.get_settings("NAME"),
+		"name":malojaconfig["NAME"],
 		"artists":{
 			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
 			for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0
@@ -476,7 +475,7 @@ def trackInfo(track):
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
 	cert = None
-	threshold_gold, threshold_platinum, threshold_diamond = settings.get_settings("SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND")
+	threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND"]
 	if scrobbles >= threshold_diamond: cert = "diamond"
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
@@ -742,7 +741,7 @@ def build_db():
 	scrobblenum = len(db)
 	log(f"Found {scrobblenum} scrobbles...")
 
-	usebar = not settings.get_settings("CLEAN_OUTPUT")
+	usebar = not malojaconfig["CLEAN_OUTPUT"]
 	if usebar: pbar = ProgressBar(max=scrobblenum,prefix="Loading scrobbles")
 	else:
 		n = 0
@@ -860,7 +859,7 @@ def sync():
 
 import copy
 
-if settings.get_settings("USE_DB_CACHE"):
+if malojaconfig["USE_DB_CACHE"]:
 	def db_query(**kwargs):
 		return db_query_cached(**kwargs)
 	def db_aggregate(**kwargs):
@@ -872,8 +871,8 @@ else:
 		return db_aggregate_full(**kwargs)
 
 
-csz = settings.get_settings("DB_CACHE_ENTRIES")
-cmp = settings.get_settings("DB_MAX_MEMORY")
+csz = malojaconfig["DB_CACHE_ENTRIES"]
+cmp = malojaconfig["DB_MAX_MEMORY"]
 try:
 	import psutil
 	use_psutil = True
@@ -885,8 +884,8 @@ cache_query_perm = lru.LRU(csz)
 cache_aggregate = lru.LRU(csz)
 cache_aggregate_perm = lru.LRU(csz)
 
-perm_caching = settings.get_settings("CACHE_DATABASE_PERM")
-temp_caching = settings.get_settings("CACHE_DATABASE_SHORT")
+perm_caching = malojaconfig["CACHE_DATABASE_PERM"]
+temp_caching = malojaconfig["CACHE_DATABASE_SHORT"]
 
 cachestats = {
 	"cache_query":{

@@ -1,11 +1,10 @@
 import pkg_resources
 from distutils import dir_util
-from doreah import settings
 from doreah.io import col, ask, prompt
 from doreah import auth
 import os
 
-from ..globalconf import data_dir, dir_settings
+from ..globalconf import data_dir, dir_settings, malojaconfig
 
 
 # EXTERNAL API KEYS
@@ -32,19 +31,19 @@ def randomstring(length=32):
 def setup():
 
 	copy_initial_local_files()
-	SKIP = settings.get_settings("SKIP_SETUP")
+	SKIP = malojaconfig["SKIP_SETUP"]
 
 	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
 	for k in apikeys:
-		key = settings.get_settings(k)
+		key = malojaconfig[k]
 		if key is False:
-			print("\t" + "Currently not using a " + apikeys[k] + " for image display.")
+			print("\t" + "Currently not using a " + col['red'](apikeys[k]) + " for image display.")
 		elif key is None or key == "ASK":
 			print("\t" + "Please enter your " + col['gold'](apikeys[k]) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = prompt("",types=(str,),default=False,skip=SKIP)
-			settings.update_settings(data_dir['settings']("settings.ini"),{k:key},create_new=True)
+			malojaconfig[k] = key
 		else:
-			print("\t" + apikeys[k] + " found.")
+			print("\t" + col['lawngreen'](apikeys[k]) + " found.")
 
 
 	# OWN API KEY
@@ -57,8 +56,7 @@ def setup():
 				keyfile.write(key + "\t" + "Default Generated Key")
 
 	# PASSWORD
-	defaultpassword = settings.get_settings("DEFAULT_PASSWORD")
-	forcepassword = settings.get_settings("FORCE_PASSWORD")
+	forcepassword = malojaconfig["FORCE_PASSWORD"]
 	# this is mainly meant for docker, supply password via environment variable
 
 	if forcepassword is not None:
@@ -67,25 +65,17 @@ def setup():
 		print("Password has been set.")
 	elif auth.defaultuser.checkpw("admin"):
 		# if the actual pw is admin, it means we've never set this up properly (eg first start after update)
-		if defaultpassword is None:
-			# non-docker installation or user didn't set environment variable
-			defaultpassword = randomstring(32)
-			newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
-			if newpw is None:
-				newpw = defaultpassword
-				print("Generated password:",newpw)
-		else:
-			# docker installation (or settings file, but don't do that)
-			# we still 'ask' the user to set one, but for docker this will be skipped
-			newpw = prompt("Please set a password for web backend access. Leave this empty to use the default password.",skip=SKIP,default=defaultpassword,secret=True)
-		auth.defaultuser.setpw(newpw)
-	if settings.get_settings("NAME") is None:
-		name = prompt("Please enter your name. This will be displayed e.g. when comparing your charts to another user. Leave this empty if you would not like to specify a name right now.",default="Generic Maloja User",skip=SKIP)
-		settings.update_settings(data_dir['settings']("settings.ini"),{"NAME":name},create_new=True)
+		newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
+		if newpw is None:
+			newpw = randomstring(32)
+			print("Generated password:",newpw)
 
-	if settings.get_settings("SEND_STATS") is None:
+		auth.defaultuser.setpw(newpw)
+
+	if malojaconfig["SEND_STATS"] is None:
 		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)
 		if answer:
-			settings.update_settings(data_dir['settings']("settings.ini"),{"SEND_STATS":True,"PUBLIC_URL":None},create_new=True)
+			malojaconfig["SEND_STATS"] = True
+			malojaconfig["PUBLIC_URL"] = None
 		else:
-			settings.update_settings(data_dir['settings']("settings.ini"),{"SEND_STATS":False},create_new=True)
+			malojaconfig["SEND_STATS"] = False
