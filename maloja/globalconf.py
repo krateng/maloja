@@ -4,6 +4,19 @@ from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
 
+
+# if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
+# but with asynnetrical structure, cache and logs in subfolders
+# otherwise, each directory is treated seperately
+# in that case, individual settings for each are respected
+# DIRECRORY_CONFIG, DIRECRORY_STATE, DIRECTORY_LOGS and DIRECTORY_CACHE
+# config can only be determined by environment variable, the others can be loaded
+# from the config files
+# explicit settings will always be respected. if there are none:
+# first check if there is any indication of one of the possibilities being populated already
+# if not, use the first we have permissions for
+# after we decide which to use, fix it in settings to avoid future heuristics
+
 # USEFUL FUNCS
 pthj = os.path.join
 
@@ -21,31 +34,67 @@ def get_env_vars(key,pathsuffix=[]):
 
 
 
-# get user dirs from environment
-user_dirs = {}
+directory_info = {
+	"config":{
+		"sentinel":"settings",
+		"possible_folders":[
+			"/etc/maloja",
+			os.path.expanduser("~/.local/share/maloja")
+		],
+		"setting":"directory_config"
+	},
+	"cache":{
+		"sentinel":"dummy",
+		"possible_folders":[
+			"/var/cache/maloja",
+			os.path.expanduser("~/.local/share/maloja/cache")
+		],
+		"setting":"directory_cache"
+	},
+	"state":{
+		"sentinel":"scrobbles",
+		"possible_folders":[
+			"/var/lib/maloja",
+			os.path.expanduser("~/.local/share/maloja")
+		],
+		"setting":"directory_state"
+	},
+	"logs":{
+		"sentinel":"dbfix",
+		"possible_folders":[
+			"/var/log/maloja",
+			os.path.expanduser("~/.local/share/maloja/logs")
+		],
+		"setting":"directory_logs"
+	}
+}
 
-user_dirs["home"] = get_env_vars("HOME")
-user_dirs["config"] = get_env_vars("XDG_CONFIG_HOME",['maloja'])
-user_dirs["cache"] = get_env_vars("XDG_CACHE_HOME",['maloja'])
-user_dirs["data"] = get_env_vars("XDG_DATA_HOME",['maloja'])
-try:
-	user_data_dir = os.environ["XDG_DATA_HOME"].split(":")[0]
-	assert os.path.exists(user_data_dir)
-except:
-	user_data_dir = os.path.join(os.environ["HOME"],".local/share/")
-user_data_dir = pthj(user_data_dir,"maloja")
+# function that
+# 1) checks if folder has been specified by user
+# 2) if not, checks if one has been in use before and writes it to dict/config
+# 3) if not, determines which to use and writes it to dict/config
+# returns determined folder
+def find_good_folder(datatype,configobject):
+	info = directory_info[datatype]
 
-# if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
-# but with asynnetrical structure, cache and logs in subfolders
-# otherwise, each directory is treated seperately
-# in that case, individual settings for each are respected
-# DIRECRORY_CONFIG, DIRECRORY_STATE, DIRECTORY_LOGS and DIRECTORY_CACHE
-# config can only be determined by environment variable, the others can be loaded
-# from the config files
-# explicit settings will always be respected. if there are none:
-# first check if there is any indication of one of the possibilities being populated already
-# if not, use the first we have permissions for
-# after we decide which to use, fix it in settings to avoid future heuristics
+	# check each possible folder if its used
+	for p in info['possible_folders']:
+		if os.path.exists(pthj(p,info['sentinel'])):
+			print(p,"has been determined as maloja's folder for",datatype)
+			configobject[info['setting']] = p
+			return p
+
+	print("Could not find previous",datatype,"folder")
+	# check which one we can use
+	for p in info['possible_folders']:
+		if is_dir_usable(p):
+			print(p,"has been selected as maloja's folder for",datatype)
+			configobject[info['setting']] = p
+			return p
+	print("No folder can be used for",datatype)
+	print("This should not happen!")
+
+
 
 
 
@@ -53,25 +102,13 @@ user_data_dir = pthj(user_data_dir,"maloja")
 # environment variables
 maloja_dir_config = os.environ.get("MALOJA_DATA_DIRECTORY") or os.environ.get("MALOJA_DIRECTORY_CONFIG")
 
+
 if maloja_dir_config is None:
-	potentialpaths = [
-		"/etc/maloja",
-		user_data_dir
-	]
-	# check if it exists anywhere else
-	for pth in potentialpaths:
-		if os.path.exists(pthj(pth,"settings")):
-			maloja_dir_config = pth
-			break
-	# new installation, pick where to put it
-	else:
-		# test if we can write to that location
-		for pth in potentialpaths:
-			if is_dir_usable(pth):
-				maloja_dir_config = pth
-				break
-		else:
-			print("Could not find a proper path to put settings file. Please check your permissions!")
+	maloja_dir_config = find_good_folder('config',{})
+	found_new_config_dir = True
+else:
+	found_new_config_dir = False
+	# remember whether we had to find our config dir or it was user-specified
 
 oldsettingsfile = pthj(maloja_dir_config,"settings","settings.ini")
 newsettingsfile = pthj(maloja_dir_config,"settings.ini")
@@ -156,72 +193,52 @@ malojaconfig = Configuration(
 
 )
 
-malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+if found_new_config_dir:
+	malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+	# this really doesn't matter because when are we gonna load info about where
+	# the settings file is stored from the settings file
+	# but oh well
+
+malojaconfig.render_help(pthj(maloja_dir_config,"settings.md"),
+	top_text='''If you wish to adjust settings in the settings.ini file, do so while the server
+is not running in order to avoid data being overwritten.
+
+Technically, each setting can be set via environment variable or the settings
+file - simply add the prefix `MALOJA_` for environment variables. It is recommended
+to use the settings file where possible and not configure each aspect of your
+server via environment variables!''')
 
 
 ### STEP 3 - check all possible folders for files (old installation)
 
-directory_info = {
-	"cache":{
-		"sentinel":"dummy",
-		"possible_folders":[
-			"/var/cache/maloja",
-			"$HOME/.local/share/maloja/cache"
-		],
-		"setting":"directory_cache"
-	},
-	"state":{
-		"sentinel":"scrobbles",
-		"possible_folders":[
-			"/var/lib/maloja",
-			"$HOME/.local/share/maloja"
-		],
-		"setting":"directory_state"
-	},
-	"logs":{
-		"sentinel":"dbfix",
-		"possible_folders":[
-			"/var/log/maloja",
-			"$HOME/.local/share/maloja/logs"
-		],
-		"setting":"directory_logs"
-	}
-}
 
 
-for datatype in directory_info:
-	info = directory_info[datatype]
 
-	# check if we already have a user-specified setting
-	# default obv shouldn't count here, so use get_specified
-	if malojaconfig.get_specified(info['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
-		# check each possible folder if its used
-		for p in info['possible_folders']:
-			if os.path.exists(pthj(p,info['sentinel'])):
-				print(p,"has been determined as maloja's folder for",datatype)
-				malojaconfig[info['setting']] = p
-				break
-		else:
-			print("Could not find previous",datatype,"folder")
-			# check which one we can use
-			for p in info['possible_folders']:
-				if is_dir_usable(p):
-					print(p,"has been selected as maloja's folder for",datatype)
-					malojaconfig[info['setting']] = p
-					break
-			else:
-				print("No folder can be used for",datatype)
-				print("This should not happen!")
+for datatype in ("state","cache","logs"):
+	# obviously default values shouldn't trigger this
+	# if user has nothing specified, we need to use this
+	if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
+		find_good_folder(datatype,malojaconfig)
+
+
+
+
+
+
+### STEP 4 - this is where all the guessing about previous installation ends
+###          we have our definite settings and are now just generating the real
+###          folder names for everything
+
 
 if malojaconfig['DATA_DIRECTORY'] is None:
-	top_dirs = {
+	dir_settings = {
 		"config":malojaconfig['DIRECTORY_CONFIG'],
 		"state":malojaconfig['DIRECTORY_STATE'],
 		"cache":malojaconfig['DIRECTORY_CACHE'],
 		"logs":malojaconfig['DIRECTORY_LOGS'],
 	}
 else:
-	top_dirs = {
+	dir_settings = {
 		"config":malojaconfig['DATA_DIRECTORY'],
 		"state":malojaconfig['DATA_DIRECTORY'],
 		"cache":pthj(malojaconfig['DATA_DIRECTORY'],"cache"),
@@ -231,16 +248,16 @@ else:
 
 
 data_directories = {
-	"auth":pthj(top_dirs['state'],"auth"),
-	"backups":pthj(top_dirs['state'],"backups"),
-	"images":pthj(top_dirs['state'],"images"),
-	"scrobbles":pthj(top_dirs['state'],"scrobbles"),
-	"rules":pthj(top_dirs['config'],"rules"),
-	"clients":pthj(top_dirs['config'],"clients"),
-	"settings":pthj(top_dirs['config']),
-	"css":pthj(top_dirs['config'],"custom_css"),
-	"logs":pthj(top_dirs['logs']),
-	"cache":pthj(top_dirs['cache']),
+	"auth":pthj(dir_settings['state'],"auth"),
+	"backups":pthj(dir_settings['state'],"backups"),
+	"images":pthj(dir_settings['state'],"images"),
+	"scrobbles":pthj(dir_settings['state'],"scrobbles"),
+	"rules":pthj(dir_settings['config'],"rules"),
+	"clients":pthj(dir_settings['config'],"clients"),
+	"settings":pthj(dir_settings['config']),
+	"css":pthj(dir_settings['config'],"custom_css"),
+	"logs":pthj(dir_settings['logs']),
+	"cache":pthj(dir_settings['cache']),
 }
 
 
@@ -276,3 +293,8 @@ config(
 )
 
 settingsconfig._readpreconfig()
+
+# what the fuck did i just write
+# this spaghetti file is proudly sponsored by the rice crackers i'm eating at the
+# moment as well as some cute chinese girl whose asmr i'm listening to in the
+# background. and now to bed!
