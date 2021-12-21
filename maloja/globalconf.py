@@ -36,7 +36,7 @@ def get_env_vars(key,pathsuffix=[]):
 
 directory_info = {
 	"config":{
-		"sentinel":"settings",
+		"sentinel":"rules",
 		"possible_folders":[
 			"/etc/maloja",
 			os.path.expanduser("~/.local/share/maloja")
@@ -80,19 +80,19 @@ def find_good_folder(datatype,configobject):
 	# check each possible folder if its used
 	for p in info['possible_folders']:
 		if os.path.exists(pthj(p,info['sentinel'])):
-			print(p,"has been determined as maloja's folder for",datatype)
+			#print(p,"has been determined as maloja's folder for",datatype)
 			configobject[info['setting']] = p
 			return p
 
-	print("Could not find previous",datatype,"folder")
+	#print("Could not find previous",datatype,"folder")
 	# check which one we can use
 	for p in info['possible_folders']:
 		if is_dir_usable(p):
-			print(p,"has been selected as maloja's folder for",datatype)
+			#print(p,"has been selected as maloja's folder for",datatype)
 			configobject[info['setting']] = p
 			return p
-	print("No folder can be used for",datatype)
-	print("This should not happen!")
+	#print("No folder can be used for",datatype)
+	#print("This should not happen!")
 
 
 
@@ -244,7 +244,6 @@ else:
 		"cache":pthj(malojaconfig['DATA_DIRECTORY'],"cache"),
 		"logs":pthj(malojaconfig['DATA_DIRECTORY'],"logs"),
 	}
-
 
 
 data_directories = {
