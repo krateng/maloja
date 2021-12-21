@@ -11,6 +11,8 @@ Python dependencies can be installed with `pip install -r requirements.txt`
 
 ## Running the server
 
+For development, you might not want to install maloja files all over your filesystem. Use the environment variable `MALOJA_DATA_DIRECTORY` to force all user files into one central directory - this way, you can also quickly change between multiple configurations.
+
 You can quickly run the server with all your local changes with `python3 -m maloja run`.
 
 You can also build the package with `pip install .`.

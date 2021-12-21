@@ -81,6 +81,10 @@ def direct():
 	setup()
 	from .. import server
 
+def debug():
+	os.environ["MALOJA_DEV_MODE"] = 'true'
+	direct()
+
 
 @mainfunction({"l":"level"},shield=True)
 def main(action,*args,**kwargs):
@@ -89,7 +93,7 @@ def main(action,*args,**kwargs):
 		"restart":restart,
 		"stop":stop,
 		"run":direct,
-		"debug":direct,
+		"debug":debug,
 
 		"import":tasks.loadlastfm,
 		"backup":tasks.backuphere,
