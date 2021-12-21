@@ -1,13 +1,14 @@
 # Basic Development Instructions
 
-> To avoid cluttering your system, you might want to use a [virtual environment](https://docs.python.org/3/tutorial/venv.html).
-
 After you've cloned the repository, traverse into the `maloja` folder with `cd maloja`.
 
-Make sure all dependencies are installed.
-Your system needs a few packages, on Alpine Linux these can all be installed with `sh install_alpine.sh`.
-For other distros, try to find the equivalents of the packages listed there or simply check your error output.
-Python dependencies can be installed with `pip install -r requirements.txt`
+Your system needs several packages installed. On Alpine, this can be done with
+
+`apk add python3 python3-dev gcc libxml2-dev libxslt-dev py3-pip libc-dev linux-headers`
+
+For other distros, try to find the equivalents of the packages listed or simply check your error output.
+
+Then install all Python dependencies with `pip install -r requirements.txt`. To avoid cluttering your system, consider using a [virtual environment](https://docs.python.org/3/tutorial/venv.html).
 
 ## Running the server
 
