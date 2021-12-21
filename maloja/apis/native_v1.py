@@ -332,6 +332,4 @@ def newrule(**keys):
 @authenticated_api
 def set_settings(**keys):
 	from .. import globalconf
-	from pprint import pprint
-	pprint(keys)
 	globalconf.malojaconfig.update(keys)
