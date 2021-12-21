@@ -1,4 +1,3 @@
-from .. import globalconf
 from ..globalconf import data_dir, malojaconfig
 from .. import thirdparty
 
@@ -15,20 +14,6 @@ import re
 import datetime
 
 
-if globalconf.USE_THUMBOR:
-	def thumborize(url):
-		if url.startswith("/"): url = globalconf.OWNURL + url
-		encrypted_url = globalconf.THUMBOR_GENERATOR.generate(
-		    width=300,
-		    height=300,
-		    smart=True,
-		    image_url=url
-		)
-		return globalconf.THUMBOR_SERVER + encrypted_url
-
-else:
-	def thumborize(url):
-		return url
 
 
 
@@ -144,7 +129,7 @@ def getTrackImage(artists,title,fast=False):
 	# Prio 1: Local image
 	if malojaconfig["USE_LOCAL_IMAGES"]:
 		try:
-			return thumborize(local_track_cache.get(hashable_track))
+			return local_track_cache.get(hashable_track)
 		except:
 			images = local_files(artists=artists,title=title)
 			if len(images) != 0:
@@ -156,7 +141,7 @@ def getTrackImage(artists,title,fast=False):
 	# Prio 2: Cached remote link
 	try:
 		result = track_cache.get(hashable_track)
-		if result is not None: return thumborize(result)
+		if result is not None: return result
 		# if we have cached the nonexistence of that image, we immediately return
 		# the redirect to the artist and let the resolver handle it
 		# (even if we're not in a fast lookup right now)
@@ -179,7 +164,7 @@ def getTrackImage(artists,title,fast=False):
 	# cache results (even negative ones)
 	track_cache.add(hashable_track,result)
 	# return either result or redirect to artist
-	if result is not None: return thumborize(result)
+	if result is not None: return result
 	for a in artists:
 		res = getArtistImage(artist=a,fast=False)
 		if res != "": return res
@@ -191,19 +176,19 @@ def getArtistImage(artist,fast=False):
 	# Prio 1: Local image
 	if malojaconfig["USE_LOCAL_IMAGES"]:
 		try:
-			return thumborize(local_artist_cache.get(artist))
+			return local_artist_cache.get(artist)
 		except:
 			images = local_files(artist=artist)
 			if len(images) != 0:
 				res = random.choice(images)
 				local_artist_cache.add(artist,res)
-				return thumborize(urllib.parse.quote(res))
+				return urllib.parse.quote(res)
 
 
 	# Prio 2: Cached remote link
 	try:
 		result = artist_cache.get(artist)
-		if result is not None: return thumborize(result)
+		if result is not None: return result
 		else: return ""
 		# none means non-existence is cached, return empty
 	except:
@@ -219,7 +204,7 @@ def getArtistImage(artist,fast=False):
 	result = thirdparty.get_image_artist_all(artist)
 	# cache results (even negative ones)
 	artist_cache.add(artist,result) #cache_artist(artist,result)
-	if result is not None: return thumborize(result)
+	if result is not None: return result
 	else: return ""
 
 def getTrackImages(trackobjectlist,fast=False):
