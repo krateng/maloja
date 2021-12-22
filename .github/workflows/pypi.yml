@@ -1,9 +1,9 @@
-name: Publish Package to PyPI
+name: Publish to PyPI
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
 
 jobs:
   publish_to_pypi:

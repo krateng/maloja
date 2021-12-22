@@ -4,6 +4,7 @@
 *.xcf
 nohup.out
 *-old
+*.yml
 
 # local actions
 scripts/*
