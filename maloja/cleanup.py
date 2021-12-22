@@ -65,10 +65,10 @@ class CleanerAgent:
 	delimiters_feat = malojaconfig["DELIMITERS_FEAT"]
 	#Delimiters in informal artist strings, spaces expected around them
 	#delimiters = ["vs.","vs","&"]
-	delimiters = malojaconfig["DELIMITERS_FEAT"]
+	delimiters = malojaconfig["DELIMITERS_INFORMAL"]
 	#Delimiters used specifically to tag multiple artists when only one tag field is available, no spaces used
 	#delimiters_formal = ["; ",";","/"]
-	delimiters_formal = malojaconfig["DELIMITERS_FEAT"]
+	delimiters_formal = malojaconfig["DELIMITERS_FORMAL"]
 
 	def parseArtists(self,a):
 
@@ -76,7 +76,7 @@ class CleanerAgent:
 			res = [self.parseArtists(art) for art in a]
 			return [a for group in res for a in group]
 
-		if a.strip() in malojaconfig["DELIMITERS_FEAT"]:
+		if a.strip() in malojaconfig["INVALID_ARTISTS"]:
 			return []
 
 		if a.strip().lower() in self.rules_ignoreartist:
@@ -135,7 +135,7 @@ class CleanerAgent:
 		t = re.sub(r" \(originally by .*?\)","",t)
 		t = re.sub(r" \(.*?Remaster.*?\)","",t)
 
-		for s in malojaconfig["DELIMITERS_FEAT"]:
+		for s in malojaconfig["REMOVE_FROM_TITLE"]:
 			if s in t:
 				t = t.replace(s,"")
 
