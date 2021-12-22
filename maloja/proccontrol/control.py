@@ -83,6 +83,7 @@ def direct():
 
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
+	globalconf.malojaconfig.load_environment()
 	direct()
 
 
