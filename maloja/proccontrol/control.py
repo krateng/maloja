@@ -1,5 +1,3 @@
-from .. import globalconf
-
 import subprocess
 from doreah import settings
 from doreah.control import mainfunction
@@ -10,6 +8,7 @@ import signal
 from .setup import setup
 from . import tasks
 from .. import __pkginfo__ as info
+from .. import globalconf
 
 print()
 print("#####")

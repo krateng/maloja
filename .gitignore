@@ -5,6 +5,7 @@
 nohup.out
 *-old
 *.yml
+pylintrc
 
 # local actions
 scripts/*

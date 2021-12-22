@@ -1,42 +1,30 @@
 #!/usr/bin/env python
-import os
-from .globalconf import data_dir
-
 
 # server stuff
-from bottle import Bottle, route, get, post, error, run, template, static_file, request, response, FormsDict, redirect, template, HTTPResponse, BaseRequest, abort
+from bottle import Bottle, static_file, request, response, FormsDict, redirect, BaseRequest, abort
 import waitress
 
-# monkey patching
-from . import monkey
+
 # rest of the project
 from . import database
-from . import malojatime
-from . import utilities
-from . import malojauri
 from .utilities import resolveImage
-from .malojauri import uri_to_internal, remove_identical, compose_querystring
-from . import globalconf
-from .globalconf import malojaconfig
+from .malojauri import uri_to_internal, remove_identical
+from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
-from jinja2.exceptions import TemplateNotFound
+from .apis import init_apis
 # doreah toolkit
 from doreah.logging import log
 from doreah.timing import Clock
 from doreah import auth
 # technical
-#from importlib.machinery import SourceFileLoader
-import importlib
 from threading import Thread
 import sys
 import signal
 import os
 import setproctitle
 import pkg_resources
-import math
 from css_html_js_minify import html_minify, css_minify
-# url handling
-import urllib
+from wand.image import Image as WandImage
 
 
 ######
@@ -63,14 +51,14 @@ setproctitle.setproctitle("Maloja")
 
 def generate_css():
 	css = ""
-	for f in os.listdir(os.path.join(STATICFOLDER,"css")):
-		with open(os.path.join(STATICFOLDER,"css",f),"r") as fd:
-			css += fd.read()
+	for file in os.listdir(os.path.join(STATICFOLDER,"css")):
+		with open(os.path.join(STATICFOLDER,"css",file),"r") as filed:
+			css += filed.read()
 
-	for f in os.listdir(data_dir['css']()):
-		if f.endswith(".css"):
-			with open(os.path.join(data_dir['css'](f)),"r") as fd:
-				css += fd.read()
+	for file in os.listdir(data_dir['css']()):
+		if file.endswith(".css"):
+			with open(os.path.join(data_dir['css'](file)),"r") as filed:
+				css += filed.read()
 
 	css = css_minify(css)
 	return css
@@ -148,8 +136,6 @@ aliases = {
 ### API
 
 auth.authapi.mount(server=webserver)
-
-from .apis import init_apis
 init_apis(webserver)
 
 # redirects for backwards compatibility
@@ -182,14 +168,13 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
 
-	type = pth.split(".")[-1]
+	ext = pth.split(".")[-1]
 	small_pth = pth + "-small"
 	if os.path.exists(data_dir['images'](small_pth)):
 		response = static_file(small_pth,root=data_dir['images']())
 	else:
 		try:
-			from wand.image import Image
-			img = Image(filename=data_dir['images'](pth))
+			img = WandImage(filename=data_dir['images'](pth))
 			x,y = img.size[0], img.size[1]
 			smaller = min(x,y)
 			if smaller > 300:
@@ -199,12 +184,12 @@ def static_image(pth):
 				response = static_file(small_pth,root=data_dir['images']())
 			else:
 				response = static_file(pth,root=data_dir['images']())
-		except:
+		except Exception:
 			response = static_file(pth,root=data_dir['images']())
 
 	#response = static_file("images/" + pth,root="")
 	response.set_header("Cache-Control", "public, max-age=86400")
-	response.set_header("Content-Type", "image/" + type)
+	response.set_header("Content-Type", "image/" + ext)
 	return response
 
 
@@ -234,7 +219,6 @@ def static(name,ext):
 
 def static_html(name):
 	if name in aliases: redirect(aliases[name])
-	linkheaders = ["</style.css>; rel=preload; as=style"]
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
@@ -242,19 +226,18 @@ def static_html(name):
 	clock = Clock()
 	clock.start()
 
-	LOCAL_CONTEXT = {
+	loc_context = {
 		"adminmode":adminmode,
 		"config":malojaconfig,
 		"apikey":request.cookies.get("apikey") if adminmode else None,
 		"_urikeys":keys, #temporary!
 	}
-	lc = LOCAL_CONTEXT
-	lc["filterkeys"], lc["limitkeys"], lc["delimitkeys"], lc["amountkeys"], lc["specialkeys"] = uri_to_internal(keys)
+	loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
 
 	template = jinja_environment.get_template(name + '.jinja')
 	try:
-		res = template.render(**LOCAL_CONTEXT)
-	except (ValueError, IndexError) as e:
+		res = template.render(**loc_context)
+	except (ValueError, IndexError):
 		abort(404,"This Artist or Track does not exist")
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
@@ -300,7 +283,7 @@ def graceful_exit(sig=None,frame=None):
 	except Exception as e:
 		log("Error while shutting down!",e)
 	log("Server shutting down...")
-	os._exit(42)
+	sys.exit(0)
 
 #set graceful shutdown
 signal.signal(signal.SIGINT, graceful_exit)
