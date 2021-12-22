@@ -181,8 +181,6 @@ def dynamic_image():
 @webserver.route("/images/<pth:re:.*\\.png>")
 @webserver.route("/images/<pth:re:.*\\.gif>")
 def static_image(pth):
-	if globalconf.USE_THUMBOR:
-		return static_file(pth,root=data_dir['images']())
 
 	type = pth.split(".")[-1]
 	small_pth = pth + "-small"
