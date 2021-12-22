@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import os
 
+from ..globalconf import malojaconfig
+
 import subprocess
 import setproctitle
 import signal
 from doreah.logging import log
 
-from .globalconf import malojaconfig
+
 from .control import getInstance
 
 
