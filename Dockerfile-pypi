@@ -7,18 +7,18 @@ FROM python:3-alpine
 ARG MALOJA_RELEASE
 WORKDIR /usr/src/app
 
-
-
+# Copy needed information
+COPY ./install ./install
 
 RUN \
     # Build dependencies
     sh ./install/alpine_requirements_build_volatile.sh && \
     # Runtime dependencies
     sh ./install/alpine_requirements_run.sh && \
-    # Python dependencies
-    pip3 install --no-cache-dir -r requirements.txt && \
-	# PyPI install
-	pip3 install malojaserver==$MALOJA_RELEASE && \
+
+
+    # PyPI install
+    pip3 install malojaserver==$MALOJA_RELEASE && \
     # Remove build dependencies
     apk del .build-deps
 
