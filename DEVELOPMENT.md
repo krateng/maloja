@@ -4,7 +4,7 @@ After you've cloned the repository, traverse into the `maloja` folder with `cd m
 
 Your system needs several packages installed. On Alpine, this can be done with
 
-`apk add python3 python3-dev gcc libxml2-dev libxslt-dev py3-pip libc-dev linux-headers`
+`sh ./install/alpine_requirements.sh`
 
 For other distros, try to find the equivalents of the packages listed or simply check your error output.
 
