@@ -1,9 +1,21 @@
-#!/usr/bin/env python
+# technical
+import sys
+import signal
+import os
+from threading import Thread
+import setproctitle
+import pkg_resources
+from css_html_js_minify import html_minify, css_minify
+from wand.image import Image as WandImage
 
 # server stuff
 from bottle import Bottle, static_file, request, response, FormsDict, redirect, BaseRequest, abort
 import waitress
 
+# doreah toolkit
+from doreah.logging import log
+from doreah.timing import Clock
+from doreah import auth
 
 # rest of the project
 from . import database
@@ -12,19 +24,8 @@ from .malojauri import uri_to_internal, remove_identical
 from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis
-# doreah toolkit
-from doreah.logging import log
-from doreah.timing import Clock
-from doreah import auth
-# technical
-from threading import Thread
-import sys
-import signal
-import os
-import setproctitle
-import pkg_resources
-from css_html_js_minify import html_minify, css_minify
-from wand.image import Image as WandImage
+
+
 
 
 ######
@@ -50,18 +51,18 @@ setproctitle.setproctitle("Maloja")
 
 
 def generate_css():
-	css = ""
+	cssstr = ""
 	for file in os.listdir(os.path.join(STATICFOLDER,"css")):
 		with open(os.path.join(STATICFOLDER,"css",file),"r") as filed:
-			css += filed.read()
+			cssstr += filed.read()
 
 	for file in os.listdir(data_dir['css']()):
 		if file.endswith(".css"):
 			with open(os.path.join(data_dir['css'](file)),"r") as filed:
-				css += filed.read()
+				cssstr += filed.read()
 
-	css = css_minify(css)
-	return css
+	cssstr = css_minify(cssstr)
+	return cssstr
 
 css = generate_css()
 

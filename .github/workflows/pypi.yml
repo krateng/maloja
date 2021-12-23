@@ -13,14 +13,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: pip install wheel setuptools
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-      - name: Install Doreah (imported on build)
-        run: pip install doreah
+      - name: Install dependencies
+        run: pip install build doreah
 
       - name: Build package
-        run: python setup.py sdist bdist_wheel
+        run: python -m build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
