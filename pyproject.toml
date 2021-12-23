@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.scripts]
-maloja = "proccontrol.control:main"
+maloja = "maloja.proccontrol.control:main"
 
 [build-system]
 requires = ["flit_core >=3.2,<4"]

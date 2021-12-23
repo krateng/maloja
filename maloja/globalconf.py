@@ -70,9 +70,8 @@ directory_info = {
 }
 
 # function that
-# 1) checks if folder has been specified by user
-# 2) if not, checks if one has been in use before and writes it to dict/config
-# 3) if not, determines which to use and writes it to dict/config
+#   checks if one has been in use before and writes it to dict/config
+#   if not, determines which to use and writes it to dict/config
 # returns determined folder
 def find_good_folder(datatype,configobject):
 	info = directory_info[datatype]
@@ -110,8 +109,12 @@ else:
 	found_new_config_dir = False
 	# remember whether we had to find our config dir or it was user-specified
 
+os.makedirs(maloja_dir_config,exist_ok=True)
+
 oldsettingsfile = pthj(maloja_dir_config,"settings","settings.ini")
 newsettingsfile = pthj(maloja_dir_config,"settings.ini")
+
+
 
 if os.path.exists(oldsettingsfile):
 	os.rename(oldsettingsfile,newsettingsfile)
@@ -219,6 +222,8 @@ for datatype in ("state","cache","logs"):
 	# if user has nothing specified, we need to use this
 	if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
 		find_good_folder(datatype,malojaconfig)
+
+	
 
 
 
