@@ -48,41 +48,48 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 ## How to install
 
-### Environment
+### LXC / VM / Bare Metal
 
-I can support you with issues best if you use **Alpine Linux**. In my experience, **2 GB RAM** should do nicely, but higher amounts allow more caching and reduce page load times for complicated statistics. My personal recommendation is using a dedicated LXC container (e.g. on Proxmox), but of course Maloja will also run on a VM, in Docker or on bare metal.
+I can support you with issues best if you use **Alpine Linux**.
 
-### New Installation
+#### From PyPI
 
-1) Make sure you have Python 3.5 or higher installed. You also need some basic packages that should be present on most systems, but I've provided simple shell scripts for Alpine and Ubuntu to get everything you need.
+You can download the included script `install_alpine.sh` and run it with
 
-2) If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!
-
-3) Download Maloja with the command `pip install malojaserver`. Make sure to use the correct python version (Use `pip3` if necessary).
-
-4) (Recommended) Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4. If you're running Maloja in a container, make sure to expose port 42010 (or whichever port you have chosen in your settings).
-
-5) (Optional) You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
-
-```
-@reboot sleep 15 && maloja start
-42 0 7 * * maloja restart
+```console
+	sh install_alpine.sh
 ```
 
+You can also simply call the install command
 
-### Update
+```console
+	pip install malojaserver
+```
 
-* If you use a version before 2.0 (1.x), install the package as described above, then manually copy all your user data to your `/etc/maloja` folder.
-* Otherwise, simply run the command `maloja update` or use `pip`s update mechanic.
+directly (e.g. if you're not on Alpine) - make sure you have all the system packages installed.
 
+#### From Source
+
+Clone this repository and enter the directory with
+
+```console
+	git clone https://github.com/krateng/maloja
+	cd maloja
+```
+
+Then install all the requirements and build the package:
+
+```console
+	sh ./install/install_dependencies.sh
+	pip install -r requirements.txt
+	pip install .
+```
 
 ### Docker
 
-All docker builds supply `MALOJA_SKIP_SETUP=yes` as a default environmental variable to make server startup non-interactive, which is necessary to make Maloja usable within a docker container.
+Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Dockerfile.
 
-To configure Maloja use an ini file instead. Refer to the [settings documentation](settings.md) for available settings.
-
-Of note for docker users are these settings which should be passed as environmental variables to the container:
+Of note are these settings which should be passed as environmental variables to the container:
 
 * `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
@@ -94,19 +101,21 @@ You must also publish a port on your host machine to bind to the container's web
 An example of a minimum run configuration when accessing maloja from an IPv4 address IE `localhost:42010`:
 
 ```console
-docker run -p 42010:42010 -e MALOJA_HOST=0.0.0.0 maloja
+	docker run -p 42010:42010 -e MALOJA_HOST=0.0.0.0 maloja
 ```
 
-#### From Source
+### Extras
 
-The [`Dockerfile`](Dockerfile) builds Maloja from source. Images are available on [**Dockerhub**](https://hub.docker.com/r/krateng/maloja):
+* If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!
 
-* `latest` -- image is built from the latest official release
-* `X.XX.XX` -- images are built from the [repository tags](https://github.com/krateng/maloja/tags) and *should* coincide with [pypi versions](https://pypi.org/project/malojaserver/) of maloja
+* Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4.
 
-#### From PyPi
+* You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
 
-Running a container using a [pypi version](https://pypi.org/project/malojaserver/) of maloja is possible using [`pip.Dockerfile`](pip.Dockerfile). Supply the version of Maloja you want to install with the `MALOJA_RELEASE` [ARG](https://docs.docker.com/engine/reference/builder/#arg)
+```
+@reboot sleep 15 && maloja start
+42 0 7 * * maloja restart
+```
 
 
 ## How to use

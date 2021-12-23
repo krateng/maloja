@@ -14,7 +14,7 @@ RUN \
     # Build dependencies (This will pipe all packages from the file)
     sed 's/#.*//' ./install/dependencies_build.txt  | xargs apk add --no-cache --virtual .build-deps && \
     # Runtime dependencies (Same)
-    sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add && \
+    sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add --no-cache && \
     # Python dependencies
     pip3 install --no-cache-dir -r requirements.txt && \
     # Local project install
