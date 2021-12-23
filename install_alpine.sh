@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-apk add python3 python3-dev gcc libxml2-dev libxslt-dev py3-pip libc-dev linux-headers
-pip3 install psutil wheel
+sh ./install/alpine_requirements_run.sh
+sh ./install/alpine_requirements_build.sh
+pip3 install wheel
 pip3 install malojaserver
