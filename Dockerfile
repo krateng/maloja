@@ -6,25 +6,23 @@ FROM python:3-alpine
 
 WORKDIR /usr/src/app
 
+
 # Copy project into dir
 COPY . .
 
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    libxml2-dev \
-    libxslt-dev \
-    libc-dev \
-    # install pip3
-    py3-pip \
-    linux-headers && \
-    pip3 install psutil && \
-    # use pip to install maloja project requirements
-    pip3 install --no-cache-dir -r requirements.txt && \
-    # use pip to install maloja as local project
-    pip3 install /usr/src/app && \
-    apk del .build-deps
+# Build dependencies
+RUN sh ./install/alpine_requirements_build_volatile.sh
 
-RUN apk add --no-cache tzdata
+# Runtime dependencies
+RUN sh ./install/alpine_requirements_run.sh
+
+# Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Local project install
+RUN pip3 install /usr/src/app
+
+RUN apk del .build-deps
 
 # expected behavior for a default setup is for maloja to "just work"
 ENV MALOJA_SKIP_SETUP=yes

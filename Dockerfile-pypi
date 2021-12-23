@@ -5,26 +5,28 @@ FROM python:3-alpine
 # https://github.com/Joniator
 
 ARG MALOJA_RELEASE
-
 WORKDIR /usr/src/app
 
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    libxml2-dev \
-    libxslt-dev \
-    py3-pip \
-    libc-dev \
-    linux-headers \
-    && \
-    pip3 install psutil && \
-    pip3 install malojaserver==$MALOJA_RELEASE && \
-    apk del .build-deps
 
-RUN apk add --no-cache tzdata
 
-EXPOSE 42010
+
+# Build dependencies
+RUN sh ./install/alpine_requirements_build_volatile.sh
+
+# Runtime dependencies
+RUN sh ./install/alpine_requirements_run.sh
+
+# Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Local project install
+RUN pip3 install malojaserver==$MALOJA_RELEASE
+
+RUN apk del .build-deps
 
 # expected behavior for a default setup is for maloja to "just work"
 ENV MALOJA_SKIP_SETUP=yes
 
+EXPOSE 42010
+# use exec form for better signal handling https://docs.docker.com/engine/reference/builder/#entrypoint
 ENTRYPOINT ["maloja", "run"]
