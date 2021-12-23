@@ -2,13 +2,17 @@
 *.pyc
 *.note
 *.xcf
-nohup.out
-*-old
-*.yml
-pylintrc
+/nohup.out
+/*-old
+/*.yml
+/pylintrc
+
+# build
+/dist
+/build
 
 # local actions
-scripts/*
+/scripts/*
 
 # currently not using
 /screenshot*.png
