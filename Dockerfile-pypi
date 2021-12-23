@@ -11,10 +11,10 @@ WORKDIR /usr/src/app
 COPY ./install ./install
 
 RUN \
-    # Build dependencies
-    sh ./install/alpine_requirements_build_volatile.sh && \
-    # Runtime dependencies
-    sh ./install/alpine_requirements_run.sh && \
+    # Build dependencies (This will pipe all packages from the file)
+    sed 's/#.*//' ./install/dependencies_build.txt  | xargs apk add --no-cache --virtual .build-deps && \
+    # Runtime dependencies (Same)
+    sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add && \
 
 
     # PyPI install

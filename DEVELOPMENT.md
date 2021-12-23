@@ -4,7 +4,7 @@ After you've cloned the repository, traverse into the `maloja` folder with `cd m
 
 Your system needs several packages installed. On Alpine, this can be done with
 
-`sh ./install/alpine_requirements.sh`
+`sh ./install/install_dependencies.sh`
 
 For other distros, try to find the equivalents of the packages listed or simply check your error output.
 

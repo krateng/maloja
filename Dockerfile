@@ -11,10 +11,10 @@ WORKDIR /usr/src/app
 COPY . .
 
 RUN \
-    # Build dependencies
-    sh ./install/alpine_requirements_build_volatile.sh && \
-    # Runtime dependencies
-    sh ./install/alpine_requirements_run.sh && \
+    # Build dependencies (This will pipe all packages from the file)
+    sed 's/#.*//' ./install/dependencies_build.txt  | xargs apk add --no-cache --virtual .build-deps && \
+    # Runtime dependencies (Same)
+    sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add && \
     # Python dependencies
     pip3 install --no-cache-dir -r requirements.txt && \
     # Local project install

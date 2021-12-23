@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sh ./install/alpine_requirements_run.sh
-sh ./install/alpine_requirements_build.sh
+sed 's/#.*//' ./install/deps_build.txt  | xargs apk add
+sed 's/#.*//' ./install/deps_run.txt  | xargs apk add
 pip3 install wheel
 pip3 install malojaserver
