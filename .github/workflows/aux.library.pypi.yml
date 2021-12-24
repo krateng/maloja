@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install build
-        
+
       - name: Change directory
         run: cd auxiliary/malojalib
 

@@ -1,5 +1,4 @@
 import os
-from doreah.settings import config as settingsconfig
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
@@ -223,7 +222,7 @@ for datatype in ("state","cache","logs"):
 	if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
 		find_good_folder(datatype,malojaconfig)
 
-	
+
 
 
 
@@ -296,7 +295,6 @@ config(
 	}
 )
 
-settingsconfig._readpreconfig()
 
 # what the fuck did i just write
 # this spaghetti file is proudly sponsored by the rice crackers i'm eating at the

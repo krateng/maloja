@@ -20,6 +20,7 @@ def print_header_info():
 	print()
 
 
+
 def getInstance():
 	try:
 		output = subprocess.check_output(["pidof","Maloja"])
@@ -91,8 +92,13 @@ def debug():
 
 def print_info():
 	print_header_info()
+	print("Configuration Directory:",globalconf.dir_settings['config'])
+	print("Data Directory:         ",globalconf.dir_settings['state'])
+	print()
+	print("#####")
+	print()
 
-@mainfunction({"l":"level","v":"version"},shield=True)
+@mainfunction({"l":"level"},shield=True)
 def main(*args,**kwargs):
 
 	actions = {
