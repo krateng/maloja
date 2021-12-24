@@ -1,0 +1,28 @@
+[project]
+name = "maloja-lib"
+version = "1.0.0"
+description = "Utilities to interact with Maloja servers"
+readme = "./README.md"
+requires-python = ">=3.6"
+license = { file="../../LICENSE" }
+authors = [ { name="Johannes Krattenmacher", email="maloja@dev.krateng.ch" } ]
+
+urls.repository = "https://github.com/krateng/maloja"
+urls.documentation = "https://github.com/krateng/maloja"
+
+keywords = ["scrobbling", "music", "library", "api"]
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+	"Operating System :: OS Independent"
+]
+
+dependencies = [
+	"requests"
+]
+
+[project.scripts]
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
