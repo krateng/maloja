@@ -1,13 +1,15 @@
-name: Publish to PyPI
+name: Publish library to PyPI
 
 on:
   push:
-    tags:
-      - 'v*'
+    paths:
+      - 'auxiliary/malojalib/pyproject.toml'
+      # When the version updates, this file changes
+      # False positives only result in a failed push
 
 jobs:
   publish_to_pypi:
-    name: Push Package to PyPI
+    name: Push Library to PyPI
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -20,6 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install build
+        
+      - name: Change directory
+        run: cd auxiliary/malojalib
 
       - name: Build package
         run: python -m build
