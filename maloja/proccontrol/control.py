@@ -10,12 +10,14 @@ from . import tasks
 from .. import __pkginfo__ as info
 from .. import globalconf
 
-print()
-print("#####")
-print("Maloja v" + info.versionstr)
-print("https://github.com/" + info.author['github'] + "/" + info.links['github'])
-print("#####")
-print()
+
+def print_header_info():
+	print()
+	print("#####")
+	print("Maloja v" + info.versionstr)
+	print(info.urls['repo'])
+	print("#####")
+	print()
 
 
 def getInstance():
@@ -42,6 +44,7 @@ def start():
 	else:
 		setup()
 		try:
+			print_header_info()
 			#p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			sp = subprocess.Popen(["python3","-m","maloja.proccontrol.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(col["green"]("Maloja started!"))
@@ -77,6 +80,7 @@ def stop():
 
 
 def direct():
+	print_header_info()
 	setup()
 	from .. import server
 
@@ -85,23 +89,32 @@ def debug():
 	globalconf.malojaconfig.load_environment()
 	direct()
 
+def print_info():
+	print_header_info()
 
-@mainfunction({"l":"level"},shield=True)
-def main(action,*args,**kwargs):
+@mainfunction({"l":"level","v":"version"},shield=True)
+def main(*args,**kwargs):
+
 	actions = {
 		"start":start,
 		"restart":restart,
 		"stop":stop,
 		"run":direct,
 		"debug":debug,
-
 		"import":tasks.loadlastfm,
 		"backup":tasks.backuphere,
 	#	"update":update,
 		"fix":tasks.fixdb,
-		"generate":tasks.generate_scrobbles
+		"generate":tasks.generate_scrobbles,
+		"info":print_info
 	}
-	if action in actions: actions[action](*args,**kwargs)
-	else: print("Valid commands: " + " ".join(a for a in actions))
+
+	if len(args) > 0:
+		action = args[0]
+		args = args[1:]
+		if action in actions: actions[action](*args,**kwargs)
+		else: print("Valid commands: " + " ".join(a for a in actions))
+	else:
+		print("No action specified!")
 
 	return True
