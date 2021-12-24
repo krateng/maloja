@@ -19,10 +19,9 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 ## Table of Contents
 * [Features](#features)
 * [How to install](#how-to-install)
-	* [Environment](#environment)
-	* [New Installation](#new-installation)
-	* [Update](#update)
+	* [LXC / VM / Bare Metal](#lxc--vm--bare-metal)
 	* [Docker](#docker)
+	* [Extras](#extras)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
 	* [Data](#data)
@@ -124,15 +123,25 @@ An example of a minimum run configuration when accessing maloja from an IPv4 add
 
 Start and stop the server with
 
+```console
 	maloja start
 	maloja stop
 	maloja restart
+```
 
 If something is not working, you can try
 
+```console
 	maloja debug
+```
 
 to run the server in the foreground.
+
+```console
+	maloja info
+```
+
+will give you some basic information about your install.
 
 
 ### Data

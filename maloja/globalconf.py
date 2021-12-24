@@ -2,6 +2,8 @@ import os
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
+from .__pkginfo__ import versionstr
+
 
 
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
@@ -267,6 +269,13 @@ data_directories = {
 data_dir = {
 	k:lambda *x,k=k: pthj(data_directories[k],*x)  for k in data_directories
 }
+
+
+
+### write down the last ran version
+with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
+	filed.write(versionstr)
+	filed.write("\n")
 
 
 

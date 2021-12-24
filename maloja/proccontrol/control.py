@@ -95,13 +95,14 @@ def print_info():
 	print_header_info()
 	print("Configuration Directory:",globalconf.dir_settings['config'])
 	print("Data Directory:         ",globalconf.dir_settings['state'])
+	print("Log Directory:          ",globalconf.dir_settings['logs'])
 	print("Network:                ",f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
 	print("Timezone:               ",f"UTC{globalconf.malojaconfig['timezone']:+d}")
 	print()
 	print("#####")
 	print()
 
-@mainfunction({"l":"level"},shield=True)
+@mainfunction({"l":"level","v":"version"},flags=['version'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
@@ -118,7 +119,10 @@ def main(*args,**kwargs):
 		"info":print_info
 	}
 
-	if len(args) > 0:
+	if "version" in kwargs:
+		print(info.versionstr)
+
+	elif len(args) > 0:
 		action = args[0]
 		args = args[1:]
 		if action in actions: actions[action](*args,**kwargs)
