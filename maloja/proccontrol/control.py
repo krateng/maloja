@@ -4,6 +4,7 @@ from doreah.control import mainfunction
 from doreah.io import col
 import os
 import signal
+from ipaddress import ip_address
 
 from .setup import setup
 from . import tasks
@@ -94,6 +95,8 @@ def print_info():
 	print_header_info()
 	print("Configuration Directory:",globalconf.dir_settings['config'])
 	print("Data Directory:         ",globalconf.dir_settings['state'])
+	print("Network:                ",f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
+	print("Timezone:               ",f"UTC{globalconf.malojaconfig['timezone']:+d}")
 	print()
 	print("#####")
 	print()

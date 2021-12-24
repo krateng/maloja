@@ -8,13 +8,12 @@ from ..globalconf import data_dir, dir_settings, malojaconfig
 
 
 # EXTERNAL API KEYS
-apikeys = {
-	"LASTFM_API_KEY":"Last.fm API Key",
-	#"FANARTTV_API_KEY":"Fanart.tv API Key",
-	"SPOTIFY_API_ID":"Spotify Client ID",
-	"SPOTIFY_API_SECRET":"Spotify Client Secret",
-	"AUDIODB_API_KEY":"TheAudioDB API Key"
-}
+apikeys = [
+	"LASTFM_API_KEY",
+	"SPOTIFY_API_ID",
+	"SPOTIFY_API_SECRET",
+	"AUDIODB_API_KEY"
+]
 
 
 
@@ -35,15 +34,16 @@ def setup():
 
 	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
 	for k in apikeys:
+		keyname = malojaconfig.get_setting_info(k)['name']
 		key = malojaconfig[k]
 		if key is False:
-			print("\t" + "Currently not using a " + col['red'](apikeys[k]) + " for image display.")
+			print("\t" + "Currently not using a " + col['red'](keyname) + " for image display.")
 		elif key is None or key == "ASK":
-			print("\t" + "Please enter your " + col['gold'](apikeys[k]) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
+			print("\t" + "Please enter your " + col['gold'](keyname) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
 			key = prompt("",types=(str,),default=False,skip=SKIP)
 			malojaconfig[k] = key
 		else:
-			print("\t" + col['lawngreen'](apikeys[k]) + " found.")
+			print("\t" + col['lawngreen'](keyname) + " found.")
 
 
 	# OWN API KEY
