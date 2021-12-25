@@ -1,0 +1,8 @@
+{% set page ='admin_apikeys' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - API Keys{% endblock %}
+
+
+{% block maincontent %}
+{{ apikeys.html() }}
+{% endblock %}

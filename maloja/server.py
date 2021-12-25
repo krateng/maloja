@@ -21,7 +21,7 @@ from doreah import auth
 from . import database
 from .utilities import resolveImage
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, data_dir
+from .globalconf import malojaconfig, apikeystore, data_dir
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis
 
@@ -231,6 +231,7 @@ def static_html(name):
 		"adminmode":adminmode,
 		"config":malojaconfig,
 		"apikey":request.cookies.get("apikey") if adminmode else None,
+		"apikeys":apikeystore,
 		"_urikeys":keys, #temporary!
 	}
 	loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)

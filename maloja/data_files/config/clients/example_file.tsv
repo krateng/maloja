@@ -1,6 +1,0 @@
-# Only the entries in authenticated_machines.tsv are used, this is an example file
-# It is recommended to have a separate key for every scrobbler application you use,
-# as well as a key for manual interactions on the website
-YDzcmp8JpYHCcvJbDOVT7nEDoyCEND6K	Chromium Extension on Manjaro
-correcthorsebatterystaple		Pano Scrobbler on Android
-thingolisthebestking			Web Interface

@@ -10,7 +10,7 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from .thirdparty import proxy_scrobble_all
 
 from .__pkginfo__ import version
-from .globalconf import data_dir, malojaconfig
+from .globalconf import data_dir, malojaconfig, apikeystore
 
 # doreah toolkit
 from doreah.logging import log
@@ -103,24 +103,14 @@ def add_known_server(url):
 
 
 
-### symmetric keys are fine for now since we hopefully use HTTPS
-def loadAPIkeys():
-	global clients
-	tsv.create(data_dir['clients']("authenticated_machines.tsv"))
-	#createTSV("clients/authenticated_machines.tsv")
-	clients = tsv.parse(data_dir['clients']("authenticated_machines.tsv"),"string","string")
-	#clients = parseTSV("clients/authenticated_machines.tsv","string","string")
-	log("Authenticated Machines: " + ", ".join([m[1] for m in clients]))
 
-def checkAPIkey(k):
-	#return (k in [k for [k,d] in clients])
-	for key, identifier in clients:
-		if key == k: return identifier
+log("Authenticated Machines: " + ", ".join([k for k in apikeystore]))
 
-	return False
+def checkAPIkey(key):
+	return any((key == apikeystore[k]) for k in apikeystore)
 
 def allAPIkeys():
-	return [k for [k,d] in clients]
+	return [apikeystore[k] for k in apikeystore]
 
 
 ####
@@ -706,7 +696,6 @@ def start_db():
 	log("Starting database...")
 	global lastsync
 	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	loadAPIkeys()
 	build_db()
 	#run(dbserver, host='::', port=PORT, server='waitress')
 	log("Database reachable!")

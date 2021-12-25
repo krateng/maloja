@@ -1,6 +1,7 @@
 import os
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
+from doreah.keystore import KeyStore
 
 from .__pkginfo__ import versionstr
 
@@ -258,7 +259,7 @@ data_directories = {
 	"images":pthj(dir_settings['state'],"images"),
 	"scrobbles":pthj(dir_settings['state'],"scrobbles"),
 	"rules":pthj(dir_settings['config'],"rules"),
-	"clients":pthj(dir_settings['config'],"clients"),
+	"clients":pthj(dir_settings['config']),
 	"settings":pthj(dir_settings['config']),
 	"css":pthj(dir_settings['config'],"custom_css"),
 	"logs":pthj(dir_settings['logs']),
@@ -303,6 +304,27 @@ config(
 		"offset": malojaconfig["TIMEZONE"]
 	}
 )
+
+
+
+
+### API KEYS
+
+
+
+### symmetric keys are fine for now since we hopefully use HTTPS
+apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/api_keys")
+
+oldfile = pthj(dir_settings['config'],"clients","authenticated_machines.tsv")
+if os.path.exists(oldfile):
+	try:
+		from doreah import tsv
+		clients = tsv.parse(oldfile,"string","string")
+		for key,identifier in clients:
+			apikeystore[identifier] = key
+		os.remove(oldfile)
+	except:
+		pass
 
 
 # what the fuck did i just write

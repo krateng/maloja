@@ -4,11 +4,11 @@ from doreah.io import col, ask, prompt
 from doreah import auth
 import os
 
-from ..globalconf import data_dir, dir_settings, malojaconfig
+from ..globalconf import data_dir, dir_settings, malojaconfig, apikeystore
 
 
 # EXTERNAL API KEYS
-apikeys = [
+ext_apikeys = [
 	"LASTFM_API_KEY",
 	"SPOTIFY_API_ID",
 	"SPOTIFY_API_SECRET",
@@ -33,7 +33,7 @@ def setup():
 	SKIP = malojaconfig["SKIP_SETUP"]
 
 	print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
-	for k in apikeys:
+	for k in ext_apikeys:
 		keyname = malojaconfig.get_setting_info(k)['name']
 		key = malojaconfig[k]
 		if key is False:
@@ -47,13 +47,11 @@ def setup():
 
 
 	# OWN API KEY
-	if not os.path.exists(data_dir['clients']("authenticated_machines.tsv")):
+	if len(apikeystore) == 0:
 		answer = ask("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database.",default=True,skip=SKIP)
 		if answer:
-			key = randomstring(64)
+			key = apikeystore.generate_key('default')
 			print("Your API Key: " + col["yellow"](key))
-			with open(data_dir['clients']("authenticated_machines.tsv"),"w") as keyfile:
-				keyfile.write(key + "\t" + "Default Generated Key")
 
 	# PASSWORD
 	forcepassword = malojaconfig["FORCE_PASSWORD"]
