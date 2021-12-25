@@ -313,7 +313,7 @@ config(
 
 
 ### symmetric keys are fine for now since we hopefully use HTTPS
-apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/api_keys")
+apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
 
 oldfile = pthj(dir_settings['config'],"clients","authenticated_machines.tsv")
 if os.path.exists(oldfile):

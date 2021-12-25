@@ -1,5 +1,5 @@
 from ..database import *
-from ..globalconf import malojaconfig
+from ..globalconf import malojaconfig, apikeystore
 from ..__pkginfo__ import version
 from ..malojauri import uri_to_internal
 from .. import utilities
@@ -331,5 +331,9 @@ def newrule(**keys):
 @api.post("settings")
 @authenticated_api
 def set_settings(**keys):
-	from .. import globalconf
-	globalconf.malojaconfig.update(keys)
+	malojaconfig.update(keys)
+
+@api.post("apikeys")
+@authenticated_api
+def set_settings(**keys):
+	apikeystore.update(keys)
