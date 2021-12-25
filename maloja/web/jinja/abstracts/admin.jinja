@@ -19,10 +19,10 @@
 					{% for tab_url,tab_name in [
 						['overview','Overview'],
 						['setup','Setup'],
-						['manual','Manual Scrobbling'],
-						['issues','Database Maintenance'],
 						['settings','Settings'],
-						['apikeys','API Keys']
+						['apikeys','API Keys'],
+						['manual','Manual Scrobbling'],
+						['issues','Database Maintenance']
 					] %}
 						{% if page=='admin_' + tab_url %}
 							<span style="opacity:0.5;">{{ tab_name }}</span>
