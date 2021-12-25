@@ -70,9 +70,9 @@
 	</ul>
 
 	{% if adminmode %}
-	<button id="adminmodebutton" onclick="deactivate()">Deactivate</button>
+	<button type="button" id="adminmodebutton" onclick="deactivate()">Deactivate</button>
 	{% else %}
-	<button id="adminmodebutton" onclick="activate()">Activate</button>
+	<button type="button" id="adminmodebutton" onclick="activate()">Activate</button>
 	{% endif %}
 
 	<h2>Links</h2>
@@ -85,6 +85,6 @@
 
 	<input class="simpleinput" type="password" placeholder="New Password"></input><br/>
 	<input class="simpleinput" type="password" placeholder="Repeat"></input><br/><br/>
-	<button onclick="changepw()">Change</button>
+	<button type="button" onclick="changepw()">Change</button>
 	{% endif %}
 	{% endblock %}

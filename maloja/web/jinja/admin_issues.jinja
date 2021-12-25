@@ -45,7 +45,7 @@
 {% if issuedata.inconsistent %}
 	<tr>
 		<td>The current database wasn't built with all current rules in effect. Any problem below might be a false alarm and fixing it could create redundant rules.</td>
-		<td class='button important' onclick="fullrebuild()"><div>Rebuild the database</div></td>
+		<td><button type="button" class='warning' onclick="fullrebuild()">Rebuild the database</button></td>
 	</tr>
 {% endif %}
 
@@ -53,10 +53,10 @@
 	<tr>
 		<td>{{ links.link(issue[0]) }} is a possible duplicate of {{ links.link(issue[1]) }}</td>
 		<td>
-			<button onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] }}')">{{ issue[1] }} is correct</button>
+			<button type="button" onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] }}')">{{ issue[1] }} is correct</button>
 		</td>
 		<td>
-			<button onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ issue[0] }}')">{{ issue[0] }} is correct</button>
+			<button type="button" onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ issue[0] }}')">{{ issue[0] }} is correct</button>
 		</td>
 	</tr>
 {% endfor %}
@@ -67,7 +67,7 @@
 			{{ issue[1]|join(", ") }}
 		</td>
 		<td>
-			<button onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')">Fix it</button>
+			<button type="button" onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')">Fix it</button>
 		</td>
 	</tr>
 {% endfor %}
@@ -76,7 +76,7 @@
 	<tr>
 		<td>Is '{{ issue[0] }}' in '{{ links.link(issue[1]) }}' an artist?</td>
 		<td>
-			<button onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ (issue[2] + [issue[0]]) | join('␟') }}')">Yes</button>
+			<button type="button" onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ (issue[2] + [issue[0]]) | join('␟') }}')">Yes</button>
 		</td>
 	</tr>
 {% endfor %}

@@ -430,7 +430,7 @@ button {
 	color: var(--button-color-fg);
 	cursor:pointer;
 }
-button.important {
+button.warning {
 	background-color:red;
 	color:white;
 }
