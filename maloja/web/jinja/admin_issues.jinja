@@ -52,8 +52,12 @@
 {% for issue in issuedata.duplicates %}
 	<tr>
 		<td>{{ links.link(issue[0]) }} is a possible duplicate of {{ links.link(issue[1]) }}</td>
-		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] }}')"><div>{{ issue[1] }} is correct</div></td>
-		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ issue[0] }}')"><div>{{ issue[0] }} is correct</div></td>
+		<td>
+			<button onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] }}')">{{ issue[1] }} is correct</button>
+		</td>
+		<td>
+			<button onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ issue[0] }}')">{{ issue[0] }} is correct</button>
+		</td>
 	</tr>
 {% endfor %}
 
@@ -62,14 +66,18 @@
 		<td>{{ links.link(issue[0]) }} sounds like the combination of {{ issue[1].__len__() }} artists:
 			{{ issue[1]|join(", ") }}
 		</td>
-		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')"><div>Fix it</div></td>
+		<td>
+			<button onclick="newrule(this,'replaceartist','{{ issue[0] }}','{{ issue[1] | join('␟') }}')">Fix it</button>
+		</td>
 	</tr>
 {% endfor %}
 
 {% for issue in issuedata.newartists %}
 	<tr>
 		<td>Is '{{ issue[0] }}' in '{{ links.link(issue[1]) }}' an artist?</td>
-		<td class='button' onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ (issue[2] + [issue[0]]) | join('␟') }}')"><div>Yes</div></td>
+		<td>
+			<button onclick="newrule(this,'replaceartist','{{ issue[1] }}','{{ (issue[2] + [issue[0]]) | join('␟') }}')">Yes</button>
+		</td>
 	</tr>
 {% endfor %}
 

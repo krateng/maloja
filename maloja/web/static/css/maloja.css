@@ -419,19 +419,26 @@ img.star {
 
 
 
-.button {
+button {
 	padding:3px;
 	padding-right:6px;
 	padding-left:6px;
+	border: 0px;
+	font-family: inherit;
+	font-size: inherit;
 	background-color: var(--button-color-bg);
 	color: var(--button-color-fg);
 	cursor:pointer;
 }
-.button:hover {
+button.important {
+	background-color:red;
+	color:white;
+}
+button:hover {
 	background-color: var(--button-color-bg-focus);
 	color: var(--button-color-fg-focus);
 }
-.button.locked {
+button.locked {
 	background-color:grey;
 	color:black;
 	cursor:not-allowed;
@@ -647,33 +654,6 @@ table.list tr td.chart div.silver {
 table.list tr td.chart div.bronze {
 	/*background-color:#cd7f32;*/
 	background-image:url("/media/chartpos_bronze.png");
-}
-
-
-
-table.list tr td.button {
-	width:200px;
-	cursor:pointer;
-	border-color:rgba(0,0,0,0)!important;
-}
-
-
-table.list td.button div {
-	background-color: var(--button-color-bg);
-	color: var(--button-color-fg);
-	padding:3px;
-	border-radius:4px;
-}
-table.list td.button div:hover {
-	background-color: var(--button-color-bg-focus);
-	color: var(--button-color-fg-focus);
-	padding:3px;
-	border-radius:4px;
-}
-
-td.button.important div {
-	background-color:red;
-	color:white;
 }
 
 
