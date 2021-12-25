@@ -9,7 +9,7 @@ authors = [ { name="Johannes Krattenmacher", email="maloja@dev.krateng.ch" } ]
 
 urls.repository = "https://github.com/krateng/maloja"
 urls.documentation = "https://github.com/krateng/maloja"
-urls.homepage = "https://maloja.krateng.ch"
+urls.homepage = "https://github.com/krateng/maloja"
 
 keywords = ["scrobbling", "music", "selfhosted", "database", "charts", "statistics"]
 classifiers = [

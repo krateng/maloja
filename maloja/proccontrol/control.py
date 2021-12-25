@@ -15,8 +15,8 @@ from .. import globalconf
 def print_header_info():
 	print()
 	print("#####")
-	print("Maloja v" + info.versionstr)
-	print(info.urls['repo'])
+	print("Maloja v" + info.VERSIONSTR)
+	print(info.HOMEPAGE)
 	print("#####")
 	print()
 
@@ -120,7 +120,7 @@ def main(*args,**kwargs):
 	}
 
 	if "version" in kwargs:
-		print(info.versionstr)
+		print(info.VERSIONSTR)
 
 	elif len(args) > 0:
 		action = args[0]

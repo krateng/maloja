@@ -1,4 +1,4 @@
-from ..__pkginfo__ import version
+from ..__pkginfo__ import VERSIONSTR
 from ..malojatime import ranges, thisweek, thisyear
 from ..globalconf import malojaconfig
 
@@ -100,7 +100,7 @@ def send_stats():
 			"data":json.dumps({
 				"name":malojaconfig["NAME"],
 				"url":malojaconfig["PUBLIC_URL"],
-				"version":".".join(str(d) for d in version),
+				"version":VERSIONSTR,
 				"artists":len(ARTISTS),
 				"tracks":len(TRACKS),
 				"scrobbles":len(SCROBBLES)

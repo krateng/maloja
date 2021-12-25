@@ -3,7 +3,7 @@ import urllib.parse, urllib.request
 import json
 import time
 import threading
-from ..__pkginfo__ import user_agent
+from ..__pkginfo__ import USER_AGENT
 
 class MusicBrainz(MetadataInterface):
 	name = "MusicBrainz"
@@ -11,7 +11,7 @@ class MusicBrainz(MetadataInterface):
 
 	# musicbrainz is rate-limited
 	lock = threading.Lock()
-	useragent = user_agent
+	useragent = USER_AGENT
 
 	settings = {
 	}
