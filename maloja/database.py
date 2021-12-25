@@ -107,7 +107,7 @@ def add_known_server(url):
 log("Authenticated Machines: " + ", ".join([k for k in apikeystore]))
 
 def checkAPIkey(key):
-	return any((key == apikeystore[k]) for k in apikeystore)
+	return apikeystore.check_key(key)
 
 def allAPIkeys():
 	return [apikeystore[k] for k in apikeystore]

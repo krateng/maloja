@@ -16,36 +16,22 @@
 				<h1>Admin Panel</h1>
 				<br/>
 				<span>
-					{% if page=='admin_overview' %}
-						<span style="opacity:0.5;">Overview</span>
-					{% else %}
-						<a href="/admin_overview">Overview</a>
-					{% endif %} |
-					{% if page=='admin_setup' %}
-						<span style="opacity:0.5;">Server Setup</span>
-					{% else %}
-						<a href="/admin_setup">Server Setup</a>
-					{% endif %} |
-					{% if page=='admin_manual' %}
-						<span style="opacity:0.5;">Manual Scrobbling</span>
-					{% else %}
-						<a href="/admin_manual">Manual Scrobbling</a>
-					{% endif %} |
-					{% if page=='admin_issues' %}
-						<span style="opacity:0.5;">Database Maintenance</span>
-					{% else %}
-						<a href="/admin_issues">Database Maintenance</a>
-					{% endif %} |
-					{% if page=='admin_settings' %}
-						<span style="opacity:0.5;">Settings</span>
-					{% else %}
-						<a href="/admin_settings">Settings</a>
-					{% endif %} |
-					{% if page=='admin_apikeys' %}
-					   <span style="opacity:0.5;">API Keys</span>
-				   {% else %}
-					   <a href="/admin_apikeys">API Keys</a>
-				   {% endif %}
+					{% for tab_url,tab_name in [
+						['overview','Overview'],
+						['setup','Setup'],
+						['manual','Manual Scrobbling'],
+						['issues','Database Maintenance'],
+						['settings','Settings'],
+						['apikeys','API Keys']
+					] %}
+						{% if page=='admin_' + tab_url %}
+							<span style="opacity:0.5;">{{ tab_name }}</span>
+						{% else %}
+							<a href="/admin_{{ tab_url }}">{{ tab_name }}</a>
+						{% endif %} {%- if not loop.last %}|{% endif %}
+					{% endfor %}
+
+
 				</span>
 				<br/><br/>
 				<span id="notification"></span>
