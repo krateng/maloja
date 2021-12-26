@@ -6,8 +6,11 @@ try:
 	import toml
 	with open("./pyproject.toml") as filed:
 		metadata = toml.load(filed)['project']
-		VERSION = metadata['version']
+		VERSION = metadata['version'] + "-dev"
 		HOMEPAGE = metadata['urls']['homepage']
+	# this will give wrong info when the installed package is run, but we just
+	# happen to be in the directory of the project
+	# but this can't be helped I think
 except:
 
 	# package distributrion
