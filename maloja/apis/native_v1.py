@@ -4,7 +4,7 @@ from ..__pkginfo__ import VERSION, VERSIONSTR
 from ..malojauri import uri_to_internal
 from .. import utilities
 
-from bottle import response
+from bottle import response, static_file
 
 # nimrodel API
 from nimrodel import EAPI as API
@@ -335,5 +335,16 @@ def set_settings(**keys):
 
 @api.post("apikeys")
 @authenticated_api
-def set_settings(**keys):
+def set_apikeys(**keys):
 	apikeystore.update(keys)
+
+@api.get("backup")
+@authenticated_api
+def get_backup(**keys):
+	from ..proccontrol.tasks.backup import backup
+	import tempfile
+
+	tmpfolder = tempfile.gettempdir()
+	archivefile = backup(tmpfolder)
+
+	return static_file(os.path.basename(archivefile),root=tmpfolder)

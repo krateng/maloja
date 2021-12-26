@@ -14,14 +14,13 @@ user_files = {
 		"scrobbles":["*.tsv"]
 	},
 	"full":{
-		"clients":["authenticated_machines.tsv"],
+		"clients":["apikeys.yml"],
 		"images":["artists","tracks"],
 		"settings":["settings.ini"]
 	}
 }
 
 def backup(folder,level="full"):
-	print(folder)
 
 	selected_files = user_files["minimal"] if level == "minimal" else {**user_files["minimal"], **user_files["full"]}
 	real_files = {cat:[] for cat in selected_files}
@@ -45,3 +44,4 @@ def backup(folder,level="full"):
 				r = p.relative_to(data_dir[cat]())
 				archive.add(f,arcname=os.path.join(cat,r))
 	log("Backup created!")
+	return archivefile
