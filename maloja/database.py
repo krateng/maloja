@@ -9,7 +9,6 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 
 from .thirdparty import proxy_scrobble_all
 
-from .__pkginfo__ import version
 from .globalconf import data_dir, malojaconfig, apikeystore
 
 # doreah toolkit
