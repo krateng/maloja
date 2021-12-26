@@ -3,7 +3,7 @@ name = "maloja"
 version = "2.13.4"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 license = { file="./LICENSE" }
 authors = [ { name="Johannes Krattenmacher", email="maloja@dev.krateng.ch" } ]
 
