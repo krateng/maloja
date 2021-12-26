@@ -1,6 +1,6 @@
 from ..database import *
 from ..globalconf import malojaconfig, apikeystore
-from ..__pkginfo__ import VERSION, VERSIONSTR
+from ..__pkginfo__ import VERSION
 from ..malojauri import uri_to_internal
 from .. import utilities
 
@@ -43,7 +43,6 @@ def server_info():
 	return {
 		"name":malojaconfig["NAME"],
 		"version":VERSION,
-		"versionstring":VERSIONSTR,
 		"db_status":dbstatus
 	}
 

@@ -3,7 +3,7 @@ from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 from doreah.keystore import KeyStore
 
-from .__pkginfo__ import VERSIONSTR
+from .__pkginfo__ import VERSION
 
 
 
@@ -275,7 +275,7 @@ data_dir = {
 
 ### write down the last ran version
 with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
-	filed.write(VERSIONSTR)
+	filed.write(VERSION)
 	filed.write("\n")
 
 

@@ -22,7 +22,7 @@
 			neo.xhttprequest("/apis/mlj_1/serverinfo",{},"GET",json=true).then((response)=>{
 
 				result = JSON.parse(response.responseText);
-				thisvers = result.version;
+				thisvers = result.version.split(".");
 
 				document.getElementById("latestversion").innerHTML = latestvers.join(".");
 				document.getElementById("currentversion").innerHTML = thisvers.join(".");

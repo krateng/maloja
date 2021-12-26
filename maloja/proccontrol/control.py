@@ -15,7 +15,7 @@ from .. import globalconf
 def print_header_info():
 	print()
 	print("#####")
-	print("Maloja v" + info.VERSIONSTR)
+	print("Maloja v" + info.VERSION)
 	print(info.HOMEPAGE)
 	print("#####")
 	print()
@@ -120,7 +120,7 @@ def main(*args,**kwargs):
 	}
 
 	if "version" in kwargs:
-		print(info.VERSIONSTR)
+		print(info.VERSION)
 	else:
 		try:
 			action, *args = args
