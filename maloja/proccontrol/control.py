@@ -102,7 +102,7 @@ def print_info():
 	print("#####")
 	print()
 
-@mainfunction({"l":"level","v":"version"},flags=['version'],shield=True)
+@mainfunction({"l":"level","v":"version","V":"version"},flags=['version'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
@@ -121,13 +121,11 @@ def main(*args,**kwargs):
 
 	if "version" in kwargs:
 		print(info.VERSIONSTR)
-
-	elif len(args) > 0:
-		action = args[0]
-		args = args[1:]
-		if action in actions: actions[action](*args,**kwargs)
-		else: print("Valid commands: " + " ".join(a for a in actions))
 	else:
-		print("No action specified!")
+		try:
+			action, *args = args
+			actions[action](*args,**kwargs)
+		except (ValueError, KeyError):
+			print("Valid commands: " + " ".join(a for a in actions))
 
 	return True
