@@ -6,13 +6,12 @@
 /*-old
 /*.yml
 /pylintrc
+.venv/*
 
 # build
 /dist
 /build
-
-# local actions
-/scripts/*
+/*.egg-info
 
 # currently not using
 /screenshot*.png
