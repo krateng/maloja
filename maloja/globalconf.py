@@ -166,6 +166,8 @@ malojaconfig = Configuration(
 			"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
 			"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
 			"lastfm_api_sk":(tp.String(),										"Last.fm API Session Key",		None),
+			"lastfm_username":(tp.String(),										"Last.fm Username",				None),
+			"lastfm_password":(tp.String(),										"Last.fm Password",				None),
 			"spotify_api_id":(tp.String(),										"Spotify API ID",				None),
 			"spotify_api_secret":(tp.String(),									"Spotify API Secret",			None),
 			"audiodb_api_key":(tp.String(),										"TheAudioDB API Key",			None),

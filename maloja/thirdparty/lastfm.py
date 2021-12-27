@@ -1,6 +1,7 @@
 from . import MetadataInterface, ProxyScrobbleInterface, utf
 import hashlib
 import urllib.parse, urllib.request
+from doreah.logging import log
 
 class LastFM(MetadataInterface, ProxyScrobbleInterface):
 	name = "LastFM"
@@ -9,7 +10,9 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 	settings = {
 		"apikey":"LASTFM_API_KEY",
 		"sk":"LASTFM_API_SK",
-		"secret":"LASTFM_API_SECRET"
+		"secret":"LASTFM_API_SECRET",
+		"username":"LASTFM_USERNAME",
+		"password":"LASTFM_PASSWORD"
 	}
 
 	proxyscrobble = {
@@ -41,6 +44,24 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 			"api_key":self.settings["apikey"],
 			"sk":self.settings["sk"]
 		})
+
+	def authorize(self):
+		try:
+			result = self.request(
+				self.proxyscrobble['scrobbleurl'],
+				self.query_compose({
+					"method":"auth.getMobileSession",
+					"username":self.settings["username"],
+					"password":self.settings["password"],
+					"api_key":self.settings["apikey"]
+				}),
+				responsetype="xml"
+			)
+			self.settings["sk"] = result.find("session").findtext("key")
+		except Exception as e:
+			pass
+			#log("Error while authenticating with LastFM: " + repr(e))
+
 
 	# creates signature and returns full query string
 	def query_compose(self,parameters):

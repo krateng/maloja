@@ -92,6 +92,17 @@ class GenericInterface:
 		return True
 		# per default. no authorization is necessary
 
+	# wrapper method
+	def request(self,url,data,responsetype):
+		response = urllib.request.urlopen(
+			url,
+			data=utf(data)
+		)
+		responsedata = response.read()
+		if responsetype == "xml":
+			data = ElementTree.fromstring(responsedata)
+			return data
+
 # proxy scrobbler
 class ProxyScrobbleInterface(GenericInterface,abstract=True):
 
