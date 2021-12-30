@@ -121,7 +121,7 @@ An example of a minimum run configuration when accessing maloja from an IPv4 add
 
 ### Basic control
 
-Start and stop the server with
+Start and stop the server in the background with
 
 ```console
 	maloja start
@@ -129,19 +129,11 @@ Start and stop the server with
 	maloja restart
 ```
 
-If something is not working, you can try
+If you need to run the server in the foreground, use
 
 ```console
-	maloja debug
+	maloja run
 ```
-
-to run the server in the foreground.
-
-```console
-	maloja info
-```
-
-will give you some basic information about your install.
 
 
 ### Data

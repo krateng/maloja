@@ -816,7 +816,7 @@
 				"exec": [
 					"var current_timestamp = Math.floor(Date.now() / 1000);",
 					"pm.collectionVariables.set(\"data.timestamp1\", current_timestamp);",
-					"pm.collectionVariables.set(\"data.timestamp2\", current_timestamp);"
+					"pm.collectionVariables.set(\"data.timestamp2\", current_timestamp - 200);"
 				]
 			}
 		},
