@@ -19,10 +19,11 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install build
+        run: pip install build setuptools
 
       - name: Build package
-        run: python -m build
+        #run: python -m build
+        run: python setup.py sdist bdist_wheel
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
