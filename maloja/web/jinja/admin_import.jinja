@@ -1,0 +1,28 @@
+{% set page ='admin_import' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - Import Scrobbles{% endblock %}
+
+
+{% block scripts %}
+<script>
+function import_scrobbles(identifier) {
+	fetch('/apis/mlj_1/import?identifier=' + identifier,{'method':'POST'});
+
+}
+</script>
+{% endblock %}
+
+
+{% block maincontent %}
+You can import your scrobbles from other platforms. This will not overwrite scrobbles you've already made,
+unless they are deemed to be equivalent (exact same timestamp). Importing multiple times from the same
+source should also not lead to any duplicates.<br/><br/>
+
+{% for importsource in thirdparty.services.import %}
+	<h1>{{ importsource.name }}</h1>
+
+	<button type="button" onclick="import_scrobbles('{{ importsource.identifier }}')">Import</button>
+
+{% endfor %}
+
+{% endblock %}

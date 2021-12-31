@@ -13,6 +13,7 @@ import base64
 from doreah.logging import log
 
 from ..globalconf import malojaconfig
+from .. import database
 
 
 services = {
@@ -21,6 +22,12 @@ services = {
 	"metadata":[]
 }
 
+
+def import_scrobbles(identifier):
+	for service in services['import']:
+		if service.identifier == identifier:
+			return service.import_scrobbles()
+	return False
 
 def proxy_scrobble_all(artists,title,timestamp):
 	for service in services["proxyscrobble"]:
@@ -140,9 +147,14 @@ class ImportInterface(GenericInterface,abstract=True):
 	# necessary auth settings exist
 	def active_import(self):
 		return (
-			all(self.settings[key] not in [None,"ASK",False] for key in self.scrobbleimport["required_settings"]) and
-			malojaconfig[self.scrobbleimport["activated_setting"]]
+			all(self.settings[key] not in [None,"ASK",False] for key in self.scrobbleimport["required_settings"])
+			#and malojaconfig[self.scrobbleimport["activated_setting"]]
+			# registering as import source doesnt do anything on its own, so no need for a setting
 		)
+
+	# wrapper so that all the inheriting classes can scrobble
+	def self_scrobble(self,artists,title,timestamp):
+		database.createScrobble(artists=artists,title=title,time=timestamp)
 
 
 # metadata

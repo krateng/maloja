@@ -337,6 +337,12 @@ def set_settings(**keys):
 def set_apikeys(**keys):
 	apikeystore.update(keys)
 
+@api.post("import")
+@authenticated_api
+def import_scrobbles(identifier):
+	from ..thirdparty import import_scrobbles
+	import_scrobbles(identifier)
+
 @api.get("backup")
 @authenticated_api
 def get_backup(**keys):
