@@ -223,7 +223,6 @@ def static_html(name):
 
 	loc_context = {
 		"adminmode":adminmode,
-		"config":malojaconfig,
 		"apikey":request.cookies.get("apikey") if adminmode else None,
 		"apikeys":apikeystore,
 		"_urikeys":keys, #temporary!
