@@ -1,7 +1,7 @@
 [project]
 name = "maloja"
 pypi_name = "malojaserver"
-version = "2.14.3"
+version = "2.14.4"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
 requires-python = ">=3.6"

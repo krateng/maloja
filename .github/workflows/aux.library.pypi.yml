@@ -1,38 +1,36 @@
-# This always runs atm
-# no idea wtf is going on
-#name: Publish library to PyPI
-#
-#on:
-#  push:
-#    paths:
-#      - 'auxiliary/malojalib/pyproject.toml'
-#      # When the version updates, this file changes
-#      # False positives only result in a failed push
-#
-#jobs:
-#  publish_to_pypi:
-#    name: Push Library to PyPI
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out the repo
-#        uses: actions/checkout@v2
-#
-#      - name: Set up Python
-#        uses: actions/setup-python@v2
-#        with:
-#          python-version: '3.x'
-#
-#      - name: Install dependencies
-#        run: pip install build
-#
-#      - name: Change directory
-#        run: cd auxiliary/malojalib
-#
-#      - name: Build package
-#        run: python -m build
-#
-#      - name: Publish to PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          user: __token__
-#          password: ${{ secrets.PYPI_API_TOKEN }}
+name: Publish library to PyPI
+
+on:
+  push:
+    paths:
+      - 'auxiliary/malojalib/pyproject.toml'
+      # When the version updates, this file changes
+      # False positives only result in a failed push
+
+jobs:
+  publish_to_pypi:
+    name: Push Library to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install build
+
+      - name: Change directory
+        run: cd auxiliary/malojalib
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
