@@ -171,6 +171,8 @@ malojaconfig = Configuration(
 			"spotify_api_id":(tp.String(),										"Spotify API ID",				None),
 			"spotify_api_secret":(tp.String(),									"Spotify API Secret",			None),
 			"audiodb_api_key":(tp.String(),										"TheAudioDB API Key",			None),
+			"other_maloja_url":(tp.String(),									"Other Maloja Instance URL",	None),
+			"other_maloja_api_key":(tp.String(),								"Other Maloja Instance API Key",None),
 			"track_search_provider":(tp.String(),								"Track Search Provider",		None),
 			"send_stats":(tp.Boolean(),											"Send Statistics",				None),
 

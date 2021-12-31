@@ -245,7 +245,8 @@ __all__ = [
 	"spotify",
 	"musicbrainz",
 	"audiodb",
-	"deezer"
+	"deezer",
+	"maloja"
 ]
 from . import *
 
