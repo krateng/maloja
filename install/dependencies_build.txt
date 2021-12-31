@@ -1,6 +1,7 @@
 gcc
 libxml2-dev
 libxslt-dev
-py3-pip
+libffi-dev
 libc-dev
+py3-pip
 linux-headers

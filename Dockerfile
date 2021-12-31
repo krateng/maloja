@@ -24,7 +24,6 @@ RUN \
 
 # expected behavior for a default setup is for maloja to "just work"
 ENV MALOJA_SKIP_SETUP=yes
-ENV MAGICK_HOME=/usr
 
 EXPOSE 42010
 # use exec form for better signal handling https://docs.docker.com/engine/reference/builder/#entrypoint

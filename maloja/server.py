@@ -6,7 +6,7 @@ from threading import Thread
 import setproctitle
 import pkg_resources
 from css_html_js_minify import html_minify, css_minify
-from pyvips import Image
+
 
 # server stuff
 from bottle import Bottle, static_file, request, response, FormsDict, redirect, BaseRequest, abort
@@ -175,6 +175,7 @@ def static_image(pth):
 		response = static_file(small_pth,root=data_dir['images']())
 	else:
 		try:
+			from pyvips import Image
 			thumb = Image.thumbnail(data_dir['images'](pth),300)
 			thumb.webpsave(data_dir['images'](small_pth))
 			response = static_file(small_pth,root=data_dir['images']())
