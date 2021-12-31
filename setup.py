@@ -12,7 +12,7 @@ with open(projectdata['readme'], "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name=projectdata.get('pypi_name') or projectdata['name'],
+    name=projectdata['name'],
     version=projectdata['version'],
     author=projectdata['authors'][0]['name'],
     author_email=projectdata['authors'][0]['email'],
