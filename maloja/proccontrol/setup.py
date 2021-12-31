@@ -66,7 +66,7 @@ def setup():
 		newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
 		if newpw is None:
 			newpw = randomstring(32)
-			print("Generated password:",newpw)
+			print("Generated password:",col["yellow"](newpw))
 
 		auth.defaultuser.setpw(newpw)
 
