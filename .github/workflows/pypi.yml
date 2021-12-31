@@ -19,7 +19,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install build setuptools
+        run: pip install build setuptools toml
 
       - name: Build package
         #run: python -m build
