@@ -21,7 +21,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=projectdata['urls']['repository'],
-    packages=[projectdata['name']],
+    packages=setuptools.find_packages("."),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -29,6 +29,7 @@ setuptools.setup(
     ],
 	python_requires=projectdata['requires-python'],
 	install_requires=projectdata['dependencies'],
+	package_data={'': ['*','*/*','*/*/*','*/*/*/*','*/*/.*','*/*/*/.*']},
 	include_package_data=True,
 	entry_points = {
 		'console_scripts':[
