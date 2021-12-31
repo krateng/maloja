@@ -6,7 +6,7 @@ from threading import Thread
 import setproctitle
 import pkg_resources
 from css_html_js_minify import html_minify, css_minify
-from wand.image import Image as WandImage
+from pyvips import Image
 
 # server stuff
 from bottle import Bottle, static_file, request, response, FormsDict, redirect, BaseRequest, abort
@@ -175,16 +175,9 @@ def static_image(pth):
 		response = static_file(small_pth,root=data_dir['images']())
 	else:
 		try:
-			img = WandImage(filename=data_dir['images'](pth))
-			x,y = img.size[0], img.size[1]
-			smaller = min(x,y)
-			if smaller > 300:
-				ratio = 300/smaller
-				img.resize(int(ratio*x),int(ratio*y))
-				img.save(filename=data_dir['images'](small_pth))
-				response = static_file(small_pth,root=data_dir['images']())
-			else:
-				response = static_file(pth,root=data_dir['images']())
+			thumb = Image.thumbnail(data_dir['images'](pth),300)
+			thumb.webpsave(data_dir['images'](small_pth))
+			response = static_file(small_pth,root=data_dir['images']())
 		except Exception:
 			response = static_file(pth,root=data_dir['images']())
 
