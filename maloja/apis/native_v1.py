@@ -42,7 +42,8 @@ def server_info():
 
 	return {
 		"name":malojaconfig["NAME"],
-		"version":VERSION,
+		"version":VERSION.split("."),
+		"versionstring":VERSION,
 		"db_status":dbstatus
 	}
 
