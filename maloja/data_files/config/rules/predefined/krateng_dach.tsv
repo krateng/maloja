@@ -1,0 +1,6 @@
+# NAME: DACH Artists
+# DESC: Some fixes for artists in Switzerland, Imperial Switzerland and Big Switzerland
+
+replaceartist	Erste Allgemeine Verunsicherung				EAV
+replaceartist	E.A.V.										EAV
+replaceartist	E.A.V. (Erste Allgemeine Verunsicherung)	EAV

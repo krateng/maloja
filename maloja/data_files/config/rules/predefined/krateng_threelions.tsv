@@ -1,0 +1,11 @@
+# NAME: Three Lions
+# DESC: Fixes the countless variations of Three Lions titles
+
+replaceartist			Lightning Seeds					The Lightning Seeds
+replaceartist			Baddiel, Skinner				Baddiel␟Skinner
+replacetitle			Three Lions '98 (Single Version) (With Commentary)		Three Lions '98
+replacetitle			Three Lions - Original Version							Three Lions '96
+replacetitle			Three Lions '98 - Single Version (with commentary)		Three Lions '98
+fixartists				Baddiel␟Skinner␟The Lightning Seeds		Three Lions '98
+fixartists				Baddiel␟Skinner␟The Lightning Seeds		Three Lions '96
+replaceartist			David Baddiel					Baddiel

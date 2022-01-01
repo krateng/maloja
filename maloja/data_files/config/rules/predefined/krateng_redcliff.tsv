@@ -1,0 +1,7 @@
+# NAME: Red Cliff
+# DESC: Simplifies titles of the Red Cliff OST
+
+replacetitle		Red Cliff - River of No Return - (End Roll Version) / Theme Song	Red Cliff - River of No Return
+replacetitle		Red Cliff (End Roll Version) / Theme Song Part 1 (Asia Version)		Red Cliff - End Roll Version
+fixartists			Alan␟Taro Iwashiro					Red Cliff - River of No Return
+fixartists			Alan␟Taro Iwashiro					Red Cliff - End Roll Version
