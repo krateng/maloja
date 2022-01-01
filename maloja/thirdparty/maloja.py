@@ -29,12 +29,12 @@ class OtherMalojaInstance(ProxyScrobbleInterface, ImportInterface):
 	def active_proxyscrobble(self):
 		return False
 
-	def import_scrobbles(self):
+	def get_remote_scrobbles(self):
 		url = f"{self.settings['instance']}/apis/mlj_1/scrobbles"
 
 		response = urllib.request.urlopen(url)
 		data = json.loads(response.read().decode('utf-8'))
 
 		for scrobble in data['list']:
-			self.self_scrobble(scrobble['artists'],scrobble['title'],scrobble['time'])
+			yield scrobble
 		return True

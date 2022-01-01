@@ -152,9 +152,13 @@ class ImportInterface(GenericInterface,abstract=True):
 			# registering as import source doesnt do anything on its own, so no need for a setting
 		)
 
-	# wrapper so that all the inheriting classes can scrobble
-	def self_scrobble(self,artists,title,timestamp):
-		database.createScrobble(artists=artists,title=title,time=timestamp)
+	def import_scrobbles(self):
+		for scrobble in self.get_remote_scrobbles():
+			database.createScrobble(
+				artists=scrobble['artists'],
+				title=scrobble['title'],
+				time=scrobble['time']
+			)
 
 
 # metadata
