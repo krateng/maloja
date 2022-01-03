@@ -23,6 +23,9 @@ except: pass
 import doreah
 
 
+#db
+import sqlalchemy as sql
+
 
 # technical
 import os
@@ -31,7 +34,7 @@ import sys
 import unicodedata
 from collections import namedtuple
 from threading import Lock
-import yaml
+import yaml, json
 import lru
 import math
 
@@ -688,151 +691,154 @@ def get_predefined_rulesets():
 ## Server operation
 ####
 
+DB = {}
 
 
-# Starts the server
+engine = sql.create_engine(f"sqlite:///{data_dir['scrobbles']('malojadb.sqlite')}", echo = False)
+meta = sql.MetaData()
+
+DB['scrobbles'] = sql.Table(
+	'scrobbles', meta,
+	sql.Column('timestamp',sql.Integer,primary_key=True),
+	sql.Column('rawscrobble',sql.String),
+	sql.Column('origin',sql.String),
+	sql.Column('duration',sql.Integer),
+	sql.Column('track_id',sql.Integer)
+)
+DB['tracks'] = sql.Table(
+	'tracks', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('title',sql.String),
+	sql.Column('title_normalized',sql.String)
+)
+DB['artists'] = sql.Table(
+	'artists', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('name',sql.String),
+	sql.Column('name_normalized',sql.String)
+)
+DB['trackartists'] = sql.Table(
+	'trackartists', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('artist_id',sql.Integer),
+	sql.Column('track_id',sql.Integer)
+)
+
+meta.create_all(engine)
+
+
+
+
+
+
+
+#### ATTENTION ALL ADVENTURERS
+#### THIS IS WHAT A SCROBBLE DICT WILL LOOK LIKE FROM NOW ON
+#### THIS IS THE SINGLE CANONICAL SOURCE OF TRUTH
+#### STOP MAKING DIFFERENT LITTLE DICTS IN EVERY SINGLE FUNCTION
+#### THIS IS THE SCHEMA THAT WILL DEFINITELY 100% STAY LIKE THIS AND NOT
+#### RANDOMLY GET CHANGED TWO VERSIONS LATER
+#### HERE WE GO
+#
+# {
+# 	"time":int,
+# 	"track":{
+# 		"artists":list,
+# 		"title":string,
+# 		"album":{
+# 			"name":string,
+# 			"artists":list
+# 		},
+# 		"length":None
+# 	},
+# 	"duration":int,
+# 	"origin":string
+# }
+
+def add_scrobble(scrobbledict):
+	add_scrobbles([scrobbledict])
+
+def add_scrobbles(scrobbleslist):
+
+	ops = [
+		DB['scrobbles'].insert().values(
+			rawscrobble=json.dumps(s),
+			timestamp=s['time'],
+			origin=s['origin'],
+			duration=s['duration'] or -1,
+			track_id=get_track_id(s['track'])
+		) for s in scrobbleslist
+	]
+
+	with engine.begin() as conn:
+		for op in ops:
+			conn.execute(op)
+
+
+
+### DB interface functions - these will 'get' the ID of an entity,
+### creating it if necessary
+
+
+def get_track_id(trackdict):
+	ntitle = normalize_name(trackdict['title'])
+	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
+
+
+
+	with engine.begin() as conn:
+		op = DB['tracks'].select(
+			DB['tracks'].c.id
+		).where(
+			DB['tracks'].c.title_normalized==ntitle
+		)
+		result = conn.execute(op)
+		for row in result:
+			print("ID for",trackdict['title'],"was",row[0])
+			return row[0]
+
+	with engine.begin() as conn:
+		op = DB['tracks'].insert().values(
+			title=trackdict['title'],
+			title_normalized=ntitle
+		)
+		result = conn.execute(op)
+		print("Created",trackdict['title'],result.inserted_primary_key)
+		return result.inserted_primary_key[0]
+
+def get_artist_id(artistname):
+	nname = normalize_name(artistname)
+	print("looking for",nname)
+
+	with engine.begin() as conn:
+		op = DB['artists'].select(
+			DB['artists'].c.id
+		).where(
+			DB['artists'].c.name_normalized==nname
+		)
+		result = conn.execute(op)
+		for row in result:
+			print("ID for",artistname,"was",row[0])
+			return row[0]
+
+	with engine.begin() as conn:
+		op = DB['artists'].insert().values(
+			name=artistname,
+			name_normalized=nname
+		)
+		result = conn.execute(op)
+		print("Created",artistname,result.inserted_primary_key)
+		return result.inserted_primary_key[0]
+
 def start_db():
-	log("Starting database...")
-	global lastsync
-	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	build_db()
-	#run(dbserver, host='::', port=PORT, server='waitress')
-	log("Database reachable!")
-
-def build_db():
-
-	global dbstatus
-	dbstatus['healthy'] = False
-	dbstatus['complete'] = False
-	dbstatus['rebuildinprogress'] = True
-
-	log("Building database...")
-
-	global SCROBBLES, ARTISTS, TRACKS
-	global TRACKS_NORMALIZED_SET, TRACKS_NORMALIZED, ARTISTS_NORMALIZED_SET, ARTISTS_NORMALIZED
-	global SCROBBLESDICT, STAMPS
-
-	SCROBBLES = []
-	ARTISTS = []
-	TRACKS = []
-	STAMPS = []
-	SCROBBLESDICT = {}
-
-	TRACKS_NORMALIZED = []
-	ARTISTS_NORMALIZED = []
-	ARTISTS_NORMALIZED_SET = set()
-	TRACKS_NORMALIZED_SET = set()
-
-
-	# parse files
-	db = tsv.parse_all(data_dir['scrobbles'](),"int","string","string",comments=False)
-	scrobblenum = len(db)
-	log(f"Found {scrobblenum} scrobbles...")
-
-	usebar = not malojaconfig["CLEAN_OUTPUT"]
-	if usebar: pbar = ProgressBar(max=scrobblenum,prefix="Loading scrobbles")
-	else:
-		n = 0
-		m = max(int(scrobblenum / 25),20)
-	#db = parseAllTSV("scrobbles","int","string","string",escape=False)
-	for sc in db:
-		artists = sc[1].split("␟")
-		title = sc[2]
-		time = sc[0]
-
-		readScrobble(artists,title,time)
-		if usebar: pbar.progress()
-		else:
-			n += 1
-			if n % m == 0: log(f"Loaded {n}/{scrobblenum}...")
-
-	if usebar: pbar.done()
-
-
-	log("Database loaded, optimizing...")
-
-	# optimize database
-	SCROBBLES.sort(key = lambda tup: tup[1])
-	#SCROBBLESDICT = {obj[1]:obj for obj in SCROBBLES}
-	STAMPS = [t for t in SCROBBLESDICT]
-	STAMPS.sort()
-
-	# inform malojatime module about earliest scrobble
-	if STAMPS: register_scrobbletime(STAMPS[0])
-
-	# NOT NEEDED BECAUSE WE DO THAT ON ADDING EVERY ARTIST ANYWAY
-	# get extra artists with no real scrobbles from countas rules
-	#for artist in coa.getAllArtists():
-	#for artist in coa.getCreditedList(ARTISTS):
-	#	if artist not in ARTISTS:
-	#		log(artist + " is added to database because of countas rules",module="debug")
-	#		ARTISTS.append(artist)
-	# coa.updateIDs(ARTISTS)
-
-	dbstatus['healthy'] = True
-
-
-	#start regular tasks
-	utilities.update_medals()
-	utilities.update_weekly()
-	utilities.send_stats()
-
-
-	global ISSUES
-	ISSUES = check_issues()
-
-
-	dbstatus['complete'] = True
-	dbstatus['rebuildinprogress'] = False
-
-	log("Database fully built!")
+	from . import upgrade
+	upgrade.upgrade_db(add_scrobbles)
 
 
 
-# Saves all cached entries to disk
-def sync():
-
-	# all entries by file collected
-	# so we don't open the same file for every entry
-	#log("Syncing",module="debug")
-	entries = {}
-
-	for idx in range(len(SCROBBLES)):
-		if not SCROBBLES[idx].saved:
-
-			t = get_scrobble_dict(SCROBBLES[idx])
-
-			artistlist = list(t["artists"])
-			artistlist.sort() #we want the order of artists to be deterministic so when we update files with new rules a diff can see what has actually been changed
-			artistss = "␟".join(artistlist)
-			timestamp = datetime.date.fromtimestamp(t["time"])
-
-			album = t["album"] or "-"
-			duration = t["duration"] or "-"
-
-			entry = [str(t["time"]),artistss,t["title"],album,duration]
-
-			monthcode = str(timestamp.year) + "_" + str(timestamp.month)
-			entries.setdefault(monthcode,[]).append(entry) #i feckin love the setdefault function
-
-			SCROBBLES[idx] = Scrobble(*SCROBBLES[idx][:-1],True)
-			# save copy with last tuple entry set to true
-
-	#log("Sorted into months",module="debug")
-
-	for e in entries:
-		tsv.add_entries(data_dir['scrobbles'](e + ".tsv"),entries[e],comments=False)
-		#addEntries("scrobbles/" + e + ".tsv",entries[e],escape=False)
-
-	#log("Written files",module="debug")
 
 
-	global lastsync
-	lastsync = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
-	#log("Database saved to disk.")
 
-	# save cached images
-	#saveCache()
 
 
 

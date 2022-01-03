@@ -7,6 +7,7 @@ from .__pkginfo__ import VERSION
 
 
 
+
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
 # but with asynnetrical structure, cache and logs in subfolders
 # otherwise, each directory is treated seperately
@@ -311,24 +312,19 @@ config(
 
 
 
-
 ### API KEYS
+### symmetric keys are fine since we hopefully use HTTPS
 
 
-
-### symmetric keys are fine for now since we hopefully use HTTPS
 apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
+from . import upgrade
+upgrade.upgrade_apikeys()
 
-oldfile = pthj(dir_settings['config'],"clients","authenticated_machines.tsv")
-if os.path.exists(oldfile):
-	try:
-		from doreah import tsv
-		clients = tsv.parse(oldfile,"string","string")
-		for key,identifier in clients:
-			apikeystore[identifier] = key
-		os.remove(oldfile)
-	except:
-		pass
+
+
+
+
+
 
 
 # what the fuck did i just write
