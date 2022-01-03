@@ -1,6 +1,5 @@
 # technical
 import sys
-import signal
 import os
 from threading import Thread
 import setproctitle
@@ -263,27 +262,6 @@ def redirect_artist(artist):
 @webserver.get("/track/<artists:path>/<title>")
 def redirect_track(artists,title):
 	redirect("/track?title=" + title + "&" + "&".join("artist=" + artist for artist in artists.split("/")))
-
-
-######
-### SHUTDOWN
-#####
-
-
-def graceful_exit(sig=None,frame=None):
-	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
-	log("Received signal to shutdown")
-	try:
-		database.sync()
-	except Exception as e:
-		log("Error while shutting down!",e)
-	log("Server shutting down...")
-	sys.exit(0)
-
-#set graceful shutdown
-signal.signal(signal.SIGINT, graceful_exit)
-signal.signal(signal.SIGTERM, graceful_exit)
-
 
 
 
