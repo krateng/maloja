@@ -6,10 +6,10 @@ from .cleanup import CleanerAgent, CollectorAgent
 from . import utilities
 from .malojatime import register_scrobbletime, time_stamps, ranges
 from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
-
 from .thirdparty import proxy_scrobble_all
-
 from .globalconf import data_dir, malojaconfig, apikeystore
+#db
+from .db.sqldb import *
 
 # doreah toolkit
 from doreah.logging import log
@@ -23,8 +23,6 @@ except: pass
 import doreah
 
 
-#db
-import sqlalchemy as sql
 
 
 # technical
@@ -128,15 +126,7 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 
 
 
-# function to turn the name into a representation that can be easily compared, ignoring minor differences
-remove_symbols = ["'","`","’"]
-replace_with_space = [" - ",": "]
-def normalize_name(name):
-	for r in replace_with_space:
-		name = name.replace(r," ")
-	name = "".join(char for char in unicodedata.normalize('NFD',name.lower())
-		if char not in remove_symbols and unicodedata.category(char) != 'Mn')
-	return name
+
 
 
 
@@ -173,9 +163,6 @@ def api_key_correct(request):
 
 def get_scrobbles(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
-	#offset = (keys.get('page') * keys.get('perpage')) if keys.get('perpage') is not math.inf else 0
-	#r = r[offset:]
-	#if keys.get('perpage') is not math.inf: r = r[:keys.get('perpage')]
 	return r
 
 
@@ -198,49 +185,11 @@ def get_scrobbles_num(**keys):
 	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
 	return len(r)
 
-
-#for multiple since values (must be ordered)
-# DOESN'T SEEM TO ACTUALLY BE FASTER
-# REEVALUATE
-
-#def get_scrobbles_num_multiple(sinces=[],to=None,**keys):
-#
-#	sinces_stamps = [time_stamps(since,to,None)[0] for since in sinces]
-#	#print(sinces)
-#	#print(sinces_stamps)
-#	minsince = sinces[-1]
-#	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","associated","to"]},since=minsince)
-#
-#	#print(r)
-#
-#	validtracks = [0 for s in sinces]
-#
-#	i = 0
-#	si = 0
-#	while True:
-#		if si == len(sinces): break
-#		if i == len(r): break
-#		if r[i]["time"] >= sinces_stamps[si]:
-#			validtracks[si] += 1
-#		else:
-#			si += 1
-#			continue
-#		i += 1
-#
-#
-#	return validtracks
-
-
-
 def get_tracks(artist=None):
 
 	artistid = ARTISTS.index(artist) if artist is not None else None
-	# Option 1
 	return [get_track_dict(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
 
-	# Option 2 is a bit more elegant but much slower
-	#tracklist = [get_track_dict(t) for t in TRACKS]
-	#ls = [t for t in tracklist if (artist in t["artists"]) or (artist==None)]
 
 
 def get_artists():
@@ -327,15 +276,6 @@ def get_top_tracks(**keys):
 			results.append({"range":rng,"track":None,"scrobbles":0})
 
 	return results
-
-
-
-
-
-
-
-
-
 
 
 def artistInfo(artist):
@@ -601,170 +541,13 @@ def get_predefined_rulesets():
 ## Server operation
 ####
 
-DB = {}
-
-
-engine = sql.create_engine(f"sqlite:///{data_dir['scrobbles']('malojadb.sqlite')}", echo = False)
-meta = sql.MetaData()
-
-DB['scrobbles'] = sql.Table(
-	'scrobbles', meta,
-	sql.Column('timestamp',sql.Integer,primary_key=True),
-	sql.Column('rawscrobble',sql.String),
-	sql.Column('origin',sql.String),
-	sql.Column('duration',sql.Integer),
-	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id'))
-)
-DB['tracks'] = sql.Table(
-	'tracks', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('title',sql.String),
-	sql.Column('title_normalized',sql.String)
-)
-DB['artists'] = sql.Table(
-	'artists', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('name',sql.String),
-	sql.Column('name_normalized',sql.String)
-)
-DB['trackartists'] = sql.Table(
-	'trackartists', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('artist_id',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id'))
-)
-
-meta.create_all(engine)
-
-
-
-
-
-
-
-#### ATTENTION ALL ADVENTURERS
-#### THIS IS WHAT A SCROBBLE DICT WILL LOOK LIKE FROM NOW ON
-#### THIS IS THE SINGLE CANONICAL SOURCE OF TRUTH
-#### STOP MAKING DIFFERENT LITTLE DICTS IN EVERY SINGLE FUNCTION
-#### THIS IS THE SCHEMA THAT WILL DEFINITELY 100% STAY LIKE THIS AND NOT
-#### RANDOMLY GET CHANGED TWO VERSIONS LATER
-#### HERE WE GO
-#
-# {
-# 	"time":int,
-# 	"track":{
-# 		"artists":list,
-# 		"title":string,
-# 		"album":{
-# 			"name":string,
-# 			"artists":list
-# 		},
-# 		"length":None
-# 	},
-# 	"duration":int,
-# 	"origin":string
-# }
-
-def add_scrobble(scrobbledict):
-	add_scrobbles([scrobbledict])
-
-def add_scrobbles(scrobbleslist):
-
-	ops = [
-		DB['scrobbles'].insert().values(
-			rawscrobble=json.dumps(s),
-			timestamp=s['time'],
-			origin=s['origin'],
-			duration=s['duration'] or -1,
-			track_id=get_track_id(s['track'])
-		) for s in scrobbleslist
-	]
-
-	with engine.begin() as conn:
-		for op in ops:
-			conn.execute(op)
-
-
-
-### DB interface functions - these will 'get' the ID of an entity,
-### creating it if necessary
-
-
-def get_track_id(trackdict):
-	ntitle = normalize_name(trackdict['title'])
-	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
-
-
-
-	with engine.begin() as conn:
-		op = DB['tracks'].select(
-			DB['tracks'].c.id
-		).where(
-			DB['tracks'].c.title_normalized==ntitle
-		)
-		result = conn.execute(op).all()
-	for row in result:
-		# check if the artists are the same
-		foundtrackartists = []
-		with engine.begin() as conn:
-			op = DB['trackartists'].select(
-				DB['trackartists'].c.artist_id
-			).where(
-				DB['trackartists'].c.track_id==row[0]
-			)
-			result = conn.execute(op).all()
-		match_artist_ids = [r.artist_id for r in result]
-		#print("required artists",artist_ids,"this match",match_artist_ids)
-		if set(artist_ids) == set(match_artist_ids):
-			#print("ID for",trackdict['title'],"was",row[0])
-			return row.id
-
-	with engine.begin() as conn:
-		op = DB['tracks'].insert().values(
-			title=trackdict['title'],
-			title_normalized=ntitle
-		)
-		result = conn.execute(op)
-		track_id = result.inserted_primary_key[0]
-	with engine.begin() as conn:
-		for artist_id in artist_ids:
-			op = DB['trackartists'].insert().values(
-				track_id=track_id,
-				artist_id=artist_id
-			)
-			result = conn.execute(op)
-		#print("Created",trackdict['title'],track_id)
-		return track_id
-
-def get_artist_id(artistname):
-	nname = normalize_name(artistname)
-	#print("looking for",nname)
-
-	with engine.begin() as conn:
-		op = DB['artists'].select(
-			DB['artists'].c.id
-		).where(
-			DB['artists'].c.name_normalized==nname
-		)
-		result = conn.execute(op).all()
-	for row in result:
-		#print("ID for",artistname,"was",row[0])
-		return row.id
-
-	with engine.begin() as conn:
-		op = DB['artists'].insert().values(
-			name=artistname,
-			name_normalized=nname
-		)
-		result = conn.execute(op)
-		#print("Created",artistname,result.inserted_primary_key)
-		return result.inserted_primary_key[0]
 
 
 def start_db():
 	from . import upgrade
 	upgrade.upgrade_db(add_scrobbles)
-
+	dbstatus['healthy'] = True
+	dbstatus['complete'] = True
 
 
 
@@ -940,10 +723,10 @@ def reduce_caches_if_low_ram():
 
 
 # Queries the database
-def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=None,within=None,timerange=None,associated=False,max_=None):
-
+def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,associated=False,max_=None):
+	print((artist,artists,title,track,timerange))
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
-	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
+	(since, to) = time_stamps(range=timerange)
 
 	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly
 	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
@@ -951,42 +734,14 @@ def db_query_full(artist=None,artists=None,title=None,track=None,since=None,to=N
 
 	#artist = None
 
-	if artist is not None and isinstance(artist,str):
-		artist = ARTISTS.index(artist)
+	if artists is not None and title is not None:
+		return get_scrobbles_of_track(track={"artists":artists,"title":title},since=since,to=to)
 
-	# artists to numbers
-	if artists is not None:
-		artists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in artists])
+	if artist is not None:
+		return get_scrobbles_of_artist(artist=artist,since=since,to=to)
 
-	# track to number
-	if track is not None and isinstance(track,dict):
-		trackartists = set([(ARTISTS.index(a) if isinstance(a,str) else a) for a in track["artists"]])
-		track = TRACKS.index((frozenset(trackartists),track["title"]))
-		artists = None
+	return get_scrobbles(since=since,to=to)
 
-	#check if track is requested via title
-	if title!=None and track==None:
-		track = TRACKS.index((frozenset(artists),title))
-		artists = None
-
-	# if we're not looking for a track (either directly or per title artist arguments, which is converted to track above)
-	# we only need one artist
-	elif artist is None and track is None and artists is not None and len(artists) != 0:
-		artist = artists.pop()
-
-
-	# db query always reverse by default
-
-	result = []
-
-	i = 0
-	for s in scrobbles_in_range(since,to,reverse=True):
-		if i == max_: break
-		if (track is None or s[0] == track) and (artist is None or artist in TRACKS[s[0]][0] or associated and artist in coa.getCreditedList(TRACKS[s[0]][0])):
-			result.append(get_scrobble_dict(s))
-			i += 1
-
-	return result
 
 	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 
@@ -1063,6 +818,9 @@ def db_search(query,type=None):
 ####
 ## Useful functions
 ####
+
+
+
 
 # makes a string usable for searching (special characters are blanks, accents and stuff replaced with their real part)
 def simplestr(input,ignorecapitalization=True):
