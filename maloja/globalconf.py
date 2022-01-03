@@ -262,7 +262,7 @@ data_directories = {
 	"auth":pthj(dir_settings['state'],"auth"),
 	"backups":pthj(dir_settings['state'],"backups"),
 	"images":pthj(dir_settings['state'],"images"),
-	"scrobbles":pthj(dir_settings['state'],"scrobbles"),
+	"scrobbles":pthj(dir_settings['state']),
 	"rules":pthj(dir_settings['config'],"rules"),
 	"clients":pthj(dir_settings['config']),
 	"settings":pthj(dir_settings['config']),
@@ -319,6 +319,8 @@ config(
 apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
 from . import upgrade
 upgrade.upgrade_apikeys()
+
+print("Authenticated Machines: " + ", ".join([k for k in apikeystore]))
 
 
 

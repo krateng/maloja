@@ -58,24 +58,7 @@ class DatabaseNotBuilt(HTTPError):
 			headers={"Retry-After":10}
 		)
 
-SCROBBLES = []	# Format: tuple(track_ref,timestamp,saved)
-ARTISTS = []	# Format: artist
-TRACKS = []	# Format: namedtuple(artists=frozenset(artist_ref,...),title=title)
 
-
-Track = namedtuple("Track",["artists","title"])
-Scrobble = namedtuple("Scrobble",["track","timestamp","album","duration","saved"])
-# album is saved in the scrobble because it's not actually authorative information about the track, just info
-# what was sent with this scrobble
-
-### OPTIMIZATION
-SCROBBLESDICT = {}	# timestamps to scrobble mapping
-STAMPS = []		# sorted
-#STAMPS_SET = set()	# as set for easier check if exists # we use the scrobbles dict for that now
-TRACKS_NORMALIZED = []
-ARTISTS_NORMALIZED = []
-ARTISTS_NORMALIZED_SET = set()
-TRACKS_NORMALIZED_SET = set()
 
 MEDALS_ARTISTS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
@@ -86,27 +69,7 @@ ISSUES = {}
 
 cla = CleanerAgent()
 coa = CollectorAgent()
-clients = []
 
-lastsync = 0
-
-
-try:
-	with open(data_dir['state']("known_servers.yml"),"r") as f:
-		KNOWN_SERVERS = set(yaml.safe_load(f))
-except:
-	KNOWN_SERVERS = set()
-
-
-def add_known_server(url):
-	KNOWN_SERVERS.add(url)
-	with open(data_dir['state']("known_servers.yml"),"w") as f:
-		f.write(yaml.dump(list(KNOWN_SERVERS)))
-
-
-
-
-log("Authenticated Machines: " + ", ".join([k for k in apikeystore]))
 
 def checkAPIkey(key):
 	return apikeystore.check_key(key)
@@ -143,80 +106,27 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 	if len(artists) == 0 or title == "":
 		return {}
 
-	dblock.acquire()
+	scrobbledict = {
+		"time":time,
+		"track":{
+			"artists":artists,
+			"title":title,
+			"album":{
+				"name":album,
+				"artists":None
+			},
+			"length":None
+		},
+		"duration":duration,
+		"origin":"generic"
+	}
 
-	i = getTrackID(artists,title)
-
-	# idempotence
-	if time in SCROBBLESDICT and i == SCROBBLESDICT[time].track:
-		dblock.release()
-		return get_track_dict(TRACKS[i])
-	# timestamp as unique identifier
-	while (time in SCROBBLESDICT):
-		time += 1
-
-	obj = Scrobble(i,time,album,duration,volatile) # if volatile generated, we simply pretend we have already saved it to disk
-	#SCROBBLES.append(obj)
-	# immediately insert scrobble correctly so we can guarantee sorted list
-	index = insert(SCROBBLES,obj,key=lambda x:x[1])
-	SCROBBLESDICT[time] = obj
-	STAMPS.insert(index,time) #should be same index as scrobblelist
-	register_scrobbletime(time)
-	invalidate_caches()
-	dblock.release()
-
+	add_scrobble(scrobbledict)
 	proxy_scrobble_all(artists,title,time)
-
-	return get_track_dict(TRACKS[obj.track])
-
-
-# this will never be called from different threads, so no lock
-def readScrobble(artists,title,time):
-	while (time in SCROBBLESDICT):
-		time += 1
-	i = getTrackID(artists,title)
-	obj = Scrobble(i,time,None,None,True)
-	SCROBBLES.append(obj)
-	SCROBBLESDICT[time] = obj
-	#STAMPS.append(time)
+	return scrobbledict
 
 
 
-def getArtistID(name):
-
-	obj = name
-	obj_normalized = normalize_name(name)
-
-	if obj_normalized in ARTISTS_NORMALIZED_SET:
-		return ARTISTS_NORMALIZED.index(obj_normalized)
-
-	i = len(ARTISTS)
-	ARTISTS.append(obj)
-	ARTISTS_NORMALIZED_SET.add(obj_normalized)
-	ARTISTS_NORMALIZED.append(obj_normalized)
-
-	# with a new artist added, we might also get new artists that they are credited as
-	cr = coa.getCredited(name)
-	getArtistID(cr)
-
-	coa.updateIDs(ARTISTS)
-
-	return i
-
-def getTrackID(artists,title):
-	artistset = {getArtistID(name=a) for a in artists}
-	obj = Track(artists=frozenset(artistset),title=title)
-	obj_normalized = Track(artists=frozenset(artistset),title=normalize_name(title))
-
-	if obj_normalized in TRACKS_NORMALIZED_SET:
-		return TRACKS_NORMALIZED.index(obj_normalized)
-	i = len(TRACKS)
-	TRACKS.append(obj)
-	TRACKS_NORMALIZED_SET.add(obj_normalized)
-	TRACKS_NORMALIZED.append(obj_normalized)
-	return i
-
-import unicodedata
 
 # function to turn the name into a representation that can be easily compared, ignoring minor differences
 remove_symbols = ["'","`","’"]
@@ -804,9 +714,9 @@ def get_track_id(trackdict):
 			)
 			result = conn.execute(op).all()
 		match_artist_ids = [r.artist_id for r in result]
-		print("required artists",artist_ids,"this match",match_artist_ids)
+		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
-			print("ID for",trackdict['title'],"was",row[0])
+			#print("ID for",trackdict['title'],"was",row[0])
 			return row.id
 
 	with engine.begin() as conn:
@@ -823,12 +733,12 @@ def get_track_id(trackdict):
 				artist_id=artist_id
 			)
 			result = conn.execute(op)
-		print("Created",trackdict['title'],track_id)
+		#print("Created",trackdict['title'],track_id)
 		return track_id
 
 def get_artist_id(artistname):
 	nname = normalize_name(artistname)
-	print("looking for",nname)
+	#print("looking for",nname)
 
 	with engine.begin() as conn:
 		op = DB['artists'].select(
@@ -838,7 +748,7 @@ def get_artist_id(artistname):
 		)
 		result = conn.execute(op).all()
 	for row in result:
-		print("ID for",artistname,"was",row[0])
+		#print("ID for",artistname,"was",row[0])
 		return row.id
 
 	with engine.begin() as conn:
@@ -847,8 +757,9 @@ def get_artist_id(artistname):
 			name_normalized=nname
 		)
 		result = conn.execute(op)
-		print("Created",artistname,result.inserted_primary_key)
+		#print("Created",artistname,result.inserted_primary_key)
 		return result.inserted_primary_key[0]
+
 
 def start_db():
 	from . import upgrade

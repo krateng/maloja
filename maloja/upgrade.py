@@ -4,6 +4,7 @@ import os
 import re
 
 from doreah.logging import log
+from doreah.io import col
 
 from .globalconf import data_dir, dir_settings, apikeystore
 
@@ -23,12 +24,13 @@ def upgrade_apikeys():
 
 
 def upgrade_db(callback_add_scrobbles):
+	print(col['yellow']("Upgrading v2 Database to v3 Database. This could take a while..."))
 	oldfolder = os.path.join(dir_settings['state'],"scrobbles")
 	if os.path.exists(oldfolder):
 		scrobblefiles = os.listdir(oldfolder)
 		for sf in scrobblefiles:
 			if sf.endswith(".tsv"):
-				log(f"Found old tsv scrobble file: {sf}")
+				print(f"\tImporting from old tsv scrobble file: {sf}")
 				if re.match(r"[0-9]+_[0-9]+\.tsv",sf):
 					origin = 'native'
 				elif sf == "lastfmimport.tsv":
