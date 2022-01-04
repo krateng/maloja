@@ -226,13 +226,16 @@ def get_scrobbles_of_artist(artist,since,to):
 
 	artist_id = get_artist_id(artist)
 
+	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
 	with engine.begin() as conn:
-		op = DB['scrobbles'].select().where(
+		op = jointable.select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
+			DB['trackartists'].c.artist_id==artist_id
 		)
 		result = conn.execute(op).all()
 
+	result = [scrobble_db_to_dict(row) for row in result]
 	return result
 
 
@@ -244,9 +247,11 @@ def get_scrobbles_of_track(track,since,to):
 		op = DB['scrobbles'].select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
+			DB['scrobbles'].c.track_id==track_id
 		)
 		result = conn.execute(op).all()
 
+	result = [scrobble_db_to_dict(row) for row in result]
 	return result
 
 
