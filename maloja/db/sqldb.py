@@ -72,9 +72,12 @@ meta.create_all(engine)
 
 
 
+
+##### Conversions between DB and dicts
+## These should only take the row info from their respective table and fill in
+## other information by calling the respective id lookup functions
+
 def scrobble_db_to_dict(row):
-
-
 	return {
 		"time":row.timestamp,
 		"track":get_track(row.track_id),
@@ -84,6 +87,7 @@ def scrobble_db_to_dict(row):
 
 def track_db_to_dict(row):
 	return {
+		"artists":get_artists_of_track(row.id),
 		"title":row.title,
 		"length":row.length
 	}
@@ -229,7 +233,6 @@ def get_scrobbles_of_artist(artist,since,to):
 		)
 		result = conn.execute(op).all()
 
-	print(result)
 	return result
 
 
@@ -244,19 +247,16 @@ def get_scrobbles_of_track(track,since,to):
 		)
 		result = conn.execute(op).all()
 
-	print(result)
 	return result
 
 
 def get_scrobbles(since,to):
-	print(since,to)
 
 	with engine.begin() as conn:
 		op = DB['scrobbles'].select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 		)
-		print(str(op))
 		result = conn.execute(op).all()
 
 	result = [scrobble_db_to_dict(row) for row in result]
@@ -272,16 +272,7 @@ def get_track(id):
 	trackinfo = result[0]
 
 
-	with engine.begin() as conn:
-		op = DB['trackartists'].select().where(
-			DB['trackartists'].c.track_id==id
-		)
-		result = conn.execute(op).all()
-
-	artists = [get_artist(row.artist_id) for row in result]
-
 	result = track_db_to_dict(trackinfo)
-	result['artists'] = artists
 	return result
 
 
@@ -295,6 +286,15 @@ def get_artist(id):
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo)
 
+def get_artists_of_track(track_id):
+	with engine.begin() as conn:
+		op = DB['trackartists'].select().where(
+			DB['trackartists'].c.track_id==track_id
+		)
+		result = conn.execute(op).all()
+
+	artists = [get_artist(row.artist_id) for row in result]
+	return artists
 
 
 

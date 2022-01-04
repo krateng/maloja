@@ -11,7 +11,7 @@
 		{%- if loop.index0 >= firstindex and loop.index0 < lastindex -%}
 		<tr>
 			<td class='time'>{{ malojatime.timestamp_desc(s["time"],short=shortTimeDesc) }}</td>
-			{{ entityrow.row(s) }}
+			{{ entityrow.row(s.track) }}
 		</tr>
 		{%- endif -%}
 	{% endfor %}

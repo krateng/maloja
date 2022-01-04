@@ -12,7 +12,7 @@
 {% elif filterkeys.get('artist') is not none %}
 	{% set img = utilities.getArtistImage(filterkeys.artist,fast=True) %}
 {% elif scrobbles.__len__() > 0 %}
-	{% set img = utilities.getTrackImage(artists=scrobbles[0].artists,title=scrobbles[0].title,fast=True) %}
+	{% set img = utilities.getTrackImage(artists=scrobbles[0].track.artists,title=scrobbles[0].track.title,fast=True) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}
