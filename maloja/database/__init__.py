@@ -2,14 +2,14 @@
 from bottle import request, response, FormsDict, HTTPError
 
 # rest of the project
-from .cleanup import CleanerAgent, CollectorAgent
-from . import utilities
-from .malojatime import register_scrobbletime, time_stamps, ranges
-from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
-from .thirdparty import proxy_scrobble_all
-from .globalconf import data_dir, malojaconfig, apikeystore
+from ..cleanup import CleanerAgent, CollectorAgent
+from .. import utilities
+from ..malojatime import register_scrobbletime, time_stamps, ranges
+from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
+from ..thirdparty import proxy_scrobble_all
+from ..globalconf import data_dir, malojaconfig, apikeystore
 #db
-from .db import sqldb
+from . import sqldb
 
 # doreah toolkit
 from doreah.logging import log
@@ -544,7 +544,7 @@ def get_predefined_rulesets():
 
 
 def start_db():
-	from . import upgrade
+	from .. import upgrade
 	upgrade.upgrade_db(sqldb.add_scrobbles)
 	dbstatus['healthy'] = True
 	dbstatus['complete'] = True

@@ -124,8 +124,11 @@ def main(*args,**kwargs):
 	else:
 		try:
 			action, *args = args
-			actions[action](*args,**kwargs)
+			action = actions[action]
 		except (ValueError, KeyError):
 			print("Valid commands: " + " ".join(a for a in actions))
+			return
+
+		return action(*args,**kwargs)
 
 	return True
