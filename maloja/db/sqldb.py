@@ -6,6 +6,8 @@ from ..globalconf import data_dir
 
 
 
+##### DB Technical
+
 DB = {}
 
 
@@ -42,8 +44,75 @@ DB['trackartists'] = sql.Table(
 
 meta.create_all(engine)
 
+##### DB <-> Dict translations
+
+## ATTENTION ALL ADVENTURERS
+## this is what a scrobble dict will look like from now on
+## this is the single canonical source of truth
+## stop making different little dicts in every single function
+## this is the schema that will definitely 100% stay like this and not
+## randomly get changed two versions later
+## here we go
+#
+# {
+# 	"time":int,
+# 	"track":{
+# 		"artists":list,
+# 		"title":string,
+# 		"album":{
+# 			"name":string,
+# 			"artists":list
+# 		},
+# 		"length":None
+# 	},
+# 	"duration":int,
+# 	"origin":string,
+#	"extra":{string-keyed mapping for all flags with the scrobble}
+# }
 
 
+
+def scrobble_db_to_dict(row):
+
+
+	return {
+		"time":row.timestamp,
+		"track":get_track(row.track_id),
+		"duration":row.duration,
+		"origin":row.origin
+	}
+
+def track_db_to_dict(row):
+	return {
+		"title":row.title,
+		"length":row.length
+	}
+
+def artist_db_to_dict(row):
+	return row.name
+
+def scrobble_dict_to_db(info):
+	return {
+		"rawscrobble":json.dumps(info),
+		"timestamp":info['time'],
+		"origin":info['origin'],
+		"duration":info['duration'],
+		"extra":info['extra'],
+		"track_id":get_track_id(info['track'])
+	}
+
+def track_dict_to_db(info):
+	return {
+		"title":info['title'],
+		"title_normalized":normalize_name(info['title']),
+		"length":info['length']
+	}
+
+def artist_dict_to_db(info):
+	return {
+		"name": info,
+		"name_normalized":normalize_name(info)
+	}
 
 
 
@@ -60,7 +129,7 @@ def add_scrobbles(scrobbleslist):
 			rawscrobble=json.dumps(s),
 			timestamp=s['time'],
 			origin=s['origin'],
-			duration=s['duration'] or -1,
+			duration=s['duration'],
 			track_id=get_track_id(s['track'])
 		) for s in scrobbleslist
 	]
@@ -180,20 +249,51 @@ def get_scrobbles_of_track(track,since,to):
 
 
 def get_scrobbles(since,to):
-
-	artist_id = get_artist_id(artist)
+	print(since,to)
 
 	with engine.begin() as conn:
 		op = DB['scrobbles'].select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 		)
+		print(str(op))
 		result = conn.execute(op).all()
 
-	print(result)
+	result = [scrobble_db_to_dict(row) for row in result]
+	return result
+
+def get_track(id):
+	with engine.begin() as conn:
+		op = DB['tracks'].select().where(
+			DB['tracks'].c.id==id
+		)
+		result = conn.execute(op).all()
+
+	trackinfo = result[0]
+
+
+	with engine.begin() as conn:
+		op = DB['trackartists'].select().where(
+			DB['trackartists'].c.track_id==id
+		)
+		result = conn.execute(op).all()
+
+	artists = [get_artist(row.artist_id) for row in result]
+
+	result = track_db_to_dict(trackinfo)
+	result['artists'] = artists
 	return result
 
 
+def get_artist(id):
+	with engine.begin() as conn:
+		op = DB['artists'].select().where(
+			DB['artists'].c.id==id
+		)
+		result = conn.execute(op).all()
+
+	artistinfo = result[0]
+	return artist_db_to_dict(artistinfo)
 
 
 

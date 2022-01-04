@@ -9,7 +9,7 @@ from .malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from .thirdparty import proxy_scrobble_all
 from .globalconf import data_dir, malojaconfig, apikeystore
 #db
-from .db.sqldb import *
+from .db import sqldb
 
 # doreah toolkit
 from doreah.logging import log
@@ -545,7 +545,7 @@ def get_predefined_rulesets():
 
 def start_db():
 	from . import upgrade
-	upgrade.upgrade_db(add_scrobbles)
+	upgrade.upgrade_db(sqldb.add_scrobbles)
 	dbstatus['healthy'] = True
 	dbstatus['complete'] = True
 
@@ -735,22 +735,20 @@ def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,
 	#artist = None
 
 	if artists is not None and title is not None:
-		return get_scrobbles_of_track(track={"artists":artists,"title":title},since=since,to=to)
+		return sqldb.get_scrobbles_of_track(track={"artists":artists,"title":title},since=since,to=to)
 
 	if artist is not None:
-		return get_scrobbles_of_artist(artist=artist,since=since,to=to)
+		return sqldb.get_scrobbles_of_artist(artist=artist,since=since,to=to)
 
-	return get_scrobbles(since=since,to=to)
+	return sqldb.get_scrobbles(since=since,to=to)
 
-
-	# pointless to check for artist when track is checked because every track has a fixed set of artists, but it's more elegant this way
 
 
 # Queries that... well... aggregate
 def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,artist=None):
 
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
-	(since, to) = time_stamps(since=since,to=to,within=within,range=timerange)
+	(since, to) = time_stamps(range=timerange)
 
 	if isinstance(artist, str):
 		artist = ARTISTS.index(artist)
