@@ -569,13 +569,8 @@ def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(range=timerange)
 
-	# this is not meant as a search function. we *can* query the db with a string, but it only works if it matches exactly
-	# if a title is specified, we assume that a specific track (with the exact artist combination) is requested
-	# if not, duplicate artist arguments are ignored
-
-	#artist = None
-
 	if artists is not None and title is not None:
+		print(col['red']("THIS SHOULD NO LONGER HAPPEN"))
 		track = {'artists':artists,'title':title}
 
 	if track is not None:
@@ -589,23 +584,16 @@ def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,
 
 
 # Queries that... well... aggregate
-def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,artist=None):
+def db_aggregate_full(by=None,within=None,timerange=None,artist=None):
 
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(range=timerange)
 
-	if isinstance(artist, str):
-		artist = ARTISTS.index(artist)
 
 	if (by=="ARTIST"):
-		#this is probably a really bad idea
-		#for a in ARTISTS:
-		#	num = len(db_query(artist=a,since=since,to=to))
-		#
 
-		# alright let's try for real
 		charts = {}
-		#for s in [scr for scr in SCROBBLES if since < scr[1] < to]:
+		scrobbles = sqldb.get_scrobbles(since=since,to=to)
 		for s in scrobbles_in_range(since,to):
 			artists = TRACKS[s[0]][0]
 			for a in coa.getCreditedList(artists):
@@ -624,13 +612,16 @@ def db_aggregate_full(by=None,since=None,to=None,within=None,timerange=None,arti
 
 	elif (by=="TRACK"):
 		charts = {}
-		#for s in [scr for scr in SCROBBLES if since < scr[1] < to and (artist==None or (artist in TRACKS[scr[0]][0]))]:
-		for s in [scr for scr in scrobbles_in_range(since,to) if (artist is None or (artist in TRACKS[scr[0]][0]))]:
-			track = s[0]
-			# this either creates the new entry or increments the existing one
-			charts[track] = charts.setdefault(track,0) + 1
+		if artist is None:
+			scrobbles = sqldb.get_scrobbles(since=since,to=to,resolve_references=False)
+		else:
+			scrobbles = sqldb.get_scrobbles_of_artist(since=since,to=to,artist=artist,resolve_references=False)
 
-		ls = [{"track":get_track_dict(TRACKS[t]),"scrobbles":charts[t]} for t in charts]
+		for s in scrobbles:
+			charts[s['track']] = charts.setdefault(s['track'],0) + 1
+
+
+		ls = [{"track":sqldb.get_track(t),"scrobbles":charts[t]} for t in charts]
 		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
 		# add ranks
 		for rnk in range(len(ls)):

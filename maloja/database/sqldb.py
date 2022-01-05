@@ -77,10 +77,10 @@ meta.create_all(engine)
 ## These should only take the row info from their respective table and fill in
 ## other information by calling the respective id lookup functions
 
-def scrobble_db_to_dict(row):
+def scrobble_db_to_dict(row,resolve_references=True):
 	return {
 		"time":row.timestamp,
-		"track":get_track(row.track_id),
+		"track":get_track(row.track_id) if resolve_references else row.track_id,
 		"duration":row.duration,
 		"origin":row.origin
 	}
@@ -222,7 +222,7 @@ def get_artist_id(artistname):
 		return result.inserted_primary_key[0]
 
 
-def get_scrobbles_of_artist(artist,since,to):
+def get_scrobbles_of_artist(artist,since,to,resolve_references=True):
 
 	artist_id = get_artist_id(artist)
 
@@ -235,7 +235,7 @@ def get_scrobbles_of_artist(artist,since,to):
 		)
 		result = conn.execute(op).all()
 
-	result = [scrobble_db_to_dict(row) for row in result]
+	result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
 
@@ -255,7 +255,7 @@ def get_scrobbles_of_track(track,since,to):
 	return result
 
 
-def get_scrobbles(since,to):
+def get_scrobbles(since,to,resolve_references=True):
 
 	with engine.begin() as conn:
 		op = DB['scrobbles'].select().where(
@@ -264,7 +264,7 @@ def get_scrobbles(since,to):
 		)
 		result = conn.execute(op).all()
 
-	result = [scrobble_db_to_dict(row) for row in result]
+	result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
 def get_track(id):
