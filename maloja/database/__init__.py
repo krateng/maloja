@@ -584,7 +584,7 @@ def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,
 
 
 # Queries that... well... aggregate
-def db_aggregate_full(by=None,within=None,timerange=None,artist=None):
+def db_aggregate_full(by=None,timerange=None,artist=None):
 
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(range=timerange)
@@ -592,15 +592,20 @@ def db_aggregate_full(by=None,within=None,timerange=None,artist=None):
 
 	if (by=="ARTIST"):
 
+		trackcharts = {}
 		charts = {}
-		scrobbles = sqldb.get_scrobbles(since=since,to=to)
-		for s in scrobbles_in_range(since,to):
-			artists = TRACKS[s[0]][0]
-			for a in coa.getCreditedList(artists):
-				# this either creates the new entry or increments the existing one
-				charts[a] = charts.setdefault(a,0) + 1
+		scrobbles = sqldb.get_scrobbles(since=since,to=to,resolve_references=False)
 
-		ls = [{"artist":get_artist_dict(ARTISTS[a]),"scrobbles":charts[a],"counting":[arti for arti in coa.getAllAssociated(ARTISTS[a]) if arti in ARTISTS]} for a in charts]
+		for s in scrobbles:
+			trackcharts[s['track']] = trackcharts.setdefault(s['track'],0) + 1
+
+		for t in trackcharts:
+			artists = sqldb.get_artists_of_track(t,resolve_references=False)
+			for a in coa.getCreditedList(artists):
+				charts[a] = charts.setdefault(a,0) + trackcharts[t]
+
+
+		ls = [{"artist":sqldb.get_artist(a),"scrobbles":charts[a],"counting":[]} for a in charts]
 		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
 		# add ranks
 		for rnk in range(len(ls)):

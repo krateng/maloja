@@ -15,7 +15,7 @@ from ..globalconf import malojaconfig
 from .. import utilities
 from .. import database as dbmain
 
-if malojaconfig["USE_DB_CACHE"]:
+if False:
 	def db_query(**kwargs):
 		return db_query_cached(**kwargs)
 	def db_aggregate(**kwargs):

@@ -291,14 +291,14 @@ def get_artist(id):
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo)
 
-def get_artists_of_track(track_id):
+def get_artists_of_track(track_id,resolve_references=True):
 	with engine.begin() as conn:
 		op = DB['trackartists'].select().where(
 			DB['trackartists'].c.track_id==track_id
 		)
 		result = conn.execute(op).all()
 
-	artists = [get_artist(row.artist_id) for row in result]
+	artists = [get_artist(row.artist_id) if resolve_references else row.artist_id for row in result]
 	return artists
 
 
