@@ -56,6 +56,13 @@ class DatabaseNotBuilt(HTTPError):
 		)
 
 
+def waitfordb(func):
+	def newfunc(*args,**kwargs):
+		if not dbstatus['healthy']: raise DatabaseNotBuilt()
+		return func(*args,**kwargs)
+	return newfunc
+
+
 
 MEDALS_ARTISTS = {}	#literally only changes once per year, no need to calculate that on the fly
 MEDALS_TRACKS = {}
@@ -103,53 +110,33 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 
 
 
-########
-########
-## HTTP requests and their associated functions
-########
-########
-
-
-
-
-
-
-
-
+@waitfordb
 def get_scrobbles(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","artists","title","since","to","within","timerange","associated","track"]})
-	return r
+	(since,to) = keys.get('timerange').timestamps()
+	if 'artist' in keys:
+		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to)
+	elif 'track' in keys:
+		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to)
+	else:
+		result = sqldb.get_scrobbles(since=since,to=to)
+	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
+	return result
 
-
-def info():
-	totalscrobbles = get_scrobbles_num()
-	artists = {}
-
-	return {
-		"name":malojaconfig["NAME"],
-		"artists":{
-			chartentry["artist"]:round(chartentry["scrobbles"] * 100 / totalscrobbles,3)
-			for chartentry in get_charts_artists() if chartentry["scrobbles"]/totalscrobbles >= 0
-		},
-		"known_servers":list(KNOWN_SERVERS)
-	}
-
-
-
+@waitfordb
 def get_scrobbles_num(**keys):
-	r = db_query(**{k:keys[k] for k in keys if k in ["artist","track","artists","title","since","to","within","timerange","associated"]})
-	return len(r)
+	return len(get_scrobbles(**keys))
 
+@waitfordb
 def get_tracks(artist=None):
+	if artist is None:
+		result = sqldb.get_tracks()
+	else:
+		result = sqldb.get_tracks_of_artist(artist)
+	return result
 
-	artistid = ARTISTS.index(artist) if artist is not None else None
-	return [get_track_dict(t) for t in TRACKS if (artistid in t.artists) or (artistid==None)]
-
-
-
+@waitfordb
 def get_artists():
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
-	return ARTISTS #well
+	return sqldb.get_artists()
 
 
 
@@ -504,6 +491,9 @@ def start_db():
 	dbstatus['healthy'] = True
 	dbstatus['complete'] = True
 
+	firstscrobble = sqldb.get_scrobbles(max=1)[0]
+	register_scrobbletime(firstscrobble['time'])
+
 
 
 
@@ -520,7 +510,7 @@ def start_db():
 
 # Queries the database
 def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,associated=False,max_=None):
-	print((artist,artists,title,track,timerange))
+
 	if not dbstatus['healthy']: raise DatabaseNotBuilt()
 	(since, to) = time_stamps(range=timerange)
 
@@ -529,12 +519,12 @@ def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,
 		track = {'artists':artists,'title':title}
 
 	if track is not None:
-		return sqldb.get_scrobbles_of_track(track=track,since=since,to=to)
+		return list(reversed(sqldb.get_scrobbles_of_track(track=track,since=since,to=to)))
 
 	if artist is not None:
-		return sqldb.get_scrobbles_of_artist(artist=artist,since=since,to=to)
+		return list(reversed(sqldb.get_scrobbles_of_artist(artist=artist,since=since,to=to)))
 
-	return sqldb.get_scrobbles(since=since,to=to)
+	return list(reversed(sqldb.get_scrobbles(since=since,to=to)))
 
 
 
@@ -592,8 +582,7 @@ def db_aggregate_full(by=None,timerange=None,artist=None):
 		return ls
 
 	else:
-		#return len([scr for scr in SCROBBLES if since < scr[1] < to])
-		return len(list(scrobbles_in_range(since,to)))
+		return len(sqldb.get_scrobbles(since=since,to=to,resolve_references=False))
 
 
 # Search for strings
