@@ -255,7 +255,7 @@ def get_artist_id(artistname):
 ### Functions that get rows according to parameters
 
 
-def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True):
+def get_scrobbles_of_artist(artist,since=None,to=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -268,7 +268,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True):
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 			DB['trackartists'].c.artist_id==artist_id
-		)
+		).order_by(sql.desc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -288,7 +288,7 @@ def get_scrobbles_of_track(track,since=None,to=None):
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 			DB['scrobbles'].c.track_id==track_id
-		)
+		).order_by(sql.desc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -305,7 +305,7 @@ def get_scrobbles(since=None,to=None,resolve_references=True,max=math.inf):
 		op = DB['scrobbles'].select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
-		)
+		).order_by(sql.desc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -368,8 +368,8 @@ def count_scrobbles_by_artist(since,to):
 	counts = [row.count for row in result]
 	artists = get_artists_map(row.artist_id for row in result)
 	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
-	print(result)
-	return rank(result,key='scrobbles')
+	result = rank(result,key='scrobbles')
+	return result
 
 
 
