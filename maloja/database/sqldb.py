@@ -83,20 +83,7 @@ meta.create_all(engine)
 
 ### DB -> DICT
 
-#def scrobble_db_to_dict(row,resolve_references=True):
-#	return {
-#		"time":row.timestamp,
-#		"track":get_track(row.track_id) if resolve_references else row.track_id,
-#		"duration":row.duration,
-#		"origin":row.origin
-#	}
-
-
 def scrobbles_db_to_dict(rows):
-	#track_ids = set(row.track_id for row in rows)
-	#tracks = {
-	#	track_id:get_track(track_id) for track_id in track_ids
-	#}
 	tracks = get_tracks_map(set(row.track_id for row in rows))
 	return [
 		{
@@ -107,13 +94,9 @@ def scrobbles_db_to_dict(rows):
 		}
 		for row in rows
 	]
+def scrobble_db_to_dict(row):
+	return scrobbles_db_to_dict([row])[0]
 
-#def track_db_to_dict(row):
-#	return {
-#		"artists":get_artists_of_track(row.id),
-#		"title":row.title,
-#		"length":row.length
-#	}
 
 def tracks_db_to_dict(rows):
 	artists = get_artists_of_tracks(set(row.id for row in rows))
@@ -125,20 +108,23 @@ def tracks_db_to_dict(rows):
 		}
 		for row in rows
 	]
+def track_db_to_dict(row):
+	return tracks_db_to_dict([row])[0]
 
-def artist_db_to_dict(row):
-	return row.name
 
 def artists_db_to_dict(rows):
 	return [
 		row.name
 		for row in rows
 	]
+def artist_db_to_dict(row):
+	return artists_db_to_dict([row])[0]
+
+
 
 
 ### DICT -> DB
-
-
+# TODO
 def scrobble_dict_to_db(info):
 	return {
 		"rawscrobble":json.dumps(info),
@@ -337,38 +323,6 @@ def get_artists_of_track(track_id,resolve_references=True):
 	artists = [get_artist(row.artist_id) if resolve_references else row.artist_id for row in result]
 	return artists
 
-def get_artists_of_tracks(track_ids):
-	with engine.begin() as conn:
-		op = sql.join(DB['trackartists'],DB['artists']).select().where(
-			DB['trackartists'].c.track_id.in_(track_ids)
-		)
-		result = conn.execute(op).all()
-
-	artists = {}
-	for row in result:
-		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row))
-	return artists
-
-def get_tracks_map(track_ids):
-	with engine.begin() as conn:
-		op = DB['tracks'].select().where(
-			DB['tracks'].c.id.in_(track_ids)
-		)
-		result = conn.execute(op).all()
-
-	tracks = {}
-	trackids = [row.id for row in result]
-	trackdicts = tracks_db_to_dict(result)
-	for i in range(len(trackids)):
-		tracks[trackids[i]] = trackdicts[i]
-	return tracks
-
-def get_tracks():
-	with engine.begin() as conn:
-		op = DB['tracks'].select()
-		result = conn.execute(op).all()
-
-	return tracks_db_to_dict(result)
 
 def get_tracks_of_artist(artist):
 
@@ -389,6 +343,84 @@ def get_artists():
 
 	return artists_db_to_dict(result)
 
+def get_tracks():
+	with engine.begin() as conn:
+		op = DB['tracks'].select()
+		result = conn.execute(op).all()
+
+	return tracks_db_to_dict(result)
+
+### functions that count rows for parameters
+
+def count_scrobbles_by_artist(since,to):
+	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
+	with engine.begin() as conn:
+		op = sql.select(
+			sql.func.count(DB['scrobbles'].c.timestamp).label('count'),
+			DB['trackartists'].c.artist_id
+		).select_from(jointable).where(
+			DB['scrobbles'].c.timestamp<=to,
+			DB['scrobbles'].c.timestamp>=since
+		).group_by(DB['trackartists'].c.artist_id).order_by(sql.desc('count'))
+		result = conn.execute(op).all()
+
+
+	counts = [row.count for row in result]
+	artists = get_artists_map(row.artist_id for row in result)
+	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	print(result)
+	return rank(result,key='scrobbles')
+
+
+
+
+### functions that get mappings for several entities -> rows
+
+def get_artists_of_tracks(track_ids):
+	with engine.begin() as conn:
+		op = sql.join(DB['trackartists'],DB['artists']).select().where(
+			DB['trackartists'].c.track_id.in_(track_ids)
+		)
+		result = conn.execute(op).all()
+
+	artists = {}
+	for row in result:
+		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row))
+	return artists
+
+
+def get_tracks_map(track_ids):
+	with engine.begin() as conn:
+		op = DB['tracks'].select().where(
+			DB['tracks'].c.id.in_(track_ids)
+		)
+		result = conn.execute(op).all()
+
+	tracks = {}
+	trackids = [row.id for row in result]
+	trackdicts = tracks_db_to_dict(result)
+	for i in range(len(trackids)):
+		tracks[trackids[i]] = trackdicts[i]
+	return tracks
+
+def get_artists_map(artist_ids):
+	with engine.begin() as conn:
+		op = DB['artists'].select().where(
+			DB['artists'].c.id.in_(artist_ids)
+		)
+		result = conn.execute(op).all()
+
+	artists = {}
+	artistids = [row.id for row in result]
+	artistdicts = artists_db_to_dict(result)
+	for i in range(len(artistids)):
+		artists[artistids[i]] = artistdicts[i]
+	return artists
+
+
+
+
+
 
 ### get a specific entity by id
 
@@ -401,10 +433,7 @@ def get_track(id):
 		result = conn.execute(op).all()
 
 	trackinfo = result[0]
-
-
-	result = track_db_to_dict(trackinfo)
-	return result
+	return track_db_to_dict(trackinfo)
 
 
 def get_artist(id):
@@ -417,6 +446,13 @@ def get_artist(id):
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo)
 
+
+
+
+
+
+
+##### AUX FUNCS
 
 
 
@@ -433,3 +469,11 @@ def normalize_name(name):
 
 def now():
 	return int(datetime.now().timestamp())
+
+def rank(ls,key):
+	for rnk in range(len(ls)):
+		if rnk == 0 or ls[rnk][key] < ls[rnk-1][key]:
+			ls[rnk]["rank"] = rnk + 1
+		else:
+			ls[rnk]["rank"] = ls[rnk-1]["rank"]
+	return ls

@@ -139,9 +139,11 @@ def get_artists():
 	return sqldb.get_artists()
 
 
-
+@waitfordb
 def get_charts_artists(**keys):
-	return db_aggregate(by="ARTIST",**{k:keys[k] for k in keys if k in ["since","to","within","timerange"]})
+	(since,to) = keys.get('timerange').timestamps()
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to)
+	return result
 
 
 def get_charts_tracks(**keys):
