@@ -1,6 +1,7 @@
 from ._base import APIHandler
 from ._exceptions import *
 from .. import database
+from ._apikeys import checkAPIkey, allAPIkeys
 
 class Audioscrobbler(APIHandler):
 	__apiname__ = "Audioscrobbler"
@@ -36,14 +37,14 @@ class Audioscrobbler(APIHandler):
 		password = keys.get("password")
 		# either username and password
 		if user is not None and password is not None:
-			if password in database.allAPIkeys():
+			if checkAPIkey(password):
 				sessionkey = generate_key(self.mobile_sessions)
 				return 200,{"session":{"key":sessionkey}}
 			else:
 				raise InvalidAuthException()
 		# or username and token (deprecated by lastfm)
 		elif user is not None and token is not None:
-			for key in database.allAPIkeys():
+			for key in allAPIkeys():
 				if md5(user + md5(key)) == token:
 					sessionkey = generate_key(self.mobile_sessions)
 					return 200,{"session":{"key":sessionkey}}
@@ -89,6 +90,6 @@ def generate_key(ls):
 	        random.choice(
 	            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
 	            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
-		
+
 	ls.append(key)
 	return key

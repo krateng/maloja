@@ -1,6 +1,7 @@
 from ._base import APIHandler
 from ._exceptions import *
 from .. import database
+from ._apikeys import checkAPIkey, allAPIkeys
 
 from bottle import request
 
@@ -41,7 +42,7 @@ class AudioscrobblerLegacy(APIHandler):
 		protocol = 'http' if (keys.get("u") == 'nossl') else request.urlparts.scheme
 
 		if auth is not None:
-			for key in database.allAPIkeys():
+			for key in allAPIkeys():
 				if check_token(auth, key, timestamp):
 					sessionkey = generate_key(self.mobile_sessions)
 					return 200, (

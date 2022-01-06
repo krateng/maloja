@@ -42,7 +42,6 @@ import urllib
 
 
 
-dblock = Lock() #global database lock
 dbstatus = {
 	"healthy":False,
 	"rebuildinprogress":False,
@@ -68,34 +67,6 @@ ISSUES = {}
 cla = CleanerAgent()
 coa = CollectorAgent()
 
-
-def checkAPIkey(key):
-	return apikeystore.check_key(key)
-
-def allAPIkeys():
-	return [apikeystore[k] for k in apikeystore]
-
-
-####
-## Getting dict representations of database objects
-####
-
-def get_scrobble_dict(o):
-	track = get_track_dict(TRACKS[o.track])
-	return {"artists":track["artists"],"title":track["title"],"time":o.timestamp,"album":o.album,"duration":o.duration}
-
-def get_artist_dict(o):
-	return o
-	#technically not a dict, but... you know
-
-def get_track_dict(o):
-	artists = [get_artist_dict(ARTISTS[a]) for a in o.artists]
-	return {"artists":artists,"title":o.title}
-
-
-####
-## Creating or finding existing database entries
-####
 
 
 
@@ -138,23 +109,7 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 ########
 ########
 
-# skip regular authentication if api key is present in request
-# an api key now ONLY permits scrobbling tracks, no other admin tasks
-def api_key_correct(request):
-	args = request.params
-	try:
-		args.update(request.json)
-	except:
-		pass
-	if "key" in args:
-		apikey = args["key"]
-		del args["key"]
-	elif "apikey" in args:
-		apikey = args["apikey"]
-		del args["apikey"]
-	else: return False
 
-	return checkAPIkey(apikey)
 
 
 

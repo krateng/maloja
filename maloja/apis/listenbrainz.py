@@ -2,6 +2,7 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 import datetime
+from ._apikeys import checkAPIkey
 
 from ..globalconf import malojaconfig
 
@@ -36,7 +37,7 @@ class Listenbrainz(APIHandler):
 		except:
 			raise BadAuthException()
 
-		if token not in database.allAPIkeys():
+		if not checkAPIkey(token):
 			raise InvalidAuthException()
 
 		try:
@@ -69,7 +70,7 @@ class Listenbrainz(APIHandler):
 			token = self.get_token_from_request_keys(keys)
 		except:
 			raise BadAuthException()
-		if token not in database.allAPIkeys():
+		if not checkAPIkey(token):
 			raise InvalidAuthException()
 		else:
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":malojaconfig["NAME"]}
