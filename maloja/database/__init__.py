@@ -120,7 +120,7 @@ def get_scrobbles(**keys):
 	else:
 		result = sqldb.get_scrobbles(since=since,to=to)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
-	return result
+	return list(reversed(result))
 
 @waitfordb
 def get_scrobbles_num(**keys):
@@ -145,9 +145,11 @@ def get_charts_artists(**keys):
 	result = sqldb.count_scrobbles_by_artist(since=since,to=to)
 	return result
 
-
+@waitfordb
 def get_charts_tracks(**keys):
-	return db_aggregate(by="TRACK",**{k:keys[k] for k in keys if k in ["since","to","within","timerange","artist"]})
+	(since,to) = keys.get('timerange').timestamps()
+	result = sqldb.count_scrobbles_by_track(since=since,to=to)
+	return result
 
 def get_pulse(**keys):
 

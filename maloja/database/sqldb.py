@@ -274,7 +274,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None):
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 			DB['trackartists'].c.artist_id==artist_id
-		).order_by(sql.desc('timestamp'))
+		).order_by(sql.asc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -294,7 +294,7 @@ def get_scrobbles_of_track(track,since=None,to=None):
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
 			DB['scrobbles'].c.track_id==track_id
-		).order_by(sql.desc('timestamp'))
+		).order_by(sql.asc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -311,7 +311,7 @@ def get_scrobbles(since=None,to=None,resolve_references=True,max=math.inf):
 		op = DB['scrobbles'].select().where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since,
-		).order_by(sql.desc('timestamp'))
+		).order_by(sql.asc('timestamp'))
 		result = conn.execute(op).all()
 
 	result = scrobbles_db_to_dict(result)
@@ -389,6 +389,27 @@ def count_scrobbles_by_artist(since,to):
 	counts = [row.count for row in result]
 	artists = get_artists_map(row.artist_id for row in result)
 	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+
+def count_scrobbles_by_track(since,to):
+	print(since,to)
+
+	with engine.begin() as conn:
+		op = sql.select(
+			sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+			DB['scrobbles'].c.track_id
+		).select_from(DB['scrobbles']).where(
+			DB['scrobbles'].c.timestamp<=to,
+			DB['scrobbles'].c.timestamp>=since
+		).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
+		result = conn.execute(op).all()
+
+
+	counts = [row.count for row in result]
+	tracks = get_tracks_map(row.track_id for row in result)
+	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
