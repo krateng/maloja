@@ -154,12 +154,13 @@ def get_charts_tracks(**keys):
 		result = sqldb.count_scrobbles_by_track(since=since,to=to)
 	return result
 
+@waitfordb
 def get_pulse(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 	for rng in rngs:
-		res = len(db_query(timerange=rng,**{k:keys[k] for k in keys if k in ["artists","artist","track","title","associated"]}))
+		res = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k != 'timerange'})
 		results.append({"range":rng,"scrobbles":res})
 
 	return results
