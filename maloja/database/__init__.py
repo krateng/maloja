@@ -165,7 +165,7 @@ def get_pulse(**keys):
 
 	return results
 
-
+@waitfordb
 def get_performance(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
@@ -173,24 +173,28 @@ def get_performance(**keys):
 
 	for rng in rngs:
 		if "track" in keys:
+			track = sqldb.get_track(sqldb.get_track_id(keys['track']))
 			charts = get_charts_tracks(timerange=rng)
 			rank = None
 			for c in charts:
-				if c["track"] == keys["track"]:
+				if c["track"] == track:
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
+			artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist']))
+			# ^this is the most useless line in programming history
+			# but I like consistency
 			charts = get_charts_artists(timerange=rng)
 			rank = None
 			for c in charts:
-				if c["artist"] == keys["artist"]:
+				if c["artist"] == artist:
 					rank = c["rank"]
 					break
 		results.append({"range":rng,"rank":rank})
 
 	return results
 
-
+@waitfordb
 def get_top_artists(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
@@ -198,21 +202,15 @@ def get_top_artists(**keys):
 
 	for rng in rngs:
 		try:
-			res = db_aggregate(timerange=rng,by="ARTIST")[0]
-			results.append({"range":rng,"artist":res["artist"],"counting":res["counting"],"scrobbles":res["scrobbles"]})
+			res = get_charts_artists(timerange=rng)[0]
+			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"range":rng,"artist":None,"scrobbles":0})
 
 	return results
 
 
-
-
-
-
-
-
-
+@waitfordb
 def get_top_tracks(**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
@@ -220,7 +218,7 @@ def get_top_tracks(**keys):
 
 	for rng in rngs:
 		try:
-			res = db_aggregate(timerange=rng,by="TRACK")[0]
+			res = get_charts_tracks(timerange=rng)[0]
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"range":rng,"track":None,"scrobbles":0})
