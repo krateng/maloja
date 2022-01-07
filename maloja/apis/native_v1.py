@@ -177,16 +177,16 @@ def get_top_tracks_external(**keys):
 
 
 @api.get("artistinfo")
-def artistInfo_external(**keys):
+def artist_info_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	return artistInfo(**ckeys)
+	return artist_info(**ckeys)
 
 
 
 @api.get("trackinfo")
-def trackInfo_external(artist:Multi[str],**keys):
+def track_info_external(artist:Multi[str],**keys):
 	# transform into a multidict so we can use our nomral uri_to_internal function
 	keys = FormsDict(keys)
 	for a in artist:
@@ -194,7 +194,7 @@ def trackInfo_external(artist:Multi[str],**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
-	return trackInfo(**ckeys)
+	return track_info(**ckeys)
 
 
 @api.get("compare")

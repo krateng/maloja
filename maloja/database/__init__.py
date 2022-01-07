@@ -226,7 +226,7 @@ def get_top_tracks(**keys):
 	return results
 
 
-def artistInfo(artist):
+def artist_info(artist):
 
 	charts = db_aggregate(by="ARTIST")
 	scrobbles = len(db_query(artists=[artist]))
@@ -257,7 +257,7 @@ def artistInfo(artist):
 
 
 
-def trackInfo(track):
+def track_info(track):
 	charts = db_aggregate(by="TRACK")
 	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
 	#c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]

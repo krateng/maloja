@@ -56,7 +56,7 @@
 
 <!-- CERTS -->
 {% for track in db.get_tracks(artist=artist) -%}
-	{% set info = db.trackInfo(track) %}
+	{% set info = db.track_info(track) %}
 	{% if info.certification is not none -%}
 	<a href='{{ links.url(track) }}'><img class="certrecord_small"
 					src="/media/record_{{ info.certification }}.png"

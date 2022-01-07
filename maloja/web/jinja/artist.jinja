@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% set artist = filterkeys.artist %}
-{% set info = db.artistInfo(artist) %}
+{% set info = db.artist_info(artist) %}
 
 {% set credited = info.get('replace') %}
 {% set included = info.get('associated') %}
