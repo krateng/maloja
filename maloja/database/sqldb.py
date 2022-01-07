@@ -44,6 +44,12 @@ DB['trackartists'] = sql.Table(
 	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id'))
 )
 
+DB['associated_artists'] = sql.Table(
+	'associated_artists', meta,
+	sql.Column('source_artist',sql.Integer,sql.ForeignKey('artists.id')),
+	sql.Column('target_artist',sql.Integer,sql.ForeignKey('artists.id'))
+)
+
 meta.create_all(engine)
 
 ##### DB <-> Dict translations
@@ -353,15 +359,30 @@ def get_tracks():
 ### functions that count rows for parameters
 
 def count_scrobbles_by_artist(since,to):
-	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['trackartists'],
+		DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id
+	)
+
+	jointable2 = sql.join(
+		jointable,
+		DB['associated_artists'],
+		DB['trackartists'].c.artist_id == DB['associated_artists'].c.source_artist,
+		isouter=True
+	)
 	with engine.begin() as conn:
 		op = sql.select(
-			sql.func.count(DB['scrobbles'].c.timestamp).label('count'),
-			DB['trackartists'].c.artist_id
-		).select_from(jointable).where(
+			sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+			# only count distinct scrobbles - because of artist replacement, we could end up
+			# with two artists of the same scrobble counting it twice for the same artist
+			# e.g. Irene and Seulgi adding two scrobbles to Red Velvet for one real scrobble
+			sql.func.coalesce(DB['associated_artists'].c.target_artist,DB['trackartists'].c.artist_id).label('artist_id')
+			# use the replaced artist as artist to count if it exists, otherwise original one
+		).select_from(jointable2).where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since
-		).group_by(DB['trackartists'].c.artist_id).order_by(sql.desc('count'))
+		).group_by(sql.func.coalesce(DB['associated_artists'].c.target_artist,DB['trackartists'].c.artist_id)).order_by(sql.desc('count'))
 		result = conn.execute(op).all()
 
 

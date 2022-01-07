@@ -51,8 +51,8 @@ class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
 		super().__init__(
 			status=503,
-			body="The Maloja Database is still being built. Try again in a few seconds.",
-			headers={"Retry-After":10}
+			body="The Maloja Database is being upgraded to Version 3. This could take several minutes.",
+			headers={"Retry-After":120}
 		)
 
 
