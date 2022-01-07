@@ -302,7 +302,7 @@ def get_scrobbles_of_track(track,since=None,to=None):
 	return result
 
 
-def get_scrobbles(since=None,to=None,resolve_references=True,max=math.inf):
+def get_scrobbles(since=None,to=None,resolve_references=True):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -394,7 +394,6 @@ def count_scrobbles_by_artist(since,to):
 
 
 def count_scrobbles_by_track(since,to):
-	print(since,to)
 
 	with engine.begin() as conn:
 		op = sql.select(
@@ -403,6 +402,35 @@ def count_scrobbles_by_track(since,to):
 		).select_from(DB['scrobbles']).where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since
+		).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
+		result = conn.execute(op).all()
+
+
+	counts = [row.count for row in result]
+	tracks = get_tracks_map(row.track_id for row in result)
+	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+
+def count_scrobbles_by_track_of_artist(since,to,artist):
+
+	artist_id = get_artist_id(artist)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['trackartists'],
+		DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id
+	)
+
+	with engine.begin() as conn:
+		op = sql.select(
+			sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+			DB['scrobbles'].c.track_id
+		).select_from(jointable).filter(
+			DB['scrobbles'].c.timestamp<=to,
+			DB['scrobbles'].c.timestamp>=since,
+			DB['trackartists'].c.artist_id==artist_id
 		).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
 		result = conn.execute(op).all()
 

@@ -148,7 +148,10 @@ def get_charts_artists(**keys):
 @waitfordb
 def get_charts_tracks(**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	result = sqldb.count_scrobbles_by_track(since=since,to=to)
+	if 'artist' in keys:
+		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'])
+	else:
+		result = sqldb.count_scrobbles_by_track(since=since,to=to)
 	return result
 
 def get_pulse(**keys):
@@ -495,7 +498,7 @@ def start_db():
 	dbstatus['healthy'] = True
 	dbstatus['complete'] = True
 
-	firstscrobble = sqldb.get_scrobbles(max=1)[0]
+	firstscrobble = sqldb.get_scrobbles()[0]
 	register_scrobbletime(firstscrobble['time'])
 
 
