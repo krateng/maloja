@@ -488,8 +488,43 @@ def get_artists_map(artist_ids):
 	return artists
 
 
+### associations
 
+def get_associated_artists(*artists):
+	artist_ids = [get_artist_id(a) for a in artists]
 
+	jointable = sql.join(
+		DB['associated_artists'],
+		DB['artists'],
+		DB['associated_artists'].c.source_artist == DB['artists'].c.id
+	)
+
+	with engine.begin() as conn:
+		op = jointable.select().where(
+			DB['associated_artists'].c.target_artist.in_(artist_ids)
+		)
+		result = conn.execute(op).all()
+
+	artists = artists_db_to_dict(result)
+	return artists
+
+def get_credited_artists(*artists):
+	artist_ids = [get_artist_id(a) for a in artists]
+
+	jointable = sql.join(
+		DB['associated_artists'],
+		DB['artists'],
+		DB['associated_artists'].c.target_artist == DB['artists'].c.id
+	)
+
+	with engine.begin() as conn:
+		op = jointable.select().where(
+			DB['associated_artists'].c.source_artist.in_(artist_ids)
+		)
+		result = conn.execute(op).all()
+
+	artists = artists_db_to_dict(result)
+	return artists
 
 
 ### get a specific entity by id

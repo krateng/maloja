@@ -4,7 +4,7 @@ from bottle import request, response, FormsDict, HTTPError
 # rest of the project
 from ..cleanup import CleanerAgent, CollectorAgent
 from .. import utilities
-from ..malojatime import register_scrobbletime, time_stamps, ranges
+from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
 from ..globalconf import data_dir, malojaconfig, apikeystore
@@ -225,30 +225,28 @@ def get_top_tracks(**keys):
 
 	return results
 
-
+@waitfordb
 def artist_info(artist):
 
-	charts = db_aggregate(by="ARTIST")
-	scrobbles = len(db_query(artists=[artist]))
+	alltimecharts = get_charts_artists(timerange=alltime())
+	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime())
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
-		c = [e for e in charts if e["artist"] == artist][0]
-		others = [a for a in coa.getAllAssociated(artist) if a in ARTISTS]
+		c = [e for e in alltimecharts if e["artist"] == artist][0]
+		others = sqldb.get_associated_artists(artist)
 		position = c["rank"]
 		performance = get_performance(artist=artist,step="week")
 		return {
 			"artist":artist,
 			"scrobbles":scrobbles,
 			"position":position,
-			"associated":others,
-			"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS_ARTISTS.get(artist,{})},
-			"topweeks":WEEKLY_TOPARTISTS.get(artist,0)
+			"associated":others
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
 		# need to show information about the credited one
-		artist = coa.getCredited(artist)
-		c = [e for e in charts if e["artist"] == artist][0]
+		artist = sqldb.get_credited_artists(artist)[0]
+		c = [e for e in alltimecharts if e["artist"] == artist][0]
 		position = c["rank"]
 		return {"replace":artist,"scrobbles":scrobbles,"position":position}
 
@@ -494,6 +492,10 @@ def get_predefined_rulesets():
 def start_db():
 	from .. import upgrade
 	upgrade.upgrade_db(sqldb.add_scrobbles)
+
+	from . import associated
+	associated.load_associated_rules()
+
 	dbstatus['healthy'] = True
 	dbstatus['complete'] = True
 

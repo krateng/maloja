@@ -24,14 +24,15 @@ def upgrade_apikeys():
 
 
 def upgrade_db(callback_add_scrobbles):
-	print(col['yellow']("Upgrading v2 Database to v3 Database. This could take a while..."))
+
 	oldfolder = os.path.join(dir_settings['state'],"scrobbles")
 	newfolder = os.path.join(dir_settings['state'],".oldscrobbles")
 	os.makedirs(newfolder,exist_ok=True)
 	if os.path.exists(oldfolder):
-		scrobblefiles = os.listdir(oldfolder)
-		for sf in scrobblefiles:
-			if sf.endswith(".tsv"):
+		scrobblefiles = [f for f in os.listdir(oldfolder) if f.endswith(".tsv")]
+		if len(scrobblefiles) > 0:
+			print(col['yellow']("Upgrading v2 Database to v3 Database. This could take a while..."))
+			for sf in scrobblefiles:
 				print(f"\tImporting from old tsv scrobble file: {sf}")
 				if re.match(r"[0-9]+_[0-9]+\.tsv",sf):
 					origin = 'legacy'
@@ -64,4 +65,4 @@ def upgrade_db(callback_add_scrobbles):
 					})
 				callback_add_scrobbles(scrobblelist)
 				os.rename(os.path.join(oldfolder,sf),os.path.join(newfolder,sf))
-	print(col['yellow']("Done!"))
+			print(col['yellow']("Done!"))
