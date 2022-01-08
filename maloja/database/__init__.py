@@ -228,6 +228,7 @@ def get_top_tracks(**keys):
 @waitfordb
 def artist_info(artist):
 
+	artist = sqldb.get_artist(sqldb.get_artist_id(artist))
 	alltimecharts = get_charts_artists(timerange=alltime())
 	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime())
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -235,12 +236,19 @@ def artist_info(artist):
 		c = [e for e in alltimecharts if e["artist"] == artist][0]
 		others = sqldb.get_associated_artists(artist)
 		position = c["rank"]
-		performance = get_performance(artist=artist,step="week")
+		performance_weekly = get_performance(artist=artist,step="week")[:-1] #current week doesn't count
+		performance_yearly = get_performance(artist=artist,step="year")[:-1] #current year doesn't count
 		return {
 			"artist":artist,
 			"scrobbles":scrobbles,
 			"position":position,
-			"associated":others
+			"associated":others,
+			"medals":{
+				"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
+				"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
+				"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
+			},
+			"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -254,12 +262,13 @@ def artist_info(artist):
 
 
 
-
 def track_info(track):
-	charts = db_aggregate(by="TRACK")
-	#scrobbles = len(db_query(artists=artists,title=title))	#chart entry of track always has right scrobble number, no countas rules here
-	#c = [e for e in charts if set(e["track"]["artists"]) == set(artists) and e["track"]["title"] == title][0]
-	c = [e for e in charts if e["track"] == track][0]
+
+	track = sqldb.get_track(sqldb.get_track_id(track))
+	alltimecharts = get_charts_tracks(timerange=alltime())
+	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
+
+	c = [e for e in alltimecharts if e["track"] == track][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
 	cert = None
@@ -268,17 +277,56 @@ def track_info(track):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
+	performance_weekly = get_performance(track=track,step="week")[:-1] #current week doesn't count
+	performance_yearly = get_performance(track=track,step="year")[:-1] #current year doesn't count
+
 
 	return {
 		"track":track,
 		"scrobbles":scrobbles,
 		"position":position,
-		"medals":{"gold":[],"silver":[],"bronze":[],**MEDALS_TRACKS.get((frozenset(track["artists"]),track["title"]),{})},
+		"medals":{
+			"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
+			"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
+			"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
+		},
 		"certification":cert,
-		"topweeks":WEEKLY_TOPTRACKS.get(((frozenset(track["artists"]),track["title"])),0)
+		"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
 	}
 
+def tracks_info(tracks):
 
+	tracks = [sqldb.get_track(sqldb.get_track_id(track)) for track in tracks]
+	alltimecharts = get_charts_tracks(timerange=alltime())
+
+	result = []
+	for track in tracks:
+		c = [e for e in alltimecharts if e["track"] == track][0]
+		scrobbles = c["scrobbles"]
+		position = c["rank"]
+		cert = None
+		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND"]
+		if scrobbles >= threshold_diamond: cert = "diamond"
+		elif scrobbles >= threshold_platinum: cert = "platinum"
+		elif scrobbles >= threshold_gold: cert = "gold"
+
+		performance_weekly = get_performance(track=track,step="week")[:-1] #current week doesn't count
+		performance_yearly = get_performance(track=track,step="year")[:-1] #current year doesn't count
+
+		result.append({
+			"track":track,
+			"scrobbles":scrobbles,
+			"position":position,
+			"medals":{
+				"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
+				"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
+				"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
+			},
+			"certification":cert,
+			"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
+		})
+
+	return result
 
 
 def compare(remoteurl):

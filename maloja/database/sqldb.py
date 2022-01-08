@@ -88,7 +88,6 @@ meta.create_all(engine)
 
 
 ### DB -> DICT
-
 def scrobbles_db_to_dict(rows):
 	tracks = get_tracks_map(set(row.track_id for row in rows))
 	return [
@@ -100,9 +99,9 @@ def scrobbles_db_to_dict(rows):
 		}
 		for row in rows
 	]
+
 def scrobble_db_to_dict(row):
 	return scrobbles_db_to_dict([row])[0]
-
 
 def tracks_db_to_dict(rows):
 	artists = get_artists_of_tracks(set(row.id for row in rows))
@@ -114,15 +113,16 @@ def tracks_db_to_dict(rows):
 		}
 		for row in rows
 	]
+
 def track_db_to_dict(row):
 	return tracks_db_to_dict([row])[0]
-
 
 def artists_db_to_dict(rows):
 	return [
 		row.name
 		for row in rows
 	]
+
 def artist_db_to_dict(row):
 	return artists_db_to_dict([row])[0]
 
@@ -131,6 +131,7 @@ def artist_db_to_dict(row):
 
 ### DICT -> DB
 # TODO
+
 def scrobble_dict_to_db(info):
 	return {
 		"rawscrobble":json.dumps(info),
@@ -181,7 +182,6 @@ def add_scrobbles(scrobbleslist):
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
-
 
 def get_track_id(trackdict):
 	ntitle = normalize_name(trackdict['title'])
@@ -260,7 +260,6 @@ def get_artist_id(artistname):
 
 ### Functions that get rows according to parameters
 
-
 def get_scrobbles_of_artist(artist,since=None,to=None):
 
 	if since is None: since=0
@@ -281,7 +280,6 @@ def get_scrobbles_of_artist(artist,since=None,to=None):
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
-
 def get_scrobbles_of_track(track,since=None,to=None):
 
 	if since is None: since=0
@@ -301,7 +299,6 @@ def get_scrobbles_of_track(track,since=None,to=None):
 	#result = [scrobble_db_to_dict(row) for row in result]
 	return result
 
-
 def get_scrobbles(since=None,to=None,resolve_references=True):
 
 	if since is None: since=0
@@ -318,7 +315,6 @@ def get_scrobbles(since=None,to=None,resolve_references=True):
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
 	return result
 
-
 def get_artists_of_track(track_id,resolve_references=True):
 	with engine.begin() as conn:
 		op = DB['trackartists'].select().where(
@@ -328,7 +324,6 @@ def get_artists_of_track(track_id,resolve_references=True):
 
 	artists = [get_artist(row.artist_id) if resolve_references else row.artist_id for row in result]
 	return artists
-
 
 def get_tracks_of_artist(artist):
 
@@ -392,7 +387,6 @@ def count_scrobbles_by_artist(since,to):
 	result = rank(result,key='scrobbles')
 	return result
 
-
 def count_scrobbles_by_track(since,to):
 
 	with engine.begin() as conn:
@@ -411,7 +405,6 @@ def count_scrobbles_by_track(since,to):
 	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
-
 
 def count_scrobbles_by_track_of_artist(since,to,artist):
 
@@ -529,7 +522,6 @@ def get_credited_artists(*artists):
 
 ### get a specific entity by id
 
-
 def get_track(id):
 	with engine.begin() as conn:
 		op = DB['tracks'].select().where(
@@ -539,7 +531,6 @@ def get_track(id):
 
 	trackinfo = result[0]
 	return track_db_to_dict(trackinfo)
-
 
 def get_artist(id):
 	with engine.begin() as conn:

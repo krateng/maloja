@@ -55,13 +55,19 @@
 {% macro certs(artist) %}
 
 <!-- CERTS -->
-{% for track in db.get_tracks(artist=artist) -%}
-	{% set info = db.track_info(track) %}
-	{% if info.certification is not none -%}
-	<a href='{{ links.url(track) }}'><img class="certrecord_small"
-					src="/media/record_{{ info.certification }}.png"
-					title="{{ track.title }} has reached {{ info.certification.capitalize() }} status" /></a>
+
+{% set charts = db.get_charts_tracks(artist=artist,timerange=malojatime.alltime()) %}
+{% for e in charts -%}
+	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_diamond -%}{% set cert = 'diamond' %}{%- endif -%}
+
+	{%- if cert -%}
+	<a href='{{ links.url(e.track) }}'><img class="certrecord_small"
+					src="/media/record_{{ cert }}.png"
+					title="{{ e.track.title }} has reached {{ cert.capitalize() }} status" /></a>
 	{%- endif %}
+
 {%- endfor %}
 
 {%- endmacro %}
