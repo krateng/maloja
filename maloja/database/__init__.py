@@ -261,7 +261,7 @@ def artist_info(artist):
 
 
 
-
+@waitfordb
 def track_info(track):
 
 	track = sqldb.get_track(sqldb.get_track_id(track))
@@ -294,91 +294,6 @@ def track_info(track):
 		"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
 	}
 
-def tracks_info(tracks):
-
-	tracks = [sqldb.get_track(sqldb.get_track_id(track)) for track in tracks]
-	alltimecharts = get_charts_tracks(timerange=alltime())
-
-	result = []
-	for track in tracks:
-		c = [e for e in alltimecharts if e["track"] == track][0]
-		scrobbles = c["scrobbles"]
-		position = c["rank"]
-		cert = None
-		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND"]
-		if scrobbles >= threshold_diamond: cert = "diamond"
-		elif scrobbles >= threshold_platinum: cert = "platinum"
-		elif scrobbles >= threshold_gold: cert = "gold"
-
-		performance_weekly = get_performance(track=track,step="week")[:-1] #current week doesn't count
-		performance_yearly = get_performance(track=track,step="year")[:-1] #current year doesn't count
-
-		result.append({
-			"track":track,
-			"scrobbles":scrobbles,
-			"position":position,
-			"medals":{
-				"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
-				"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
-				"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
-			},
-			"certification":cert,
-			"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
-		})
-
-	return result
-
-
-def compare(remoteurl):
-	import json
-	compareurl = remoteurl + "/api/info"
-
-	response = urllib.request.urlopen(compareurl)
-	strangerinfo = json.loads(response.read())
-	owninfo = info()
-
-	#add_known_server(compareto)
-
-	artists = {}
-
-	for a in owninfo["artists"]:
-		artists[a.lower()] = {"name":a,"self":int(owninfo["artists"][a]*1000),"other":0}
-
-	for a in strangerinfo["artists"]:
-		artists[a.lower()] = artists.setdefault(a.lower(),{"name":a,"self":0})
-		artists[a.lower()]["other"] = int(strangerinfo["artists"][a]*1000)
-
-	for a in artists:
-		common = min(artists[a]["self"],artists[a]["other"])
-		artists[a]["self"] -= common
-		artists[a]["other"] -= common
-		artists[a]["common"] = common
-
-	best = sorted((artists[a]["name"] for a in artists),key=lambda x: artists[x.lower()]["common"],reverse=True)
-
-	result = {
-		"unique_self":sum(artists[a]["self"] for a in artists if artists[a]["common"] == 0),
-		"more_self":sum(artists[a]["self"] for a in artists if artists[a]["common"] != 0),
-		"common":sum(artists[a]["common"] for a in artists),
-		"more_other":sum(artists[a]["other"] for a in artists if artists[a]["common"] != 0),
-		"unique_other":sum(artists[a]["other"] for a in artists if artists[a]["common"] == 0)
-	}
-
-	total = sum(result[c] for c in result)
-
-	for r in result:
-		result[r] = (result[r],result[r]/total)
-
-
-
-	return {
-		"result":result,
-		"info":{
-			"ownname":owninfo["name"],
-			"remotename":strangerinfo["name"]
-		},
-		"commonartist":best[0]
-	}
 
 
 def incoming_scrobble(artists,title,album=None,duration=None,time=None,fix=True):
