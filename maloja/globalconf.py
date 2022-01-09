@@ -148,12 +148,7 @@ malojaconfig = Configuration(
 		},
 		"Technical":{
 			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 							300,	"Days until images are refetched"),
-			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",					30,		"Days until failed image fetches are reattempted"),
-			"use_db_cache":(tp.Boolean(),										"Use DB Cache",										True),
-			"cache_database_short":(tp.Boolean(),								"Use volatile Database Cache",						True),
-			"cache_database_perm":(tp.Boolean(),								"Use permanent Database Cache",						True),
-			"db_cache_entries":(tp.Integer(),									"Maximal Cache entries",							10000),
-			"db_max_memory":(tp.Integer(max=100,min=20),						"RAM Percentage Theshold",							75,		"Maximal percentage of RAM that should be used by whole system before Maloja discards cache entries. Use a higher number if your Maloja runs on a dedicated instance (e.g. a container)")
+			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",					30,		"Days until failed image fetches are reattempted")
 		},
 		"Fluff":{
 			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),

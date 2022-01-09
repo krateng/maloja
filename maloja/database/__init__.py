@@ -10,7 +10,6 @@ from ..thirdparty import proxy_scrobble_all
 from ..globalconf import data_dir, malojaconfig, apikeystore
 #db
 from . import sqldb
-from .cache import db_query, db_aggregate
 
 # doreah toolkit
 from doreah.logging import log
@@ -468,92 +467,6 @@ def start_db():
 
 
 
-
-
-
-
-
-####
-## Database queries
-####
-
-
-
-# Queries the database
-def db_query_full(artist=None,artists=None,title=None,track=None,timerange=None,associated=False,max_=None):
-
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
-	(since, to) = time_stamps(range=timerange)
-
-	if artists is not None and title is not None:
-		print(col['red']("THIS SHOULD NO LONGER HAPPEN"))
-		track = {'artists':artists,'title':title}
-
-	if track is not None:
-		return list(reversed(sqldb.get_scrobbles_of_track(track=track,since=since,to=to)))
-
-	if artist is not None:
-		return list(reversed(sqldb.get_scrobbles_of_artist(artist=artist,since=since,to=to)))
-
-	return list(reversed(sqldb.get_scrobbles(since=since,to=to)))
-
-
-
-# Queries that... well... aggregate
-def db_aggregate_full(by=None,timerange=None,artist=None):
-
-	if not dbstatus['healthy']: raise DatabaseNotBuilt()
-	(since, to) = time_stamps(range=timerange)
-
-
-	if (by=="ARTIST"):
-
-		trackcharts = {}
-		charts = {}
-		scrobbles = sqldb.get_scrobbles(since=since,to=to,resolve_references=False)
-
-		for s in scrobbles:
-			trackcharts[s['track']] = trackcharts.setdefault(s['track'],0) + 1
-
-		for t in trackcharts:
-			artists = sqldb.get_artists_of_track(t,resolve_references=False)
-			for a in coa.getCreditedList(artists):
-				charts[a] = charts.setdefault(a,0) + trackcharts[t]
-
-
-		ls = [{"artist":sqldb.get_artist(a),"scrobbles":charts[a],"counting":[]} for a in charts]
-		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
-		# add ranks
-		for rnk in range(len(ls)):
-			if rnk == 0 or ls[rnk]["scrobbles"] < ls[rnk-1]["scrobbles"]:
-				ls[rnk]["rank"] = rnk + 1
-			else:
-				ls[rnk]["rank"] = ls[rnk-1]["rank"]
-		return ls
-
-	elif (by=="TRACK"):
-		charts = {}
-		if artist is None:
-			scrobbles = sqldb.get_scrobbles(since=since,to=to,resolve_references=False)
-		else:
-			scrobbles = sqldb.get_scrobbles_of_artist(since=since,to=to,artist=artist,resolve_references=False)
-
-		for s in scrobbles:
-			charts[s['track']] = charts.setdefault(s['track'],0) + 1
-
-
-		ls = [{"track":sqldb.get_track(t),"scrobbles":charts[t]} for t in charts]
-		ls.sort(key=lambda k:k["scrobbles"],reverse=True)
-		# add ranks
-		for rnk in range(len(ls)):
-			if rnk == 0 or ls[rnk]["scrobbles"] < ls[rnk-1]["scrobbles"]:
-				ls[rnk]["rank"] = rnk + 1
-			else:
-				ls[rnk]["rank"] = ls[rnk-1]["rank"]
-		return ls
-
-	else:
-		return len(sqldb.get_scrobbles(since=since,to=to,resolve_references=False))
 
 
 # Search for strings
