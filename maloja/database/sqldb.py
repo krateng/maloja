@@ -377,7 +377,9 @@ def count_scrobbles_by_artist(since,to):
 		).select_from(jointable2).where(
 			DB['scrobbles'].c.timestamp<=to,
 			DB['scrobbles'].c.timestamp>=since
-		).group_by(sql.func.coalesce(DB['associated_artists'].c.target_artist,DB['trackartists'].c.artist_id)).order_by(sql.desc('count'))
+		).group_by(
+			sql.func.coalesce(DB['associated_artists'].c.target_artist,DB['trackartists'].c.artist_id)
+		).order_by(sql.desc('count'))
 		result = conn.execute(op).all()
 
 

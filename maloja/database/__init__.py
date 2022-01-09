@@ -251,10 +251,10 @@ def artist_info(artist):
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
 		# need to show information about the credited one
-		artist = sqldb.get_credited_artists(artist)[0]
-		c = [e for e in alltimecharts if e["artist"] == artist][0]
+		replaceartist = sqldb.get_credited_artists(artist)[0]
+		c = [e for e in alltimecharts if e["artist"] == replaceartist][0]
 		position = c["rank"]
-		return {"replace":artist,"scrobbles":scrobbles,"position":position}
+		return {"artist":artist,"replace":replaceartist,"scrobbles":scrobbles,"position":position}
 
 
 
