@@ -10,6 +10,7 @@ from ..thirdparty import proxy_scrobble_all
 from ..globalconf import data_dir, malojaconfig, apikeystore
 #db
 from . import sqldb
+from . import cached
 
 # doreah toolkit
 from doreah.logging import log
@@ -42,9 +43,9 @@ import urllib
 
 
 dbstatus = {
-	"healthy":False,
+	"healthy":False,			# we can access the db
 	"rebuildinprogress":False,
-	"complete":False
+	"complete":False			# information is complete
 }
 class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
@@ -235,19 +236,17 @@ def artist_info(artist):
 		c = [e for e in alltimecharts if e["artist"] == artist][0]
 		others = sqldb.get_associated_artists(artist)
 		position = c["rank"]
-		performance_weekly = get_performance(artist=artist,step="week")[:-1] #current week doesn't count
-		performance_yearly = get_performance(artist=artist,step="year")[:-1] #current year doesn't count
 		return {
 			"artist":artist,
 			"scrobbles":scrobbles,
 			"position":position,
 			"associated":others,
 			"medals":{
-				"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
-				"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
-				"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
+				"gold": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['gold']],
+				"silver": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['silver']],
+				"bronze": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist])
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -276,21 +275,18 @@ def track_info(track):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
-	performance_weekly = get_performance(track=track,step="week")[:-1] #current week doesn't count
-	performance_yearly = get_performance(track=track,step="year")[:-1] #current year doesn't count
-
 
 	return {
 		"track":track,
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold":[e['range'] for e in performance_yearly if e['rank'] == 1],
-			"silver":[e['range'] for e in performance_yearly if e['rank'] == 2],
-			"bronze":[e['range'] for e in performance_yearly if e['rank'] == 3]
+			"gold": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['gold']],
+			"silver": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['silver']],
+			"bronze": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['bronze']],
 		},
 		"certification":cert,
-		"topweeks":len([e for e in performance_weekly if e['rank'] == 1])
+		"topweeks":len([e for e in cached.weekly_toptracks if e == track])
 	}
 
 
@@ -452,17 +448,27 @@ def get_predefined_rulesets():
 
 
 def start_db():
+	# Upgrade database
 	from .. import upgrade
 	upgrade.upgrade_db(sqldb.add_scrobbles)
 
+	# Load temporary tables
 	from . import associated
 	associated.load_associated_rules()
 
 	dbstatus['healthy'] = True
-	dbstatus['complete'] = True
 
+	# inform time module about begin of scrobbling
 	firstscrobble = sqldb.get_scrobbles()[0]
 	register_scrobbletime(firstscrobble['time'])
+
+	# create cached information
+	cached.update_medals()
+	cached.update_weekly()
+
+	dbstatus['complete'] = True
+
+
 
 
 
