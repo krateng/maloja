@@ -174,7 +174,10 @@ def add_scrobbles(scrobbleslist):
 
 	with engine.begin() as conn:
 		for op in ops:
-			conn.execute(op)
+			try:
+				conn.execute(op)
+			except sql.exc.IntegrityError:
+				pass
 
 
 ### these will 'get' the ID of an entity, creating it if necessary

@@ -211,7 +211,7 @@ def static(name,ext):
 
 ### DYNAMIC
 
-def static_html(name):
+def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))
 
@@ -241,17 +241,17 @@ def static_html(name):
 
 @webserver.route("/<name:re:admin.*>")
 @auth.authenticated
-def static_html_private(name):
-	return static_html(name)
+def jinja_page_private(name):
+	return jinja_page(name)
 
 @webserver.route("/<name>")
-def static_html_public(name):
-	return static_html(name)
+def jinja_page_public(name):
+	return jinja_page(name)
 
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
-	return static_html("start")
+	return jinja_page("start")
 
 
 # Shortlinks
