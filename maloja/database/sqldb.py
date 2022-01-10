@@ -138,7 +138,6 @@ def scrobble_dict_to_db(info):
 		"timestamp":info['time'],
 		"origin":info['origin'],
 		"duration":info['duration'],
-		"extra":info['extra'],
 		"track_id":get_track_id(info['track'])
 	}
 
@@ -146,7 +145,7 @@ def track_dict_to_db(info):
 	return {
 		"title":info['title'],
 		"title_normalized":normalize_name(info['title']),
-		"length":info['length']
+		"length":info.get('length')
 	}
 
 def artist_dict_to_db(info):
@@ -175,10 +174,7 @@ def add_scrobbles(scrobbleslist):
 
 	with engine.begin() as conn:
 		for op in ops:
-			try:
-				conn.execute(op)
-			except:
-				pass
+			conn.execute(op)
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
@@ -214,9 +210,7 @@ def get_track_id(trackdict):
 
 	with engine.begin() as conn:
 		op = DB['tracks'].insert().values(
-			title=trackdict['title'],
-			title_normalized=ntitle,
-			length=trackdict['length']
+			**track_dict_to_db(trackdict)
 		)
 		result = conn.execute(op)
 		track_id = result.inserted_primary_key[0]

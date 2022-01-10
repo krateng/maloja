@@ -32,8 +32,9 @@ def upgrade_db(callback_add_scrobbles):
 		scrobblefiles = [f for f in os.listdir(oldfolder) if f.endswith(".tsv")]
 		if len(scrobblefiles) > 0:
 			print(col['yellow']("Upgrading v2 Database to v3 Database. This could take a while..."))
+			idx = 0
 			for sf in scrobblefiles:
-				print(f"\tImporting from old tsv scrobble file: {sf}")
+				idx += 1
 				if re.match(r"[0-9]+_[0-9]+\.tsv",sf):
 					origin = 'legacy'
 				elif sf == "lastfmimport.tsv":
@@ -44,6 +45,7 @@ def upgrade_db(callback_add_scrobbles):
 				from doreah import tsv
 				scrobbles = tsv.parse(os.path.join(oldfolder,sf),"int","string","string","string","string",comments=False)
 				scrobblelist = []
+				print(f"\tImporting from {sf} ({idx}/{len(scrobblefiles)}) - {len(scrobbles)} Scrobbles")
 				for scrobble in scrobbles:
 					timestamp, artists, title, album, duration = scrobble
 					if album in ('-',''): album = None
