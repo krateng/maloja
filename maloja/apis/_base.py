@@ -66,9 +66,10 @@ class APIHandler:
 			exceptiontype = sys.exc_info()[0]
 			if exceptiontype in self.errors:
 				response.status,result = self.errors[exceptiontype]
+				log(f"Error with {self.__apiname__}: {result} ({exceptiontype})")
 			else:
-				log("Unhandled Exception with " + self.__apiname__ + ": " + str(exceptiontype))
 				response.status,result = 500,{"status":"Unknown error","code":500}
+				log(f"Unhandled Exception with {self.__apiname__}: {exceptiontype}")
 
 		return result
 		#else:
