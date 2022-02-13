@@ -72,7 +72,7 @@ coa = CollectorAgent()
 
 
 
-def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,time=None,fix=True):
+def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True):
 	if time is None:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 

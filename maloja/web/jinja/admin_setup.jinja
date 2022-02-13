@@ -54,7 +54,7 @@
 
 	<h2>Start Scrobbling</h2>
 
-	If you use Vivaldi, Brave, Iridium or any other Chromium-based browser and listen to music on Plex or YouTube Music, download the extension and simply enter the server URL as well as your API key in the relevant fields. They will turn green if the server is accessible.
+	If you use a Chromium-based browser and listen to music on Plex, Spotify, Soundcloud, Bandcamp or YouTube Music, download the extension and simply enter the server URL as well as your API key in the relevant fields. They will turn green if the server is accessible.
 	<br/><br/>
 	You can also use any standard-compliant scrobbler. For GNUFM (audioscrobbler) scrobblers, enter <span class="stats"><span name="serverurl">yourserver.tld</span>/apis/audioscrobbler</span> as your Gnukebox server and your API key as the password. For Listenbrainz scrobblers, use <span class="stats"><span name="serverurl">yourserver.tld</span>/apis/listenbrainz</span> as the API URL and your API key as token.
 	<br/><br/>
@@ -62,15 +62,20 @@
 
 	<span class="stats"><span name="serverurl">yourserver.tld</span>/apis/mlj_1/newscrobble</span>
 
-	(make sure to use the public URL) with the key-value-pairs
+	(make sure to use the public URL) with the following values encoded as JSON:
 	<br/>
 	<br/>
 	<table class="misc">
-		<tr>	<td>artist</td>		<td><i>Artist String</i></td>	</tr>
-		<tr>	<td>title</td>		<td><i>Title String</i></td>	</tr>
-		<tr>	<td>key</td>		<td><i>API Key</i></td>	</tr>
-		<tr>	<td>time</td>		<td><i>UNIX timestamp - optional, defaults to time of request</i></td>	</tr>
-		<tr>	<td>seconds</td>	<td><i>Duration of Scrobble - optional and currently not used</i></td>	</tr>
+		<tr>	<td>artists</td>		<td><i>List of artist names</i></td>	</tr>
+		<tr>	<td>title</td>			<td><i>Song title</i></td>	</tr>
+		<tr>	<td>album</td>			<td><i>Album title - optional</i></td>	</tr>
+		<tr>	<td>albumartists</td>	<td><i>List of album artists - optional</i></td>	</tr>
+		<tr>	<td>duration</td>		<td><i>Duration of play in seconds - optional</i></td>	</tr>
+		<tr>	<td>length</td>			<td><i>Full length of the trackin seconds - optional</i></td>	</tr>
+		<tr>	<td>time</td>			<td><i>UNIX timestamp - optional, defaults to time of request</i></td>	</tr>
+		<tr>	<td>fix</td>			<td><i>Set this to false to skip server-side metadata fixing - optional</i></td>	</tr>
+
+		<tr>	<td>key</td>			<td><i>API Key, see <a class="textlink" href="/admin_apikeys">API Keys</a></i></td>	</tr>
 	</table>
 	<br/><br/>
 	Finally, you could always <a class="textlink" href="/admin_manual">manually scrobble</a>!
@@ -79,7 +84,8 @@
 
 	<h2>Import your Last.FM data</h2>
 
-	Switching from Last.fm? <a class="textlink" href="https://benjaminbenben.com/lastfm-to-csv/">Download all your data</a> and run the command <span class="stats">maloja import <i>(the file you just downloaded)</i></span>.
+	Switching from Last.fm? <a class="textlink" href="https://benjaminbenben.com/lastfm-to-csv/">Download all your data</a> and run the command <span class="stats">maloja import <i>(the file you just downloaded)</i></span>.<br/>
+	You can also try out <a href="https://github.com/FoxxMD/multi-scrobbler">Multi-Scrobbler</a> to import scrobbles from a wider range of sources.
 	<br/><br/>
 
 	<h2>Set up some rules</h2>

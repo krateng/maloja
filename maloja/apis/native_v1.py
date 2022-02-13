@@ -225,19 +225,18 @@ def post_scrobble(artist:Multi=None,**keys):
 	:param string artists: List of artists. Overwritten by artist parameter.
 	:param string title: Title of the track.
 	:param string album: Name of the album. Optional.
+	:param string albumartists: Album artists. Optional.
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
+	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
+	:param boolean nofix: Skip server-side metadata parsing. Optional.
 	"""
 	#artists = "/".join(artist)
-	artists = artist if artist is not None else keys.get("artists")
-	title = keys.get("title")
-	album = keys.get("album")
-	duration = keys.get("seconds")
-	time = keys.get("time")
-	nofix = keys.get("nofix") is not None
+	keys['artists'] = [artist] if artist is not None else keys.get("artists")
+	keys['fix'] = keys.get("nofix") is None
 	if time is not None: time = int(time)
 
-	return incoming_scrobble(artists,title,album=album,duration=duration,time=time,fix=not nofix)
+	return incoming_scrobble(**keys)
 
 
 
