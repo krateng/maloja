@@ -95,7 +95,6 @@ class APIHandler:
 		if time is None: time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 		try:
 			(artists,title) = cla.fullclean(artiststr,titlestr)
-			database.createScrobble(artists,title,time)
-			database.sync()
+			database.incoming_scrobble(artists,title,time)
 		except:
 			raise ScrobblingException()

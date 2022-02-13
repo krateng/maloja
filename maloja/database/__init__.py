@@ -64,11 +64,6 @@ def waitfordb(func):
 
 
 
-MEDALS_ARTISTS = {}	#literally only changes once per year, no need to calculate that on the fly
-MEDALS_TRACKS = {}
-WEEKLY_TOPTRACKS = {}
-WEEKLY_TOPARTISTS = {}
-
 ISSUES = {}
 
 cla = CleanerAgent()
@@ -77,10 +72,19 @@ coa = CollectorAgent()
 
 
 
-def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
+def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,time=None,fix=True):
+	if time is None:
+		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
+	if fix:
+		(artists,title) = cla.fullclean(artists,title)
 
 	if len(artists) == 0 or title == "":
-		return {}
+		return {"status":"failure"}
+
+	if albumartists is None:
+		albumartists = artists
 
 	scrobbledict = {
 		"time":time,
@@ -89,7 +93,7 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 			"title":title,
 			"album":{
 				"name":album,
-				"artists":None
+				"artists":albumartists
 			},
 			"length":None
 		},
@@ -97,9 +101,11 @@ def createScrobble(artists,title,time,album=None,duration=None,volatile=False):
 		"origin":"generic"
 	}
 
-	add_scrobble(scrobbledict)
+	sqldb.add_scrobble(scrobbledict)
 	proxy_scrobble_all(artists,title,time)
-	return scrobbledict
+
+	return {"status":"success","scrobble":scrobbledict}
+
 
 
 
@@ -291,18 +297,7 @@ def track_info(track):
 
 
 
-def incoming_scrobble(artists,title,album=None,duration=None,time=None,fix=True):
-	if time is None:
-		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
-	if fix:
-		(artists,title) = cla.fullclean(artists,title)
-	trackdict = createScrobble(artists,title,time,album,duration)
-
-	sync()
-
-	return {"status":"success","track":trackdict}
 
 
 

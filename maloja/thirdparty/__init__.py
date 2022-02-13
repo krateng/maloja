@@ -154,7 +154,7 @@ class ImportInterface(GenericInterface,abstract=True):
 
 	def import_scrobbles(self):
 		for scrobble in self.get_remote_scrobbles():
-			database.createScrobble(
+			database.incoming_scrobble(
 				artists=scrobble['artists'],
 				title=scrobble['title'],
 				time=scrobble['time']
