@@ -468,70 +468,11 @@ def start_db():
 
 
 
-
-
 # Search for strings
 def db_search(query,type=None):
 	results = []
 	if type=="ARTIST":
-		results = [a for a in ARTISTS if simplestr(query) in simplestr(a)]
+		results = [a for a in sqldb.get_artists() if sqldb.normalize_name(query) in sqldb.normalize_name(a)]
 	if type=="TRACK":
-		results = [
-		    get_track_dict(t) for t in TRACKS if simplestr(query) in simplestr(t[1])
-		]
+		results = [t for t in sqldb.get_tracks() if sqldb.normalize_name(query) in sqldb.normalize_name(t['title'])]
 	return results
-
-
-####
-## Useful functions
-####
-
-
-
-
-# makes a string usable for searching (special characters are blanks, accents and stuff replaced with their real part)
-def simplestr(input,ignorecapitalization=True):
-	norm = unicodedata.normalize("NFKD",input)
-	norm = [c for c in norm if not unicodedata.combining(c)]
-	norm = [c if len(c.encode())==1 else " " for c in norm]
-	clear = ''.join(c for c in norm)
-	if ignorecapitalization: clear = clear.lower()
-	return clear
-
-
-
-#def getArtistId(nameorid):
-#	if isinstance(nameorid,int):
-#		return nameorid
-#	else:
-#		try:
-#			return ARTISTS.index(nameorid)
-#		except:
-#			return -1
-
-
-def insert(list_,item,key=lambda x:x):
-	i = 0
-	while len(list_) > i:
-		if key(list_[i]) > key(item):
-			list_.insert(i,item)
-			return i
-		i += 1
-
-	list_.append(item)
-	return i
-
-
-def scrobbles_in_range(start,end,reverse=False):
-	if reverse:
-		for stamp in reversed(STAMPS):
-			#print("Checking " + str(stamp))
-			if stamp < start: return
-			if stamp > end: continue
-			yield SCROBBLESDICT[stamp]
-	else:
-		for stamp in STAMPS:
-			#print("Checking " + str(stamp))
-			if stamp < start: continue
-			if stamp > end: return
-			yield SCROBBLESDICT[stamp]
