@@ -11,7 +11,7 @@ from doreah.logging import log
 user_files = {
 	"minimal":{
 		"rules":["*.tsv"],
-		"scrobbles":["*.tsv"]
+		"scrobbles":["malojadb.sqlite"]
 	},
 	"full":{
 		"clients":["apikeys.yml"],
