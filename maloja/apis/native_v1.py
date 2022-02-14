@@ -234,7 +234,7 @@ def post_scrobble(artist:Multi=None,**keys):
 	#artists = "/".join(artist)
 	keys['artists'] = [artist] if artist is not None else keys.get("artists")
 	keys['fix'] = keys.get("nofix") is None
-	if keys.get('time') is not None: keys['time'] = int(time)
+	if keys.get('time') is not None: keys['time'] = int(keys.get('time'))
 
 	return incoming_scrobble(**keys,client=request.malojaclient)
 	# TODO: malojaclient needs to be converted to proper argument in doreah
