@@ -72,7 +72,10 @@ coa = CollectorAgent()
 
 
 
-def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True):
+def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True,client=None,**kwargs):
+	# TODO: just collecting all extra kwargs now. at some point, rework the authenticated api with alt function
+	# to actually look at the converted args instead of the request object and remove the key
+	# so that this function right here doesnt get the key passed to it
 	if time is None:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
@@ -98,8 +101,9 @@ def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,l
 			"length":None
 		},
 		"duration":duration,
-		"origin":"generic"
+		"origin":"client:" + client if client else "generic"
 	}
+
 
 	sqldb.add_scrobble(scrobbledict)
 	proxy_scrobble_all(artists,title,time)
