@@ -79,7 +79,7 @@ def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,l
 	if time is None:
 		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
+	log("Incoming scrobble (" + str(client) + "): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
 	if fix:
 		(artists,title) = cla.fullclean(artists,title)
 

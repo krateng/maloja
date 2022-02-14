@@ -3,7 +3,7 @@ from ..globalconf import malojaconfig, apikeystore
 from ..__pkginfo__ import VERSION
 from ..malojauri import uri_to_internal
 from .. import utilities
-from ._apikeys import api_key_correct
+from ._apikeys import api_key_correct, checkAPIkey
 
 from bottle import response, static_file
 
