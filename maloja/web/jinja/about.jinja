@@ -1,0 +1,34 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - About{% endblock %}
+
+{% block content %}
+<table class="top_info">
+	<tr>
+		<td class="image">
+
+			<div style="background-image:url('/favicon.png');">
+			</div>
+		</td>
+		<td class="text">
+			<h1 class="headerwithextra">Maloja</h1>
+				<br/>
+				<span>Version {{ pkginfo.VERSION }}</span>
+
+			<p class="stats">
+				<a href="https://github.com/krateng/maloja" class="hidelink">
+					<img src="https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge" />
+				</a>
+				<a href="https://pypi.org/project/malojaserver/" class="hidelink">
+					<img src="https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge" />
+				</a>
+				<a href="https://hub.docker.com/r/krateng/maloja" class="hidelink">
+					<img src="https://img.shields.io/docker/v/krateng/maloja?label=Docker&style=for-the-badge" />
+				</a>
+			</p>
+
+
+
+		</td>
+	</tr>
+</table>
+{% endblock %}

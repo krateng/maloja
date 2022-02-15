@@ -52,11 +52,12 @@ def invalidate_caches(scrobbletime):
 def trim_cache():
 	ramprct = psutil.virtual_memory().percent
 	if ramprct > malojaconfig["DB_MAX_MEMORY"]:
-		log(f"{ramprct}% RAM usage, reducing caches!",module="debug")
+		log(f"{ramprct}% RAM usage, reducing caches!")
 		ratio = (malojaconfig["DB_MAX_MEMORY"] / ramprct) ** 3
 		targetsize = max(int(len(cache) * ratio),100)
 		c.set_size(targetsize)
 		c.set_size(HIGH_NUMBER)
+		log(f"New RAM usage: {psutil.virtual_memory().percent}%")
 
 
 def serialize(obj):
