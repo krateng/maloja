@@ -3,26 +3,37 @@
 # that changes very infrequently or not at all
 
 import lru
+import psutil
 import json
 from doreah.regular import runhourly
 from doreah.logging import log
 
+from ..globalconf import malojaconfig
 
 USE_CACHE = True
-cache = lru.LRU(300000)
+HIGH_NUMBER = 1000000
+
+cache = lru.LRU(HIGH_NUMBER)
+hits, misses = 0, 0
 
 @runhourly
 def print_stats():
-	log(f"Cache Size: {len(cache)}")
+	log(f"Cache Size: {len(cache)}, RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
+	trim_cache()
+
 
 def cached_wrapper(inner_func):
+
 	def outer_func(**kwargs):
+		global hits, misses
 		key = (serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
 
 		if USE_CACHE and key in cache:
+			hits += 1
 			return cache.get(key)
 
 		else:
+			misses += 1
 			result = inner_func(**kwargs)
 			cache[key] = result
 			return result
@@ -38,8 +49,14 @@ def invalidate_caches(scrobbletime):
 
 
 
-
-
+def trim_cache():
+	ramprct = psutil.virtual_memory().percent
+	if ramprct > malojaconfig["DB_MAX_MEMORY"]:
+		log(f"{ramprct}% RAM usage, reducing caches!",module="debug")
+		ratio = (malojaconfig["DB_MAX_MEMORY"] / ramprct) ** 3
+		targetsize = max(int(len(cache) * ratio),100)
+		c.set_size(targetsize)
+		c.set_size(HIGH_NUMBER)
 
 
 def serialize(obj):
