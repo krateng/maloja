@@ -6,6 +6,8 @@ from datetime import datetime
 
 from ..globalconf import data_dir
 
+from .dbcache import cached_wrapper
+
 
 
 ##### DB Technical
@@ -258,6 +260,7 @@ def get_artist_id(artistname):
 
 ### Functions that get rows according to parameters
 
+@cached_wrapper
 def get_scrobbles_of_artist(artist,since=None,to=None):
 
 	if since is None: since=0
@@ -278,6 +281,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None):
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
+@cached_wrapper
 def get_scrobbles_of_track(track,since=None,to=None):
 
 	if since is None: since=0
@@ -297,6 +301,7 @@ def get_scrobbles_of_track(track,since=None,to=None):
 	#result = [scrobble_db_to_dict(row) for row in result]
 	return result
 
+@cached_wrapper
 def get_scrobbles(since=None,to=None,resolve_references=True):
 
 	if since is None: since=0
@@ -322,6 +327,7 @@ def get_artists_of_track(track_id,resolve_references=True):
 
 	artists = [get_artist(row.artist_id) if resolve_references else row.artist_id for row in result]
 	return artists
+
 
 def get_tracks_of_artist(artist):
 
@@ -351,6 +357,7 @@ def get_tracks():
 
 ### functions that count rows for parameters
 
+@cached_wrapper
 def count_scrobbles_by_artist(since,to):
 	jointable = sql.join(
 		DB['scrobbles'],
@@ -387,6 +394,7 @@ def count_scrobbles_by_artist(since,to):
 	result = rank(result,key='scrobbles')
 	return result
 
+@cached_wrapper
 def count_scrobbles_by_track(since,to):
 
 	with engine.begin() as conn:
@@ -406,6 +414,7 @@ def count_scrobbles_by_track(since,to):
 	result = rank(result,key='scrobbles')
 	return result
 
+@cached_wrapper
 def count_scrobbles_by_track_of_artist(since,to,artist):
 
 	artist_id = get_artist_id(artist)

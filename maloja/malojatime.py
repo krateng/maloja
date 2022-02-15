@@ -65,6 +65,9 @@ class MTRangeGeneric:
 	def active(self):
 		return (self.last_stamp() > datetime.utcnow().timestamp())
 
+	def __contains__(self,timestamp):
+		return timestamp >= self.first_stamp() and timestamp <= self.last_stamp()
+
 # Any range that has one defining base unit, whether week, year, etc.
 class MTRangeSingular(MTRangeGeneric):
 	def fromstr(self):

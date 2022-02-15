@@ -11,6 +11,7 @@ from ..globalconf import data_dir, malojaconfig, apikeystore
 #db
 from . import sqldb
 from . import cached
+from . import dbcache
 
 # doreah toolkit
 from doreah.logging import log
@@ -107,6 +108,9 @@ def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,l
 
 	sqldb.add_scrobble(scrobbledict)
 	proxy_scrobble_all(artists,title,time)
+
+
+	dbcache.invalidate_caches(time)
 
 	return {"status":"success","scrobble":scrobbledict}
 
