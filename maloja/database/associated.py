@@ -27,7 +27,7 @@ def load_associated_rules():
 
 	# write to db
 	ops = [
-		sqldb.DB['associated_artists'].insert().values(**r)
+		sqldb.DB['associated_artists'].insert().values(**r).prefix_with('OR IGNORE')
 		for r in rules
 	]
 

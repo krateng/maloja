@@ -47,7 +47,8 @@ DB['trackartists'] = sql.Table(
 DB['associated_artists'] = sql.Table(
 	'associated_artists', meta,
 	sql.Column('source_artist',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.Column('target_artist',sql.Integer,sql.ForeignKey('artists.id'))
+	sql.Column('target_artist',sql.Integer,sql.ForeignKey('artists.id')),
+	sql.UniqueConstraint('source_artist', 'target_artist')
 )
 
 meta.create_all(engine)
