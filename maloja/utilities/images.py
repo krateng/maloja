@@ -41,15 +41,14 @@ meta.create_all(engine)
 def get_image_from_cache(id,table):
 	now = int(datetime.datetime.now().timestamp())
 	with engine.begin() as conn:
-		op = DB[table].select(
-			DB[table].c.url
-		).where(
+		op = DB[table].select().where(
 			DB[table].c.id==id,
 			DB[table].c.expire>now
 		)
 		result = conn.execute(op).all()
 	for row in result:
-		return row.url
+		return row.url # returns None if nonexistence cached
+	return False # no cache entry
 
 def set_image_in_cache(id,table,url):
 	now = int(datetime.datetime.now().timestamp())
@@ -75,7 +74,14 @@ def get_track_image(track=None,track_id=None,fast=False):
 
 	# check cache
 	result = get_image_from_cache(track_id,'tracks')
-	if result is not None:
+	if result is None:
+		# nonexistence cached, redirect to artist
+		for a in artists:
+			return get_artist_image(artist=a,fast=True)
+	elif result is False:
+		# no cache entry
+		pass
+	else:
 		return result
 
 	# local image
@@ -100,7 +106,7 @@ def get_track_image(track=None,track_id=None,fast=False):
 	for a in artists:
 		res = get_artist_image(artist=a,fast=False)
 		if res != "": return res
-	return None
+	return ""
 
 
 def get_artist_image(artist=None,artist_id=None,fast=False):
@@ -110,7 +116,13 @@ def get_artist_image(artist=None,artist_id=None,fast=False):
 
 	# check cache
 	result = get_image_from_cache(artist_id,'artists')
-	if result is not None:
+	if result is None:
+		# nonexistence cached, whatevs
+		return ""
+	elif result is False:
+		# no cache entry
+		pass
+	else:
 		return result
 
 	# local image
@@ -130,7 +142,8 @@ def get_artist_image(artist=None,artist_id=None,fast=False):
 	# third party
 	result = thirdparty.get_image_artist_all(artist)
 	set_image_in_cache(artist_id,'artists',result)
-	return result
+	if result is not None: return result
+	return ""
 
 ### Caches
 
