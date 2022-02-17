@@ -51,6 +51,7 @@ def get_image_from_cache(id,table):
 	return False # no cache entry
 
 def set_image_in_cache(id,table,url):
+	remove_image_from_cache(id,table)
 	now = int(datetime.datetime.now().timestamp())
 	if url is None:
 		expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
@@ -61,9 +62,15 @@ def set_image_in_cache(id,table,url):
 			id=id,
 			url=url,
 			expire=expire
-		).prefix_with('OR IGNORE')
+		)
 		result = conn.execute(op)
 
+def remove_image_from_cache(id,table):
+	with engine.begin() as conn:
+		op = DB[table].delete().where(
+			DB[table].c.id==id,
+		)
+		result = conn.execute(op)
 
 def get_track_image(track=None,track_id=None,fast=False):
 
@@ -239,6 +246,13 @@ def local_files(artist=None,artists=None,title=None):
 
 def set_image(b64,**keys):
 	track = "title" in keys
+	if track:
+		entity = {'artists':keys['artists'],'title':keys['title']}
+		id = database.sqldb.get_track_id(entity)
+	else:
+		entity = keys['artist']
+		id = database.sqldb.get_artist_id(entity)
+	print('id is',id)
 
 	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
 
@@ -260,5 +274,5 @@ def set_image(b64,**keys):
 	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 
 	# set as current picture in rotation
-	if track: local_track_cache.add((frozenset(keys["artists"]),keys["title"]),os.path.join("/images",folder,filename))
-	else: local_artist_cache.add(keys["artist"],os.path.join("/images",folder,filename))
+	if track: set_image_in_cache(id,'tracks',os.path.join("/images",folder,filename))
+	else: set_image_in_cache(id,'artists',os.path.join("/images",folder,filename))
