@@ -4,9 +4,9 @@
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
 
 {% if filterkeys.get('track') is not none %}
-	{% set img = utilities.getTrackImage(artists=filterkeys.track.artists,title=filterkeys.track.title,fast=True) %}
+	{% set img = utilities.get_track_image(filterkeys.track,fast=True) %}
 {% elif filterkeys.get('artist') is not none %}
-	{% set img = utilities.getArtistImage(filterkeys.artist,fast=True) %}
+	{% set img = utilities.get_artist_image(filterkeys.artist,fast=True) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

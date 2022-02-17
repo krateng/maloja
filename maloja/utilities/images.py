@@ -1,5 +1,6 @@
 from ..globalconf import data_dir, malojaconfig
 from .. import thirdparty
+from .. import database
 
 from doreah import caching
 from doreah.logging import log
@@ -13,9 +14,123 @@ from threading import Thread, Timer
 import re
 import datetime
 
+import sqlalchemy as sql
 
 
 
+
+DB = {}
+engine = sql.create_engine(f"sqlite:///{data_dir['cache']('images.sqlite')}", echo = False)
+meta = sql.MetaData()
+
+DB['artists'] = sql.Table(
+	'artists', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('url',sql.String),
+	sql.Column('expire',sql.Integer)
+)
+DB['tracks'] = sql.Table(
+	'tracks', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('url',sql.String),
+	sql.Column('expire',sql.Integer)
+)
+
+meta.create_all(engine)
+
+def get_image_from_cache(id,table):
+	now = int(datetime.datetime.now().timestamp())
+	with engine.begin() as conn:
+		op = DB[table].select(
+			DB[table].c.url
+		).where(
+			DB[table].c.id==id,
+			DB[table].c.expire>now
+		)
+		result = conn.execute(op).all()
+	for row in result:
+		return row.url
+
+def set_image_in_cache(id,table,url):
+	now = int(datetime.datetime.now().timestamp())
+	if url is None:
+		expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
+	else:
+		expire = now + (malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600)
+	with engine.begin() as conn:
+		op = DB[table].insert().values(
+			id=id,
+			url=url,
+			expire=expire
+		).prefix_with('OR IGNORE')
+		result = conn.execute(op)
+
+
+def get_track_image(track=None,track_id=None,fast=False):
+
+	if track_id is None:
+		track_id = database.sqldb.get_track_id(track)
+	title = track['title']
+	artists = track['artists']
+
+	# check cache
+	result = get_image_from_cache(track_id,'tracks')
+	if result is not None:
+		return result
+
+	# local image
+	if malojaconfig["USE_LOCAL_IMAGES"]:
+		images = local_files(artists=artists,title=title)
+		if len(images) != 0:
+			result = random.choice(images)
+			result = urllib.parse.quote(result)
+			set_image_in_cache(track_id,'tracks',result)
+			return result
+
+	# forward
+	if fast:
+		titlequery = "title=" + urllib.parse.quote(title)
+		artistquery = "&".join("artist=" + urllib.parse.quote(a) for a in artists)
+		return (f"/image?{titlequery}&{artistquery}")
+
+	# third party
+	result = thirdparty.get_image_track_all((artists,title))
+	set_image_in_cache(track_id,'tracks',result)
+	if result is not None: return result
+	for a in artists:
+		res = get_artist_image(artist=a,fast=False)
+		if res != "": return res
+	return None
+
+
+def get_artist_image(artist=None,artist_id=None,fast=False):
+
+	if artist_id is None:
+		artist_id = database.sqldb.get_artist_id(artist)
+
+	# check cache
+	result = get_image_from_cache(artist_id,'artists')
+	if result is not None:
+		return result
+
+	# local image
+	if malojaconfig["USE_LOCAL_IMAGES"]:
+		images = local_files(artist=artist)
+		if len(images) != 0:
+			result = random.choice(images)
+			result = urllib.parse.quote(result)
+			set_image_in_cache(artist_id,'artists',result)
+			return result
+
+	# forward
+	if fast:
+		artistquery = "artist=" + urllib.parse.quote(artist)
+		return (f"/image?{artistquery}")
+
+	# third party
+	result = thirdparty.get_image_artist_all(artist)
+	set_image_in_cache(artist_id,'artists',result)
+	return result
 
 ### Caches
 

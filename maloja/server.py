@@ -18,7 +18,7 @@ from doreah import auth
 
 # rest of the project
 from . import database
-from .utilities import resolveImage
+from .utilities import get_track_image, get_artist_image
 from .malojauri import uri_to_internal, remove_identical
 from .globalconf import malojaconfig, apikeystore, data_dir
 from .jinjaenv.context import jinja_environment
@@ -158,8 +158,12 @@ def deprecated_api(pth):
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
 	relevant, _, _, _, _ = uri_to_internal(keys)
-	result = resolveImage(**relevant)
-	if result == "": return ""
+	if 'track' in relevant:
+		result = get_track_image(relevant['track'])
+	elif 'artist' in relevant:
+		result = get_artist_image(relevant['artist'])
+
+	if result is None: return ""
 	redirect(result,307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")

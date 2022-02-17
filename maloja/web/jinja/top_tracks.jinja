@@ -6,7 +6,7 @@
 
 {% set entries = dbp.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
 {% set repr = entries | find_representative('track','scrobbles') %}
-{% set img = "/favicon.png" if repr is none else utilities.getTrackImage(repr.track.artists,repr.track.title) %}
+{% set img = "/favicon.png" if repr is none else utilities.get_track_image(repr.track) %}
 
 
 {% block content %}

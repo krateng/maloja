@@ -8,11 +8,11 @@
 {% set pages = math.ceil(scrobbles.__len__() / amountkeys.perpage) %}
 
 {% if filterkeys.get('track') is not none %}
-	{% set img = utilities.getTrackImage(artists=filterkeys.track.artists,title=filterkeys.track.title,fast=True) %}
+	{% set img = utilities.get_track_image(filterkeys.track,fast=True) %}
 {% elif filterkeys.get('artist') is not none %}
-	{% set img = utilities.getArtistImage(filterkeys.artist,fast=True) %}
+	{% set img = utilities.get_artist_image(filterkeys.artist,fast=True) %}
 {% elif scrobbles.__len__() > 0 %}
-	{% set img = utilities.getTrackImage(artists=scrobbles[0].track.artists,title=scrobbles[0].track.title,fast=True) %}
+	{% set img = utilities.get_track_image(scrobbles[0].track,fast=True) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

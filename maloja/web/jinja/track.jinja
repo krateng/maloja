@@ -33,10 +33,10 @@
 			{% if adminmode %}
 			<div
 				class="changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
-				style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');"
+				style="background-image:url('{{ utilities.get_track_image(track,fast=True) }}');"
 			></div>
 			{% else %}
-			<div style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');">
+			<div style="background-image:url('{{ utilities.get_track_image(track,fast=True) }}');">
 			</div>
 			{% endif %}
 		</td>
