@@ -563,13 +563,35 @@ def get_artist(id):
 @runhourly
 def clean_db():
 	with engine.begin() as conn:
-		result1 = conn.execute(sql.text('''
+		log(f"Database Cleanup...")
+
+		### Delete tracks that have no scrobbles (delete their trackartist entries first)
+		a1 = conn.execute(sql.text('''
 			delete from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))
-		'''))
-		result2 = conn.execute(sql.text('''
+		''')).rowcount
+		a2 = conn.execute(sql.text('''
 			delete from tracks where id not in (select track_id from scrobbles)
-		'''))
-	log(f"Database Cleanup... {result1.rowcount+result2.rowcount} entries removed.")
+		''')).rowcount
+
+		log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
+
+		### Delete artists that have no tracks (will remove defined associates, not sure if leaving like this)
+		a3 = conn.execute(sql.text('''
+			delete from artists where id not in (select artist_id from trackartists)
+		''')).rowcount
+
+		log(f"Deleted {a3} artists without tracks")
+
+		### Delete tracks that have no artists (delete their scrobbles first)
+		a4 = conn.execute(sql.text('''
+			delete from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))
+		''')).rowcount
+		a5 = conn.execute(sql.text('''
+			delete from tracks where id not in (select track_id from trackartists)
+		''')).rowcount
+
+		log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+
 
 
 
