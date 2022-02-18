@@ -46,9 +46,14 @@ def cached_wrapper(inner_func):
 
 
 def invalidate_caches(scrobbletime):
+	cleared, kept = 0, 0
 	for k in cache.keys():
 		if (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
+			cleared += 1
 			del cache[k]
+		else:
+			kept += 1
+	log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
 
 
 

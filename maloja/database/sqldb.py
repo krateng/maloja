@@ -586,7 +586,7 @@ def clean_db():
 			delete from tracks where id not in (select track_id from scrobbles)
 		''')).rowcount
 
-		log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
+		if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
 		### Delete artists that have no tracks
 		# we actually don't wanna do that as it will break collection artists
@@ -595,7 +595,7 @@ def clean_db():
 		#	delete from artists where id not in (select artist_id from trackartists)
 		#''')).rowcount
 		#
-		#log(f"Deleted {a3} artists without tracks")
+		#if a3>0: log(f"Deleted {a3} artists without tracks")
 
 		### Delete tracks that have no artists (delete their scrobbles first)
 		a4 = conn.execute(sql.text('''
@@ -605,7 +605,7 @@ def clean_db():
 			delete from tracks where id not in (select track_id from trackartists)
 		''')).rowcount
 
-		log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+		if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
 
 
 
