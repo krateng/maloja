@@ -16,6 +16,8 @@ HIGH_NUMBER = 1000000
 cache = lru.LRU(HIGH_NUMBER)
 hits, misses = 0, 0
 
+
+
 @runhourly
 def print_stats():
 	log(f"Cache Size: {len(cache)}, RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
@@ -24,11 +26,12 @@ def print_stats():
 
 def cached_wrapper(inner_func):
 
+	if not USE_CACHE: return inner_func
 	def outer_func(**kwargs):
 		global hits, misses
 		key = (serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
 
-		if USE_CACHE and key in cache:
+		if key in cache:
 			hits += 1
 			return cache.get(key)
 
@@ -58,6 +61,7 @@ def trim_cache():
 		c.set_size(targetsize)
 		c.set_size(HIGH_NUMBER)
 		log(f"New RAM usage: {psutil.virtual_memory().percent}%")
+
 
 
 def serialize(obj):
