@@ -47,7 +47,7 @@ def cached_wrapper(inner_func):
 
 def invalidate_caches(scrobbletime):
 	for k in cache.keys():
-		if (k[2] is None or scrobbletime >= k[2]) and (k[3] is None or scrobbletime <= k[3]):
+		if (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
 			del cache[k]
 
 
