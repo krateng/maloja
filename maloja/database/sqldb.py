@@ -323,6 +323,7 @@ def get_scrobbles(since=None,to=None,resolve_references=True):
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
 	return result
 
+@cached_wrapper
 def get_artists_of_track(track_id,resolve_references=True):
 	with engine.begin() as conn:
 		op = DB['trackartists'].select().where(
@@ -503,6 +504,7 @@ def get_artists_map(artist_ids):
 
 ### associations
 
+@cached_wrapper
 def get_associated_artists(*artists):
 	artist_ids = [get_artist_id(a) for a in artists]
 
@@ -521,6 +523,7 @@ def get_associated_artists(*artists):
 	artists = artists_db_to_dict(result)
 	return artists
 
+@cached_wrapper
 def get_credited_artists(*artists):
 	artist_ids = [get_artist_id(a) for a in artists]
 

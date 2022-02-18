@@ -147,9 +147,9 @@ malojaconfig = Configuration(
 			"port":(tp.Integer(),												"Port",							42010),
 		},
 		"Technical":{
-			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 							300,	"Days until images are refetched"),
-			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",					30,		"Days until failed image fetches are reattempted"),
-			"db_max_memory":(tp.Integer(min=0,max=100),							"Database Cache RAM Percentage soft limit",			80,		"How much of your total memory Maloja should use for caching. If you don't run the application in a container or dedicated VM, you might want to set this lower.")
+			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 				300,	"Days until images are refetched"),
+			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",		30,		"Days until failed image fetches are reattempted"),
+			"db_max_memory":(tp.Integer(min=0,max=100),							"RAM Percentage soft limit",			80,		"RAM Usage in percent at which Maloja should no longer increase its database cache.")
 		},
 		"Fluff":{
 			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),
