@@ -206,7 +206,7 @@ def login():
 @webserver.route("/<name>.<ext>")
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
-	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
+	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf"]
 	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
