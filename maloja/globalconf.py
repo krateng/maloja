@@ -188,7 +188,7 @@ malojaconfig = Configuration(
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
-			"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
+			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
 			"timezone":(tp.Integer(),											"UTC Offset",					0),
 			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p")
 		}

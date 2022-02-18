@@ -8,6 +8,9 @@ from ..globalconf import data_dir
 
 from .dbcache import cached_wrapper
 
+from doreah.logging import log
+from doreah.regular import runhourly
+
 
 
 ##### DB Technical
@@ -550,6 +553,27 @@ def get_artist(id):
 
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo)
+
+
+
+
+
+##### MAINTENANCE
+
+@runhourly
+def clean_db():
+	with engine.begin() as conn:
+		result1 = conn.execute(sql.text('''
+			delete from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))
+		'''))
+		result2 = conn.execute(sql.text('''
+			delete from tracks where id not in (select track_id from scrobbles)
+		'''))
+	log(f"Database Cleanup... {result1.rowcount+result2.rowcount} entries removed.")
+
+
+
+
 
 
 
