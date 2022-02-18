@@ -27,9 +27,9 @@ def print_stats():
 def cached_wrapper(inner_func):
 
 	if not USE_CACHE: return inner_func
-	def outer_func(**kwargs):
+	def outer_func(*args,**kwargs):
 		global hits, misses
-		key = (serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
+		key = (serialize(args),serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
 
 		if key in cache:
 			hits += 1
@@ -37,7 +37,7 @@ def cached_wrapper(inner_func):
 
 		else:
 			misses += 1
-			result = inner_func(**kwargs)
+			result = inner_func(*args,**kwargs)
 			cache[key] = result
 			return result
 
@@ -71,7 +71,7 @@ def serialize(obj):
 		try:
 			return json.dumps(obj)
 		except:
-			if isinstance(obj, (list, tuple)):
+			if isinstance(obj, (list, tuple, set)):
 				return "[" + ",".join(serialize(o) for o in obj) + "]"
 			elif isinstance(obj,dict):
 				return "{" + ",".join(serialize(o) + ":" + serialize(obj[o]) for o in obj) + "}"

@@ -188,6 +188,7 @@ def add_scrobbles(scrobbleslist):
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
+@cached_wrapper
 def get_track_id(trackdict):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
@@ -233,6 +234,7 @@ def get_track_id(trackdict):
 		#print("Created",trackdict['title'],track_id)
 		return track_id
 
+@cached_wrapper
 def get_artist_id(artistname):
 	nname = normalize_name(artistname)
 	#print("looking for",nname)
@@ -332,6 +334,7 @@ def get_artists_of_track(track_id,resolve_references=True):
 	return artists
 
 
+@cached_wrapper
 def get_tracks_of_artist(artist):
 
 	artist_id = get_artist_id(artist)
@@ -344,6 +347,7 @@ def get_tracks_of_artist(artist):
 
 	return tracks_db_to_dict(result)
 
+@cached_wrapper
 def get_artists():
 	with engine.begin() as conn:
 		op = DB['artists'].select()
@@ -351,6 +355,7 @@ def get_artists():
 
 	return artists_db_to_dict(result)
 
+@cached_wrapper
 def get_tracks():
 	with engine.begin() as conn:
 		op = DB['tracks'].select()
@@ -392,7 +397,7 @@ def count_scrobbles_by_artist(since,to):
 
 
 	counts = [row.count for row in result]
-	artists = get_artists_map(row.artist_id for row in result)
+	artists = get_artists_map([row.artist_id for row in result])
 	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
@@ -412,7 +417,7 @@ def count_scrobbles_by_track(since,to):
 
 
 	counts = [row.count for row in result]
-	tracks = get_tracks_map(row.track_id for row in result)
+	tracks = get_tracks_map([row.track_id for row in result])
 	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
@@ -441,7 +446,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist):
 
 
 	counts = [row.count for row in result]
-	tracks = get_tracks_map(row.track_id for row in result)
+	tracks = get_tracks_map([row.track_id for row in result])
 	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
@@ -451,6 +456,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist):
 
 ### functions that get mappings for several entities -> rows
 
+@cached_wrapper
 def get_artists_of_tracks(track_ids):
 	with engine.begin() as conn:
 		op = sql.join(DB['trackartists'],DB['artists']).select().where(
@@ -464,6 +470,7 @@ def get_artists_of_tracks(track_ids):
 	return artists
 
 
+@cached_wrapper
 def get_tracks_map(track_ids):
 	with engine.begin() as conn:
 		op = DB['tracks'].select().where(
@@ -478,6 +485,7 @@ def get_tracks_map(track_ids):
 		tracks[trackids[i]] = trackdicts[i]
 	return tracks
 
+@cached_wrapper
 def get_artists_map(artist_ids):
 	with engine.begin() as conn:
 		op = DB['artists'].select().where(
@@ -534,6 +542,7 @@ def get_credited_artists(*artists):
 
 ### get a specific entity by id
 
+@cached_wrapper
 def get_track(id):
 	with engine.begin() as conn:
 		op = DB['tracks'].select().where(
@@ -544,6 +553,7 @@ def get_track(id):
 	trackinfo = result[0]
 	return track_db_to_dict(trackinfo)
 
+@cached_wrapper
 def get_artist(id):
 	with engine.begin() as conn:
 		op = DB['artists'].select().where(
