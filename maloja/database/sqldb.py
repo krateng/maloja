@@ -576,7 +576,7 @@ def get_artist(id):
 @runhourly
 def clean_db():
 	with engine.begin() as conn:
-		log(f"Database Cleanup...")
+		#log(f"Database Cleanup...")
 
 		### Delete tracks that have no scrobbles (delete their trackartist entries first)
 		a1 = conn.execute(sql.text('''

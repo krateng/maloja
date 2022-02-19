@@ -90,11 +90,11 @@ class APIHandler:
 
 
 	def scrobble(self,artiststr,titlestr,time=None,duration=None,album=None):
-		logmsg = "Incoming scrobble (API: {api}): ARTISTS: {artiststr}, TRACK: {titlestr}"
+		logmsg = "API receiving scrobble: (API: {api}): ARTISTS: {artiststr}, TRACK: {titlestr}"
 		log(logmsg.format(api=self.__apiname__,artiststr=artiststr,titlestr=titlestr))
-		if time is None: time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+		# fixing etc is handled by the main scrobble function
 		try:
-			(artists,title) = cla.fullclean(artiststr,titlestr)
-			database.incoming_scrobble(artists=artists,title=title,time=time)
+			database.incoming_scrobble(artists=[artiststr],title=titlestr,time=time,duration=duration,album=album)
 		except:
 			raise ScrobblingException()

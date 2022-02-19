@@ -63,8 +63,8 @@ def trim_cache():
 		log(f"{ramprct}% RAM usage, reducing caches!")
 		ratio = (malojaconfig["DB_MAX_MEMORY"] / ramprct) ** 3
 		targetsize = max(int(len(cache) * ratio),100)
-		c.set_size(targetsize)
-		c.set_size(HIGH_NUMBER)
+		cache.set_size(targetsize)
+		cache.set_size(HIGH_NUMBER)
 		log(f"New RAM usage: {psutil.virtual_memory().percent}%")
 
 
