@@ -462,8 +462,12 @@ def start_db():
 	dbstatus['healthy'] = True
 
 	# inform time module about begin of scrobbling
-	firstscrobble = sqldb.get_scrobbles()[0]
-	register_scrobbletime(firstscrobble['time'])
+	try:
+		firstscrobble = sqldb.get_scrobbles()[0]
+		register_scrobbletime(firstscrobble['time'])
+	except IndexError:
+		register_scrobbletime(int(datetime.datetime.now().timestamp()))
+
 
 	# create cached information
 	cached.update_medals()

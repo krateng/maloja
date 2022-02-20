@@ -8,19 +8,21 @@ WORKDIR /usr/src/app
 
 
 # Copy project into dir
-COPY . .
+COPY ./install ./install
+COPY ./requirements.txt ./requirements.txt
 
-RUN \
+
     # Build dependencies (This will pipe all packages from the file)
-    sed 's/#.*//' ./install/dependencies_build.txt  | xargs apk add --no-cache --virtual .build-deps && \
+RUN sed 's/#.*//' ./install/dependencies_build.txt  | xargs apk add --no-cache --virtual .build-deps
     # Runtime dependencies (Same)
-    sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add --no-cache && \
+RUN sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add --no-cache
     # Python dependencies
-    pip3 install --no-cache-dir -r requirements.txt && \
+RUN pip3 install --no-cache-dir -r requirements.txt
     # Local project install
-    pip3 install /usr/src/app && \
+COPY . .
+RUN pip3 install /usr/src/app
     # Remove build dependencies
-    apk del .build-deps
+RUN apk del .build-deps
 
 # expected behavior for a default setup is for maloja to "just work"
 ENV MALOJA_SKIP_SETUP=yes

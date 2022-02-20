@@ -284,6 +284,7 @@ def run_server():
 
 	try:
 		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+		log(f"Listening on {HOST}:{PORT}")
 		waitress.serve(webserver, host=HOST, port=PORT, threads=THREADS)
 	except OSError:
 		log("Error. Is another Maloja process already running?")

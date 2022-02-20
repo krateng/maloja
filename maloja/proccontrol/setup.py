@@ -68,11 +68,12 @@ def setup():
 			newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
 			if newpw is None:
 				newpw = randomstring(32)
+				newpw_repeat = newpw
 				print("Generated password:",col["yellow"](newpw))
 			else:
 				newpw_repeat = prompt("Please type again to confirm.",skip=SKIP,secret=True)
 				if newpw != newpw_repeat: print("Passwords do not match!")
-				else: auth.defaultuser.setpw(newpw)
+		auth.defaultuser.setpw(newpw)
 
 	if malojaconfig["SEND_STATS"] is None:
 		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)
