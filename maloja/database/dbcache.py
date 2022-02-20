@@ -19,9 +19,12 @@ hits, misses = 0, 0
 
 
 @runhourly
-def print_stats():
-	log(f"Cache Size: {len(cache)}, RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
+def maintenance():
+	print_stats()
 	trim_cache()
+
+def print_stats():
+	log(f"Cache Size: {len(cache)}, System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
 
 
 def cached_wrapper(inner_func):
@@ -48,6 +51,7 @@ def cached_wrapper(inner_func):
 def invalidate_caches(scrobbletime):
 	cleared, kept = 0, 0
 	for k in cache.keys():
+		# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
 		if (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
 			cleared += 1
 			del cache[k]
