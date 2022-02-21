@@ -19,7 +19,10 @@ RUN sed 's/#.*//' ./install/dependencies_run.txt  | xargs apk add --no-cache
     # Python dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
     # Local project install
-COPY . .
+COPY ./maloja ./maloja
+COPY ./pyproject.toml ./pyproject.toml
+COPY ./README.md ./README.md
+COPY ./LICENSE ./LICENSE
 RUN pip3 install /usr/src/app
     # Remove build dependencies
 RUN apk del .build-deps
