@@ -39,6 +39,13 @@ pages = {
 			"https://soundcloud.com"
 		],
 		"script":"soundcloud.js"
+	},
+	"Navidrome":{
+		"patterns":[
+			"https://navidrome.",
+			"http://navidrome."
+		],
+		"script":"navidrome.js"
 	}
 
 }
