@@ -1,0 +1,21 @@
+name: Publish Chromium scrobbler to web store
+
+on:
+  push:
+    paths:
+      - 'auxiliary/chromium_scrobbler/maloja-scobbler/manifest.json'
+      # When the version updates, this file changes
+
+jobs:
+  publish_to_pypi:
+    name: Build and publish extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push Extension to Web Store
+        uses: Klemensas/chrome-extension-upload-action@$VERSION
+        with:
+          refresh-token: '${{ secrets.GOOGLE_REFRESHTOKEN }}'
+          client-id: '${{ secrets.GOOGLE_CLIENTID }}'
+          file-name: './auxiliary/chromium_scrobbler/maloja-scrobbler.zip'
+          app-id: 'cfnbifdmgbnaalphodcbandoopgbfeeh'
+          publish: true
