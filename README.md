@@ -19,7 +19,9 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 ## Table of Contents
 * [Features](#features)
 * [How to install](#how-to-install)
-	* [LXC / VM / Bare Metal](#lxc--vm--bare-metal)
+	* [Requirements](#requirements)
+	* [PyPI](#pypi)
+	* [From Source](#from-source)
 	* [Docker](#docker)
 	* [Extras](#extras)
 * [How to use](#how-to-use)
@@ -47,11 +49,17 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 ## How to install
 
-### LXC / VM / Bare Metal
+### Requirements
+
+Maloja should run on any x86 or ARM machine that runs Python.
 
 I can support you with issues best if you use **Alpine Linux**.
 
-#### From PyPI
+Your CPU should have a single core passmark score of at the very least 1500. When virtualizing or containerizing, Maloja does not benefit from multiple assigned cores.
+
+500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
+
+### PyPI
 
 You can download the included script `install_alpine.sh` and run it with
 
@@ -67,7 +75,7 @@ You can also simply call the install command
 
 directly (e.g. if you're not on Alpine) - make sure you have all the system packages installed.
 
-#### From Source
+### From Source
 
 Clone this repository and enter the directory with
 
@@ -93,21 +101,20 @@ Of note are these settings which should be passed as environmental variables to 
 * `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
 * `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
-* `MALOJA_HOST` (Optional) -- Maloja uses IPv6 by default for the host. Set this to `0.0.0.0` if you cannot initially access the webserver
 
-You must also publish a port on your host machine to bind to the container's web port (default 42010)
+You must publish a port on your host machine to bind to the container's web port (default 42010). Note that the Docker version uses IPv4 per default.
 
-An example of a minimum run configuration when accessing maloja from an IPv4 address IE `localhost:42010`:
+An example of a minimum run configuration to access maloja via `localhost:42010`:
 
 ```console
-	docker run -p 42010:42010 -e MALOJA_HOST=0.0.0.0 maloja
+	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata maloja
 ```
 
 ### Extras
 
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!
 
-* Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4.
+* Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 or IPv4 address according to your settings.
 
 * You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
 
