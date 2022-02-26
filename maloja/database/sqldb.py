@@ -528,7 +528,7 @@ def get_artists_map(artist_ids,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_associated_artists(dbconn=None,*artists):
+def get_associated_artists(*artists,dbconn=None):
 	artist_ids = [get_artist_id(a) for a in artists]
 
 	jointable = sql.join(
@@ -547,7 +547,7 @@ def get_associated_artists(dbconn=None,*artists):
 
 @cached_wrapper
 @connection_provider
-def get_credited_artists(dbconn=None,*artists):
+def get_credited_artists(*artists,dbconn=None):
 	artist_ids = [get_artist_id(a) for a in artists]
 
 	jointable = sql.join(

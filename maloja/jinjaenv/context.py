@@ -1,4 +1,3 @@
-from .. import database_packed
 from . import filters
 from ..globalconf import malojaconfig
 
@@ -12,7 +11,7 @@ import math
 # templating
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-dbp = jinjaview.JinjaDBConnection()
+#dbp = jinjaview.JinjaDBConnection()
 
 jinja_environment = Environment(
 	loader=PackageLoader('maloja', "web/jinja"),
@@ -26,8 +25,8 @@ def update_jinja_environment():
 
 	JINJA_CONTEXT = {
 		# maloja
-		"db": database,
-		"dbp":dbp,
+		"db": database, #TODO: move these to connection manager as well
+		#"dbp":dbp,
 		"malojatime": malojatime,
 		"utilities": utilities,
 		"mlj_uri": malojauri,
