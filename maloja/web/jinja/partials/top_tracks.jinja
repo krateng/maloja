@@ -1,7 +1,7 @@
 {% import 'snippets/links.jinja' as links %}
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
-{% set ranges = dbp.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
+{% set ranges = dbc.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
 {% if maxbar < 1 %}{% set maxbar = 1 %}{% endif %}

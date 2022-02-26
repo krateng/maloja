@@ -73,7 +73,7 @@ coa = CollectorAgent()
 
 
 
-def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True,client=None,**kwargs):
+def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True,client=None,dbconn=None,**kwargs):
 	# TODO: just collecting all extra kwargs now. at some point, rework the authenticated api with alt function
 	# to actually look at the converted args instead of the request object and remove the key
 	# so that this function right here doesnt get the key passed to it
@@ -106,7 +106,7 @@ def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,l
 	}
 
 
-	sqldb.add_scrobble(scrobbledict)
+	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
 	proxy_scrobble_all(artists,title,time)
 
 
@@ -125,80 +125,80 @@ def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,l
 
 
 @waitfordb
-def get_scrobbles(**keys):
+def get_scrobbles(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to)
+		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,dbconn=dbconn)
 	elif 'track' in keys:
-		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to)
+		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,dbconn=dbconn)
 	else:
-		result = sqldb.get_scrobbles(since=since,to=to)
+		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
 	return list(reversed(result))
 
 @waitfordb
-def get_scrobbles_num(**keys):
-	return len(get_scrobbles(**keys))
+def get_scrobbles_num(dbconn=None,**keys):
+	return len(get_scrobbles(dbconn=dbconn,**keys))
 
 @waitfordb
-def get_tracks(artist=None):
+def get_tracks(dbconn=None,artist=None):
 	if artist is None:
-		result = sqldb.get_tracks()
+		result = sqldb.get_tracks(dbconn=dbconn)
 	else:
-		result = sqldb.get_tracks_of_artist(artist)
+		result = sqldb.get_tracks_of_artist(artist,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_artists():
-	return sqldb.get_artists()
+def get_artists(dbconn=None):
+	return sqldb.get_artists(dbconn=dbconn)
 
 
 @waitfordb
-def get_charts_artists(**keys):
+def get_charts_artists(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	result = sqldb.count_scrobbles_by_artist(since=since,to=to)
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_charts_tracks(**keys):
+def get_charts_tracks(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'])
+		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
 	else:
-		result = sqldb.count_scrobbles_by_track(since=since,to=to)
+		result = sqldb.count_scrobbles_by_track(since=since,to=to,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_pulse(**keys):
+def get_pulse(dbconn=None,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 	for rng in rngs:
-		res = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k != 'timerange'})
+		res = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k != 'timerange'},dbconn=dbconn)
 		results.append({"range":rng,"scrobbles":res})
 
 	return results
 
 @waitfordb
-def get_performance(**keys):
+def get_performance(dbconn=None,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
 		if "track" in keys:
-			track = sqldb.get_track(sqldb.get_track_id(keys['track']))
-			charts = get_charts_tracks(timerange=rng)
+			track = sqldb.get_track(sqldb.get_track_id(keys['track'],dbconn=dbconn),dbconn=dbconn)
+			charts = get_charts_tracks(timerange=rng,dbconn=dbconn)
 			rank = None
 			for c in charts:
 				if c["track"] == track:
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
-			artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist']))
+			artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist'],dbconn=dbconn),dbconn=dbconn)
 			# ^this is the most useless line in programming history
 			# but I like consistency
-			charts = get_charts_artists(timerange=rng)
+			charts = get_charts_artists(timerange=rng,dbconn=dbconn)
 			rank = None
 			for c in charts:
 				if c["artist"] == artist:
@@ -209,14 +209,14 @@ def get_performance(**keys):
 	return results
 
 @waitfordb
-def get_top_artists(**keys):
+def get_top_artists(dbconn=None,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
 		try:
-			res = get_charts_artists(timerange=rng)[0]
+			res = get_charts_artists(timerange=rng,dbconn=dbconn)[0]
 			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"range":rng,"artist":None,"scrobbles":0})
@@ -225,14 +225,14 @@ def get_top_artists(**keys):
 
 
 @waitfordb
-def get_top_tracks(**keys):
+def get_top_tracks(dbconn=None,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
 		try:
-			res = get_charts_tracks(timerange=rng)[0]
+			res = get_charts_tracks(timerange=rng,dbconn=dbconn)[0]
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except:
 			results.append({"range":rng,"track":None,"scrobbles":0})
@@ -240,15 +240,15 @@ def get_top_tracks(**keys):
 	return results
 
 @waitfordb
-def artist_info(artist):
+def artist_info(artist,dbconn=None):
 
-	artist = sqldb.get_artist(sqldb.get_artist_id(artist))
-	alltimecharts = get_charts_artists(timerange=alltime())
-	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime())
+	artist = sqldb.get_artist(sqldb.get_artist_id(artist,dbconn=dbconn),dbconn=dbconn)
+	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
+	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
 	try:
 		c = [e for e in alltimecharts if e["artist"] == artist][0]
-		others = sqldb.get_associated_artists(artist)
+		others = sqldb.get_associated_artists(artist,dbconn=dbconn)
 		position = c["rank"]
 		return {
 			"artist":artist,
@@ -274,10 +274,10 @@ def artist_info(artist):
 
 
 @waitfordb
-def track_info(track):
+def track_info(track,dbconn=None):
 
-	track = sqldb.get_track(sqldb.get_track_id(track))
-	alltimecharts = get_charts_tracks(timerange=alltime())
+	track = sqldb.get_track(sqldb.get_track_id(track,dbconn=dbconn),dbconn=dbconn)
+	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
 	c = [e for e in alltimecharts if e["track"] == track][0]

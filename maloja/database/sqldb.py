@@ -167,10 +167,10 @@ def artist_dict_to_db(info):
 ##### Actual Database interactions
 
 
-def add_scrobble(scrobbledict):
+def add_scrobble(scrobbledict,dbconn=None):
 	add_scrobbles([scrobbledict])
 
-def add_scrobbles(scrobbleslist):
+def add_scrobbles(scrobbleslist,dbconn=None):
 
 	ops = [
 		DB['scrobbles'].insert().values(
@@ -189,7 +189,7 @@ def add_scrobbles(scrobbleslist):
 ### these will 'get' the ID of an entity, creating it if necessary
 
 @cached_wrapper
-def get_track_id(trackdict):
+def get_track_id(trackdict,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
 
@@ -235,7 +235,7 @@ def get_track_id(trackdict):
 		return track_id
 
 @cached_wrapper
-def get_artist_id(artistname):
+def get_artist_id(artistname,dbconn=None):
 	nname = normalize_name(artistname)
 	#print("looking for",nname)
 
@@ -266,7 +266,7 @@ def get_artist_id(artistname):
 ### Functions that get rows according to parameters
 
 @cached_wrapper
-def get_scrobbles_of_artist(artist,since=None,to=None):
+def get_scrobbles_of_artist(artist,since=None,to=None,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -287,7 +287,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None):
 	return result
 
 @cached_wrapper
-def get_scrobbles_of_track(track,since=None,to=None):
+def get_scrobbles_of_track(track,since=None,to=None,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -307,7 +307,7 @@ def get_scrobbles_of_track(track,since=None,to=None):
 	return result
 
 @cached_wrapper
-def get_scrobbles(since=None,to=None,resolve_references=True):
+def get_scrobbles(since=None,to=None,resolve_references=True,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -324,7 +324,7 @@ def get_scrobbles(since=None,to=None,resolve_references=True):
 	return result
 
 @cached_wrapper
-def get_artists_of_track(track_id,resolve_references=True):
+def get_artists_of_track(track_id,resolve_references=True,dbconn=None):
 	with engine.begin() as conn:
 		op = DB['trackartists'].select().where(
 			DB['trackartists'].c.track_id==track_id
@@ -336,7 +336,7 @@ def get_artists_of_track(track_id,resolve_references=True):
 
 
 @cached_wrapper
-def get_tracks_of_artist(artist):
+def get_tracks_of_artist(artist,dbconn=None):
 
 	artist_id = get_artist_id(artist)
 
@@ -349,7 +349,7 @@ def get_tracks_of_artist(artist):
 	return tracks_db_to_dict(result)
 
 @cached_wrapper
-def get_artists():
+def get_artists(dbconn=None):
 	with engine.begin() as conn:
 		op = DB['artists'].select()
 		result = conn.execute(op).all()
@@ -357,7 +357,7 @@ def get_artists():
 	return artists_db_to_dict(result)
 
 @cached_wrapper
-def get_tracks():
+def get_tracks(dbconn=None):
 	with engine.begin() as conn:
 		op = DB['tracks'].select()
 		result = conn.execute(op).all()
@@ -367,7 +367,7 @@ def get_tracks():
 ### functions that count rows for parameters
 
 @cached_wrapper
-def count_scrobbles_by_artist(since,to):
+def count_scrobbles_by_artist(since,to,dbconn=None):
 	jointable = sql.join(
 		DB['scrobbles'],
 		DB['trackartists'],
@@ -404,7 +404,7 @@ def count_scrobbles_by_artist(since,to):
 	return result
 
 @cached_wrapper
-def count_scrobbles_by_track(since,to):
+def count_scrobbles_by_track(since,to,dbconn=None):
 
 	with engine.begin() as conn:
 		op = sql.select(
@@ -424,7 +424,7 @@ def count_scrobbles_by_track(since,to):
 	return result
 
 @cached_wrapper
-def count_scrobbles_by_track_of_artist(since,to,artist):
+def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 	artist_id = get_artist_id(artist)
 
@@ -458,7 +458,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist):
 ### functions that get mappings for several entities -> rows
 
 @cached_wrapper
-def get_artists_of_tracks(track_ids):
+def get_artists_of_tracks(track_ids,dbconn=None):
 	with engine.begin() as conn:
 		op = sql.join(DB['trackartists'],DB['artists']).select().where(
 			DB['trackartists'].c.track_id.in_(track_ids)
@@ -472,7 +472,7 @@ def get_artists_of_tracks(track_ids):
 
 
 @cached_wrapper
-def get_tracks_map(track_ids):
+def get_tracks_map(track_ids,dbconn=None):
 	with engine.begin() as conn:
 		op = DB['tracks'].select().where(
 			DB['tracks'].c.id.in_(track_ids)
@@ -487,7 +487,7 @@ def get_tracks_map(track_ids):
 	return tracks
 
 @cached_wrapper
-def get_artists_map(artist_ids):
+def get_artists_map(artist_ids,dbconn=None):
 	with engine.begin() as conn:
 		op = DB['artists'].select().where(
 			DB['artists'].c.id.in_(artist_ids)
@@ -505,7 +505,7 @@ def get_artists_map(artist_ids):
 ### associations
 
 @cached_wrapper
-def get_associated_artists(*artists):
+def get_associated_artists(dbconn=None,*artists):
 	artist_ids = [get_artist_id(a) for a in artists]
 
 	jointable = sql.join(
@@ -524,7 +524,7 @@ def get_associated_artists(*artists):
 	return artists
 
 @cached_wrapper
-def get_credited_artists(*artists):
+def get_credited_artists(dbconn=None,*artists):
 	artist_ids = [get_artist_id(a) for a in artists]
 
 	jointable = sql.join(
@@ -546,7 +546,7 @@ def get_credited_artists(*artists):
 ### get a specific entity by id
 
 @cached_wrapper
-def get_track(id):
+def get_track(id,dbconn=None):
 	with engine.begin() as conn:
 		op = DB['tracks'].select().where(
 			DB['tracks'].c.id==id
@@ -557,7 +557,7 @@ def get_track(id):
 	return track_db_to_dict(trackinfo)
 
 @cached_wrapper
-def get_artist(id):
+def get_artist(id,dbconn=None):
 	with engine.begin() as conn:
 		op = DB['artists'].select().where(
 			DB['artists'].c.id==id

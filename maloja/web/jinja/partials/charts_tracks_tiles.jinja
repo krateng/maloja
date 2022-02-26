@@ -2,7 +2,7 @@
 
 
 {% if charts is undefined %}
-	{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+	{% set charts = dbc.get_charts_tracks(filterkeys,limitkeys) %}
 {% endif %}
 
 {% set charts_14 = charts | fixlength(14) %}

@@ -1,4 +1,4 @@
-{% set scrobbles = dbp.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
+{% set scrobbles = dbc.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
 
 {% set firstindex = amountkeys.page * amountkeys.perpage %}
 {% set lastindex = firstindex + amountkeys.perpage %}

@@ -31,6 +31,10 @@ def cached_wrapper(inner_func):
 
 	if not USE_CACHE: return inner_func
 	def outer_func(*args,**kwargs):
+		if 'dbconn' in kwargs:
+			conn = kwargs.pop('dbconn')
+		else:
+			conn = None
 		global hits, misses
 		key = (serialize(args),serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
 
@@ -40,7 +44,7 @@ def cached_wrapper(inner_func):
 
 		else:
 			misses += 1
-			result = inner_func(*args,**kwargs)
+			result = inner_func(*args,**kwargs,dbconn=conn)
 			cache[key] = result
 			return result
 

@@ -4,7 +4,7 @@
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
 {% import 'snippets/pagination.jinja' as pagination %}
 
-{% set scrobbles = dbp.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
+{% set scrobbles = dbc.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
 {% set pages = math.ceil(scrobbles.__len__() / amountkeys.perpage) %}
 
 {% if filterkeys.get('track') is not none %}
