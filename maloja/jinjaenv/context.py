@@ -2,7 +2,8 @@ from .. import database_packed
 from . import filters
 from ..globalconf import malojaconfig
 
-from .. import database, database_packed, malojatime, utilities, malojauri, thirdparty, __pkginfo__
+from .. import database, malojatime, utilities, malojauri, thirdparty, __pkginfo__
+from ..database import jinjaview
 from doreah.regular import repeatdaily
 
 import urllib
@@ -11,7 +12,7 @@ import math
 # templating
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-dbp = database_packed.DB()
+dbp = jinjaview.JinjaDBConnection()
 
 jinja_environment = Environment(
 	loader=PackageLoader('maloja', "web/jinja"),

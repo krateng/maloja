@@ -18,6 +18,7 @@ from doreah import auth
 
 # rest of the project
 from . import database
+from .database.jinjaview import JinjaDBConnection
 from .utilities import get_track_image, get_artist_image
 from .malojauri import uri_to_internal, remove_identical
 from .globalconf import malojaconfig, apikeystore, data_dir
@@ -25,6 +26,7 @@ from .jinjaenv.context import jinja_environment
 from .apis import init_apis
 
 
+from .proccontrol.profiler import profile
 
 
 ######
@@ -215,28 +217,33 @@ def static(name,ext):
 
 ### DYNAMIC
 
+@profile
 def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
+
 	clock = Clock()
 	clock.start()
 
-	loc_context = {
-		"adminmode":adminmode,
-		"apikey":request.cookies.get("apikey") if adminmode else None,
-		"apikeys":apikeystore,
-		"_urikeys":keys, #temporary!
-	}
-	loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
+	with JinjaDBConnection() as conn:
 
-	template = jinja_environment.get_template(name + '.jinja')
-	try:
-		res = template.render(**loc_context)
-	except (ValueError, IndexError):
-		abort(404,"This Artist or Track does not exist")
+		loc_context = {
+			"dbc":conn,
+			"adminmode":adminmode,
+			"apikey":request.cookies.get("apikey") if adminmode else None,
+			"apikeys":apikeystore,
+			"_urikeys":keys, #temporary!
+		}
+		loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
+
+		template = jinja_environment.get_template(name + '.jinja')
+		try:
+			res = template.render(**loc_context)
+		except (ValueError, IndexError):
+			abort(404,"This Artist or Track does not exist")
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
