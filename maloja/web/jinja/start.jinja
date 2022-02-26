@@ -68,7 +68,7 @@
 
 			{% for range in xcurrent %}
 				<span class="stats">{{ range.localisation }}</span>
-				<a href='/scrobbles?in={{ range.identifier }}'>{{ db.get_scrobbles_num(timerange=range.range) }}</a>
+				<a href='/scrobbles?in={{ range.identifier }}'>{{ dbc.get_scrobbles_num({'timerange':range.range}) }}</a>
 			{% endfor %}
 			<br/><br/>
 

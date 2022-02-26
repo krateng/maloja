@@ -53,7 +53,7 @@
 
 <!-- CERTS -->
 
-{% set info = db.track_info(track) %}
+{% set info = db.track_info(track=track) %}
 {% if info.certification is not none %}
 	<img class="certrecord"
 				src="/media/record_{{ info.certification }}.png"

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% set track = filterkeys.track %}
-{% set info = db.track_info(track) %}
+{% set info = dbc.track_info({'track':track}) %}
 
 {% set initialrange ='month' %}
 

@@ -141,11 +141,11 @@ def get_scrobbles_num(dbconn=None,**keys):
 	return len(get_scrobbles(dbconn=dbconn,**keys))
 
 @waitfordb
-def get_tracks(dbconn=None,artist=None):
-	if artist is None:
+def get_tracks(dbconn=None,**keys):
+	if keys.get('artist') is None:
 		result = sqldb.get_tracks(dbconn=dbconn)
 	else:
-		result = sqldb.get_tracks_of_artist(artist,dbconn=dbconn)
+		result = sqldb.get_tracks_of_artist(keys.get('artist'),dbconn=dbconn)
 	return result
 
 @waitfordb
@@ -240,7 +240,9 @@ def get_top_tracks(dbconn=None,**keys):
 	return results
 
 @waitfordb
-def artist_info(artist,dbconn=None):
+def artist_info(dbconn=None,**keys):
+
+	artist = keys.get('artist')
 
 	artist = sqldb.get_artist(sqldb.get_artist_id(artist,dbconn=dbconn),dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
@@ -274,7 +276,9 @@ def artist_info(artist,dbconn=None):
 
 
 @waitfordb
-def track_info(track,dbconn=None):
+def track_info(dbconn=None,**keys):
+
+	track = keys.get('track')
 
 	track = sqldb.get_track(sqldb.get_track_id(track,dbconn=dbconn),dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
