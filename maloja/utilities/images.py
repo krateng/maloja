@@ -10,6 +10,9 @@ import os
 import urllib
 import random
 import base64
+import requests
+import datauri
+import io
 from threading import Thread, Timer
 import re
 import datetime
@@ -72,6 +75,17 @@ def remove_image_from_cache(id,table):
 		)
 		result = conn.execute(op)
 
+def dl_image(url):
+	try:
+		r = requests.get(url)
+		mime = r.headers.get('content-type','image/jpg')
+		data = io.BytesIO(r.content).read()
+		uri = datauri.DataURI.make(mime,charset='ascii',base64=True,data=data)
+		return uri
+	except:
+		raise
+		return url
+
 def get_track_image(track=None,track_id=None,fast=False):
 
 	if track_id is None:
@@ -108,6 +122,10 @@ def get_track_image(track=None,track_id=None,fast=False):
 
 	# third party
 	result = thirdparty.get_image_track_all((artists,title))
+
+	# dl image and proxy
+	result = dl_image(result)
+
 	set_image_in_cache(track_id,'tracks',result)
 	if result is not None: return result
 	for a in artists:
@@ -148,6 +166,10 @@ def get_artist_image(artist=None,artist_id=None,fast=False):
 
 	# third party
 	result = thirdparty.get_image_artist_all(artist)
+
+	# dl image and proxy
+	result = dl_image(result)
+
 	set_image_in_cache(artist_id,'artists',result)
 	if result is not None: return result
 	return ""
