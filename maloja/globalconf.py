@@ -147,9 +147,8 @@ malojaconfig = Configuration(
 			"port":(tp.Integer(),												"Port",							42010),
 		},
 		"Technical":{
-			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 				300,	"Days until images are refetched"),
-			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",		30,		"Days until failed image fetches are reattempted"),
-			"proxy_images":(tp.Boolean(),										"Image Proxy",							False,	"Whether third party images should be downloaded and served directly by Maloja (instead of just linking their URL)"),
+			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 				60,		"Days until images are refetched"),
+			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",		5,		"Days until failed image fetches are reattempted"),
 			"db_max_memory":(tp.Integer(min=0,max=100),							"RAM Percentage soft limit",			80,		"RAM Usage in percent at which Maloja should no longer increase its database cache.")
 		},
 		"Fluff":{
@@ -173,6 +172,7 @@ malojaconfig = Configuration(
 			"other_maloja_api_key":(tp.String(),								"Other Maloja Instance API Key",None),
 			"track_search_provider":(tp.String(),								"Track Search Provider",		None),
 			"send_stats":(tp.Boolean(),											"Send Statistics",				None),
+			"proxy_images":(tp.Boolean(),										"Image Proxy",					False,	"Whether third party images should be downloaded and served directly by Maloja (instead of just linking their URL)")
 
 		},
 		"Database":{
