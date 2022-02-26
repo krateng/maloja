@@ -76,14 +76,16 @@ def remove_image_from_cache(id,table):
 		result = conn.execute(op)
 
 def dl_image(url):
+	if url is None: return None
 	try:
 		r = requests.get(url)
-		mime = r.headers.get('content-type','image/jpg')
+		mime = r.headers.get('content-type') or 'image/jpg'
 		data = io.BytesIO(r.content).read()
 		uri = datauri.DataURI.make(mime,charset='ascii',base64=True,data=data)
+		log(f"Downloaded {url} for local caching")
 		return uri
 	except:
-		raise
+		log(f"Image {url} could not be downloaded for local caching")
 		return url
 
 def get_track_image(track=None,track_id=None,fast=False):
