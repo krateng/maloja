@@ -10,18 +10,24 @@ from doreah.logging import log
 
 from ..globalconf import malojaconfig
 
-USE_CACHE = True
 HIGH_NUMBER = 1000000
 
 cache = lru.LRU(HIGH_NUMBER)
 hits, misses = 0, 0
 
 
+if malojaconfig['USE_GLOBAL_CACHE']:
+	log("Using global DB Cache")
+if malojaconfig['USE_REQUEST_CACHE']:
+	log("Using request-local DB Cache")
+
+
 
 @runhourly
 def maintenance():
-	print_stats()
-	trim_cache()
+	if malojaconfig['USE_GLOBAL_CACHE']:
+		print_stats()
+		trim_cache()
 
 def print_stats():
 	log(f"Cache Size: {len(cache)}, System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
@@ -29,7 +35,7 @@ def print_stats():
 
 def cached_wrapper(inner_func):
 
-	if not USE_CACHE: return inner_func
+	if not malojaconfig['USE_GLOBAL_CACHE']: return inner_func
 	def outer_func(*args,**kwargs):
 		if 'dbconn' in kwargs:
 			conn = kwargs.pop('dbconn')
@@ -53,15 +59,16 @@ def cached_wrapper(inner_func):
 
 
 def invalidate_caches(scrobbletime):
-	cleared, kept = 0, 0
-	for k in cache.keys():
-		# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
-		if (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
-			cleared += 1
-			del cache[k]
-		else:
-			kept += 1
-	log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
+	if malojaconfig['USE_GLOBAL_CACHE']:
+		cleared, kept = 0, 0
+		for k in cache.keys():
+			# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
+			if (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
+				cleared += 1
+				del cache[k]
+			else:
+				kept += 1
+		log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
 
 
 
