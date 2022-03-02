@@ -58,7 +58,7 @@ class APIHandler:
 
 
 	def wrapper(self,path:Multi=[],**keys):
-		log("API request: " + str(path))# + " | Keys: " + str({k:keys.get(k) for k in keys}))
+		log("{self.__apiname__} API request: " + str(path))# + " | Keys: " + str({k:keys.get(k) for k in keys}))
 
 		try:
 			response.status,result = self.handle(path,keys)
@@ -90,8 +90,8 @@ class APIHandler:
 
 
 	def scrobble(self,artiststr,titlestr,time=None,duration=None,album=None):
-		logmsg = "API receiving scrobble: (API: {api}): ARTISTS: {artiststr}, TRACK: {titlestr}"
-		log(logmsg.format(api=self.__apiname__,artiststr=artiststr,titlestr=titlestr))
+		logmsg = f"API {self.__apiname__} receiving scrobble: ARTISTS: {artiststr}, TRACK: {titlestr}"
+		log(logmsg)
 
 		# fixing etc is handled by the main scrobble function
 		try:
