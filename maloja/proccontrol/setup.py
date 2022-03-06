@@ -4,7 +4,8 @@ from doreah.io import col, ask, prompt
 from doreah import auth
 import os
 
-from ..globalconf import data_dir, dir_settings, malojaconfig, apikeystore
+from ..globalconf import data_dir, dir_settings, malojaconfig
+
 
 
 # EXTERNAL API KEYS
@@ -47,6 +48,7 @@ def setup():
 
 
 	# OWN API KEY
+	from ..apis import apikeystore
 	if len(apikeystore) == 0:
 		answer = ask("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database.",default=True,skip=SKIP)
 		if answer:

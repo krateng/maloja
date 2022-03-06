@@ -21,9 +21,9 @@ from . import database
 from .database.jinjaview import JinjaDBConnection
 from .utilities import get_track_image, get_artist_image
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, apikeystore, data_dir
+from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
-from .apis import init_apis
+from .apis import init_apis, apikeystore
 
 
 from .proccontrol.profiler import profile

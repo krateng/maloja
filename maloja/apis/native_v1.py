@@ -1,15 +1,26 @@
-from ..database import *
-from ..globalconf import malojaconfig, apikeystore
+
+from .. import database
+from ..globalconf import malojaconfig
+
+
+
 from ..__pkginfo__ import VERSION
 from ..malojauri import uri_to_internal
 from .. import utilities
 from ._apikeys import api_key_correct, checkAPIkey
+from . import apikeystore
 
 from bottle import response, static_file
 
 # nimrodel API
 from nimrodel import EAPI as API
 from nimrodel import Multi
+
+
+
+from doreah.auth import authenticated_api, authenticated_api_with_alternate
+
+
 
 
 api = API(delay=True)
@@ -48,7 +59,7 @@ def server_info():
 		"name":malojaconfig["NAME"],
 		"version":VERSION.split("."),
 		"versionstring":VERSION,
-		"db_status":dbstatus
+		"db_status":database.dbstatus
 	}
 
 
@@ -60,7 +71,7 @@ def get_scrobbles_external(**keys):
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
-	result = get_scrobbles(**ckeys)
+	result = database.get_scrobbles(**ckeys)
 
 	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
 	result = result[offset:]
@@ -85,7 +96,7 @@ def get_scrobbles_num_external(**keys):
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
-	result = get_scrobbles_num(**ckeys)
+	result = database.get_scrobbles_num(**ckeys)
 	return {"amount":result}
 
 
@@ -95,14 +106,14 @@ def get_tracks_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	result = get_tracks(**ckeys)
+	result = database.get_tracks(**ckeys)
 	return {"list":result}
 
 
 
 @api.get("artists")
 def get_artists_external():
-	result = get_artists()
+	result = database.get_artists()
 	return {"list":result}
 
 
@@ -114,7 +125,7 @@ def get_charts_artists_external(**keys):
 	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
-	result = get_charts_artists(**ckeys)
+	result = database.get_charts_artists(**ckeys)
 	return {"list":result}
 
 
@@ -124,7 +135,7 @@ def get_charts_tracks_external(**keys):
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
-	result = get_charts_tracks(**ckeys)
+	result = database.get_charts_tracks(**ckeys)
 	return {"list":result}
 
 
@@ -135,7 +146,7 @@ def get_pulse_external(**keys):
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
-	results = get_pulse(**ckeys)
+	results = database.get_pulse(**ckeys)
 	return {"list":results}
 
 
@@ -146,7 +157,7 @@ def get_performance_external(**keys):
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
-	results = get_performance(**ckeys)
+	results = database.get_performance(**ckeys)
 	return {"list":results}
 
 
@@ -157,7 +168,7 @@ def get_top_artists_external(**keys):
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
-	results = get_top_artists(**ckeys)
+	results = database.get_top_artists(**ckeys)
 	return {"list":results}
 
 
@@ -170,7 +181,7 @@ def get_top_tracks_external(**keys):
 
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
 
-	results = get_top_tracks(**ckeys)
+	results = database.get_top_tracks(**ckeys)
 	return {"list":results}
 
 
@@ -181,7 +192,7 @@ def artist_info_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	return artist_info(**ckeys)
+	return database.artist_info(**ckeys)
 
 
 
@@ -194,12 +205,12 @@ def track_info_external(artist:Multi[str],**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
-	return track_info(**ckeys)
+	return database.track_info(**ckeys)
 
 
 @api.get("compare")
 def compare_external(**keys):
-	return compare(keys["remote"])
+	return database.compare(keys["remote"])
 
 
 
@@ -214,7 +225,7 @@ def get_post_scrobble(artist:Multi,**keys):
 	time = keys.get("time")
 	if time is not None: time = int(time)
 
-	return incoming_scrobble(artists,title,album=album,duration=duration,time=time)
+	return database.incoming_scrobble(artists,title,album=album,duration=duration,time=time)
 
 @api.post("newscrobble")
 @authenticated_api_with_alternate(api_key_correct)
@@ -237,7 +248,7 @@ def post_scrobble(artist:Multi=None,**keys):
 	keys['fix'] = keys.get("nofix") is None
 	if keys.get('time') is not None: keys['time'] = int(keys.get('time'))
 
-	return incoming_scrobble(**keys,client=request.malojaclient)
+	return database.incoming_scrobble(**keys,client=request.malojaclient)
 	# TODO: malojaclient needs to be converted to proper argument in doreah
 
 
@@ -264,15 +275,15 @@ def import_rulemodule(**keys):
 @authenticated_api
 def rebuild(**keys):
 	log("Database rebuild initiated!")
-	sync()
+	database.sync()
 	dbstatus['rebuildinprogress'] = True
 	from ..proccontrol.tasks.fixexisting import fix
 	fix()
 	global cla, coa
 	cla = CleanerAgent()
 	coa = CollectorAgent()
-	build_db()
-	invalidate_caches()
+	database.build_db()
+	database.invalidate_caches()
 
 
 

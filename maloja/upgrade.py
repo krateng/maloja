@@ -6,7 +6,8 @@ import re
 from doreah.logging import log
 from doreah.io import col
 
-from .globalconf import data_dir, dir_settings, apikeystore
+from .globalconf import data_dir, dir_settings
+from . import apis
 
 
 def upgrade_apikeys():
@@ -17,7 +18,7 @@ def upgrade_apikeys():
 			from doreah import tsv
 			clients = tsv.parse(oldfile,"string","string")
 			for key,identifier in clients:
-				apikeystore[identifier] = key
+				apis.apikeystore[identifier] = key
 			os.remove(oldfile)
 		except:
 			pass

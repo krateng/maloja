@@ -79,7 +79,10 @@ def stop():
 	print("Maloja stopped!")
 	return True
 
-
+def onlysetup():
+	print_header_info()
+	setup()
+	print("Setup complete!")
 
 def direct():
 	print_header_info()
@@ -111,6 +114,7 @@ def main(*args,**kwargs):
 		"stop":stop,
 		"run":direct,
 		"debug":debug,
+		"setup":onlysetup,
 		"import":tasks.loadlastfm,
 		"backup":tasks.backuphere,
 	#	"update":update,

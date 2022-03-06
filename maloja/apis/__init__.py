@@ -1,22 +1,28 @@
-from . import native_v1
-from .audioscrobbler import Audioscrobbler
-from .audioscrobbler_legacy import AudioscrobblerLegacy
-from .listenbrainz import Listenbrainz
+from ._apikeys import apikeystore
+
 
 import copy
 from bottle import redirect, request, response
 from urllib.parse import urlencode
 
-native_apis = [
-	native_v1.api
-]
-standardized_apis = [
-	Listenbrainz(),
-	Audioscrobbler(),
-	AudioscrobblerLegacy()
-]
+
 
 def init_apis(server):
+
+	from . import native_v1
+	from .audioscrobbler import Audioscrobbler
+	from .audioscrobbler_legacy import AudioscrobblerLegacy
+	from .listenbrainz import Listenbrainz
+
+	native_apis = [
+		native_v1.api
+	]
+	standardized_apis = [
+		Listenbrainz(),
+		Audioscrobbler(),
+		AudioscrobblerLegacy()
+	]
+
 	for api in native_apis:
 		api.mount(server=server,path="apis/"+api.__apipath__)
 

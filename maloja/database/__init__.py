@@ -7,7 +7,8 @@ from .. import utilities
 from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
-from ..globalconf import data_dir, malojaconfig, apikeystore
+from ..globalconf import data_dir, malojaconfig
+from ..apis import apikeystore
 #db
 from . import sqldb
 from . import cached

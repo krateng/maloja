@@ -1,7 +1,7 @@
 import os
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
-from doreah.keystore import KeyStore
+
 
 from .__pkginfo__ import VERSION
 
@@ -308,20 +308,6 @@ config(
 		"offset": malojaconfig["TIMEZONE"]
 	}
 )
-
-
-
-### API KEYS
-### symmetric keys are fine since we hopefully use HTTPS
-
-
-apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
-from . import upgrade
-upgrade.upgrade_apikeys()
-
-print("Authenticated Machines: " + ", ".join([k for k in apikeystore]))
-
-
 
 
 
