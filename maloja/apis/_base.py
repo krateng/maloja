@@ -58,7 +58,7 @@ class APIHandler:
 
 
 	def wrapper(self,path:Multi=[],**keys):
-		log("{self.__apiname__} API request: " + str(path))# + " | Keys: " + str({k:keys.get(k) for k in keys}))
+		log(f"{self.__apiname__} API request: {path}")# + " | Keys: " + str({k:keys.get(k) for k in keys}))
 
 		try:
 			response.status,result = self.handle(path,keys)

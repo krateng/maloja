@@ -10,7 +10,7 @@ from .. import utilities
 from ._apikeys import api_key_correct, checkAPIkey
 from . import apikeystore
 
-from bottle import response, static_file
+from bottle import response, static_file, request
 
 # nimrodel API
 from nimrodel import EAPI as API

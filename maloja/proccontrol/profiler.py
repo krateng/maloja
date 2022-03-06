@@ -8,7 +8,10 @@ def profile(func):
 		profiler.enable()
 		result = func(*args,**kwargs)
 		profiler.disable()
-		pstats.Stats(profiler).dump_stats(f"dev/benchmarking/{func}.stats")
+		try:
+			pstats.Stats(profiler).dump_stats(f"dev/benchmarking/{func.__name__}.stats")
+		except:
+			pass
 		return result
 
 	return newfunc
