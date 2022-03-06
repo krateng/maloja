@@ -320,7 +320,7 @@ def track_info(dbconn=None,**keys):
 
 
 
-def issues():
+def issues(dbconn=None):
 	return ISSUES
 
 def check_issues():
@@ -413,7 +413,7 @@ def check_issues():
 
 
 
-def get_predefined_rulesets():
+def get_predefined_rulesets(dbconn=None):
 	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 	rulesets = []

@@ -5,6 +5,7 @@ from threading import Thread
 import setproctitle
 import pkg_resources
 from css_html_js_minify import html_minify, css_minify
+import datauri
 
 
 # server stuff
@@ -165,7 +166,14 @@ def dynamic_image():
 		result = get_artist_image(relevant['artist'])
 
 	if result is None: return ""
-	redirect(result,307)
+	if result.startswith("data:"):
+		# data uris are directly served as image because a redirect to a data uri
+		# doesnt work
+		duri = datauri.DataURI(result)
+		response.content_type = duri.mimetype
+		return duri.data
+	else:
+		redirect(result,307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
