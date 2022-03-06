@@ -198,7 +198,8 @@ malojaconfig = Configuration(
 	},
 	configfile=newsettingsfile,
 	save_endpoint="/apis/mlj_1/settings",
-	env_prefix="MALOJA_"
+	env_prefix="MALOJA_",
+	extra_files=["/run/secrets/maloja.yml","/run/secrets/maloja.ini"]
 
 )
 
@@ -215,7 +216,11 @@ is not running in order to avoid data being overwritten.
 Technically, each setting can be set via environment variable or the settings
 file - simply add the prefix `MALOJA_` for environment variables. It is recommended
 to use the settings file where possible and not configure each aspect of your
-server via environment variables!''')
+server via environment variables!
+
+You also can specify additional settings in the files`/run/secrets/maloja.yml` or
+`/run/secrets/maloja.ini`, as well as their values directly in files of the respective
+name in `/run/secrets/` (e.g. `/run/secrets/lastfm_api_key`).''')
 
 
 ### STEP 3 - check all possible folders for files (old installation)
