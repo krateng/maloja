@@ -139,7 +139,16 @@ def get_scrobbles(dbconn=None,**keys):
 
 @waitfordb
 def get_scrobbles_num(dbconn=None,**keys):
-	return len(get_scrobbles(dbconn=dbconn,**keys))
+	(since,to) = keys.get('timerange').timestamps()
+	if 'artist' in keys:
+		result = len(sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,resolve_references=False,dbconn=dbconn))
+	elif 'track' in keys:
+		result = len(sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,resolve_references=False,dbconn=dbconn))
+	else:
+		result = sqldb.get_scrobbles_num(since=since,to=to,dbconn=dbconn)
+	return result
+
+
 
 @waitfordb
 def get_tracks(dbconn=None,**keys):

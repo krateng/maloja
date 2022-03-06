@@ -283,7 +283,7 @@ def get_artist_id(artistname,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles_of_artist(artist,since=None,to=None,dbconn=None):
+def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -299,13 +299,14 @@ def get_scrobbles_of_artist(artist,since=None,to=None,dbconn=None):
 	).order_by(sql.asc('timestamp'))
 	result = dbconn.execute(op).all()
 
-	result = scrobbles_db_to_dict(result)
+	if resolve_references:
+		result = scrobbles_db_to_dict(result)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles_of_track(track,since=None,to=None,dbconn=None):
+def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -319,7 +320,8 @@ def get_scrobbles_of_track(track,since=None,to=None,dbconn=None):
 	).order_by(sql.asc('timestamp'))
 	result = dbconn.execute(op).all()
 
-	result = scrobbles_db_to_dict(result)
+	if resolve_references:
+		result = scrobbles_db_to_dict(result)
 	#result = [scrobble_db_to_dict(row) for row in result]
 	return result
 
@@ -336,9 +338,27 @@ def get_scrobbles(since=None,to=None,resolve_references=True,dbconn=None):
 	).order_by(sql.asc('timestamp'))
 	result = dbconn.execute(op).all()
 
-	result = scrobbles_db_to_dict(result)
+	if resolve_references:
+		result = scrobbles_db_to_dict(result)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
 	return result
+
+
+# we can do that with above and resolve_references=False, but just testing speed
+@cached_wrapper
+@connection_provider
+def get_scrobbles_num(since=None,to=None,dbconn=None):
+
+	if since is None: since=0
+	if to is None: to=now()
+
+	op = sql.select(sql.func.count()).select_from(DB['scrobbles']).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+	)
+	result = dbconn.execute(op).all()
+
+	return result[0][0]
 
 @cached_wrapper
 @connection_provider
