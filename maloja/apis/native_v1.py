@@ -5,12 +5,12 @@ from ..globalconf import malojaconfig
 
 
 from ..__pkginfo__ import VERSION
-from ..malojauri import uri_to_internal
+from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
 from .. import utilities
 from ._apikeys import api_key_correct, checkAPIkey
 from . import apikeystore
 
-from bottle import response, static_file, request
+from bottle import response, static_file, request, FormsDict
 
 # nimrodel API
 from nimrodel import EAPI as API
@@ -295,8 +295,8 @@ def search(**keys):
 	if max_ is not None: max_ = int(max_)
 	query = query.lower()
 
-	artists = db_search(query,type="ARTIST")
-	tracks = db_search(query,type="TRACK")
+	artists = database.db_search(query,type="ARTIST")
+	tracks = database.db_search(query,type="TRACK")
 
 
 
