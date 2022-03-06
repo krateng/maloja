@@ -13,7 +13,6 @@ import waitress
 
 # doreah toolkit
 from doreah.logging import log
-from doreah.timing import Clock
 from doreah import auth
 
 # rest of the project
@@ -224,10 +223,6 @@ def jinja_page(name):
 
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
-
-	clock = Clock()
-	clock.start()
-
 	with JinjaDBConnection() as conn:
 
 		loc_context = {
@@ -247,7 +242,6 @@ def jinja_page(name):
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
-	log("Generated page {name} in {time:.5f}s".format(name=name,time=clock.stop()),module="debug_performance")
 	return clean_html(res)
 
 @webserver.route("/<name:re:admin.*>")
