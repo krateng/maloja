@@ -61,6 +61,8 @@ build =[
 ]
 run = [
 	"python3",
-	"tzdata",
+	"tzdata"
+]
+opt = [
 	"vips"
 ]
