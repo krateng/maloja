@@ -14,7 +14,7 @@ To avoid cluttering your system, consider using a [virtual environment](https://
 Your system needs several packages installed. On Alpine, this can be done with
 
 ```console
-	sh ./install/install_dependencies.sh
+	sh ./dev/install_dependencies_alpine.sh
 ```
 
 For other distros, try to find the equivalents of the packages listed or simply check your error output.
