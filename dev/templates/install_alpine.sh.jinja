@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+apk add \
+	{{ tool.osreqs.alpine.build | join(' \\\n\t') }} \
+	{{ tool.osreqs.alpine.run | join(' \\\n\t') }}
+pip3 install wheel
+pip3 install malojaserver

@@ -33,6 +33,11 @@ dependencies = [
 	"python-datauri>=1.1.0"
 ]
 
+[project.optional-dependencies]
+full = [
+	"pyvips>=2.1"
+]
+
 [project.scripts]
 maloja = "maloja.proccontrol.control:main"
 
@@ -42,3 +47,20 @@ build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
 name = "maloja"
+
+[tool.osreqs.alpine]
+build =[
+	"gcc",
+	"python3-dev",
+	"libxml2-dev",
+	"libxslt-dev",
+	"libffi-dev",
+	"libc-dev",
+	"py3-pip",
+	"linux-headers"
+]
+run = [
+	"python3",
+	"tzdata",
+	"vips"
+]

@@ -11,8 +11,8 @@ COPY ./requirements.txt ./requirements.txt
 
 # Install everything before copying rest of the project, can be cached
 RUN \
-	apk add --no-cache --virtual .build-deps gcc python3-dev libxml2-dev libxslt-dev libffi-dev libc-dev py3-pip linux-headers && \
-	apk add --no-cache python3 tzdata vips && \
+	apk add --no-cache --virtual .build-deps {{ tool.osreqs.alpine.build | join(' ') }} && \
+	apk add --no-cache {{ tool.osreqs.alpine.run | join(' ') }} && \
 	pip3 install --no-cache-dir -r requirements.txt && \
 	apk del .build-deps
 

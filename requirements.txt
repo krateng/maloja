@@ -1,6 +1,6 @@
 bottle>=0.12.16
 waitress>=1.3
-doreah>=1.7.4
+doreah>=1.7.4, <2
 nimrodel>=0.7.0
 setproctitle>=1.1.10
 jinja2>=2.11
@@ -9,3 +9,4 @@ css_html_js_minify>=2.5.5
 psutil>=5.8.0
 sqlalchemy>=1.4
 python-datauri>=1.1.0
+
