@@ -1,24 +1,33 @@
-FROM python:3-alpine
+FROM alpine:3.15
+# Python image includes two Python versions, so use base Alpine
 
 # Based on the work of Jonathan Boeckel <jonathanboeckel1996@gmail.com>
-# https://gitlab.com/Joniator/docker-maloja
-# https://github.com/Joniator
 
 WORKDIR /usr/src/app
 
-# this should change rarely, can be cached
+# Install run dependencies first
+RUN apk add --no-cache {{ tool.osreqs.alpine.run | join(' ') }}
+
+# system pip could be removed after build, but apk then decides to also remove all its
+# python dependencies, even if they are explicitly installed as python packages
+# whut
+RUN \
+	apk add py3-pip && \
+	pip install wheel
+
 COPY ./requirements.txt ./requirements.txt
 
-# Install everything before copying rest of the project, can be cached
 RUN \
 	apk add --no-cache --virtual .build-deps {{ tool.osreqs.alpine.build | join(' ') }} && \
-	apk add --no-cache {{ tool.osreqs.alpine.run | join(' ') }} && \
-	pip3 install --no-cache-dir -r requirements.txt && \
+	pip install --no-cache-dir -r requirements.txt && \
 	apk del .build-deps
 
 
+# no chance for caching below here
+
 COPY . .
-RUN pip3 install /usr/src/app
+
+RUN pip install /usr/src/app
 
 # Docker-specific configuration and default to IPv4
 ENV MALOJA_SKIP_SETUP=yes

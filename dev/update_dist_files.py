@@ -12,6 +12,8 @@ for root,dirs,files in os.walk(templatedir):
 	relpath = os.path.relpath(root,start=templatedir)
 	for f in files:
 
+		if not f.endswith('.jinja'): continue
+
 		srcfile = os.path.join(root,f)
 		trgfile = os.path.join(relpath,f.replace(".jinja",""))
 
