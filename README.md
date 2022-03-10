@@ -61,7 +61,7 @@ Your CPU should have a single core passmark score of at the very least 1500. Whe
 
 ### PyPI
 
-You can download the included script `install_alpine.sh` and run it with
+You can download one of the included scripts in the `install` folder and run it with e.g.
 
 ```console
 	sh install_alpine.sh
@@ -73,7 +73,7 @@ You can also simply call the install command
 	pip install malojaserver
 ```
 
-directly (e.g. if you're not on Alpine) - make sure you have all the system packages installed.
+directly - make sure you have all the system packages installed.
 
 ### From Source
 
@@ -84,10 +84,10 @@ Clone this repository and enter the directory with
 	cd maloja
 ```
 
-Then install all the requirements and build the package:
+Then install all the requirements and build the package, e.g.:
 
 ```console
-	sh ./install/install_dependencies.sh
+	sh ./install/install_dependencies_alpine.sh
 	pip install -r requirements.txt
 	pip install .
 ```

@@ -68,3 +68,12 @@ run = [
 opt = [
 	"vips"
 ]
+
+[tool.osreqs.debian]
+build = [
+	"python3-pip"
+]
+run = [
+	"python3"
+]
+opt = []

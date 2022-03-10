@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+apk update
 apk add \
 	gcc \
 	g++ \
@@ -12,5 +13,3 @@ apk add \
 	python3 \
 	tzdata \
 	vips
-pip3 install wheel
-pip3 install malojaserver
