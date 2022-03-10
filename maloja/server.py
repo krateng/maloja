@@ -3,7 +3,7 @@ import sys
 import os
 from threading import Thread
 import setproctitle
-import pkg_resources
+from importlib import resources
 from css_html_js_minify import html_minify, css_minify
 import datauri
 
@@ -38,7 +38,7 @@ HOST = malojaconfig["HOST"]
 THREADS = 24
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
-STATICFOLDER = pkg_resources.resource_filename(__name__,"web/static")
+#STATICFOLDER = importlib.resources.path(__name__,"web/static")
 
 webserver = Bottle()
 
@@ -53,9 +53,11 @@ setproctitle.setproctitle("Maloja")
 
 def generate_css():
 	cssstr = ""
-	for file in os.listdir(os.path.join(STATICFOLDER,"css")):
-		with open(os.path.join(STATICFOLDER,"css",file),"r") as filed:
-			cssstr += filed.read()
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+
+		for file in os.listdir(os.path.join(staticfolder,"css")):
+			with open(os.path.join(staticfolder,"css",file),"r") as filed:
+				cssstr += filed.read()
 
 	for file in os.listdir(data_dir['css']()):
 		if file.endswith(".css"):
@@ -216,7 +218,8 @@ def login():
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
 	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf"]
-	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+		response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 

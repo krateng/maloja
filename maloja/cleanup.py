@@ -2,7 +2,6 @@ import re
 #from . import utilities
 from doreah import tsv
 from .globalconf import data_dir, malojaconfig
-import pkg_resources
 
 # need to do this as a class so it can retain loaded settings from file
 # apparently this is not true

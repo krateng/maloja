@@ -39,7 +39,6 @@ import yaml, json
 import math
 
 # url handling
-from importlib.machinery import SourceFileLoader
 import urllib
 
 
