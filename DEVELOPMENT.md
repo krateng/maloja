@@ -41,6 +41,18 @@ You can also build the package with
 ```console
 	pip install .
 ```
+
+
+## Docker
+
+You can also always build and run the server with
+
+```console
+	sh ./dev/dockerrun.sh
+```
+
+This will use the directory `testdata`.
+
 ## Further help
 
 Feel free to [ask](https://github.com/krateng/maloja/discussions) if you need some help!
