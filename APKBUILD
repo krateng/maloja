@@ -10,7 +10,7 @@ license="GPL-3.0"
 depends="python3 tzdata"
 pkgusers=$pkgname
 pkggroups=$pkgname
-depends_dev="gcc python3-dev libxml2-dev libxslt-dev libffi-dev libc-dev py3-pip linux-headers"
+depends_dev="gcc g++ python3-dev libxml2-dev libxslt-dev libffi-dev libc-dev py3-pip linux-headers"
 makedepends="$depends_dev"
 source="
 	$pkgname-$pkgver.tar.gz::https://github.com/krateng/maloja/archive/refs/tags/v$pkgver.tar.gz

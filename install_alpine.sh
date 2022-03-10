@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 apk add \
 	gcc \
+	g++ \
 	python3-dev \
 	libxml2-dev \
 	libxslt-dev \
