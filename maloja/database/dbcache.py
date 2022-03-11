@@ -13,6 +13,8 @@ from ..globalconf import malojaconfig
 HIGH_NUMBER = 1000000
 
 cache = lru.LRU(HIGH_NUMBER)
+entitycache = lru.LRU(HIGH_NUMBER)
+
 hits, misses = 0, 0
 
 
@@ -31,6 +33,10 @@ def maintenance():
 
 def print_stats():
 	log(f"Cache Size: {len(cache)}, System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
+	#print("Full rundown:")
+	#import sys
+	#for k in cache.keys():
+	#	print(f"\t{k}\t{sys.getsizeof(cache[k])}")
 
 
 def cached_wrapper(inner_func):
@@ -57,6 +63,38 @@ def cached_wrapper(inner_func):
 	return outer_func
 
 
+# cache for functions that call with a whole list of entity ids
+# we don't want a new cache entry for every single combination, but keep a common
+# cache that's aware of what we're calling
+def cached_wrapper_individual(inner_func):
+
+	if not malojaconfig['USE_GLOBAL_CACHE']: return inner_func
+	def outer_func(set_arg,**kwargs):
+
+
+		if 'dbconn' in kwargs:
+			conn = kwargs.pop('dbconn')
+		else:
+			conn = None
+
+		global hits, misses
+		result = {}
+		for id in set_arg:
+			if (inner_func,id) in entitycache:
+				result[id] = entitycache[(inner_func,id)]
+				hits += 1
+			else:
+				misses += 1
+
+
+		remaining = inner_func(set(e for e in set_arg if e not in result),dbconn=conn)
+		for id in remaining:
+				entitycache[(inner_func,id)] = remaining[id]
+				result[id] = remaining[id]
+
+		return result
+
+	return outer_func
 
 def invalidate_caches(scrobbletime):
 	if malojaconfig['USE_GLOBAL_CACHE']:

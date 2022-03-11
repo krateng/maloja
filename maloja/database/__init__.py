@@ -17,12 +17,7 @@ from . import dbcache
 # doreah toolkit
 from doreah.logging import log
 from doreah import tsv
-from doreah.caching import Cache, DeepCache
 from doreah.auth import authenticated_api, authenticated_api_with_alternate
-from doreah.io import ProgressBar
-try:
-	from doreah.persistence import DiskDict
-except: pass
 import doreah
 
 

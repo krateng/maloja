@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..globalconf import data_dir
 
-from .dbcache import cached_wrapper
+from .dbcache import cached_wrapper, cached_wrapper_individual
 
 from doreah.logging import log
 from doreah.regular import runhourly
@@ -498,7 +498,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 ### functions that get mappings for several entities -> rows
 
-@cached_wrapper
+@cached_wrapper_individual
 @connection_provider
 def get_artists_of_tracks(track_ids,dbconn=None):
 	op = sql.join(DB['trackartists'],DB['artists']).select().where(
@@ -512,7 +512,7 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 	return artists
 
 
-@cached_wrapper
+@cached_wrapper_individual
 @connection_provider
 def get_tracks_map(track_ids,dbconn=None):
 	op = DB['tracks'].select().where(
@@ -527,7 +527,7 @@ def get_tracks_map(track_ids,dbconn=None):
 		tracks[trackids[i]] = trackdicts[i]
 	return tracks
 
-@cached_wrapper
+@cached_wrapper_individual
 @connection_provider
 def get_artists_map(artist_ids,dbconn=None):
 
