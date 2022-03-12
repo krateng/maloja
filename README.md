@@ -55,25 +55,17 @@ Maloja should run on any x86 or ARM machine that runs Python.
 
 I can support you with issues best if you use **Alpine Linux**.
 
-Your CPU should have a single core passmark score of at the very least 1500. When virtualizing or containerizing, Maloja does not benefit from multiple assigned cores.
-
-500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
+Your CPU should have a single core passmark score of at the very least 1500. 500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
 
 ### PyPI
 
-You can download one of the included scripts in the `install` folder and run it with e.g.
-
-```console
-	sh install_alpine.sh
-```
-
-You can also simply call the install command
+You can install Maloja with
 
 ```console
 	pip install malojaserver
 ```
 
-directly - make sure you have all the system packages installed.
+To make sure all dependencies are installed, you can also use one of the included scripts in the `install` folder.
 
 ### From Source
 
@@ -102,7 +94,7 @@ Of note are these settings which should be passed as environmental variables to 
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
 * `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
 
-You must publish a port on your host machine to bind to the container's web port (default 42010). Note that the Docker version uses IPv4 per default.
+You must publish a port on your host machine to bind to the container's web port (default 42010). The Docker version uses IPv4 per default.
 
 An example of a minimum run configuration to access maloja via `localhost:42010`:
 
