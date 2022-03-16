@@ -55,14 +55,22 @@ div.header h1 {
  settings icon
 **/
 
+div.clickable_icon {
+	display: inline-block;
+	fill: var(--text-color);
+	cursor: pointer;
+}
+div.clickable_icon:hover {
+	fill: var(--text-color-focus);
+}
+div.clickable_icon.danger:hover {
+	fill: red;
+}
+
 div#settingsicon {
 	position:fixed;
 	right:30px;
 	top:30px;
-	fill: var(--text-color);
-}
-div#settingsicon:hover {
-	fill: var(--text-color-focus);
 }
 
 
@@ -564,6 +572,10 @@ table.list td.searchProvider:hover {
 	color: gold;
 }
 
+table.list td.iconbuttons {
+	text-align: right;
+	width:40px;
+}
 
 
 /*
