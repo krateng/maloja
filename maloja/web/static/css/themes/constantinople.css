@@ -1,0 +1,23 @@
+:root {
+	--base-color: #140c12;
+	--base-color-dark: #080507;
+	--base-color-light: #2c1b28;
+	--base-color-accent: #452a3e;
+	--base-color-accent-dark: #442b3e;
+	--base-color-accent-light: #dfcad9;
+
+	--text-color: #d8b700;
+	--text-color-selected: fadeout(var(--text-color),40%);
+	--text-color-secondary: #6a7600;
+	--text-color-tertiary: #474f00;
+	--text-color-focus: #3D428B;
+
+	--ctrl-element-color-bg: rgba(0,255,255,0.1);
+	--ctrl-element-color-main: rgba(103,85,0,0.7);
+	--ctrl-element-color-focus: gold;
+
+	--button-color-bg: var(--text-color);
+	--button-color-bg-focus: var(--text-color-focus);
+	--button-color-fg: var(--base-color);
+	--button-color-fg-focus: var(--base-color);
+}

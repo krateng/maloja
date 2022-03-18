@@ -56,8 +56,9 @@ def generate_css():
 	with resources.files('maloja') / 'web' / 'static' as staticfolder:
 
 		for file in os.listdir(os.path.join(staticfolder,"css")):
-			with open(os.path.join(staticfolder,"css",file),"r") as filed:
-				cssstr += filed.read()
+			if file.endswith(".css"):
+				with open(os.path.join(staticfolder,"css",file),"r") as filed:
+					cssstr += filed.read()
 
 	for file in os.listdir(data_dir['css']()):
 		if file.endswith(".css"):
@@ -214,12 +215,21 @@ def get_css():
 def login():
 	return auth.get_login_page()
 
+# old
 @webserver.route("/<name>.<ext>")
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
 	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf"]
 	with resources.files('maloja') / 'web' / 'static' as staticfolder:
 		response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
+	response.set_header("Cache-Control", "public, max-age=3600")
+	return response
+
+# new, direct reference
+@webserver.route("/static/<path:path>")
+def static(path):
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+		response = static_file(path,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 

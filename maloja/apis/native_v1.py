@@ -370,3 +370,9 @@ def get_backup(**keys):
 	archivefile = backup(tmpfolder)
 
 	return static_file(os.path.basename(archivefile),root=tmpfolder)
+
+
+@api.post("delete_scrobble")
+@authenticated_api
+def delete_scrobble(timestamp):
+	pass
