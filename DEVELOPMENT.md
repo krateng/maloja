@@ -48,7 +48,7 @@ You can also build the package with
 You can also always build and run the server with
 
 ```console
-	sh ./dev/dockerrun.sh
+	sh ./dev/run_docker.sh
 ```
 
 This will use the directory `testdata`.
