@@ -1,8 +1,17 @@
 import os
+
+from bottle import response, static_file, request, FormsDict
+
 from doreah.logging import log
+from doreah.auth import authenticated_api, authenticated_api_with_alternate
+
+# nimrodel API
+from nimrodel import EAPI as API
+from nimrodel import Multi
+
 
 from .. import database
-from ..globalconf import malojaconfig
+from ..globalconf import malojaconfig, data_dir
 
 
 
@@ -12,15 +21,13 @@ from .. import utilities
 from ._apikeys import api_key_correct, checkAPIkey
 from . import apikeystore
 
-from bottle import response, static_file, request, FormsDict
-
-# nimrodel API
-from nimrodel import EAPI as API
-from nimrodel import Multi
 
 
 
-from doreah.auth import authenticated_api, authenticated_api_with_alternate
+
+
+
+
 
 
 
