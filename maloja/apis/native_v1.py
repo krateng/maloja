@@ -1,3 +1,4 @@
+import os
 
 from .. import database
 from ..globalconf import malojaconfig
