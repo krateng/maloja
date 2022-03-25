@@ -1,4 +1,5 @@
 import os
+from doreah.logging import log
 
 from .. import database
 from ..globalconf import malojaconfig
