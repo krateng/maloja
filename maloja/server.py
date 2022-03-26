@@ -167,14 +167,15 @@ def dynamic_image():
 	elif keys['type'] == 'artist':
 		result = resolve_artist_image(keys['id'])
 
-	if result is None: return ""
+	if result is None or result['value'] in [None,'']:
+		return ""
 	if result['type'] == 'raw':
 		# data uris are directly served as image because a redirect to a data uri
 		# doesnt work
 		duri = datauri.DataURI(result['value'])
 		response.content_type = duri.mimetype
 		return duri.data
-	else:
+	if result['type'] == 'url':
 		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
