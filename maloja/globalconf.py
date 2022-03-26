@@ -174,7 +174,7 @@ malojaconfig = Configuration(
 			"other_maloja_api_key":(tp.String(),								"Other Maloja Instance API Key",None),
 			"track_search_provider":(tp.String(),								"Track Search Provider",		None),
 			"send_stats":(tp.Boolean(),											"Send Statistics",				None),
-			"proxy_images":(tp.Boolean(),										"Image Proxy",					False,	"Whether third party images should be downloaded and served directly by Maloja (instead of just linking their URL)")
+			"proxy_images":(tp.Boolean(),										"Image Proxy",					True,	"Whether third party images should be downloaded and served directly by Maloja (instead of just linking their URL)")
 
 		},
 		"Database":{

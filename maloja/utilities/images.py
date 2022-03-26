@@ -30,13 +30,15 @@ DB['artists'] = sql.Table(
 	'artists', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('url',sql.String),
-	sql.Column('expire',sql.Integer)
+	sql.Column('expire',sql.Integer),
+	sql.Column('raw',sql.String)
 )
 DB['tracks'] = sql.Table(
 	'tracks', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('url',sql.String),
-	sql.Column('expire',sql.Integer)
+	sql.Column('expire',sql.Integer),
+	sql.Column('raw',sql.String)
 )
 
 meta.create_all(engine)
@@ -50,8 +52,11 @@ def get_image_from_cache(id,table):
 		)
 		result = conn.execute(op).all()
 	for row in result:
-		return row.url # returns None if nonexistence cached
-	return False # no cache entry
+		if row.raw is not None:
+			return {'type':'raw','value':row.raw}
+		else:
+			return {'type':'url','value':row.url} # returns None as value if nonexistence cached
+	return None # no cache entry
 
 def set_image_in_cache(id,table,url):
 	remove_image_from_cache(id,table)
@@ -60,11 +65,15 @@ def set_image_in_cache(id,table,url):
 		expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
 	else:
 		expire = now + (malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600)
+
+	raw = dl_image(url)
+
 	with engine.begin() as conn:
 		op = DB[table].insert().values(
 			id=id,
 			url=url,
-			expire=expire
+			expire=expire,
+			raw=raw
 		)
 		result = conn.execute(op)
 
@@ -76,6 +85,7 @@ def remove_image_from_cache(id,table):
 		result = conn.execute(op)
 
 def dl_image(url):
+	if not malojaconfig["PROXY_IMAGES"]: return None
 	if url is None: return None
 	try:
 		r = requests.get(url)
@@ -86,71 +96,67 @@ def dl_image(url):
 		return uri
 	except:
 		log(f"Image {url} could not be downloaded for local caching")
-		return url
+		return None
 
-def get_track_image(track=None,track_id=None,fast=False):
 
+
+### getting images for any website embedding now ALWAYS returns just the generic link
+### even if we have already cached it, we will handle that on request
+def get_track_image(track=None,track_id=None):
 	if track_id is None:
 		track_id = database.sqldb.get_track_id(track)
-	title = track['title']
-	artists = track['artists']
 
-	# check cache
-	result = get_image_from_cache(track_id,'tracks')
-	if result is None:
-		# nonexistence cached, redirect to artist
-		for a in artists:
-			return get_artist_image(artist=a,fast=True)
-	elif result is False:
-		# no cache entry
-		pass
-	else:
-		return result
-
-	# local image
-	if malojaconfig["USE_LOCAL_IMAGES"]:
-		images = local_files(artists=artists,title=title)
-		if len(images) != 0:
-			result = random.choice(images)
-			result = urllib.parse.quote(result)
-			set_image_in_cache(track_id,'tracks',result)
-			return result
-
-	# forward
-	if fast:
-		titlequery = "title=" + urllib.parse.quote(title)
-		artistquery = "&".join("artist=" + urllib.parse.quote(a) for a in artists)
-		return (f"/image?{titlequery}&{artistquery}")
-
-	# third party
-	result = thirdparty.get_image_track_all((artists,title))
-
-	# dl image and proxy
-	result = dl_image(result)
-
-	set_image_in_cache(track_id,'tracks',result)
-	if result is not None: return result
-	for a in artists:
-		res = get_artist_image(artist=a,fast=False)
-		if res != "": return res
-	return ""
+	return f"/image?type=track&id={track_id}"
 
 
-def get_artist_image(artist=None,artist_id=None,fast=False):
-
+def get_artist_image(artist=None,artist_id=None):
 	if artist_id is None:
 		artist_id = database.sqldb.get_artist_id(artist)
 
+	return f"/image?type=artist&id={artist_id}"
+
+
+
+
+
+
+def resolve_track_image(track_id):
+
+	# check cache
+	result = get_image_from_cache(track_id,'tracks')
+	if result is not None:
+		return result
+
+	track = database.sqldb.get_track(track_id)
+	print(track)
+
+	# local image
+	if malojaconfig["USE_LOCAL_IMAGES"]:
+		images = local_files(artists=track['artists'],title=track['title'])
+		if len(images) != 0:
+			result = random.choice(images)
+			result = urllib.parse.quote(result)
+			result = {'type':'url','value':result}
+			set_image_in_cache(track_id,'tracks',result['value'])
+			return result
+
+	# third party
+	result = thirdparty.get_image_track_all((track['artists'],track['title']))
+	result = {'type':'url','value':result}
+	set_image_in_cache(track_id,'tracks',result['value'])
+
+	return result
+
+
+def resolve_artist_image(artist_id):
+
 	# check cache
 	result = get_image_from_cache(artist_id,'artists')
-	if result is None:
-		# nonexistence cached, whatevs
-		return ""
-	elif result is False:
-		# no cache entry
-		pass
-	else:
+	if result is not None:
 		return result
+
+	artist = database.sqldb.get_artist(artist_id)
+	print(artist)
 
 	# local image
 	if malojaconfig["USE_LOCAL_IMAGES"]:
@@ -158,23 +164,16 @@ def get_artist_image(artist=None,artist_id=None,fast=False):
 		if len(images) != 0:
 			result = random.choice(images)
 			result = urllib.parse.quote(result)
-			set_image_in_cache(artist_id,'artists',result)
+			result = {'type':'url','value':result}
+			set_image_in_cache(artist_id,'artists',result['value'])
 			return result
-
-	# forward
-	if fast:
-		artistquery = "artist=" + urllib.parse.quote(artist)
-		return (f"/image?{artistquery}")
 
 	# third party
 	result = thirdparty.get_image_artist_all(artist)
+	result = {'type':'url','value':result}
+	set_image_in_cache(artist_id,'artists',result['value'])
 
-	# dl image and proxy
-	result = dl_image(result)
-
-	set_image_in_cache(artist_id,'artists',result)
-	if result is not None: return result
-	return ""
+	return result
 
 
 # removes emojis and weird shit from names

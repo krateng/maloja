@@ -11,7 +11,7 @@
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set toptrack = charts[0].track %}
-	{% set img = utilities.get_track_image(toptrack,fast=True) %}
+	{% set img = utilities.get_track_image(toptrack) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

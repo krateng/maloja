@@ -19,7 +19,7 @@ from doreah import auth
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
-from .utilities import get_track_image, get_artist_image
+from .utilities import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
 from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
@@ -162,21 +162,20 @@ def deprecated_api(pth):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	relevant, _, _, _, _ = uri_to_internal(keys)
-	if 'track' in relevant:
-		result = get_track_image(relevant['track'])
-	elif 'artist' in relevant:
-		result = get_artist_image(relevant['artist'])
+	if keys['type'] == 'track':
+		result = resolve_track_image(keys['id'])
+	elif keys['type'] == 'artist':
+		result = resolve_artist_image(keys['id'])
 
 	if result is None: return ""
-	if result.startswith("data:"):
+	if result['type'] == 'raw':
 		# data uris are directly served as image because a redirect to a data uri
 		# doesnt work
-		duri = datauri.DataURI(result)
+		duri = datauri.DataURI(result['value'])
 		response.content_type = duri.mimetype
 		return duri.data
 	else:
-		redirect(result,307)
+		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
