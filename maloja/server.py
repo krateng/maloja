@@ -310,7 +310,3 @@ def run_server():
 	except OSError:
 		log("Error. Is another Maloja process already running?")
 		raise
-
-
-
-run_server()
