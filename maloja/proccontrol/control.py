@@ -105,21 +105,22 @@ def print_info():
 	print("#####")
 	print()
 
-@mainfunction({"l":"level","v":"version","V":"version"},flags=['version'],shield=True)
+@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
+		# server
 		"start":start,
 		"restart":restart,
 		"stop":stop,
 		"run":direct,
 		"debug":debug,
 		"setup":onlysetup,
-		"import":tasks.loadexternal,
-		"backup":tasks.backuphere,
-	#	"update":update,
-		"fix":tasks.fixdb,
-		"generate":tasks.generate_scrobbles,
+		# admin scripts
+		"import":tasks.import_scrobbles,
+		"backup":tasks.backup,					# maloja backup --folder x/y --include_images
+		"generate":tasks.generate,
+		# aux
 		"info":print_info
 	}
 

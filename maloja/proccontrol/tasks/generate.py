@@ -1,6 +1,7 @@
 import random
 import datetime
 
+
 artists = [
 	"Chou Tzuyu","Jennie Kim","Kim Seolhyun","Nancy McDonie","Park Junghwa","Hirai Momo","Rosé Park","Laura Brehm","HyunA",
 	"Jeremy Soule","Jerry Goldsmith","Howard Shore","Tilman Sillescu","James Newton Howard","Bear McCreary","David Newman",
@@ -64,13 +65,15 @@ def generate_track():
 
 
 
-def generate(targetfile):
-	with open(targetfile,"a") as fd:
-		for _ in range(200):
-			track = generate_track()
-			for _ in range(random.randint(1, 50)):
-				timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+def generate():
+	# TODO
+	pass
 
-				entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
-				fd.write(entry)
-				fd.write("\n")
+	for _ in range(200):
+		track = generate_track()
+		for _ in range(random.randint(1, 50)):
+			timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+
+			entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
+			fd.write(entry)
+			fd.write("\n")

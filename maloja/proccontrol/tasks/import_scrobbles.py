@@ -13,10 +13,14 @@ from ...globalconf import data_dir
 c = CleanerAgent()
 
 
+# TODO db import
+def import_scrobbles(fromfile):
 
-def import_scrobbles(inputf):
+	if not os.path.exists(fromfile):
+		print("File could not be found.")
+		return
 
-	ext = inputf.split('.')[-1].lower()
+	ext = fromfile.split('.')[-1].lower()
 
 	if ext == 'csv':
 		type = "Last.fm"
@@ -30,7 +34,7 @@ def import_scrobbles(inputf):
 		importfunc = parse_spotify
 
 
-	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
+	print(f"Parsing {col['yellow'](fromfile)} as {col['cyan'](type)} export")
 
 	if os.path.exists(outputf):
 		overwrite = ask("Already imported data. Overwrite?",default=False)
@@ -41,7 +45,7 @@ def import_scrobbles(inputf):
 		failed = 0
 		timestamps = set()
 
-		for scrobble in importfunc(inputf):
+		for scrobble in importfunc(fromfile):
 			if scrobble is None:
 				failed += 1
 			else:
@@ -73,6 +77,9 @@ def import_scrobbles(inputf):
 				if success % 100 == 0:
 					print(f"Imported {success} scrobbles...")
 
+	print("Successfully imported",success,"scrobbles!")
+	if failed > 0:
+		print(col['red'](str(failed) + " Errors!"))
 	return success,failed
 
 

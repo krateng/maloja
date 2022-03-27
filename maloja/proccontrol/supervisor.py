@@ -35,8 +35,6 @@ def start():
 
 while True:
 	log("Maloja is not running, starting...",module="supervisor")
-	if malojaconfig["UPDATE_AFTER_CRASH"]:
-		update()
 	process = start()
 
 	process.wait()
