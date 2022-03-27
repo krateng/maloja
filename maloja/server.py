@@ -187,28 +187,27 @@ def static_image(pth):
 	ext = pth.split(".")[-1]
 	small_pth = pth + "-small"
 	if os.path.exists(data_dir['images'](small_pth)):
-		response = static_file(small_pth,root=data_dir['images']())
+		resp = static_file(small_pth,root=data_dir['images']())
 	else:
 		try:
 			from pyvips import Image
 			thumb = Image.thumbnail(data_dir['images'](pth),300)
 			thumb.webpsave(data_dir['images'](small_pth))
-			response = static_file(small_pth,root=data_dir['images']())
+			resp = static_file(small_pth,root=data_dir['images']())
 		except Exception:
-			response = static_file(pth,root=data_dir['images']())
+			resp = static_file(pth,root=data_dir['images']())
 
 	#response = static_file("images/" + pth,root="")
-	response.set_header("Cache-Control", "public, max-age=86400")
-	response.set_header("Content-Type", "image/" + ext)
-	return response
+	resp.set_header("Cache-Control", "public, max-age=86400")
+	resp.set_header("Content-Type", "image/" + ext)
+	return resp
 
 
 @webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
-	global css
-	if malojaconfig["DEV_MODE"]: css = generate_css()
-	return css
+	if malojaconfig["DEV_MODE"]: return generate_css()
+	else: return css
 
 
 @webserver.route("/login")

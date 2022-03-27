@@ -84,6 +84,7 @@ def cached_wrapper_individual(inner_func):
 				result[id] = entitycache[(inner_func,id)]
 				#hits += 1
 			else:
+				pass
 				#misses += 1
 
 
