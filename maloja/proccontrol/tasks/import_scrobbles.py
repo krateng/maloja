@@ -60,15 +60,15 @@ def import_scrobbles(fromfile):
 				 	"track":{
 				 		"artists":scrobble['artists'],
 				 		"title":scrobble['title'],
-				 		"album":{
-				 			"name":scrobble['album'],
-				 			"artists":scrobble['artists']
-				 		},
 				 		"length":None
 				 	},
 				 	"duration":scrobble['duration'],
 				 	"origin":"import:" + import_type,
-					"extra":{}
+					"extra":{
+						"album":scrobble['album']
+						# saving this in the scrobble instead of the track because for now it's not meant
+						# to be authorative information, just payload of the scrobble
+					}
 			})
 
 			if success % 1000 == 0:

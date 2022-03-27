@@ -87,6 +87,7 @@ def remove_image_from_cache(id,table):
 def dl_image(url):
 	if not malojaconfig["PROXY_IMAGES"]: return None
 	if url is None: return None
+	if url.startswith("/"): return None #local image
 	try:
 		r = requests.get(url)
 		mime = r.headers.get('content-type') or 'image/jpg'

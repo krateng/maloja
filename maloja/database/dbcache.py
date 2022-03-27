@@ -32,7 +32,7 @@ def maintenance():
 		trim_cache()
 
 def print_stats():
-	log(f"Cache Size: {len(cache)+len(entitycache)}, System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
+	log(f"Cache Size: {len(cache)} [{len(entitycache)} E], System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
 	#print("Full rundown:")
 	#import sys
 	#for k in cache.keys():
@@ -77,14 +77,14 @@ def cached_wrapper_individual(inner_func):
 		else:
 			conn = None
 
-		global hits, misses
+		#global hits, misses
 		result = {}
 		for id in set_arg:
 			if (inner_func,id) in entitycache:
 				result[id] = entitycache[(inner_func,id)]
-				hits += 1
+				#hits += 1
 			else:
-				misses += 1
+				#misses += 1
 
 
 		remaining = inner_func(set(e for e in set_arg if e not in result),dbconn=conn)
