@@ -1,6 +1,8 @@
 import random
 import datetime
 
+from ...database.sqldb import add_scrobbles
+
 
 artists = [
 	"Chou Tzuyu","Jennie Kim","Kim Seolhyun","Nancy McDonie","Park Junghwa","Hirai Momo","Rosé Park","Laura Brehm","HyunA",
@@ -66,14 +68,22 @@ def generate_track():
 
 
 def generate():
-	# TODO
-	pass
 
+	scrobbles = []
 	for _ in range(200):
 		track = generate_track()
+		print("Generated",track)
 		for _ in range(random.randint(1, 50)):
 			timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
 
-			entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
-			fd.write(entry)
-			fd.write("\n")
+			scrobbles.append({
+				"time":timestamp,
+				 	"track":{
+				 		"artists":track['artists'],
+				 		"title":track['title']
+				 	},
+					"duration":None,
+				 	"origin":"generated"
+			})
+
+	add_scrobbles(scrobbles)

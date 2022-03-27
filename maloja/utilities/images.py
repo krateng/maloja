@@ -128,7 +128,6 @@ def resolve_track_image(track_id):
 		return result
 
 	track = database.sqldb.get_track(track_id)
-	print(track)
 
 	# local image
 	if malojaconfig["USE_LOCAL_IMAGES"]:
@@ -156,7 +155,6 @@ def resolve_artist_image(artist_id):
 		return result
 
 	artist = database.sqldb.get_artist(artist_id)
-	print(artist)
 
 	# local image
 	if malojaconfig["USE_LOCAL_IMAGES"]:
@@ -275,7 +273,6 @@ def set_image(b64,**keys):
 	else:
 		entity = keys['artist']
 		id = database.sqldb.get_artist_id(entity)
-	print('id is',id)
 
 	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
 

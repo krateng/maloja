@@ -5,6 +5,8 @@ import json, csv
 from ...cleanup import *
 from doreah.io import col, ask
 from ...globalconf import data_dir
+
+from ...database.sqldb import add_scrobbles
 #from ...utilities import *
 
 
@@ -23,60 +25,58 @@ def import_scrobbles(fromfile):
 	ext = fromfile.split('.')[-1].lower()
 
 	if ext == 'csv':
-		type = "Last.fm"
-		outputf = data_dir['scrobbles']("lastfmimport.tsv")
+		import_type = "Last.fm"
 		importfunc = parse_lastfm
 
 
 	elif ext == 'json':
-		type = "Spotify"
-		outputf = data_dir['scrobbles']("spotifyimport.tsv")
+		import_type = "Spotify"
 		importfunc = parse_spotify
 
 
-	print(f"Parsing {col['yellow'](fromfile)} as {col['cyan'](type)} export")
+	print(f"Parsing {col['yellow'](fromfile)} as {col['cyan'](import_type)} export")
 
-	if os.path.exists(outputf):
-		overwrite = ask("Already imported data. Overwrite?",default=False)
-		if not overwrite: return
+	success = 0
+	failed = 0
+	timestamps = set()
+	scrobblebuffer = []
 
-	with open(outputf,"w") as outputfd:
-		success = 0
-		failed = 0
-		timestamps = set()
 
-		for scrobble in importfunc(fromfile):
-			if scrobble is None:
-				failed += 1
-			else:
-				success += 1
+	for scrobble in importfunc(fromfile):
+		if scrobble is None:
+			failed += 1
+		else:
+			success += 1
 
-				## We prevent double timestamps in the database creation, so we
-				## technically don't need them in the files
-				## however since the conversion to maloja is a one-time thing,
-				## we should take any effort to make the file as good as possible
-				while scrobble['timestamp'] in timestamps:
-					scrobble['timestamp'] += 1
-				timestamps.add(scrobble['timestamp'])
+			# prevent duplicate timestamps within one import file
+			while scrobble['timestamp'] in timestamps:
+				scrobble['timestamp'] += 1
+			timestamps.add(scrobble['timestamp'])
+			# clean up
+			(scrobble['artists'],scrobble['title']) = c.fullclean(scrobble['artists'],scrobble['title'])
 
-				# Format fields for tsv
-				scrobble['timestamp'] = str(scrobble['timestamp'])
-				scrobble['duration'] = str(scrobble['duration']) if scrobble['duration'] is not None else '-'
-				(artists,scrobble['title']) = c.fullclean(scrobble['artiststr'],scrobble['title'])
-				scrobble['artiststr'] = "␟".join(artists)
+			scrobblebuffer.append({
+				"time":scrobble['timestamp'],
+				 	"track":{
+				 		"artists":scrobble['artists'],
+				 		"title":scrobble['title'],
+				 		"album":{
+				 			"name":scrobble['album'],
+				 			"artists":scrobble['artists']
+				 		},
+				 		"length":None
+				 	},
+				 	"duration":scrobble['duration'],
+				 	"origin":"import:" + import_type,
+					"extra":{}
+			})
 
-				outputline = "\t".join([
-					scrobble['timestamp'],
-					scrobble['artiststr'],
-					scrobble['title'],
-					scrobble['album'],
-					scrobble['duration']
-				])
-				outputfd.write(outputline + '\n')
+			if success % 1000 == 0:
+				print(f"Imported {success} scrobbles...")
+				add_scrobbles(scrobblebuffer)
+				scrobblebuffer = []
 
-				if success % 100 == 0:
-					print(f"Imported {success} scrobbles...")
-
+	add_scrobbles(scrobblebuffer)
 	print("Successfully imported",success,"scrobbles!")
 	if failed > 0:
 		print(col['red'](str(failed) + " Errors!"))
@@ -95,7 +95,7 @@ def parse_spotify(inputf):
 			try:
 				yield {
 					'title':entry['master_metadata_track_name'],
-					'artiststr': entry['master_metadata_album_artist_name'],
+					'artists': entry['master_metadata_album_artist_name'],
 					'album': entry['master_metadata_album_album_name'],
 					'timestamp': int(datetime.datetime.strptime(
 						entry['ts'].replace('Z','+0000',),
@@ -124,7 +124,7 @@ def parse_lastfm(inputf):
 			try:
 				yield {
 					'title': row[2],
-					'artiststr': row[0],
+					'artists': row[0],
 					'album': row[1],
 					'timestamp': int(datetime.datetime.strptime(
 						row[3] + '+0000',
