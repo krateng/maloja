@@ -115,7 +115,7 @@ def main(*args,**kwargs):
 		"run":direct,
 		"debug":debug,
 		"setup":onlysetup,
-		"import":tasks.loadlastfm,
+		"import":tasks.loadexternal,
 		"backup":tasks.backuphere,
 	#	"update":update,
 		"fix":tasks.fixdb,
