@@ -117,9 +117,9 @@ def main(*args,**kwargs):
 		"debug":debug,
 		"setup":onlysetup,
 		# admin scripts
-		"import":tasks.import_scrobbles,
-		"backup":tasks.backup,					# maloja backup --folder x/y --include_images
-		"generate":tasks.generate,
+		"import":tasks.import_scrobbles,		# maloja import /x/y.csv
+		"backup":tasks.backup,					# maloja backup --targetfolder /x/y --include_images
+		"generate":tasks.generate,				# maloja generate 400
 		# aux
 		"info":print_info
 	}

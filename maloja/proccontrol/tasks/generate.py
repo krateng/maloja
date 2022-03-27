@@ -67,10 +67,11 @@ def generate_track():
 
 
 
-def generate():
+def generate(n=200):
+	n = int(n)
 
 	scrobbles = []
-	for _ in range(200):
+	for _ in range(n):
 		track = generate_track()
 		print("Generated",track)
 		for _ in range(random.randint(1, 50)):
