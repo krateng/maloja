@@ -17,7 +17,7 @@ from ..globalconf import malojaconfig, data_dir
 
 from ..__pkginfo__ import VERSION
 from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
-from .. import utilities
+from .. import images
 from ._apikeys import api_key_correct, checkAPIkey
 from . import apikeystore
 
@@ -343,7 +343,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 	if title is not None: keys.append("title",title)
 	k_filter, _, _, _, _ = uri_to_internal(keys)
 	if "track" in k_filter: k_filter = k_filter["track"]
-	utilities.set_image(b64,**k_filter)
+	images.set_image(b64,**k_filter)
 
 
 @api.post("newrule")

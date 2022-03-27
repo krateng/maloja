@@ -1,5 +1,5 @@
 import re
-#from . import utilities
+#from . import images
 from doreah import tsv
 from .globalconf import data_dir, malojaconfig
 

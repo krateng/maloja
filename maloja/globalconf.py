@@ -272,8 +272,11 @@ data_directories = {
 	"clients":pthj(dir_settings['config']),
 	"settings":pthj(dir_settings['config']),
 	"css":pthj(dir_settings['config'],"custom_css"),
-	"logs":pthj(dir_settings['logs']),
-	"cache":pthj(dir_settings['cache']),
+
+	"config":dir_settings['config'],
+	"state":dir_settings['state'],
+	"logs":dir_settings['logs'],
+	"cache":dir_settings['cache'],
 }
 
 

@@ -3,9 +3,9 @@
 {% import 'snippets/links.jinja' as links %}
 
 {% if 'artists' in entity %}
-	{% set img = utilities.get_track_image(entity) %}
+	{% set img = images.get_track_image(entity) %}
 {% else %}
-	{% set img = utilities.get_artist_image(entity) %}
+	{% set img = images.get_artist_image(entity) %}
 {% endif %}
 
 <td class='icon'><div style="background-image:url('{{ img }}')"></div></td>

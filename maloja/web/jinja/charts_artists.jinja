@@ -9,7 +9,7 @@
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set topartist = charts[0].artist %}
-	{% set img = utilities.get_artist_image(topartist) %}
+	{% set img = images.get_artist_image(topartist) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

@@ -19,7 +19,7 @@ from doreah import auth
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
-from .utilities import resolve_track_image, resolve_artist_image
+from .images import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
 from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment

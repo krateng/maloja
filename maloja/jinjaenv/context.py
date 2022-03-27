@@ -1,7 +1,7 @@
 from . import filters
 from ..globalconf import malojaconfig
 
-from .. import database, malojatime, utilities, malojauri, thirdparty, __pkginfo__
+from .. import database, malojatime, images, malojauri, thirdparty, __pkginfo__
 from ..database import jinjaview
 from doreah.regular import repeatdaily
 
@@ -28,7 +28,7 @@ def update_jinja_environment():
 		"db": database, #TODO: move these to connection manager as well
 		#"dbp":dbp,
 		"malojatime": malojatime,
-		"utilities": utilities,
+		"images": images,
 		"mlj_uri": malojauri,
 		"settings": malojaconfig,
 		"thirdparty": thirdparty,

@@ -39,10 +39,10 @@
 			{% if adminmode %}
 			<div
 				class="changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
-				style="background-image:url('{{ utilities.get_artist_image(artist) }}');"
+				style="background-image:url('{{ images.get_artist_image(artist) }}');"
 			></div>
 			{% else %}
-			<div style="background-image:url('{{ utilities.get_artist_image(artist) }}');">
+			<div style="background-image:url('{{ images.get_artist_image(artist) }}');">
 			</div>
 			{% endif %}
 		</td>
