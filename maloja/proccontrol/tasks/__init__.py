@@ -5,20 +5,17 @@ from ...globalconf import data_dir
 
 
 
-def loadlastfm(filename):
+def loadexternal(filename):
 
 	if not os.path.exists(filename):
 		print("File could not be found.")
 		return
 
-	if os.path.exists(data_dir['scrobbles']("lastfmimport.tsv")):
-		overwrite = ask("Already imported Last.FM data. Overwrite?",default=False)
-		if not overwrite: return
 	print("Please wait...")
 
-	from .lastfmconverter import convert
-	imported,failed = convert(filename,data_dir['scrobbles']("lastfmimport.tsv"))
-	print("Successfully imported",imported,"Last.FM scrobbles!")
+	from .importer import import_scrobbles
+	imported,failed = import_scrobbles(filename)
+	print("Successfully imported",imported,"scrobbles!")
 	if failed > 0:
 		print(col['red'](str(failed) + " Errors!"))
 
