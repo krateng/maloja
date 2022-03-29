@@ -65,16 +65,16 @@ def setup():
 		print("Password has been set.")
 	elif auth.defaultuser.checkpw("admin"):
 		# if the actual pw is admin, it means we've never set this up properly (eg first start after update)
-		newpw, newpw_repeat = 1, 2
-		while newpw != newpw_repeat:
+		while True:
 			newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
 			if newpw is None:
 				newpw = randomstring(32)
-				newpw_repeat = newpw
 				print("Generated password:",col["yellow"](newpw))
+				break
 			else:
 				newpw_repeat = prompt("Please type again to confirm.",skip=SKIP,secret=True)
 				if newpw != newpw_repeat: print("Passwords do not match!")
+				else: break
 		auth.defaultuser.setpw(newpw)
 
 	if malojaconfig["SEND_STATS"] is None:
