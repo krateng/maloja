@@ -11,8 +11,6 @@ def loadexternal(filename):
 		print("File could not be found.")
 		return
 
-	print("Please wait...")
-
 	from .importer import import_scrobbles
 	imported,failed,warning = import_scrobbles(filename)
 	print("Successfully imported",imported,"scrobbles!")

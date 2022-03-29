@@ -1,5 +1,6 @@
 import random
 import datetime
+from doreah.io import ask
 
 artists = [
 	"Chou Tzuyu","Jennie Kim","Kim Seolhyun","Nancy McDonie","Park Junghwa","Hirai Momo","Rosé Park","Laura Brehm","HyunA",
@@ -65,12 +66,14 @@ def generate_track():
 
 
 def generate(targetfile):
-	with open(targetfile,"a") as fd:
-		for _ in range(200):
-			track = generate_track()
-			for _ in range(random.randint(1, 50)):
-				timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+	if ask("Generate random scrobbles?",default=False):
+		with open(targetfile,"a") as fd:
+			for _ in range(200):
+				track = generate_track()
+				for _ in range(random.randint(1, 50)):
+					timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
 
-				entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
-				fd.write(entry)
-				fd.write("\n")
+					entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
+					fd.write(entry)
+					fd.write("\n")
+		print("Done!")
