@@ -39,11 +39,14 @@ def import_scrobbles(inputf):
 	with open(outputf,"w") as outputfd:
 		success = 0
 		failed = 0
+		warning = 0
 		timestamps = set()
 
 		for scrobble in importfunc(inputf):
 			if scrobble is None:
 				failed += 1
+			if scrobble is False:
+				warning += 1
 			else:
 				success += 1
 
@@ -73,7 +76,7 @@ def import_scrobbles(inputf):
 				if success % 100 == 0:
 					print(f"Imported {success} scrobbles...")
 
-	return success,failed
+	return success,failed,warning
 
 
 def parse_spotify(inputf):
@@ -84,22 +87,34 @@ def parse_spotify(inputf):
 
 		sec = int(entry['ms_played'] / 1000)
 
-		if sec > 30:
-			try:
-				yield {
-					'title':entry['master_metadata_track_name'],
-					'artiststr': entry['master_metadata_album_artist_name'],
-					'album': entry['master_metadata_album_album_name'],
-					'timestamp': int(datetime.datetime.strptime(
-						entry['ts'].replace('Z','+0000',),
-						"%Y-%m-%dT%H:%M:%S%z"
-					).timestamp()),
-					'duration':sec
-				}
-			except:
-				print(col['red'](str(entry) + " could not be parsed. Scrobble not imported."))
-				yield None
-				continue
+		if entry['master_metadata_track_name'] is None:
+			print(col['orange'](f"{entry} has no title, skipping..."))
+			yield False
+			continue
+		if entry['master_metadata_album_artist_name'] is None:
+			print(col['orange'](f"{entry} has no artist, skipping..."))
+			yield False
+			continue
+		if sec < 30:
+			print(col['orange'](f"{entry} is shorter than 30 seconds, skipping..."))
+			yield False
+			continue
+
+		try:
+			yield {
+				'title':entry['master_metadata_track_name'],
+				'artiststr': entry['master_metadata_album_artist_name'],
+				'album': entry['master_metadata_album_album_name'],
+				'timestamp': int(datetime.datetime.strptime(
+					entry['ts'].replace('Z','+0000',),
+					"%Y-%m-%dT%H:%M:%S%z"
+				).timestamp()),
+				'duration':sec
+			}
+		except Exception as e:
+			print(col['red'](f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})"))
+			yield None
+			continue
 
 def parse_lastfm(inputf):
 
@@ -110,7 +125,7 @@ def parse_lastfm(inputf):
 			try:
 				artist,album,title,time = row
 			except ValueError:
-				print(col['red'](str(row) + " does not look like a valid entry. Scrobble not imported."))
+				print(col['red'](f"{row} does not look like a valid entry. Scrobble not imported."))
 				yield None
 				continue
 
@@ -125,7 +140,7 @@ def parse_lastfm(inputf):
 					).timestamp()),
 					'duration':None
 				}
-			except:
-				print(col['red'](str(row) + " could not be parsed. Scrobble not imported."))
+			except Exception as e:
+				print(col['red'](f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})"))
 				yield None
 				continue

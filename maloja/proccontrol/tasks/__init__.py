@@ -14,8 +14,10 @@ def loadexternal(filename):
 	print("Please wait...")
 
 	from .importer import import_scrobbles
-	imported,failed = import_scrobbles(filename)
+	imported,failed,warning = import_scrobbles(filename)
 	print("Successfully imported",imported,"scrobbles!")
+	if warning > 0:
+		print(col['orange'](str(warning) + " Warnings!"))
 	if failed > 0:
 		print(col['red'](str(failed) + " Errors!"))
 
