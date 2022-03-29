@@ -3,7 +3,7 @@ import os, datetime, re
 import json, csv
 
 from ...cleanup import *
-from doreah.io import col, ask
+from doreah.io import col, ask, prompt
 from ...globalconf import data_dir
 
 
@@ -35,10 +35,20 @@ def import_scrobbles(inputf):
 	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
 
 	if os.path.exists(outputf):
-		overwrite = ask("Already imported data. Overwrite?",default=False)
-		if not overwrite: return
+		while True:
+			action = prompt("Already imported data. Overwrite (o), append (a) or cancel (c)?",default='c')
+			if action == 'c':
+				return 0,0,0
+			elif action == 'a':
+				mode = 'a'
+				break
+			elif action == 'o':
+				mode = 'w'
+				break
+			else:
+				print("Could not understand response.")
 
-	with open(outputf,"w") as outputfd:
+	with open(outputf,mode) as outputfd:
 		success = 0
 		failed = 0
 		warning = 0
