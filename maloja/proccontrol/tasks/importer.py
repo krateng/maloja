@@ -5,13 +5,15 @@ import json, csv
 from ...cleanup import *
 from doreah.io import col, ask
 from ...globalconf import data_dir
-#from ...utilities import *
-
-
 
 
 c = CleanerAgent()
 
+
+def warn(msg):
+	print(col['orange'](msg))
+def err(msg):
+	print(col['red'](msg))
 
 
 def import_scrobbles(inputf):
@@ -45,7 +47,7 @@ def import_scrobbles(inputf):
 		for scrobble in importfunc(inputf):
 			if scrobble is None:
 				failed += 1
-			if scrobble is False:
+			elif scrobble is False:
 				warning += 1
 			else:
 				success += 1
@@ -88,15 +90,15 @@ def parse_spotify(inputf):
 		sec = int(entry['ms_played'] / 1000)
 
 		if entry['master_metadata_track_name'] is None:
-			print(col['orange'](f"{entry} has no title, skipping..."))
+			warn(f"{entry} has no title, skipping...")
 			yield False
 			continue
 		if entry['master_metadata_album_artist_name'] is None:
-			print(col['orange'](f"{entry} has no artist, skipping..."))
+			warn(f"{entry} has no artist, skipping...")
 			yield False
 			continue
 		if sec < 30:
-			print(col['orange'](f"{entry} is shorter than 30 seconds, skipping..."))
+			warn(f"{entry} is shorter than 30 seconds, skipping...")
 			yield False
 			continue
 
@@ -112,7 +114,7 @@ def parse_spotify(inputf):
 				'duration':sec
 			}
 		except Exception as e:
-			print(col['red'](f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})"))
+			err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 			yield None
 			continue
 
@@ -125,7 +127,7 @@ def parse_lastfm(inputf):
 			try:
 				artist,album,title,time = row
 			except ValueError:
-				print(col['red'](f"{row} does not look like a valid entry. Scrobble not imported."))
+				warn(f"{row} does not look like a valid entry. Scrobble not imported.")
 				yield None
 				continue
 
@@ -141,6 +143,6 @@ def parse_lastfm(inputf):
 					'duration':None
 				}
 			except Exception as e:
-				print(col['red'](f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})"))
+				err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				yield None
 				continue
