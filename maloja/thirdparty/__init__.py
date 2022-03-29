@@ -11,7 +11,7 @@ import json
 import urllib.parse, urllib.request
 import base64
 from doreah.logging import log
-from threading import Semaphore
+from threading import BoundedSemaphore
 
 from ..globalconf import malojaconfig
 from .. import database
@@ -26,7 +26,7 @@ services = {
 # have a limited number of worker threads so we don't completely hog the cpu with
 # these requests. they are mostly network bound, so python will happily open up 200 new
 # requests and then when all the responses come in we suddenly can't load pages anymore
-thirdpartylock = Semaphore(4)
+thirdpartylock = BoundedSemaphore(4)
 
 
 def import_scrobbles(identifier):

@@ -13,7 +13,7 @@ import base64
 import requests
 import datauri
 import io
-from threading import Thread, Timer
+from threading import Thread, Timer, BoundedSemaphore
 import re
 import datetime
 
@@ -118,61 +118,63 @@ def get_artist_image(artist=None,artist_id=None):
 
 
 
-
+resolve_semaphore = BoundedSemaphore(8)
 
 
 def resolve_track_image(track_id):
 
-	# check cache
-	result = get_image_from_cache(track_id,'tracks')
-	if result is not None:
-		return result
-
-	track = database.sqldb.get_track(track_id)
-
-	# local image
-	if malojaconfig["USE_LOCAL_IMAGES"]:
-		images = local_files(artists=track['artists'],title=track['title'])
-		if len(images) != 0:
-			result = random.choice(images)
-			result = urllib.parse.quote(result)
-			result = {'type':'url','value':result}
-			set_image_in_cache(track_id,'tracks',result['value'])
+	with resolve_semaphore:
+		# check cache
+		result = get_image_from_cache(track_id,'tracks')
+		if result is not None:
 			return result
 
-	# third party
-	result = thirdparty.get_image_track_all((track['artists'],track['title']))
-	result = {'type':'url','value':result}
-	set_image_in_cache(track_id,'tracks',result['value'])
+		track = database.sqldb.get_track(track_id)
 
-	return result
+		# local image
+		if malojaconfig["USE_LOCAL_IMAGES"]:
+			images = local_files(artists=track['artists'],title=track['title'])
+			if len(images) != 0:
+				result = random.choice(images)
+				result = urllib.parse.quote(result)
+				result = {'type':'url','value':result}
+				set_image_in_cache(track_id,'tracks',result['value'])
+				return result
+
+		# third party
+		result = thirdparty.get_image_track_all((track['artists'],track['title']))
+		result = {'type':'url','value':result}
+		set_image_in_cache(track_id,'tracks',result['value'])
+
+		return result
 
 
 def resolve_artist_image(artist_id):
 
-	# check cache
-	result = get_image_from_cache(artist_id,'artists')
-	if result is not None:
-		return result
-
-	artist = database.sqldb.get_artist(artist_id)
-
-	# local image
-	if malojaconfig["USE_LOCAL_IMAGES"]:
-		images = local_files(artist=artist)
-		if len(images) != 0:
-			result = random.choice(images)
-			result = urllib.parse.quote(result)
-			result = {'type':'url','value':result}
-			set_image_in_cache(artist_id,'artists',result['value'])
+	with resolve_semaphore:
+		# check cache
+		result = get_image_from_cache(artist_id,'artists')
+		if result is not None:
 			return result
 
-	# third party
-	result = thirdparty.get_image_artist_all(artist)
-	result = {'type':'url','value':result}
-	set_image_in_cache(artist_id,'artists',result['value'])
+		artist = database.sqldb.get_artist(artist_id)
 
-	return result
+		# local image
+		if malojaconfig["USE_LOCAL_IMAGES"]:
+			images = local_files(artist=artist)
+			if len(images) != 0:
+				result = random.choice(images)
+				result = urllib.parse.quote(result)
+				result = {'type':'url','value':result}
+				set_image_in_cache(artist_id,'artists',result['value'])
+				return result
+
+		# third party
+		result = thirdparty.get_image_artist_all(artist)
+		result = {'type':'url','value':result}
+		set_image_in_cache(artist_id,'artists',result['value'])
+
+		return result
 
 
 # removes emojis and weird shit from names

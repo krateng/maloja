@@ -35,7 +35,7 @@ from .proccontrol.profiler import profile
 
 PORT = malojaconfig["PORT"]
 HOST = malojaconfig["HOST"]
-THREADS = 24
+THREADS = 8
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 #STATICFOLDER = importlib.resources.path(__name__,"web/static")
