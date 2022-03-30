@@ -15,9 +15,9 @@ def loadexternal(filename):
 	imported,failed,warning = import_scrobbles(filename)
 	print("Successfully imported",imported,"scrobbles!")
 	if warning > 0:
-		print(col['orange'](str(warning) + " Warnings!"))
+		print(col['orange'](f"{warning} Warning{'s' if warning != 1 else ''}!"))
 	if failed > 0:
-		print(col['red'](str(failed) + " Errors!"))
+		print(col['red'](f"{failed} Error{'s' if failed != 1 else ''}!"))
 
 def backuphere():
 	from .backup import backup
