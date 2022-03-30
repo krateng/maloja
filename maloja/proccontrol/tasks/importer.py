@@ -35,6 +35,7 @@ def import_scrobbles(inputf):
 
 	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
 
+
 	if os.path.exists(outputf):
 		while True:
 			action = prompt(f"Already imported {type} data. [O]verwrite, [A]ppend or [C]ancel?",default='c').lower()[0]
@@ -48,7 +49,10 @@ def import_scrobbles(inputf):
 				break
 			else:
 				print("Could not understand response.")
+	else:
+		mode = 'w'
 
+		
 	with open(outputf,mode) as outputfd:
 		success = 0
 		failed = 0
@@ -114,7 +118,7 @@ def parse_spotify(inputf):
 
 				try:
 					sec = int(entry['ms_played'] / 1000)
-					timestamp = entry['offline_timestamp']
+					timestamp = int(entry['offline_timestamp'] / 1000)
 					artist = entry['master_metadata_album_artist_name']
 					title = entry['master_metadata_track_name']
 					album = entry['master_metadata_album_album_name']
