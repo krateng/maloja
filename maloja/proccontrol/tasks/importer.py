@@ -18,17 +18,19 @@ def err(msg):
 
 def import_scrobbles(inputf):
 
-	if re.match(".*\.csv",inputf):
+	filename = os.path.basename(inputf)
+
+	if re.match(".*\.csv",filename):
 		type = "Last.fm"
 		outputf = data_dir['scrobbles']("lastfmimport.tsv")
 		importfunc = parse_lastfm
 
-	elif re.match("endsong_[0-9]+\.json",inputf):
+	elif re.match("endsong_[0-9]+\.json",filename):
 		type = "Spotify"
 		outputf = data_dir['scrobbles']("spotifyimport.tsv")
 		importfunc = parse_spotify_full
 
-	elif re.match("StreamingHistory[0-9]+\.json",inputf):
+	elif re.match("StreamingHistory[0-9]+\.json",filename):
 		type = "Spotify"
 		outputf = data_dir['scrobbles']("spotifyimport.tsv")
 		importfunc = parse_spotify_lite
@@ -165,28 +167,45 @@ def parse_spotify_full(inputf):
 						continue
 					timestamps.setdefault(timestamp,[]).append((artist,title))
 
-				# if it's 0, we use ts instead, but identify duplicates much more
-				# liberally (cause the ts is not accurate)
+				# if it's 0, we use ts instead, but identify duplicates differently
+				# (cause the ts is not accurate)
 				else:
-					status = 'WARN'
-					warn(f"{entry} might have an inaccurate timestamp.")
+
 					timestamp = int(
 						datetime.datetime.strptime(entry['ts'].replace('Z','+0000',),"%Y-%m-%dT%H:%M:%S%z").timestamp()
 					)
-					# TODO HEURISTICS
 
 
+					ts_group = int(timestamp/10)
+					relevant_ts_groups = [ts_group-2,ts_group-1,ts_group,ts_group+1,ts_group+2]
+					similar_scrobbles = [scrob for tsg in relevant_ts_groups for scrob in inaccurate_timestamps.get(tsg,[])]
 
+					scrobble_describe = (timestamp,entry['spotify_track_uri'],entry['ms_played'])
+					found_similar = False
+					for scr in similar_scrobbles:
+						# scrobbles count as duplicate if:
+						# - less than 30 seconds apart
+						# - exact same track uri
+						# - exact same ms_played
+						if (abs(scr[0] - timestamp) < 30) and scr[1:] == scrobble_describe[1:]:
+							warn(f"{entry} has been identified as potential duplicate, skipping...")
+							yield ('SKIP',None)
+							found_similar = True
+							break
+					else:
+						# no duplicates, assume proper scrobble but warn
+						status = 'WARN'
+						warn(f"{entry} might have an inaccurate timestamp.")
+						inaccurate_timestamps.setdefault(ts_group,[]).append(scrobble_describe)
+
+					if found_similar:
+						continue
 
 
 				yield (status,{
 					'title':title,
 					'artiststr': artist,
 					'album': album,
-				#	'timestamp': int(datetime.datetime.strptime(
-				#		entry['ts'].replace('Z','+0000',),
-				#		"%Y-%m-%dT%H:%M:%S%z"
-				#	).timestamp()),
 					'timestamp': timestamp,
 					'duration':played
 				})
