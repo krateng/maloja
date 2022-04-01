@@ -9,13 +9,13 @@ from ...globalconf import data_dir
 
 c = CleanerAgent()
 
-
-def warn(msg):
-	print(col['orange'](msg))
-def skip(msg):
-	print(col['#ffcba4'](msg))
-def err(msg):
-	print(col['red'](msg))
+outputs = {
+	"CONFIDENT_IMPORT": lambda msg: None,
+	"UNCERTAIN_IMPORT": lambda msg: print(col['orange'](msg)),
+	"CONFIDENT_SKIP": lambda msg: print(col['ffcba4'](msg)),
+	"UNCERTAIN_SKIP": lambda msg: print(col['orange'](msg)),
+	"FAIL": lambda msg: print(col['red'](msg)),
+}
 
 
 def import_scrobbles(inputf):
@@ -74,8 +74,9 @@ def import_scrobbles(inputf):
 
 		timestamps = set()
 
-		for status,scrobble in importfunc(inputf):
+		for status,scrobble,msg in importfunc(inputf):
 			result[status] += 1
+			outputs[status](msg)
 			if status in ['CONFIDENT_IMPORT','UNCERTAIN_IMPORT']:
 
 				while scrobble['timestamp'] in timestamps:
@@ -130,8 +131,7 @@ def parse_spotify_lite(inputf):
 				title = entry['trackName']
 
 				if played < 30:
-					skip(f"{entry} is shorter than 30 seconds, skipping...")
-					yield ('CONFIDENT_SKIP',None)
+					yield ('CONFIDENT_SKIP',None,f"{entry} is shorter than 30 seconds, skipping...")
 					continue
 
 				yield ("CONFIDENT_IMPORT",{
@@ -140,10 +140,9 @@ def parse_spotify_lite(inputf):
 					'timestamp': timestamp,
 					'duration':played,
 					'album': None
-				})
+				},'')
 			except Exception as e:
-				err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
-				yield ('FAIL',None)
+				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
 
 
@@ -182,16 +181,13 @@ def parse_spotify_full(inputf):
 
 
 				if title is None:
-					skip(f"{entry} has no title, skipping...")
-					yield ('CONFIDENT_SKIP',None)
+					yield ('CONFIDENT_SKIP',None,f"{entry} has no title, skipping...")
 					continue
 				if artist is None:
-					skip(f"{entry} has no artist, skipping...")
-					yield ('CONFIDENT_SKIP',None)
+					yield ('CONFIDENT_SKIP',None,f"{entry} has no artist, skipping...")
 					continue
 				if played < 30:
-					skip(f"{entry} is shorter than 30 seconds, skipping...")
-					yield ('CONFIDENT_SKIP',None)
+					yield ('CONFIDENT_SKIP',None,f"{entry} is shorter than 30 seconds, skipping...")
 					continue
 
 				# if offline_timestamp is a proper number, we treat it as
@@ -199,11 +195,11 @@ def parse_spotify_full(inputf):
 				if timestamp != 0:
 
 					if timestamp in timestamps and (artist,title) in timestamps[timestamp]:
-						skip(f"{entry} seems to be a duplicate, skipping...")
-						yield ('CONFIDENT_SKIP',None)
+						yield ('CONFIDENT_SKIP',None,f"{entry} seems to be a duplicate, skipping...")
 						continue
 					else:
 						status = 'CONFIDENT_IMPORT'
+						msg = ''
 						timestamps.setdefault(timestamp,[]).append((artist,title))
 
 				# if it's 0, we use ts instead, but identify duplicates differently
@@ -227,14 +223,13 @@ def parse_spotify_full(inputf):
 						# - exact same track uri
 						# - exact same ms_played
 						if (abs(scr[0] - timestamp) < 30) and scr[1:] == scrobble_describe[1:]:
-							warn(f"{entry} might be a duplicate, skipping...")
-							yield ('UNCERTAIN_SKIP',None)
+							yield ('UNCERTAIN_SKIP',None,f"{entry} might be a duplicate, skipping...")
 							found_similar = True
 							break
 					else:
 						# no duplicates, assume proper scrobble but warn
 						status = 'UNCERTAIN_IMPORT'
-						warn(f"{entry} might have an inaccurate timestamp.")
+						msg = f"{entry} might have an inaccurate timestamp."
 						inaccurate_timestamps.setdefault(ts_group,[]).append(scrobble_describe)
 
 					if found_similar:
@@ -247,10 +242,9 @@ def parse_spotify_full(inputf):
 					'album': album,
 					'timestamp': timestamp,
 					'duration':played
-				})
+				},msg)
 			except Exception as e:
-				err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
-				yield ('FAIL',None)
+				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
 
 		print()
@@ -264,8 +258,7 @@ def parse_lastfm(inputf):
 			try:
 				artist,album,title,time = row
 			except ValueError:
-				err(f"{row} does not look like a valid entry. Scrobble not imported.")
-				yield ('FAIL',None)
+				yield ('FAIL',None,f"{row} does not look like a valid entry. Scrobble not imported.")
 				continue
 
 			try:
@@ -278,8 +271,7 @@ def parse_lastfm(inputf):
 						"%d %b %Y %H:%M%z"
 					).timestamp()),
 					'duration':None
-				})
+				},'')
 			except Exception as e:
-				err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
-				yield ('FAIL',None)
+				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
