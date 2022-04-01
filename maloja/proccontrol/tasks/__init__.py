@@ -12,14 +12,22 @@ def loadexternal(filename):
 		return
 
 	from .importer import import_scrobbles
-	imported,warning,skipped,failed = import_scrobbles(filename)
-	print("Successfully imported",imported,"scrobbles!")
-	if warning > 0:
-		print(col['orange'](f"{warning} Warning{'s' if warning != 1 else ''}!"))
-	if skipped > 0:
-		print(col['orange'](f"{skipped} Skipped!"))
-	if failed > 0:
-		print(col['red'](f"{failed} Error{'s' if failed != 1 else ''}!"))
+	result = import_scrobbles(filename)
+
+	msg = f"Successfully imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles"
+	if result['UNCERTAIN_IMPORT'] > 0:
+		warningmsg = col['orange'](f"{result['UNCERTAIN_IMPORT']} Warning{'s' if result['UNCERTAIN_IMPORT'] != 1 else ''}!")
+		msg += f" ({warningmsg})"
+	print(msg)
+
+	msg = f"Skipped {result['CONFIDENT_SKIP'] + result['UNCERTAIN_SKIP']} scrobbles"
+	if result['UNCERTAIN_SKIP'] > 0:
+		warningmsg = col['orange'](f"{result['UNCERTAIN_SKIP']} Warning{'s' if result['UNCERTAIN_SKIP'] != 1 else ''}!")
+		msg += f" ({warningmsg})"
+	print(msg)
+
+	if result['FAIL'] > 0:
+		print(col['red'](f"{result['FAIL']} Error{'s' if result['FAIL'] != 1 else ''}!"))
 
 def backuphere():
 	from .backup import backup

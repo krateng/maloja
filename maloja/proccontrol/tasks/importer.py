@@ -12,11 +12,21 @@ c = CleanerAgent()
 
 def warn(msg):
 	print(col['orange'](msg))
+def skip(msg):
+	print(col['#ffcba4'](msg))
 def err(msg):
 	print(col['red'](msg))
 
 
 def import_scrobbles(inputf):
+
+	result = {
+		"CONFIDENT_IMPORT": 0,
+		"UNCERTAIN_IMPORT": 0,
+		"CONFIDENT_SKIP": 0,
+		"UNCERTAIN_SKIP": 0,
+		"FAIL": 0
+	}
 
 	filename = os.path.basename(inputf)
 
@@ -37,7 +47,7 @@ def import_scrobbles(inputf):
 
 	else:
 		print("File",inputf,"could not be identified as a valid import source.")
-		return 0,0,0,0
+		return result
 
 
 	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
@@ -47,7 +57,7 @@ def import_scrobbles(inputf):
 		while True:
 			action = prompt(f"Already imported {type} data. [O]verwrite, [A]ppend or [C]ancel?",default='c').lower()[0]
 			if action == 'c':
-				return 0,0,0,0
+				return result
 			elif action == 'a':
 				mode = 'a'
 				break
@@ -61,18 +71,12 @@ def import_scrobbles(inputf):
 
 
 	with open(outputf,mode) as outputfd:
-		success, warning, skipped, failed = 0, 0, 0, 0
+
 		timestamps = set()
 
 		for status,scrobble in importfunc(inputf):
-			if status == 'FAIL':
-				failed += 1
-			elif status == 'SKIP':
-				skipped += 1
-			else:
-				success += 1
-				if status == 'WARN':
-					warning += 1
+			result[status] += 1
+			if status in ['CONFIDENT_IMPORT','UNCERTAIN_IMPORT']:
 
 				while scrobble['timestamp'] in timestamps:
 					scrobble['timestamp'] += 1
@@ -93,10 +97,10 @@ def import_scrobbles(inputf):
 				])
 				outputfd.write(outputline + '\n')
 
-				if success % 100 == 0:
-					print(f"Imported {success} scrobbles...")
+				if (result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']) % 100 == 0:
+					print(f"Imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles...")
 
-	return success, warning, skipped, failed
+	return result
 
 def parse_spotify_lite(inputf):
 	inputfolder = os.path.dirname(inputf)
@@ -145,27 +149,29 @@ def parse_spotify_full(inputf):
 
 
 				if title is None:
-					warn(f"{entry} has no title, skipping...")
-					yield ('SKIP',None)
+					skip(f"{entry} has no title, skipping...")
+					yield ('CONFIDENT_SKIP',None)
 					continue
 				if artist is None:
-					warn(f"{entry} has no artist, skipping...")
-					yield ('SKIP',None)
+					skip(f"{entry} has no artist, skipping...")
+					yield ('CONFIDENT_SKIP',None)
 					continue
 				if played < 30:
-					warn(f"{entry} is shorter than 30 seconds, skipping...")
-					yield ('SKIP',None)
+					skip(f"{entry} is shorter than 30 seconds, skipping...")
+					yield ('CONFIDENT_SKIP',None)
 					continue
 
 				# if offline_timestamp is a proper number, we treat it as
 				# accurate and check duplicates by that exact timestamp
 				if timestamp != 0:
-					status = 'SUCCESS'
+
 					if timestamp in timestamps and (artist,title) in timestamps[timestamp]:
-						warn(f"{entry} seems to be a duplicate, skipping...")
-						yield ('SKIP',None)
+						skip(f"{entry} seems to be a duplicate, skipping...")
+						yield ('CONFIDENT_SKIP',None)
 						continue
-					timestamps.setdefault(timestamp,[]).append((artist,title))
+					else:
+						status = 'CONFIDENT_IMPORT'
+						timestamps.setdefault(timestamp,[]).append((artist,title))
 
 				# if it's 0, we use ts instead, but identify duplicates differently
 				# (cause the ts is not accurate)
@@ -188,13 +194,13 @@ def parse_spotify_full(inputf):
 						# - exact same track uri
 						# - exact same ms_played
 						if (abs(scr[0] - timestamp) < 30) and scr[1:] == scrobble_describe[1:]:
-							warn(f"{entry} has been identified as potential duplicate, skipping...")
-							yield ('SKIP',None)
+							warn(f"{entry} might be a duplicate, skipping...")
+							yield ('UNCERTAIN_SKIP',None)
 							found_similar = True
 							break
 					else:
 						# no duplicates, assume proper scrobble but warn
-						status = 'WARN'
+						status = 'UNCERTAIN_IMPORT'
 						warn(f"{entry} might have an inaccurate timestamp.")
 						inaccurate_timestamps.setdefault(ts_group,[]).append(scrobble_describe)
 
@@ -230,7 +236,7 @@ def parse_lastfm(inputf):
 				continue
 
 			try:
-				yield ('SUCCESS',{
+				yield ('CONFIDENT_IMPORT',{
 					'title': title,
 					'artiststr': artist,
 					'album': album,
