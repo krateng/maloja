@@ -85,6 +85,7 @@ def import_scrobbles(inputf):
 				# Format fields for tsv
 				scrobble['timestamp'] = str(scrobble['timestamp'])
 				scrobble['duration'] = str(scrobble['duration']) if scrobble['duration'] is not None else '-'
+				scrobble['album'] = scrobble['album'] if scrobble['album'] is not None else '-'
 				(artists,scrobble['title']) = c.fullclean(scrobble['artiststr'],scrobble['title'])
 				scrobble['artiststr'] = "␟".join(artists)
 
@@ -112,7 +113,39 @@ def parse_spotify_lite(inputf):
 		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
 			inputfiles = [inputf]
 
-	# TODO
+	for inputf in inputfiles:
+
+		print("Importing",col['yellow'](inputf),"...")
+		with open(inputf,'r') as inputfd:
+			data = json.load(inputfd)
+
+		for entry in data:
+
+			try:
+				played = int(entry['msPlayed'] / 1000)
+				timestamp = int(
+					datetime.datetime.strptime(entry['endTime'],"%Y-%m-%d %H:%M").timestamp()
+				)
+				artist = entry['artistName']
+				title = entry['trackName']
+
+				if played < 30:
+					skip(f"{entry} is shorter than 30 seconds, skipping...")
+					yield ('CONFIDENT_SKIP',None)
+					continue
+
+				yield ("CONFIDENT_IMPORT",{
+					'title':title,
+					'artiststr': artist,
+					'timestamp': timestamp,
+					'duration':played,
+					'album': None
+				})
+			except Exception as e:
+				err(f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
+				yield ('FAIL',None)
+				continue
+
 
 def parse_spotify_full(inputf):
 
@@ -178,7 +211,7 @@ def parse_spotify_full(inputf):
 				else:
 
 					timestamp = int(
-						datetime.datetime.strptime(entry['ts'].replace('Z','+0000',),"%Y-%m-%dT%H:%M:%S%z").timestamp()
+						datetime.datetime.strptime(entry['ts'].replace('Z','+0000'),"%Y-%m-%dT%H:%M:%S%z").timestamp()
 					)
 
 
