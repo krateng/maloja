@@ -236,7 +236,6 @@ def static(path):
 
 ### DYNAMIC
 
-@profile
 def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))

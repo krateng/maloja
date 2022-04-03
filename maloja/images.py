@@ -2,7 +2,6 @@ from .globalconf import data_dir, malojaconfig
 from . import thirdparty
 from . import database
 
-from doreah import caching
 from doreah.logging import log
 
 import itertools
