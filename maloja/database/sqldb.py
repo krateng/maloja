@@ -9,7 +9,7 @@ from ..globalconf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_entity_cache
 
 from doreah.logging import log
-from doreah.regular import runhourly
+from doreah.regular import runhourly, runmonthly
 
 
 
@@ -655,9 +655,21 @@ def clean_db():
 
 
 
+@runmonthly
+def renormalize_names():
+	with engine.begin() as conn:
+		rows = conn.execute(DB['artists'].select()).all()
 
+	for row in rows:
+		id = row.id
+		name = row.name
+		norm_actual = row.name_normalized
+		norm_target = normalize_name(name)
+		if norm_actual != norm_target:
+			log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
 
-
+			with engine.begin() as conn:
+				rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
 
 
 
