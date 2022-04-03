@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..globalconf import data_dir
 
-from .dbcache import cached_wrapper, cached_wrapper_individual
+from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_entity_cache
 
 from doreah.logging import log
 from doreah.regular import runhourly
@@ -649,6 +649,11 @@ def clean_db():
 		''')).rowcount
 
 		if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+
+
+
+		# Clear caches
+		invalidate_entity_cache()
 
 
 

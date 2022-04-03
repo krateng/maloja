@@ -110,6 +110,9 @@ def invalidate_caches(scrobbletime):
 		log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
 
 
+def invalidate_entity_cache():
+	entitycache.clear()
+
 
 def trim_cache():
 	ramprct = psutil.virtual_memory().percent
