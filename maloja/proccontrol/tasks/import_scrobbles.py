@@ -32,24 +32,28 @@ def import_scrobbles(inputf):
 	filename = os.path.basename(inputf)
 
 	if re.match(".*\.csv",filename):
-		type = "Last.fm"
+		typeid,typedesc = "lastfm","Last.fm"
 		importfunc = parse_lastfm
 
 	elif re.match("endsong_[0-9]+\.json",filename):
-		type = "Spotify"
+		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_full
 
 	elif re.match("StreamingHistory[0-9]+\.json",filename):
-		type = "Spotify"
+		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite
+
+	elif re.match("maloja_export_[0-9]+\.json",filename):
+		typeid,typedesc = "maloja","Maloja"
+		importfunc = parse_maloja
 
 	else:
 		print("File",inputf,"could not be identified as a valid import source.")
 		return result
 
 
-	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
-
+	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](typedesc)} export")
+	print("This could take a while...")
 
 	timestamps = set()
 	scrobblebuffer = []
@@ -75,7 +79,7 @@ def import_scrobbles(inputf):
 				 		"length":None
 				 	},
 				 	"duration":scrobble['duration'],
-				 	"origin":"import:" + import_type,
+				 	"origin":"import:" + typeid,
 					"extra":{
 						"album":scrobble['album']
 						# saving this in the scrobble instead of the track because for now it's not meant
@@ -281,3 +285,24 @@ def parse_lastfm(inputf):
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
+
+
+def parse_maloja(inputf):
+
+	with open(inputf,'r') as inputfd:
+		data = json.load(inputfd)
+
+	scrobbles = data['scrobbles']
+
+	for s in scrobbles:
+		try:
+			yield ('CONFIDENT_IMPORT',{
+				'title': s['track']['title'],
+				'artists': s['track']['artists'],
+				'album': s['track'].get('album',{}).get('name',''),
+				'timestamp': s['time'],
+				'duration': s['duration']
+			},'')
+		except Exception as e:
+			yield ('FAIL',None,f"{s} could not be parsed. Scrobble not imported. ({repr(e)})")
+			continue
