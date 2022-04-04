@@ -5,7 +5,6 @@ import math
 from datetime import datetime
 
 from ..globalconf import data_dir
-
 from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_entity_cache
 
 from doreah.logging import log
@@ -34,13 +33,15 @@ DB['tracks'] = sql.Table(
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('title',sql.String),
 	sql.Column('title_normalized',sql.String),
-	sql.Column('length',sql.Integer)
+	sql.Column('length',sql.Integer),
+	sqlite_autoincrement=True
 )
 DB['artists'] = sql.Table(
 	'artists', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('name',sql.String),
-	sql.Column('name_normalized',sql.String)
+	sql.Column('name_normalized',sql.String),
+	sqlite_autoincrement=True
 )
 DB['trackartists'] = sql.Table(
 	'trackartists', meta,
