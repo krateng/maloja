@@ -1,5 +1,6 @@
 import random
 import datetime
+from doreah.io import ask
 
 from ...database.sqldb import add_scrobbles
 
@@ -70,21 +71,22 @@ def generate_track():
 def generate(n=200):
 	n = int(n)
 
-	scrobbles = []
-	for _ in range(n):
-		track = generate_track()
-		print("Generated",track)
-		for _ in range(random.randint(1, 50)):
-			timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+	if ask("Generate random scrobbles?",default=False):
+		scrobbles = []
+		for _ in range(n):
+			track = generate_track()
+			print("Generated",track)
+			for _ in range(random.randint(1, 50)):
+				timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
 
-			scrobbles.append({
-				"time":timestamp,
-				 	"track":{
-				 		"artists":track['artists'],
-				 		"title":track['title']
-				 	},
-					"duration":None,
-				 	"origin":"generated"
-			})
+				scrobbles.append({
+					"time":timestamp,
+					 	"track":{
+					 		"artists":track['artists'],
+					 		"title":track['title']
+					 	},
+						"duration":None,
+					 	"origin":"generated"
+				})
 
-	add_scrobbles(scrobbles)
+		add_scrobbles(scrobbles)
