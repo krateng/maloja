@@ -1,5 +1,5 @@
 import tarfile
-from datetime import datetime
+import time
 import glob
 import os
 from ...globalconf import dir_settings
@@ -36,16 +36,16 @@ def backup(targetfolder=None,include_images=False):
 	log("Creating backup...")
 
 
-	now = datetime.utcnow()
-	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")
+	timestr = time.strftime("%Y_%m_%d_%H_%M_%S")
 	filename = f"maloja_backup_{timestr}.tar.gz"
-	archivefile = os.path.join(targetfolder,filename)
-	assert not os.path.exists(archivefile)
-	with tarfile.open(name=archivefile,mode="x:gz") as archive:
+	outputfile = os.path.join(targetfolder,filename)
+	assert not os.path.exists(outputfile)
+
+	with tarfile.open(name=outputfile,mode="x:gz") as archive:
 		for category, filelist in real_files.items():
 			for f in filelist:
 				p = PurePath(f)
 				r = p.relative_to(dir_settings[category])
 				archive.add(f,arcname=os.path.join(category,r))
-	log("Backup created: " + col['yellow'](archivefile))
-	return archivefile
+	log("Backup created: " + col['yellow'](outputfile))
+	return outputfile
