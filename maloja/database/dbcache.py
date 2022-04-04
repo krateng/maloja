@@ -18,12 +18,6 @@ entitycache = lru.LRU(HIGH_NUMBER)
 hits, misses = 0, 0
 
 
-if malojaconfig['USE_GLOBAL_CACHE']:
-	log("Using global DB Cache")
-if malojaconfig['USE_REQUEST_CACHE']:
-	log("Using request-local DB Cache")
-
-
 
 @runhourly
 def maintenance():
@@ -118,7 +112,7 @@ def trim_cache():
 	ramprct = psutil.virtual_memory().percent
 	if ramprct > malojaconfig["DB_MAX_MEMORY"]:
 		log(f"{ramprct}% RAM usage, reducing caches!")
-		ratio = (ramprct/100) ** 3
+		ratio = 0.6
 		targetsize = max(int(len(cache) * ratio),100)
 		cache.set_size(targetsize)
 		cache.set_size(HIGH_NUMBER)

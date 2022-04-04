@@ -300,9 +300,6 @@ with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
 from doreah import config
 
 config(
-	caching={
-		"folder": data_dir['cache']()
-	},
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
@@ -313,7 +310,6 @@ config(
 		"logfolder": data_dir['logs']() if malojaconfig["LOGGING"] else None
 	},
 	regular={
-		"autostart": False,
 		"offset": malojaconfig["TIMEZONE"]
 	}
 )

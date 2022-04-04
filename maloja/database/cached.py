@@ -1,7 +1,7 @@
 # for information that is not authorative, but should be saved anyway because it
 # changes infrequently and DB access is expensive
 
-from doreah.regular import yearly, daily
+from doreah.regular import runyearly, rundaily
 from .. import database
 from .. import malojatime as mjt
 
@@ -17,7 +17,7 @@ medals_tracks = {
 weekly_topartists = []
 weekly_toptracks = []
 
-@yearly
+@runyearly
 def update_medals():
 
 	global medals_artists, medals_tracks
@@ -48,7 +48,7 @@ def update_medals():
 
 
 
-@daily
+@rundaily
 def update_weekly():
 
 	global weekly_topartists, weekly_toptracks
