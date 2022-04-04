@@ -380,6 +380,17 @@ def get_backup(**keys):
 
 	return static_file(os.path.basename(archivefile),root=tmpfolder)
 
+@api.get("export")
+@authenticated_api
+def get_export(**keys):
+	from ..proccontrol.tasks.export import export
+	import tempfile
+
+	tmpfolder = tempfile.gettempdir()
+	resultfile = export(tmpfolder)
+
+	return static_file(os.path.basename(resultfile),root=tmpfolder)
+
 
 @api.post("delete_scrobble")
 @authenticated_api
