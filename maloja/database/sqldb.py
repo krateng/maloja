@@ -3,6 +3,7 @@ import json
 import unicodedata
 import math
 from datetime import datetime
+from threading import Lock
 
 from ..globalconf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_entity_cache
@@ -58,6 +59,12 @@ DB['associated_artists'] = sql.Table(
 )
 
 meta.create_all(engine)
+
+
+
+# adding a scrobble could consist of multiple write operations that sqlite doesn't
+# see as belonging together
+SCROBBLE_LOCK = Lock()
 
 
 # decorator that passes either the provided dbconn, or creates a separate one
@@ -189,18 +196,20 @@ def add_scrobble(scrobbledict,dbconn=None):
 @connection_provider
 def add_scrobbles(scrobbleslist,dbconn=None):
 
-	ops = [
-		DB['scrobbles'].insert().values(
-			**scrobble_dict_to_db(s)
-		) for s in scrobbleslist
-	]
+	with SCROBBLE_LOCK:
+
+		ops = [
+			DB['scrobbles'].insert().values(
+				**scrobble_dict_to_db(s)
+			) for s in scrobbleslist
+		]
 
 
-	for op in ops:
-		try:
-			dbconn.execute(op)
-		except sql.exc.IntegrityError:
-			pass
+		for op in ops:
+			try:
+				dbconn.execute(op)
+			except sql.exc.IntegrityError:
+				pass
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
@@ -619,58 +628,61 @@ def get_artist(id,dbconn=None):
 
 @runhourly
 def clean_db():
-	with engine.begin() as conn:
-		#log(f"Database Cleanup...")
 
-		### Delete tracks that have no scrobbles (delete their trackartist entries first)
-		a1 = conn.execute(sql.text('''
-			delete from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))
-		''')).rowcount
-		a2 = conn.execute(sql.text('''
-			delete from tracks where id not in (select track_id from scrobbles)
-		''')).rowcount
+	with SCROBBLE_LOCK:
+		with engine.begin() as conn:
+			#log(f"Database Cleanup...")
 
-		if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
+			### Delete tracks that have no scrobbles (delete their trackartist entries first)
+			a1 = conn.execute(sql.text('''
+				delete from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))
+			''')).rowcount
+			a2 = conn.execute(sql.text('''
+				delete from tracks where id not in (select track_id from scrobbles)
+			''')).rowcount
 
-		### Delete artists that have no tracks
-		a3 = conn.execute(sql.text('''
-			delete from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)
-		''')).rowcount
+			if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
-		if a3>0: log(f"Deleted {a3} artists without tracks")
+			### Delete artists that have no tracks
+			a3 = conn.execute(sql.text('''
+				delete from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)
+			''')).rowcount
 
-		### Delete tracks that have no artists (delete their scrobbles first)
-		a4 = conn.execute(sql.text('''
-			delete from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))
-		''')).rowcount
-		a5 = conn.execute(sql.text('''
-			delete from tracks where id not in (select track_id from trackartists)
-		''')).rowcount
+			if a3>0: log(f"Deleted {a3} artists without tracks")
 
-		if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+			### Delete tracks that have no artists (delete their scrobbles first)
+			a4 = conn.execute(sql.text('''
+				delete from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))
+			''')).rowcount
+			a5 = conn.execute(sql.text('''
+				delete from tracks where id not in (select track_id from trackartists)
+			''')).rowcount
+
+			if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
 
 
 
-		# Clear caches
-		invalidate_entity_cache()
+			# Clear caches
+			invalidate_entity_cache()
 
 
 
 @runmonthly
 def renormalize_names():
-	with engine.begin() as conn:
-		rows = conn.execute(DB['artists'].select()).all()
+	with SCROBBLE_LOCK:
+		with engine.begin() as conn:
+			rows = conn.execute(DB['artists'].select()).all()
 
-	for row in rows:
-		id = row.id
-		name = row.name
-		norm_actual = row.name_normalized
-		norm_target = normalize_name(name)
-		if norm_actual != norm_target:
-			log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
+		for row in rows:
+			id = row.id
+			name = row.name
+			norm_actual = row.name_normalized
+			norm_target = normalize_name(name)
+			if norm_actual != norm_target:
+				log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
 
-			with engine.begin() as conn:
-				rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
+				with engine.begin() as conn:
+					rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
 
 
 
