@@ -11,7 +11,7 @@ def loadexternal(filename):
 		print("File could not be found.")
 		return
 
-	from .importer import import_scrobbles
+	from .import_scrobbles import import_scrobbles
 	result = import_scrobbles(filename)
 
 	msg = f"Successfully imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles"

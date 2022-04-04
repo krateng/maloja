@@ -12,7 +12,8 @@ c = CleanerAgent()
 outputs = {
 	"CONFIDENT_IMPORT": lambda msg: None,
 	"UNCERTAIN_IMPORT": lambda msg: print(col['orange'](msg)),
-	"CONFIDENT_SKIP": lambda msg: print(col['ffcba4'](msg)),
+	#"CONFIDENT_SKIP": lambda msg: print(col['ffcba4'](msg)),
+	"CONFIDENT_SKIP": lambda msg: None,
 	"UNCERTAIN_SKIP": lambda msg: print(col['orange'](msg)),
 	"FAIL": lambda msg: print(col['red'](msg)),
 }
@@ -145,6 +146,8 @@ def parse_spotify_lite(inputf):
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
 
+		print()
+
 
 def parse_spotify_full(inputf):
 
@@ -212,7 +215,7 @@ def parse_spotify_full(inputf):
 
 
 					ts_group = int(timestamp/10)
-					relevant_ts_groups = [ts_group-2,ts_group-1,ts_group,ts_group+1,ts_group+2]
+					relevant_ts_groups = [ts_group-3,ts_group-2,ts_group-1,ts_group,ts_group+1,ts_group+2,ts_group+3]
 					similar_scrobbles = [scrob for tsg in relevant_ts_groups for scrob in inaccurate_timestamps.get(tsg,[])]
 
 					scrobble_describe = (timestamp,entry['spotify_track_uri'],entry['ms_played'])
