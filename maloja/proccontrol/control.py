@@ -121,6 +121,7 @@ def main(*args,**kwargs):
 		"import":tasks.import_scrobbles,		# maloja import /x/y.csv
 		"backup":tasks.backup,					# maloja backup --targetfolder /x/y --include_images
 		"generate":tasks.generate,				# maloja generate 400
+		"export":tasks.export,					# maloja export
 		# aux
 		"info":print_info
 	}
