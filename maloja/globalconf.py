@@ -15,10 +15,9 @@ from .__pkginfo__ import VERSION
 # DIRECRORY_CONFIG, DIRECRORY_STATE, DIRECTORY_LOGS and DIRECTORY_CACHE
 # config can only be determined by environment variable, the others can be loaded
 # from the config files
-# explicit settings will always be respected. if there are none:
-# first check if there is any indication of one of the possibilities being populated already
-# if not, use the first we have permissions for
-# after we decide which to use, fix it in settings to avoid future heuristics
+# explicit settings will always be respected, fallback to default
+
+# if default isn't usable, and config writable, find alternative and fix it in settings
 
 # USEFUL FUNCS
 pthj = os.path.join
@@ -205,35 +204,41 @@ malojaconfig = Configuration(
 )
 
 if found_new_config_dir:
-	malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+	try:
+		malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+	except PermissionError as e:
+		pass
 	# this really doesn't matter because when are we gonna load info about where
 	# the settings file is stored from the settings file
 	# but oh well
 
-malojaconfig.render_help(pthj(maloja_dir_config,"settings.md"),
-	top_text='''If you wish to adjust settings in the settings.ini file, do so while the server
-is not running in order to avoid data being overwritten.
+try:
+	malojaconfig.render_help(pthj(maloja_dir_config,"settings.md"),
+		top_text='''If you wish to adjust settings in the settings.ini file, do so while the server
+	is not running in order to avoid data being overwritten.
 
-Technically, each setting can be set via environment variable or the settings
-file - simply add the prefix `MALOJA_` for environment variables. It is recommended
-to use the settings file where possible and not configure each aspect of your
-server via environment variables!
+	Technically, each setting can be set via environment variable or the settings
+	file - simply add the prefix `MALOJA_` for environment variables. It is recommended
+	to use the settings file where possible and not configure each aspect of your
+	server via environment variables!
 
-You also can specify additional settings in the files`/run/secrets/maloja.yml` or
-`/run/secrets/maloja.ini`, as well as their values directly in files of the respective
-name in `/run/secrets/` (e.g. `/run/secrets/lastfm_api_key`).''')
+	You also can specify additional settings in the files`/run/secrets/maloja.yml` or
+	`/run/secrets/maloja.ini`, as well as their values directly in files of the respective
+	name in `/run/secrets/` (e.g. `/run/secrets/lastfm_api_key`).''')
+except PermissionError as e:
+	pass
 
 
 ### STEP 3 - check all possible folders for files (old installation)
 
 
 
-
-for datatype in ("state","cache","logs"):
-	# obviously default values shouldn't trigger this
-	# if user has nothing specified, we need to use this
-	if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
-		find_good_folder(datatype,malojaconfig)
+if not malojaconfig.readonly:
+	for datatype in ("state","cache","logs"):
+		# obviously default values shouldn't trigger this
+		# if user has nothing specified, we need to use this
+		if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
+			find_good_folder(datatype,malojaconfig)
 
 
 
