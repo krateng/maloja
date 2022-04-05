@@ -14,7 +14,7 @@ outputs = {
 	"UNCERTAIN_IMPORT": lambda msg: print(col['orange'](msg)),
 	#"CONFIDENT_SKIP": lambda msg: print(col['ffcba4'](msg)),
 	"CONFIDENT_SKIP": lambda msg: None,
-	"UNCERTAIN_SKIP": lambda msg: print(col['orange'](msg)),
+	"UNCERTAIN_SKIP": lambda msg: print(col['indianred'](msg)),
 	"FAIL": lambda msg: print(col['red'](msg)),
 }
 

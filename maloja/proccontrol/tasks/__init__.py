@@ -22,7 +22,7 @@ def loadexternal(filename):
 
 	msg = f"Skipped {result['CONFIDENT_SKIP'] + result['UNCERTAIN_SKIP']} scrobbles"
 	if result['UNCERTAIN_SKIP'] > 0:
-		warningmsg = col['orange'](f"{result['UNCERTAIN_SKIP']} Warning{'s' if result['UNCERTAIN_SKIP'] != 1 else ''}!")
+		warningmsg = col['indianred'](f"{result['UNCERTAIN_SKIP']} Warning{'s' if result['UNCERTAIN_SKIP'] != 1 else ''}!")
 		msg += f" ({warningmsg})"
 	print(msg)
 
