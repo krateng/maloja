@@ -48,7 +48,8 @@ DB['trackartists'] = sql.Table(
 	'trackartists', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('artist_id',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id'))
+	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id')),
+	sql.UniqueConstraint('artist_id', 'track_id')
 )
 
 DB['associated_artists'] = sql.Table(
