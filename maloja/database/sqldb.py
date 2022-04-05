@@ -68,10 +68,10 @@ DBTABLES = {
 
 DB = {}
 
-
 engine = sql.create_engine(f"sqlite:///{data_dir['scrobbles']('malojadb.sqlite')}", echo = False)
 meta = sql.MetaData()
 
+# create table definitions
 for tablename in DBTABLES:
 
 	DB[tablename] = sql.Table(
@@ -81,8 +81,10 @@ for tablename in DBTABLES:
 		**DBTABLES[tablename]['extrakwargs']
 	)
 
+# actually create tables for new databases
 meta.create_all(engine)
 
+# upgrade database with new columns
 with engine.begin() as conn:
 	for tablename in DBTABLES:
 		info = DBTABLES[tablename]
@@ -159,7 +161,8 @@ def scrobbles_db_to_dict(rows):
 			"time":row.timestamp,
 			"track":tracks[row.track_id],
 			"duration":row.duration,
-			"origin":row.origin
+			"origin":row.origin,
+			"extra":json.loads(row.extra or '{}')
 		}
 		for row in rows
 	]
@@ -198,11 +201,12 @@ def artist_db_to_dict(row):
 
 def scrobble_dict_to_db(info):
 	return {
-		"rawscrobble":json.dumps(info),
 		"timestamp":info['time'],
 		"origin":info['origin'],
 		"duration":info['duration'],
-		"track_id":get_track_id(info['track'])
+		"track_id":get_track_id(info['track']),
+		"extra":json.dumps(info.get('extra',{})),
+		"rawscrobble":json.dumps(info)
 	}
 
 def track_dict_to_db(info):

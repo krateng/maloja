@@ -71,6 +71,12 @@ def import_scrobbles(inputf):
 			# clean up
 			(scrobble['artists'],scrobble['title']) = c.fullclean(scrobble['artists'],scrobble['title'])
 
+			# extra info
+			extrainfo = {}
+			if scrobble.get('album'): extrainfo['album_name'] = scrobble['album']
+			# saving this in the scrobble instead of the track because for now it's not meant
+			# to be authorative information, just payload of the scrobble
+
 			scrobblebuffer.append({
 				"time":scrobble['timestamp'],
 				 	"track":{
@@ -80,11 +86,7 @@ def import_scrobbles(inputf):
 				 	},
 				 	"duration":scrobble['duration'],
 				 	"origin":"import:" + typeid,
-					"extra":{
-						"album":scrobble['album']
-						# saving this in the scrobble instead of the track because for now it's not meant
-						# to be authorative information, just payload of the scrobble
-					}
+					"extra":extrainfo
 			})
 
 			if (result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']) % 1000 == 0:
