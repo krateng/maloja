@@ -15,52 +15,87 @@ from doreah.regular import runhourly, runmonthly
 
 ##### DB Technical
 
+
+DBTABLES = {
+	# name - type - foreign key - kwargs
+	'scrobbles':{
+		'columns':[
+			("timestamp",       sql.Integer,                                  {'primary_key':True}),
+			("rawscrobble",     sql.String,                                   {}),
+			("origin",          sql.String,                                   {}),
+			("duration",        sql.Integer,                                  {}),
+			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {}),
+			("extra",           sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{}
+	},
+	'tracks':{
+		'columns':[
+			("id",              sql.Integer,                                  {'primary_key':True}),
+			("title",           sql.String,                                   {}),
+			("title_normalized",sql.String,                                   {}),
+			("length",          sql.Integer,                                  {})
+		],
+		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
+	},
+	'artists':{
+		'columns':[
+			("id",              sql.Integer,                                  {'primary_key':True}),
+			("name",            sql.String,                                   {}),
+			("name_normalized", sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
+	},
+	'trackartists':{
+		'columns':[
+			("id",              sql.Integer,                                  {'primary_key':True}),
+			("artist_id",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {})
+		],
+		'extraargs':(sql.UniqueConstraint('artist_id', 'track_id'),),'extrakwargs':{}
+	},
+	'associated_artists':{
+		'columns':[
+			("source_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("target_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {})
+		],
+		'extraargs':(sql.UniqueConstraint('source_artist', 'target_artist'),),'extrakwargs':{}
+	}
+}
+
+
+
+
 DB = {}
 
 
 engine = sql.create_engine(f"sqlite:///{data_dir['scrobbles']('malojadb.sqlite')}", echo = False)
 meta = sql.MetaData()
 
-DB['scrobbles'] = sql.Table(
-	'scrobbles', meta,
-	sql.Column('timestamp',sql.Integer,primary_key=True),
-	sql.Column('rawscrobble',sql.String),
-	sql.Column('origin',sql.String),
-	sql.Column('duration',sql.Integer),
-	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id'))
-)
-DB['tracks'] = sql.Table(
-	'tracks', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('title',sql.String),
-	sql.Column('title_normalized',sql.String),
-	sql.Column('length',sql.Integer),
-	sqlite_autoincrement=True
-)
-DB['artists'] = sql.Table(
-	'artists', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('name',sql.String),
-	sql.Column('name_normalized',sql.String),
-	sqlite_autoincrement=True
-)
-DB['trackartists'] = sql.Table(
-	'trackartists', meta,
-	sql.Column('id',sql.Integer,primary_key=True),
-	sql.Column('artist_id',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.Column('track_id',sql.Integer,sql.ForeignKey('tracks.id')),
-	sql.UniqueConstraint('artist_id', 'track_id')
-)
+for tablename in DBTABLES:
 
-DB['associated_artists'] = sql.Table(
-	'associated_artists', meta,
-	sql.Column('source_artist',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.Column('target_artist',sql.Integer,sql.ForeignKey('artists.id')),
-	sql.UniqueConstraint('source_artist', 'target_artist')
-)
+	DB[tablename] = sql.Table(
+		tablename, meta,
+		*[sql.Column(colname,*args,**kwargs) for colname,*args,kwargs in DBTABLES[tablename]['columns']],
+		*DBTABLES[tablename]['extraargs'],
+		**DBTABLES[tablename]['extrakwargs']
+	)
 
 meta.create_all(engine)
 
+with engine.begin() as conn:
+	for tablename in DBTABLES:
+		info = DBTABLES[tablename]
+		table = DB[tablename]
+
+		for colname,datatype,*args,kwargs in info['columns']:
+			try:
+				statement = f"ALTER TABLE {tablename} ADD {colname} {datatype().compile()}"
+				conn.execute(sql.text(statement))
+				log(f"Column {colname} was added to table {tablename}!")
+				# TODO figure out how to compile foreign key references!
+			except sql.exc.OperationalError as e:
+				pass
 
 
 # adding a scrobble could consist of multiple write operations that sqlite doesn't
