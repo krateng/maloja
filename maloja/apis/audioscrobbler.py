@@ -1,7 +1,7 @@
 from ._base import APIHandler
 from ._exceptions import *
 from .. import database
-from ._apikeys import checkAPIkey, allAPIkeys
+from ._apikeys import apikeystore
 
 class Audioscrobbler(APIHandler):
 	__apiname__ = "Audioscrobbler"
@@ -15,7 +15,7 @@ class Audioscrobbler(APIHandler):
 	def init(self):
 
 		# no need to save these on disk, clients can always request a new session
-		self.mobile_sessions = []
+		self.mobile_sessions = {}
 		self.methods = {
 			"auth.getMobileSession":self.authmobile,
 			"track.scrobble":self.submit_scrobble
@@ -31,29 +31,44 @@ class Audioscrobbler(APIHandler):
 	def get_method(self,pathnodes,keys):
 		return keys.get("method")
 
+	def generate_key(self,client):
+		key = "".join(
+		    str(
+		        random.choice(
+		            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
+		            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
+
+		self.mobile_sessions[key] = client
+		return key
+
 	def authmobile(self,pathnodes,keys):
 		token = keys.get("authToken")
 		user = keys.get("username")
 		password = keys.get("password")
 		# either username and password
 		if user is not None and password is not None:
-			if checkAPIkey(password):
-				sessionkey = generate_key(self.mobile_sessions)
+			client = apikeystore.check_and_identify_key(password)
+			if client:
+				sessionkey = self.generate_key(client)
 				return 200,{"session":{"key":sessionkey}}
 			else:
 				raise InvalidAuthException()
 		# or username and token (deprecated by lastfm)
 		elif user is not None and token is not None:
-			for key in allAPIkeys():
+			for client,key in apikeystore:
 				if md5(user + md5(key)) == token:
-					sessionkey = generate_key(self.mobile_sessions)
+					sessionkey = self.generate_key(client)
 					return 200,{"session":{"key":sessionkey}}
 			raise InvalidAuthException()
 		else:
 			raise BadAuthException()
 
 	def submit_scrobble(self,pathnodes,keys):
-		if keys.get("sk") is None or keys.get("sk") not in self.mobile_sessions:
+		key = keys.get("sk")
+		if key is None:
+			raise InvalidSessionKey()
+		client = self.mobile_sessions.get(key)
+		if not client:
 			raise InvalidSessionKey()
 		if "track" in keys and "artist" in keys:
 			artiststr,titlestr = keys["artist"], keys["track"]
@@ -63,7 +78,7 @@ class Audioscrobbler(APIHandler):
 			except:
 				timestamp = None
 			#database.createScrobble(artists,title,timestamp)
-			self.scrobble(artiststr,titlestr,time=timestamp)
+			self.scrobble({'track_artists':[artiststr],'track_title':titlestr,'scrobble_time':timestamp},client=client)
 		else:
 			for num in range(50):
 				if "track[" + str(num) + "]" in keys:
@@ -83,13 +98,3 @@ def md5(input):
 	m = hashlib.md5()
 	m.update(bytes(input,encoding="utf-8"))
 	return m.hexdigest()
-
-def generate_key(ls):
-	key = "".join(
-	    str(
-	        random.choice(
-	            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
-	            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
-
-	ls.append(key)
-	return key
