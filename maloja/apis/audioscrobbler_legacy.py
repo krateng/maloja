@@ -1,7 +1,7 @@
 from ._base import APIHandler
 from ._exceptions import *
 from .. import database
-from ._apikeys import checkAPIkey, allAPIkeys
+from ._apikeys import apikeystore
 
 from bottle import request
 
@@ -16,7 +16,7 @@ class AudioscrobblerLegacy(APIHandler):
 	def init(self):
 
 		# no need to save these on disk, clients can always request a new session
-		self.mobile_sessions = []
+		self.mobile_sessions = {}
 		self.methods = {
 			"handshake":self.handshake,
 			"nowplaying":self.now_playing,
@@ -42,9 +42,11 @@ class AudioscrobblerLegacy(APIHandler):
 		protocol = 'http' if (keys.get("u") == 'nossl') else request.urlparts.scheme
 
 		if auth is not None:
-			for key in allAPIkeys():
-				if check_token(auth, key, timestamp):
-					sessionkey = generate_key(self.mobile_sessions)
+			for identifier in apikeystore:
+				key = apikeystore[identifier]
+				client = self.check_token(auth,key,timestamp)
+				if client:
+					sessionkey = self.generate_key(client)
 					return 200, (
 						"OK\n"
 						f"{sessionkey}\n"
@@ -66,8 +68,10 @@ class AudioscrobblerLegacy(APIHandler):
 			return 200,"OK\n"
 
 	def submit_scrobble(self,pathnodes,keys):
-		if keys.get("s") is None or keys.get("s") not in self.mobile_sessions:
+		key = keys.get("s")
+		if key is None or key not in self.mobile_sessions:
 			raise InvalidSessionKey()
+		client = self.mobile_sessions.get(key)
 		for count in range(50):
 			artist_key = f"a[{count}]"
 			track_key = f"t[{count}]"
@@ -80,8 +84,27 @@ class AudioscrobblerLegacy(APIHandler):
 			except:
 				timestamp = None
 			#database.createScrobble(artists,title,timestamp)
-			self.scrobble(artiststr,titlestr,time=timestamp)
+			self.scrobble({
+				'track_artists':[artiststr],
+				'track_title':titlestr,
+				'scrobble_time':timestamp
+			},client=client)
 		return 200,"OK\n"
+
+
+	def check_token(self, received_token, expected_key, ts):
+		expected_token = md5(md5(expected_key) + ts)
+		return received_token == expected_token
+
+	def generate_key(self,client):
+		key = "".join(
+		    str(
+		        random.choice(
+		            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
+		            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
+
+		self.mobile_sessions[key] = client
+		return key
 
 
 import hashlib
@@ -91,20 +114,3 @@ def md5(input):
 	m = hashlib.md5()
 	m.update(bytes(input,encoding="utf-8"))
 	return m.hexdigest()
-
-def generate_key(ls):
-	key = "".join(
-	    str(
-	        random.choice(
-	            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
-	            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
-
-	ls.append(key)
-	return key
-
-def lastfm_token(password, ts):
-	return md5(md5(password) + ts)
-
-def check_token(received_token, expected_key, ts):
-	expected_token = lastfm_token(expected_key, ts)
-	return received_token == expected_token
