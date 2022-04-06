@@ -251,13 +251,22 @@ def post_scrobble(artist:Multi=None,**keys):
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
 	:param boolean nofix: Skip server-side metadata parsing. Optional.
 	"""
-	#artists = "/".join(artist)
-	# url multi args automatically become list
-	keys['artists'] = artist if artist is not None else keys.get("artists")
-	keys['fix'] = keys.get("nofix") is None
-	if keys.get('time') is not None: keys['time'] = int(keys.get('time'))
 
-	return database.incoming_scrobble(**keys,client=request.malojaclient)
+	rawscrobble = {
+		'track_artists':artist if artist is not None else keys.get("artists"),
+		'track_title':keys.get('title'),
+		'album_name':keys.get('album'),
+		'album_artists':keys.get('albumartists'),
+		'scrobble_duration':keys.get('duration'),
+		'track_length':keys.get('length'),
+		'scrobble_time':int(keys.get('time')) if (keys.get('time') is not None) else None
+	}
+
+	return database.incoming_scrobble(
+		rawscrobble,
+		client=request.malojaclient,
+		fix=(keys.get("nofix") is None)
+	)
 	# TODO: malojaclient needs to be converted to proper argument in doreah
 
 

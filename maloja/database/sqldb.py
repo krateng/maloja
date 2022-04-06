@@ -143,6 +143,9 @@ def connection_provider(func):
 # 	"origin":string,
 #	"extra":{string-keyed mapping for all flags with the scrobble}
 # }
+#
+# The dict sent to the DB can have one extra field 'rawscrobble', but this isn't
+# returned on read
 
 
 
@@ -207,7 +210,7 @@ def scrobble_dict_to_db(info):
 		"duration":info['duration'],
 		"track_id":get_track_id(info['track']),
 		"extra":json.dumps(info.get('extra',{})),
-		"rawscrobble":json.dumps(info)
+		"rawscrobble":json.dumps(info.get('rawscrobble'))
 	}
 
 def track_dict_to_db(info):

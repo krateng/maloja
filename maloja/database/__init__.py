@@ -68,44 +68,68 @@ coa = CollectorAgent()
 
 
 
-def incoming_scrobble(artists,title,album=None,albumartists=None,duration=None,length=None,time=None,fix=True,client=None,dbconn=None,**kwargs):
+
+## this function accepts a flat dict - all info of the scrobble should be top level key
+## but can contain a list as value
+## the following keys are valid:
+##		scrobble_duration	int
+##		scrobble_time		int
+## 		track_title			str, mandatory
+##		track_artists		list, mandatory
+##		track_length		int
+##		album_name			str
+##		album_artists		list
+##
+##
+##
+##
+##
+##
+
+def incoming_scrobble(rawscrobble,fix=True,client=None,dbconn=None,**kwargs):
 	# TODO: just collecting all extra kwargs now. at some point, rework the authenticated api with alt function
 	# to actually look at the converted args instead of the request object and remove the key
 	# so that this function right here doesnt get the key passed to it
-	if time is None:
-		time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-	log("Incoming scrobble (" + str(client) + "): ARTISTS: " + str(artists) + ", TRACK: " + title,module="debug")
-	if fix:
-		(artists,title) = cla.fullclean(artists,title)
 
-	if len(artists) == 0 or title == "":
+	if (not "track_artists" in rawscrobble) or (len(rawscrobble['track_artists']) == 0) or (not "track_title" in rawscrobble):
+		log(f"Incoming scrobble {rawscrobble} [Source: {client}] is not valid")
 		return {"status":"failure"}
 
-	if albumartists is None:
-		albumartists = artists
+	log(f"Incoming scrobble [{client}]: {rawscrobble}")
 
+	# raw scrobble to processed info
+	scrobbleinfo = {**rawscrobble}
+	if fix:
+		scrobbleinfo['track_artists'],scrobbleinfo['track_title'] = cla.fullclean(scrobbleinfo['track_artists'],scrobbleinfo['track_title'])
+	scrobbleinfo['scrobble_time'] = scrobbleinfo.get('scrobble_time') or int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
+	# processed info to internal scrobble dict
 	scrobbledict = {
-		"time":time,
+		"time":scrobbleinfo.get('scrobble_time'),
 		"track":{
-			"artists":artists,
-			"title":title,
+			"artists":scrobbleinfo.get('track_artists'),
+			"title":scrobbleinfo.get('track_title'),
 			"album":{
-				"name":album,
-				"artists":albumartists
+				"name":scrobbleinfo.get('album_name'),
+				"artists":scrobbleinfo.get('album_artists')
 			},
-			"length":None
+			"length":scrobbleinfo.get('track_length')
 		},
-		"duration":duration,
-		"origin":"client:" + client if client else "generic"
+		"duration":scrobbleinfo.get('scrobble_duration'),
+		"origin":f"client: {client}" if client else "generic",
+		"extra":{
+			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
+			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_name','album_artists']
+		},
+		"rawscrobble":rawscrobble
 	}
 
 
 	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
-	proxy_scrobble_all(artists,title,time)
+	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
-
-	dbcache.invalidate_caches(time)
+	dbcache.invalidate_caches(scrobbledict['time'])
 
 	return {"status":"success","scrobble":scrobbledict}
 
