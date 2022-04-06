@@ -42,10 +42,9 @@ class AudioscrobblerLegacy(APIHandler):
 		protocol = 'http' if (keys.get("u") == 'nossl') else request.urlparts.scheme
 
 		if auth is not None:
-			for identifier in apikeystore:
-				key = apikeystore[identifier]
-				client = self.check_token(auth,key,timestamp)
-				if client:
+			for client in apikeystore:
+				key = apikeystore[client]
+				if self.check_token(auth,key,timestamp):
 					sessionkey = self.generate_key(client)
 					return 200, (
 						"OK\n"

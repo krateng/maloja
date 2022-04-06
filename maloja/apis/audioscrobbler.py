@@ -55,7 +55,8 @@ class Audioscrobbler(APIHandler):
 				raise InvalidAuthException()
 		# or username and token (deprecated by lastfm)
 		elif user is not None and token is not None:
-			for client,key in apikeystore:
+			for client in apikeystore:
+				key = apikeystore[client]
 				if md5(user + md5(key)) == token:
 					sessionkey = self.generate_key(client)
 					return 200,{"session":{"key":sessionkey}}
