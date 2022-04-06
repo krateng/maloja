@@ -222,20 +222,6 @@ def compare_external(**keys):
 	return database.compare(keys["remote"])
 
 
-
-@api.get("newscrobble")
-@authenticated_api_with_alternate(api_key_correct)
-def get_post_scrobble(artist:Multi,**keys):
-	"""DEPRECATED. Use the equivalent POST method instead."""
-	artists = artist
-	title = keys.get("title")
-	album = keys.get("album")
-	duration = keys.get("seconds")
-	time = keys.get("time")
-	if time is not None: time = int(time)
-
-	return database.incoming_scrobble(artists,title,album=album,duration=duration,time=time)
-
 @api.post("newscrobble")
 @authenticated_api_with_alternate(api_key_correct)
 def post_scrobble(artist:Multi=None,**keys):
