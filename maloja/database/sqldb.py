@@ -84,7 +84,7 @@ for tablename in DBTABLES:
 # actually create tables for new databases
 meta.create_all(engine)
 
-# upgrade database with new columns
+# upgrade old database with new columns
 with engine.begin() as conn:
 	for tablename in DBTABLES:
 		info = DBTABLES[tablename]
@@ -176,6 +176,7 @@ def tracks_db_to_dict(rows):
 		{
 			"artists":artists[row.id],
 			"title":row.title,
+			#"album":
 			"length":row.length
 		}
 		for row in rows
@@ -571,10 +572,11 @@ def get_tracks_map(track_ids,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	tracks = {}
-	trackids = [row.id for row in result]
+	result = list(result)
+	# this will get a list of artistdicts in the correct order of our rows
 	trackdicts = tracks_db_to_dict(result)
-	for i in range(len(trackids)):
-		tracks[trackids[i]] = trackdicts[i]
+	for row,trackdict in zip(result,trackdicts):
+		tracks[row.id] = trackdict
 	return tracks
 
 @cached_wrapper_individual
@@ -587,10 +589,11 @@ def get_artists_map(artist_ids,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	artists = {}
-	artistids = [row.id for row in result]
+	result = list(result)
+	# this will get a list of artistdicts in the correct order of our rows
 	artistdicts = artists_db_to_dict(result)
-	for i in range(len(artistids)):
-		artists[artistids[i]] = artistdicts[i]
+	for row,artistdict in zip(result,artistdicts):
+		artists[row.id] = artistdict
 	return artists
 
 
