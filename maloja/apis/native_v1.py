@@ -18,8 +18,7 @@ from ..globalconf import malojaconfig, data_dir
 from ..__pkginfo__ import VERSION
 from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
 from .. import images
-from ._apikeys import api_key_correct, checkAPIkey
-from . import apikeystore
+from ._apikeys import apikeystore, api_key_correct
 
 
 
@@ -48,7 +47,7 @@ def test_server(key=None):
 	:param string key: An API key to be tested. Optional.
 	"""
 	response.set_header("Access-Control-Allow-Origin","*")
-	if key is not None and not (checkAPIkey(key)):
+	if key is not None and not apikeystore.check_key(key):
 		response.status = 403
 		return {"error":"Wrong API key"}
 

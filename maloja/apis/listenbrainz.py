@@ -76,7 +76,7 @@ class Listenbrainz(APIHandler):
 			token = self.get_token_from_request_keys(keys)
 		except:
 			raise BadAuthException()
-		if not checkAPIkey(token):
+		if not apikeystore.check_key(token):
 			raise InvalidAuthException()
 		else:
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":malojaconfig["NAME"]}

@@ -10,7 +10,6 @@ apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/a
 from .. import upgrade
 upgrade.upgrade_apikeys()
 
-log("Authenticated Machines: " + ", ".join([k for k in apikeystore]),module='apis')
 
 # skip regular authentication if api key is present in request
 # an api key now ONLY permits scrobbling tracks, no other admin tasks
@@ -26,9 +25,3 @@ def api_key_correct(request,args,kwargs):
 		return {'client':client}
 	else:
 		return False
-
-
-def checkAPIkey(key):
-	return apikeystore.check_key(key)
-def allAPIkeys():
-	return [apikeystore[k] for k in apikeystore]
