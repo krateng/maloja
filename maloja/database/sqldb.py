@@ -245,12 +245,18 @@ def add_scrobbles(scrobbleslist,dbconn=None):
 			) for s in scrobbleslist
 		]
 
-
+		success,errors = 0,0
 		for op in ops:
 			try:
 				dbconn.execute(op)
-			except sql.exc.IntegrityError:
-				pass
+				success += 1
+			except sql.exc.IntegrityError as e:
+				errors += 1
+
+				# TODO check if actual duplicate
+
+	if errors > 0: log(f"{errors} Scrobbles have not been written to database!",color='red')
+	return success,errors
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
