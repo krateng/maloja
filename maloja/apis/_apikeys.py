@@ -20,8 +20,9 @@ def api_key_correct(request,args,kwargs):
 	elif "apikey" in kwargs:
 		apikey = kwargs.pop("apikey")
 	else: return False
-	if checkAPIkey(apikey):
-		client = [c for c in apikeystore if apikeystore[c]==apikey][0]
+
+	client = apikeystore.check_and_identify_key(apikey)
+	if client:
 		return {'client':client}
 	else:
 		return False

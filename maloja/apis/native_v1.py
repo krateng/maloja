@@ -248,12 +248,15 @@ def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 		'scrobble_time':int(keys.get('time')) if (keys.get('time') is not None) else None
 	}
 
+	# for logging purposes, don't pass values that we didn't actually supply
+	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
+
 	return database.incoming_scrobble(
 		rawscrobble,
 		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
+		api='native/v1',
 		fix=(keys.get("nofix") is None)
 	)
-	# TODO: malojaclient needs to be converted to proper argument in doreah
 
 
 

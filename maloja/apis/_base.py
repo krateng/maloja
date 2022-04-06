@@ -89,12 +89,10 @@ class APIHandler:
 		return method(path,keys)
 
 
-	def scrobble(self,artiststr,titlestr,time=None,duration=None,album=None):
-		logmsg = f"API {self.__apiname__} receiving scrobble: ARTISTS: {artiststr}, TRACK: {titlestr}"
-		log(logmsg)
+	def scrobble(self,rawscrobble,client=None):
 
 		# fixing etc is handled by the main scrobble function
 		try:
-			database.incoming_scrobble(artists=[artiststr],title=titlestr,time=time,duration=duration,album=album)
+			return database.incoming_scrobble(rawscrobble,api=self.__apiname__,client=client)
 		except:
 			raise ScrobblingException()
