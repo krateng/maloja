@@ -3,7 +3,7 @@ import os
 from bottle import response, static_file, request, FormsDict
 
 from doreah.logging import log
-from doreah.auth import authenticated_api, authenticated_api_with_alternate
+from doreah.auth import authenticated_api, authenticated_api_with_alternate, authenticated_function
 
 # nimrodel API
 from nimrodel import EAPI as API
@@ -223,8 +223,8 @@ def compare_external(**keys):
 
 
 @api.post("newscrobble")
-@authenticated_api_with_alternate(api_key_correct)
-def post_scrobble(artist:Multi=None,**keys):
+@authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
+def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 	"""Submit a new scrobble.
 
 	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
@@ -250,7 +250,7 @@ def post_scrobble(artist:Multi=None,**keys):
 
 	return database.incoming_scrobble(
 		rawscrobble,
-		client=request.malojaclient,
+		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
 		fix=(keys.get("nofix") is None)
 	)
 	# TODO: malojaclient needs to be converted to proper argument in doreah

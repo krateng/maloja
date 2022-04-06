@@ -86,11 +86,7 @@ coa = CollectorAgent()
 ##
 ##
 
-def incoming_scrobble(rawscrobble,fix=True,client=None,dbconn=None,**kwargs):
-	# TODO: just collecting all extra kwargs now. at some point, rework the authenticated api with alt function
-	# to actually look at the converted args instead of the request object and remove the key
-	# so that this function right here doesnt get the key passed to it
-
+def incoming_scrobble(rawscrobble,fix=True,client=None,dbconn=None):
 
 	if (not "track_artists" in rawscrobble) or (len(rawscrobble['track_artists']) == 0) or (not "track_title" in rawscrobble):
 		log(f"Incoming scrobble {rawscrobble} [Source: {client}] is not valid")

@@ -14,21 +14,15 @@ log("Authenticated Machines: " + ", ".join([k for k in apikeystore]),module='api
 
 # skip regular authentication if api key is present in request
 # an api key now ONLY permits scrobbling tracks, no other admin tasks
-def api_key_correct(request):
-	request.malojaclient = None
-	args = request.params
-	try:
-		args.update(request.json)
-	except:
-		pass
-	if "key" in args:
-		apikey = args.pop("key")
-	elif "apikey" in args:
-		apikey = args.pop("apikey")
+def api_key_correct(request,args,kwargs):
+	if "key" in kwargs:
+		apikey = kwargs.pop("key")
+	elif "apikey" in kwargs:
+		apikey = kwargs.pop("apikey")
 	else: return False
 	if checkAPIkey(apikey):
-		request.malojaclient = [c for c in apikeystore if apikeystore[c]==apikey][0]
-		return True
+		client = [c for c in apikeystore if apikeystore[c]==apikey][0]
+		return {'client':client}
 	else:
 		return False
 
