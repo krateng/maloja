@@ -89,7 +89,7 @@ coa = CollectorAgent()
 def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	if (not "track_artists" in rawscrobble) or (len(rawscrobble['track_artists']) == 0) or (not "track_title" in rawscrobble):
-		log(f"Incoming scrobble {rawscrobble} [Source: {client}] is not valid")
+		log(f"Invalid Scrobble [Client: {client} | API: {api}]: {rawscrobble} ",color='red')
 		return {"status":"failure"}
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
