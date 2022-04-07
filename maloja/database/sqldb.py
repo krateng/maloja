@@ -700,34 +700,34 @@ def clean_db():
 
 	with SCROBBLE_LOCK:
 		with engine.begin() as conn:
-			#log(f"Database Cleanup...")
+			log(f"Database Cleanup...")
 
-			### Delete tracks that have no scrobbles (delete their trackartist entries first)
-			a1 = conn.execute(sql.text('''
-				delete from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))
-			''')).rowcount
-			a2 = conn.execute(sql.text('''
-				delete from tracks where id not in (select track_id from scrobbles)
-			''')).rowcount
+			to_delete = [
+				# tracks with no scrobbles (trackartist entries first)
+				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+				"from tracks where id not in (select track_id from scrobbles)",
+				# artists with no tracks
+				"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
+				# tracks with no artists (scrobbles first)
+				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+				"from tracks where id not in (select track_id from trackartists)"
+			]
 
-			if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
+			for d in to_delete:
+				selection = conn.execute(sql.text(f"select * {d}"))
+				for row in selection.all():
+					log(f"Deleting {row}")
+				deletion = conn.execute(sql.text(f"delete {d}"))
 
-			### Delete artists that have no tracks
-			a3 = conn.execute(sql.text('''
-				delete from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)
-			''')).rowcount
+			log("Database Cleanup complete!")
 
-			if a3>0: log(f"Deleted {a3} artists without tracks")
 
-			### Delete tracks that have no artists (delete their scrobbles first)
-			a4 = conn.execute(sql.text('''
-				delete from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))
-			''')).rowcount
-			a5 = conn.execute(sql.text('''
-				delete from tracks where id not in (select track_id from trackartists)
-			''')).rowcount
 
-			if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+			#if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
+
+			#if a3>0: log(f"Deleted {a3} artists without tracks")
+
+			#if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
 
 
 
