@@ -592,17 +592,31 @@ table.list td.delete_area {
 	width:7em;
 }
 
-table.list td.delete_area span.confirmactions {
-	display:none;
+/* rows that can be deleted in some form
+	'active' class on the delete area cell to toggle confirm prompt
+	'removed' class on the whole row to delete
+*/
+table.list tr td.delete_area span.confirmactions {
+	display: none;
 }
-table.list td.delete_area.active span.confirmactions {
-	display:inline-block;
+table.list tr td.delete_area span.initializeactions {
+	display: initial;
 }
-table.list td.delete_area div.deleteicon {
-	display:inline-block;
+table.list tr td.delete_area.active span.confirmactions {
+	display: initial;
 }
-table.list td.delete_area.active div.deleteicon {
-	display:none;
+table.list tr td.delete_area.active span.initializeactions {
+	display: none;
+}
+table.list tr.removed td.delete_area span.confirmactions {
+	display: none;
+}
+table.list tr.removed td.delete_area span.initializeactions {
+	display: none;
+}
+table.list tr.removed {
+	text-decoration: line-through;
+	opacity:0.4;
 }
 
 

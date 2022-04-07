@@ -6,6 +6,9 @@
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
 
+<script src="/edit.js"></script>
+
+
 <table class='list'>
 	{% for s in scrobbles -%}
 		{%- if loop.index0 >= firstindex and loop.index0 < lastindex -%}
@@ -16,15 +19,17 @@
 
 			<td class='delete_area'>
 				<span class="confirmactions">
-					<button class="smallbutton warning">Confirm</button>
-					<button class="smallbutton" onclick="this.parentElement.parentElement.classList.remove('active')">Cancel</button>
+					<button class="smallbutton warning" onclick="deleteScrobble({{ s.time }},this)">Confirm</button>
+					<button class="smallbutton" onclick="toggleDeleteConfirm(this)">Cancel</button>
 				</span>
 
-				<div class='deleteicon clickable_icon danger' onclick="this.parentElement.classList.add('active')">
-					<svg style="width:14px;height:14px" viewBox="0 0 24 24">
-						<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-					</svg>
-				</div>
+				<span class="initializeactions">
+					<div class='deleteicon clickable_icon danger' onclick="toggleDeleteConfirm(this)">
+						<svg style="width:14px;height:14px" viewBox="0 0 24 24">
+							<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+						</svg>
+					</div>
+				</span>
 
 			</td>
 			{% endif %}
