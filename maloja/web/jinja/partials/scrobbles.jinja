@@ -13,12 +13,19 @@
 			<td class='time'>{{ malojatime.timestamp_desc(s["time"],short=shortTimeDesc) }}</td>
 			{{ entityrow.row(s.track) }}
 			{% if adminmode %}
-			<td class='iconbuttons'>
-				<div class='clickable_icon danger'>
-				<svg style="width:16px;height:16px" viewBox="0 0 24 24">
-					<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-				</svg>
+
+			<td class='delete_area'>
+				<span class="confirmactions">
+					<button class="smallbutton warning">Confirm</button>
+					<button class="smallbutton" onclick="this.parentElement.parentElement.classList.remove('active')">Cancel</button>
+				</span>
+
+				<div class='deleteicon clickable_icon danger' onclick="this.parentElement.classList.add('active')">
+					<svg style="width:14px;height:14px" viewBox="0 0 24 24">
+						<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
+					</svg>
 				</div>
+
 			</td>
 			{% endif %}
 		</tr>

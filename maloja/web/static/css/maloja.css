@@ -446,10 +446,20 @@ button:hover {
 	background-color: var(--button-color-bg-focus);
 	color: var(--button-color-fg-focus);
 }
+button.warning:hover {
+	background-color:darkred;
+	color:white;
+}
 button.locked {
 	background-color:grey;
 	color:black;
 	cursor:not-allowed;
+}
+button.smallbutton {
+	padding:1px;
+	padding-right:2px;
+	padding-left:2px;
+	font-size: 80%;
 }
 
 
@@ -479,6 +489,7 @@ table.list {
 table.list tr {
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
+	height: 1.4em;
 
 }
 
@@ -500,9 +511,13 @@ table.list tr:nth-child(even) {
 	/* make rows distinguishable with respect to any bg color */
 }
 
-table.list tr:nth-child(5n) td {
-	border-bottom: 1px solid rgba(120,120,120,0.2);
+table.list tr:nth-child(4n) td {
+	border-bottom: 1px solid rgba(120,120,120,0.4);
 	padding-bottom: 1px;
+}
+table.list tr:nth-child(4n+1) td {
+	border-top: 1px solid rgba(120,120,120,0.4);
+	padding-top: 1px;
 }
 
 table.list tr:hover {
@@ -572,9 +587,22 @@ table.list td.searchProvider:hover {
 	color: gold;
 }
 
-table.list td.iconbuttons {
+table.list td.delete_area {
 	text-align: right;
-	width:40px;
+	width:7em;
+}
+
+table.list td.delete_area span.confirmactions {
+	display:none;
+}
+table.list td.delete_area.active span.confirmactions {
+	display:inline-block;
+}
+table.list td.delete_area div.deleteicon {
+	display:inline-block;
+}
+table.list td.delete_area.active div.deleteicon {
+	display:none;
 }
 
 
