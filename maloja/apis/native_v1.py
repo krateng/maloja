@@ -403,4 +403,4 @@ def get_export(**keys):
 @api.post("delete_scrobble")
 @authenticated_api
 def delete_scrobble(timestamp):
-	pass
+	database.remove_scrobble(timestamp)

@@ -266,6 +266,16 @@ def add_scrobbles(scrobbleslist,dbconn=None):
 	if errors > 0: log(f"{errors} Scrobbles have not been written to database!",color='red')
 	return success,errors
 
+@connection_provider
+def delete_scrobble(scrobble_id,dbconn=None):
+
+	with SCROBBLE_LOCK:
+
+		op = DB['scrobbles'].delete().where(
+			DB['scrobbles'].c.timestamp == scrobble_id
+		)
+
+		dbconn.execute(op)
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
