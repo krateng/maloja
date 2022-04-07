@@ -39,7 +39,9 @@ def upgrade_db(callback_add_scrobbles):
 				if re.match(r"[0-9]+_[0-9]+\.tsv",sf):
 					origin = 'legacy'
 				elif sf == "lastfmimport.tsv":
-					origin = 'lastfm-import'
+					origin = 'import:lastfm'
+				elif sf == "spotifyimport.tsv":
+					origin = 'import:spotify'
 				else:
 					origin = 'unknown'
 
@@ -61,7 +63,7 @@ def upgrade_db(callback_add_scrobbles):
 						"duration":duration,
 						"origin":origin,
 						"extra":{
-							"album":album
+							"album_name":album
 							# saving this in the scrobble instead of the track because for now it's not meant
 							# to be authorative information, just payload of the scrobble
 						}
