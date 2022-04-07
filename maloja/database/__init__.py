@@ -16,7 +16,6 @@ from . import dbcache
 
 # doreah toolkit
 from doreah.logging import log
-from doreah import tsv
 from doreah.auth import authenticated_api, authenticated_api_with_alternate
 import doreah
 

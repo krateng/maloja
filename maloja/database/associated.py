@@ -4,8 +4,8 @@
 ## directly in sql
 
 
-from doreah import tsv
-
+import csv
+import os
 
 from . import sqldb
 from ..globalconf import data_dir
@@ -18,8 +18,14 @@ def load_associated_rules():
 		conn.execute(op)
 
 	# load from file
-	raw = tsv.parse_all(data_dir["rules"](),"string","string","string")
-	rules = [{'source_artist':b,'target_artist':c} for [a,b,c] in raw if a=="countas"]
+	rawrules = []
+	for f in os.listdir(data_dir["rules"]()):
+		if f.split('.')[-1].lower() != 'tsv': continue
+		filepath = data_dir["rules"](f)
+		with open(filepath,'r') as filed:
+			reader = csv.reader(filed,delimiter="\t")
+			rawrules += [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+	rules = [{'source_artist':r[1],'target_artist':r[2]} for r in rawrules if r[0]=="countas"]
 
 	#for rule in rules:
 	#	print(f"Rule to replace {rule['source_artist']} with {rule['target_artist']}:")

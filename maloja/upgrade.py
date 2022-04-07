@@ -2,12 +2,13 @@
 
 import os
 import re
+import csv
 
 from doreah.logging import log
 from doreah.io import col
 
 from .globalconf import data_dir, dir_settings
-from . import apis
+from .apis import _apikeys
 
 
 def upgrade_apikeys():
@@ -15,12 +16,14 @@ def upgrade_apikeys():
 	oldfile = os.path.join(dir_settings['config'],"clients","authenticated_machines.tsv")
 	if os.path.exists(oldfile):
 		try:
-			from doreah import tsv
-			clients = tsv.parse(oldfile,"string","string")
-			for key,identifier in clients:
-				apis.apikeystore[identifier] = key
-			os.remove(oldfile)
+				with open(oldfile,'r') as filed:
+					reader = csv.reader(filed,delimiter="\t")
+					entries = [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+				for key,identifier in entries:
+					_apikeys.apikeystore[identifier] = key
+				os.remove(oldfile)
 		except:
+			raise
 			pass
 
 
