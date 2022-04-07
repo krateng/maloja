@@ -1,6 +1,6 @@
 [project]
 name = "malojaserver"
-version = "2.14.8"
+version = "2.14.9"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
 requires-python = ">=3.6"
