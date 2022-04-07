@@ -141,11 +141,11 @@ def connection_provider(func):
 # 	},
 # 	"duration":int,
 # 	"origin":string,
-#	"extra":{string-keyed mapping for all flags with the scrobble}
+#	"extra":{string-keyed mapping for all flags with the scrobble},
+#	"rawscrobble":{string-keyed mapping of the original scrobble received}
 # }
 #
-# The dict sent to the DB can have one extra field 'rawscrobble', but this isn't
-# returned on read
+# The last two fields are not returned under normal circumstances
 
 
 
@@ -157,16 +157,22 @@ def connection_provider(func):
 
 
 ### DB -> DICT
-def scrobbles_db_to_dict(rows):
+def scrobbles_db_to_dict(rows,include_internal=False):
 	tracks = get_tracks_map(set(row.track_id for row in rows))
 	return [
 		{
-			"time":row.timestamp,
-			"track":tracks[row.track_id],
-			"duration":row.duration,
-			"origin":row.origin,
-			"extra":json.loads(row.extra or '{}')
+			**{
+				"time":row.timestamp,
+				"track":tracks[row.track_id],
+				"duration":row.duration,
+				"origin":row.origin,
+			},
+			**({
+				"extra":json.loads(row.extra or '{}'),
+				"rawscrobble":json.loads(row.rawscrobble or '{}')
+			} if include_internal else {})
 		}
+
 		for row in rows
 	]
 
@@ -209,7 +215,7 @@ def scrobble_dict_to_db(info):
 		"duration":info['duration'],
 		"track_id":get_track_id(info['track']),
 		"extra":json.dumps(info.get('extra',{})),
-		"rawscrobble":json.dumps(info.get('rawscrobble'))
+		"rawscrobble":json.dumps(info.get('rawscrobble',{}))
 	}
 
 def track_dict_to_db(info):
