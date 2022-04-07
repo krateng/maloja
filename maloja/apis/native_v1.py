@@ -250,12 +250,23 @@ def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 	# for logging purposes, don't pass values that we didn't actually supply
 	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
 
-	return database.incoming_scrobble(
+	result = database.incoming_scrobble(
 		rawscrobble,
 		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
 		api='native/v1',
 		fix=(keys.get("nofix") is None)
 	)
+
+	if result:
+		return {
+			'status': 'success',
+			'track': {
+				'artists':result['track']['artists'],
+				'title':result['track']['title']
+			}
+		}
+	else:
+		return {"status":"failure"}
 
 
 

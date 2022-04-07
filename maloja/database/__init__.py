@@ -90,7 +90,8 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	if (not "track_artists" in rawscrobble) or (len(rawscrobble['track_artists']) == 0) or (not "track_title" in rawscrobble):
 		log(f"Invalid Scrobble [Client: {client} | API: {api}]: {rawscrobble} ",color='red')
-		return {"status":"failure"}
+		#return {"status":"failure"}
+		return False
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
@@ -127,8 +128,8 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	dbcache.invalidate_caches(scrobbledict['time'])
 
-	return {"status":"success","scrobble":scrobbledict}
-
+	#return {"status":"success","scrobble":scrobbledict}
+	return scrobbledict
 
 
 
