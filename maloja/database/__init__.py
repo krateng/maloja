@@ -135,6 +135,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 @waitfordb
 def remove_scrobble(timestamp):
+	log(f"Deleting Scrobble {timestamp}")
 	result = sqldb.delete_scrobble(timestamp)
 	dbcache.invalidate_caches(timestamp)
 
