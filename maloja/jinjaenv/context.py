@@ -36,7 +36,6 @@ def update_jinja_environment():
 		# external
 		"urllib": urllib,
 		"math":math,
-		"print":print, # TODO: remove this
 		# config
 		"ranges": [
 			('day','7 days',malojatime.today().next(-6),'day',7),

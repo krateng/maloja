@@ -83,8 +83,8 @@ function scrobble(artists,title) {
 
 function scrobbledone(req) {
 	result = req.response;
-	txt = result["scrobble"]["track"]["title"] + " by " + result["scrobble"]["track"]["artists"][0];
-	if (result["scrobble"]["track"]["artists"].length > 1) {
+	txt = result["track"]["title"] + " by " + result["track"]["artists"][0];
+	if (result["track"]["artists"].length > 1) {
 		txt += " et al.";
 	}
 	document.getElementById("notification").innerHTML = "Scrobbled " + txt + "!";

@@ -58,7 +58,7 @@ def get_image_from_cache(id,table):
 	return None # no cache entry
 
 def set_image_in_cache(id,table,url):
-	#remove_image_from_cache(id,table)
+	remove_image_from_cache(id,table)
 	now = int(datetime.datetime.now().timestamp())
 	if url is None:
 		expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
@@ -73,7 +73,7 @@ def set_image_in_cache(id,table,url):
 			url=url,
 			expire=expire,
 			raw=raw
-		).on_conflict_do_update()
+		)
 		result = conn.execute(op)
 
 def remove_image_from_cache(id,table):

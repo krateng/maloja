@@ -201,7 +201,6 @@ def artist_db_to_dict(row):
 
 
 ### DICT -> DB
-# TODO
 
 def scrobble_dict_to_db(info):
 	return {
