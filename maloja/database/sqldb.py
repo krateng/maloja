@@ -328,7 +328,7 @@ def get_track_id(trackdict,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_artist_id(artistname,dbconn=None):
+def get_artist_id(artistname,create_new=True,dbconn=None):
 	nname = normalize_name(artistname)
 	#print("looking for",nname)
 
@@ -341,6 +341,8 @@ def get_artist_id(artistname,dbconn=None):
 	for row in result:
 		#print("ID for",artistname,"was",row[0])
 		return row.id
+
+	if not create_new: return None
 
 	op = DB['artists'].insert().values(
 		name=artistname,

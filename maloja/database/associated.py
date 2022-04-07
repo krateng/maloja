@@ -20,10 +20,17 @@ def load_associated_rules():
 	# load from file
 	raw = tsv.parse_all(data_dir["rules"](),"string","string","string")
 	rules = [{'source_artist':b,'target_artist':c} for [a,b,c] in raw if a=="countas"]
+
+	#for rule in rules:
+	#	print(f"Rule to replace {rule['source_artist']} with {rule['target_artist']}:")
+	#	test = {k:sqldb.get_artist_id(rule[k],create_new=False) for k in rule}
+	#	if test['source_artist'] is None: print("axed")
+
 	#allartists = set([*[r['source_artist'] for r in rules],*[r['target_artist'] for r in rules]])
 
 	# find ids
-	rules = [{k:sqldb.get_artist_id(rule[k]) for k in rule} for rule in rules]
+	rules = [{k:sqldb.get_artist_id(rule[k],create_new=False) for k in rule} for rule in rules]
+	rules = [r for r in rules if r['source_artist'] is not None]
 
 	# write to db
 	ops = [
