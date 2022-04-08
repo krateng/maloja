@@ -1,8 +1,8 @@
 *
-!/maloja
+!maloja
 !Containerfile
-!/requirements_pre.txt
-!/requirements.txt
-!/pyproject.toml
-!/README.md
-!/LICENSE
+!requirements_pre.txt
+!requirements.txt
+!pyproject.toml
+!README.md
+!LICENSE
