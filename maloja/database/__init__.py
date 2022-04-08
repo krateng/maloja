@@ -113,7 +113,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 			"length":scrobbleinfo.get('track_length')
 		},
 		"duration":scrobbleinfo.get('scrobble_duration'),
-		"origin":f"client: {client}" if client else "generic",
+		"origin":f"client:{client}" if client else "generic",
 		"extra":{
 			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
 			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_name','album_artists']

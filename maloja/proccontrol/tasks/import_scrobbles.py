@@ -64,27 +64,27 @@ def import_scrobbles(inputf):
 		if status in ['CONFIDENT_IMPORT','UNCERTAIN_IMPORT']:
 
 			# prevent duplicate timestamps
-			while scrobble['timestamp'] in timestamps:
-				scrobble['timestamp'] += 1
-			timestamps.add(scrobble['timestamp'])
+			while scrobble['scrobble_time'] in timestamps:
+				scrobble['scrobble_time'] += 1
+			timestamps.add(scrobble['scrobble_time'])
 
 			# clean up
-			(scrobble['artists'],scrobble['title']) = c.fullclean(scrobble['artists'],scrobble['title'])
+			(scrobble['track_artists'],scrobble['track_title']) = c.fullclean(scrobble['track_artists'],scrobble['track_title'])
 
 			# extra info
 			extrainfo = {}
-			if scrobble.get('album'): extrainfo['album_name'] = scrobble['album']
+			if scrobble.get('album_name'): extrainfo['album_name'] = scrobble['album_name']
 			# saving this in the scrobble instead of the track because for now it's not meant
 			# to be authorative information, just payload of the scrobble
 
 			scrobblebuffer.append({
-				"time":scrobble['timestamp'],
+				"time":scrobble['scrobble_time'],
 				 	"track":{
-				 		"artists":scrobble['artists'],
-				 		"title":scrobble['title'],
+				 		"artists":scrobble['track_artists'],
+				 		"title":scrobble['track_title'],
 				 		"length":None
 				 	},
-				 	"duration":scrobble['duration'],
+				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,
 					"extra":extrainfo
 			})
@@ -145,11 +145,11 @@ def parse_spotify_lite(inputf):
 					continue
 
 				yield ("CONFIDENT_IMPORT",{
-					'title':title,
-					'artists': artist,
-					'timestamp': timestamp,
-					'duration':played,
-					'album': None
+					'track_title':title,
+					'track_artists': artist,
+					'scrobble_time': timestamp,
+					'scrobble_duration':played,
+					'album_name': None
 				},'')
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
@@ -249,11 +249,11 @@ def parse_spotify_full(inputf):
 
 
 				yield (status,{
-					'title':title,
-					'artists': artist,
-					'album': album,
-					'timestamp': timestamp,
-					'duration':played
+					'track_title':title,
+					'track_artists': artist,
+					'album_name': album,
+					'scrobble_time': timestamp,
+					'scrobble_duration':played
 				},msg)
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
@@ -275,14 +275,14 @@ def parse_lastfm(inputf):
 
 			try:
 				yield ('CONFIDENT_IMPORT',{
-					'title': title,
-					'artists': artist,
-					'album': album,
-					'timestamp': int(datetime.datetime.strptime(
+					'track_title': title,
+					'track_artists': artist,
+					'album_name': album,
+					'scrobble_time': int(datetime.datetime.strptime(
 						time + '+0000',
 						"%d %b %Y %H:%M%z"
 					).timestamp()),
-					'duration':None
+					'scrobble_duration':None
 				},'')
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
@@ -299,11 +299,11 @@ def parse_maloja(inputf):
 	for s in scrobbles:
 		try:
 			yield ('CONFIDENT_IMPORT',{
-				'title': s['track']['title'],
-				'artists': s['track']['artists'],
-				'album': s['track'].get('album',{}).get('name',''),
-				'timestamp': s['time'],
-				'duration': s['duration']
+				'track_title': s['track']['title'],
+				'track_artists': s['track']['artists'],
+				'album_name': s['track'].get('album',{}).get('name',''),
+				'scrobble_time': s['time'],
+				'scrobble_duration': s['duration']
 			},'')
 		except Exception as e:
 			yield ('FAIL',None,f"{s} could not be parsed. Scrobble not imported. ({repr(e)})")
