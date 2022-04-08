@@ -12,10 +12,6 @@ Simple self-hosted music scrobble database to create personal listening statisti
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
 
 
-> **IMPORTANT**: With the update 2.7, the backend has been reworked to use a password. With a normal installation, you are asked to provide a password on setup. If you use docker or skip the setup for other reasons, you need to provide the environment variable `MALOJA_FORCE_PASSWORD` on first startup.
-
-> **IMPORTANT**: With the update 2.9, the API endpoints have changed. All old endpoints should be redirected properly, but I recommend updating your clients to use the new ones.
-
 ## Table of Contents
 * [Features](#features)
 * [How to install](#how-to-install)
