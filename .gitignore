@@ -7,6 +7,7 @@
 /*.yml
 /pylintrc
 .venv/*
+/testdata*
 
 # build
 /dist
