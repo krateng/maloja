@@ -296,9 +296,8 @@ def rebuild(**keys):
 	dbstatus['rebuildinprogress'] = True
 	from ..proccontrol.tasks.fixexisting import fix
 	fix()
-	global cla, coa
+	global cla
 	cla = CleanerAgent()
-	coa = CollectorAgent()
 	database.build_db()
 	database.invalidate_caches()
 
@@ -357,7 +356,9 @@ def add_picture(b64,artist:Multi=[],title=None):
 @api.post("newrule")
 @authenticated_api
 def newrule(**keys):
-	tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
+	pass
+	# TODO after implementing new rule system
+	#tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])
 
 

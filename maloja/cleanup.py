@@ -1,6 +1,7 @@
 import re
-#from . import images
-from doreah import tsv
+import os
+import csv
+
 from .globalconf import data_dir, malojaconfig
 
 # need to do this as a class so it can retain loaded settings from file
@@ -12,17 +13,27 @@ class CleanerAgent:
 		self.updateRules()
 
 	def updateRules(self):
-		raw = tsv.parse_all(data_dir["rules"](),"string","string","string","string")
-		self.rules_belongtogether = [b for [a,b,c,d] in raw if a=="belongtogether"]
-		self.rules_notanartist = [b for [a,b,c,d] in raw if a=="notanartist"]
-		self.rules_replacetitle = {b.lower():c for [a,b,c,d] in raw if a=="replacetitle"}
-		self.rules_replaceartist = {b.lower():c for [a,b,c,d] in raw if a=="replaceartist"}
-		self.rules_ignoreartist = [b.lower() for [a,b,c,d] in raw if a=="ignoreartist"]
-		self.rules_addartists = {c.lower():(b.lower(),d) for [a,b,c,d] in raw if a=="addartists"}
-		self.rules_fixartists = {c.lower():b for [a,b,c,d] in raw if a=="fixartists"}
-		self.rules_artistintitle = {b.lower():c for [a,b,c,d] in raw if a=="artistintitle"}
+
+		rawrules = []
+		for f in os.listdir(data_dir["rules"]()):
+			if f.split('.')[-1].lower() != 'tsv': continue
+			filepath = data_dir["rules"](f)
+			with open(filepath,'r') as filed:
+				reader = csv.reader(filed,delimiter="\t")
+				rawrules += [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+
+
+		self.rules_belongtogether = [r[1] for r in rawrules if r[0]=="belongtogether"]
+		self.rules_notanartist = [r[1] for r in rawrules if r[0]=="notanartist"]
+		self.rules_replacetitle = {r[1].lower():r[2] for r in rawrules if r[0]=="replacetitle"}
+		self.rules_replaceartist = {r[1].lower():r[2] for r in rawrules if r[0]=="replaceartist"}
+		self.rules_ignoreartist = [r[1].lower() for r in rawrules if r[0]=="ignoreartist"]
+		self.rules_addartists = {r[2].lower():(r[1].lower(),r[3]) for r in rawrules if r[0]=="addartists"}
+		self.rules_fixartists = {r[2].lower():r[1] for r in rawrules if r[0]=="fixartists"}
+		self.rules_artistintitle = {r[1].lower():r[2] for r in rawrules if r[0]=="artistintitle"}
 		#self.rules_regexartist = [[b,c] for [a,b,c,d] in raw if a=="regexartist"]
 		#self.rules_regextitle = [[b,c] for [a,b,c,d] in raw if a=="regextitle"]
+
 
 
 	def fullclean(self,artist,title):
@@ -162,65 +173,6 @@ class CleanerAgent:
 		for st in self.rules_artistintitle:
 			if st in t.lower(): artists += self.rules_artistintitle[st].split("␟")
 		return (t,artists)
-
-
-
-#this is for all the runtime changes (counting Trouble Maker as HyunA for charts etc)
-class CollectorAgent:
-
-	def __init__(self):
-		self.updateRules()
-
-	# rules_countas			dict: real artist -> credited artist
-	# rules_countas_id		dict: real artist ID -> credited artist ID
-	# rules_include			dict: credited artist -> all real artists
-
-	def updateRules(self):
-		raw = tsv.parse_all(data_dir["rules"](),"string","string","string")
-		self.rules_countas = {b:c for [a,b,c] in raw if a=="countas"}
-		self.rules_countas_id = {}
-		self.rules_include = {} #Twice the memory, double the performance!
-		# (Yes, we're saving redundant information here, but it's not unelegant if it's within a closed object!)
-		for a in self.rules_countas:
-			self.rules_include[self.rules_countas[a]] = self.rules_include.setdefault(self.rules_countas[a],[]) + [a]
-
-	# this agent needs to be aware of the current id assignment in the main program
-	# unelegant, but the best way i can think of
-	def updateIDs(self,artistlist):
-		self.rules_countas_id = {artistlist.index(a):artistlist.index(self.rules_countas[a]) for a in self.rules_countas if a in artistlist}
-		#self.rules_include_id = {artistlist.index(a):artistlist.index(self.rules_include[a]) for a in self.rules_include}
-		#this needs to take lists into account
-
-
-	# get who is credited for this artist
-	def getCredited(self,artist):
-		if artist in self.rules_countas:
-			return self.rules_countas[artist]
-		if artist in self.rules_countas_id:
-			return self.rules_countas_id[artist]
-
-		else:
-			return artist
-
-	# get all credited artists for the artists given
-	def getCreditedList(self,artists):
-		updatedArtists = [self.getCredited(artist) for artist in artists]
-		return list(set(updatedArtists))
-
-	# get artists who the given artist is given credit for
-	def getAllAssociated(self,artist):
-		return self.rules_include.get(artist,[])
-
-	# this function is there to check for artists that we should include in the
-	# database even though they never have any scrobble.
-	def getAllArtists(self):
-		return list({self.rules_countas[a] for a in self.rules_countas})
-		# artists that count can be nonexisting (counting HyunA as 4Minute even
-		# though 4Minute has never been listened to)
-		# but artists that are counted as someone else are only relevant if they
-		# exist (so we can preemptively declare lots of rules just in case)
-		#return list(set([a for a in self.rules_countas] + [self.rules_countas[a] for a in self.rules_countas]))
-
 
 
 

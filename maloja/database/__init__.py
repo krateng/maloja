@@ -2,7 +2,7 @@
 from bottle import request, response, FormsDict, HTTPError
 
 # rest of the project
-from ..cleanup import CleanerAgent, CollectorAgent
+from ..cleanup import CleanerAgent
 from .. import images
 from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
@@ -62,7 +62,6 @@ def waitfordb(func):
 ISSUES = {}
 
 cla = CleanerAgent()
-coa = CollectorAgent()
 
 
 
