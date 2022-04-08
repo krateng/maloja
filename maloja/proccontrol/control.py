@@ -15,10 +15,10 @@ from .. import server
 
 def print_header_info():
 	print()
-	print("#####")
-	print("Maloja v" + info.VERSION)
+	#print("#####")
+	print(col['yellow']("Maloja"),"v" + info.VERSION)
 	print(info.HOMEPAGE)
-	print("#####")
+	#print("#####")
 	print()
 
 
@@ -97,13 +97,12 @@ def debug():
 
 def print_info():
 	print_header_info()
-	print("Configuration Directory:",globalconf.dir_settings['config'])
-	print("Data Directory:         ",globalconf.dir_settings['state'])
-	print("Log Directory:          ",globalconf.dir_settings['logs'])
-	print("Network:                ",f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
-	print("Timezone:               ",f"UTC{globalconf.malojaconfig['timezone']:+d}")
+	print(col['lightblue']("Configuration Directory:"),globalconf.dir_settings['config'])
+	print(col['lightblue']("Data Directory:         "),globalconf.dir_settings['state'])
+	print(col['lightblue']("Log Directory:          "),globalconf.dir_settings['logs'])
+	print(col['lightblue']("Network:                "),f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
+	print(col['lightblue']("Timezone:               "),f"UTC{globalconf.malojaconfig['timezone']:+d}")
 	print()
-	print("#####")
 	print()
 
 @mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)

@@ -95,13 +95,13 @@ class GenericInterface:
 			s = cls()
 			if s.active_proxyscrobble():
 				services["proxyscrobble"].append(s)
-				log(cls.name + " registered as proxy scrobble target")
+				#log(cls.name + " registered as proxy scrobble target")
 			if s.active_import():
 				services["import"].append(s)
-				log(cls.name + " registered as scrobble import source")
+				#log(cls.name + " registered as scrobble import source")
 			if s.active_metadata():
 				services["metadata"].append(s)
-				log(cls.name + " registered as metadata provider")
+				#log(cls.name + " registered as metadata provider")
 
 	def authorize(self):
 		return True
