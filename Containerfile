@@ -15,6 +15,16 @@ RUN \
 	apk add py3-pip && \
 	pip install wheel
 
+# these are more static than the real requirements, which means caching
+COPY ./requirements_pre.txt ./requirements_pre.txt
+
+RUN \
+	apk add --no-cache --virtual .build-deps gcc g++ python3-dev libxml2-dev libxslt-dev libffi-dev libc-dev py3-pip linux-headers && \
+	pip install --no-cache-dir -r requirements_pre.txt && \
+	apk del .build-deps
+
+
+# less likely to be cached
 COPY ./requirements.txt ./requirements.txt
 
 RUN \

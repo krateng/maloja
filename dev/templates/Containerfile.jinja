@@ -15,6 +15,16 @@ RUN \
 	apk add py3-pip && \
 	pip install wheel
 
+# these are more static than the real requirements, which means caching
+COPY ./requirements_pre.txt ./requirements_pre.txt
+
+RUN \
+	apk add --no-cache --virtual .build-deps {{ tool.osreqs.alpine.build | join(' ') }} && \
+	pip install --no-cache-dir -r requirements_pre.txt && \
+	apk del .build-deps
+
+
+# less likely to be cached
 COPY ./requirements.txt ./requirements.txt
 
 RUN \
