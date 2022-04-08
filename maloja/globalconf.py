@@ -284,6 +284,9 @@ data_directories = {
 	"cache":dir_settings['cache'],
 }
 
+for identifier,path in data_directories.items():
+	os.makedirs(path,exist_ok=True)
+
 
 data_dir = {
 	k:lambda *x,k=k: pthj(data_directories[k],*x)  for k in data_directories
