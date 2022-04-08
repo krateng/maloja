@@ -10,7 +10,7 @@ from .setup import setup
 from . import tasks
 from .. import __pkginfo__ as info
 from .. import globalconf
-from .. import server
+
 
 
 def print_header_info():
@@ -88,6 +88,7 @@ def onlysetup():
 def direct():
 	print_header_info()
 	setup()
+	from .. import server
 	server.run_server()
 
 def debug():

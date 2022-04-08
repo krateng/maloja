@@ -2,8 +2,6 @@ import random
 import datetime
 from doreah.io import ask
 
-from ...database.sqldb import add_scrobbles
-
 
 artists = [
 	"Chou Tzuyu","Jennie Kim","Kim Seolhyun","Nancy McDonie","Park Junghwa","Hirai Momo","Rosé Park","Laura Brehm","HyunA",
@@ -69,6 +67,9 @@ def generate_track():
 
 
 def generate(n=200):
+
+	from ...database.sqldb import add_scrobbles
+	
 	n = int(n)
 
 	if ask("Generate random scrobbles?",default=False):

@@ -5,7 +5,7 @@ from doreah.io import col, ask, prompt
 
 from ...cleanup import *
 from ...globalconf import data_dir
-from ...database.sqldb import add_scrobbles
+
 
 c = CleanerAgent()
 
@@ -20,6 +20,8 @@ outputs = {
 
 
 def import_scrobbles(inputf):
+
+	from ...database.sqldb import add_scrobbles
 
 	result = {
 		"CONFIDENT_IMPORT": 0,

@@ -4,9 +4,9 @@ import time
 
 from doreah.io import col
 
-from ...database.sqldb import get_scrobbles
-
 def export(targetfolder=None):
+
+	from ...database.sqldb import get_scrobbles
 
 	if targetfolder is None:
 		targetfolder = os.getcwd()
