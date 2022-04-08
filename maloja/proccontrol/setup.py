@@ -76,11 +76,3 @@ def setup():
 				if newpw != newpw_repeat: print("Passwords do not match!")
 				else: break
 		auth.defaultuser.setpw(newpw)
-
-	if malojaconfig["SEND_STATS"] is None:
-		answer = ask("I would like to know how many people use Maloja. Would it be okay to send a daily ping to my server (this contains no data that isn't accessible via your web interface already)?",default=True,skip=SKIP)
-		if answer:
-			malojaconfig["SEND_STATS"] = True
-			malojaconfig["PUBLIC_URL"] = None
-		else:
-			malojaconfig["SEND_STATS"] = False
