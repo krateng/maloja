@@ -13,6 +13,7 @@ from . import __pkginfo__ as pkginfo
 from . import globalconf
 from .proccontrol import tasks
 from .setup import setup
+from .dev import generate
 
 
 
@@ -142,7 +143,7 @@ def main(*args,**kwargs):
 		# admin scripts
 		"import":tasks.import_scrobbles,		# maloja import /x/y.csv
 		"backup":tasks.backup,					# maloja backup --targetfolder /x/y --include_images
-		"generate":tasks.generate,				# maloja generate 400
+		"generate":generate.generate_scrobbles,	# maloja generate 400
 		"export":tasks.export,					# maloja export
 		# aux
 		"info":print_info
