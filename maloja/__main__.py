@@ -11,7 +11,7 @@ from doreah.io import col
 from . import __pkginfo__ as pkginfo
 from . import globalconf
 from .proccontrol import tasks
-from .proccontrol.setup import setup
+from .setup import setup
 
 
 

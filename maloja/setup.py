@@ -1,10 +1,12 @@
-from importlib import resources
-from distutils import dir_util
-from doreah.io import col, ask, prompt
-from doreah import auth
 import os
 
-from ..globalconf import data_dir, dir_settings, malojaconfig
+from importlib import resources
+from distutils import dir_util
+
+from doreah.io import col, ask, prompt
+from doreah import auth
+
+from .globalconf import data_dir, dir_settings, malojaconfig
 
 
 
@@ -48,7 +50,7 @@ def setup():
 
 
 	# OWN API KEY
-	from ..apis import apikeystore
+	from .apis import apikeystore
 	if len(apikeystore) == 0:
 		answer = ask("Do you want to set up a key to enable scrobbling? Your scrobble extension needs that key so that only you can scrobble tracks to your database.",default=True,skip=SKIP)
 		if answer:
