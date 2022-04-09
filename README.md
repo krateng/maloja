@@ -11,6 +11,8 @@ Simple self-hosted music scrobble database to create personal listening statisti
 
 You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
 
+![screenshot](screenshot.png?raw=true)
+
 
 ## Table of Contents
 * [Features](#features)

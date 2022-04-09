@@ -13,9 +13,3 @@
 /dist
 /build
 /*.egg-info
-
-# currently not using
-/screenshot*.png
-
-# only for development, normally external
-/doreah
