@@ -25,7 +25,7 @@ from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
 
 
-from .proccontrol.profiler import profile
+from .dev.profiler import profile
 
 
 ######

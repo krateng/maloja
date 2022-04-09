@@ -2,7 +2,6 @@ import os
 
 import cProfile, pstats
 
-
 from doreah.logging import log
 from doreah.timing import Clock
 
@@ -23,7 +22,7 @@ def profile(func):
 		profiler.enable()
 		result = func(*args,**kwargs)
 		profiler.disable()
-		
+
 		log(f"Executed {func.__name__} ({args}, {kwargs}) in {clock.stop():.2f}s",module="debug_performance")
 		try:
 			pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{func.__name__}.stats"))
