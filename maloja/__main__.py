@@ -7,6 +7,7 @@ from ipaddress import ip_address
 
 from doreah.control import mainfunction
 from doreah.io import col
+from doreah.logging import log
 
 from . import __pkginfo__ as pkginfo
 from . import globalconf
@@ -50,7 +51,7 @@ def start():
 		setup()
 		try:
 			#p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-			sp = subprocess.Popen(["python3","-m","maloja.proccontrol.supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+			sp = subprocess.Popen(["python3","-m","maloja","supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(col["green"]("Maloja started!"))
 
 			port = globalconf.malojaconfig["PORT"]
@@ -93,6 +94,24 @@ def run_server():
 	from . import server
 	server.run_server()
 
+def run_supervisor():
+	setproctitle("maloja_supervisor")
+	while True:
+		log("Maloja is not running, starting...",module="supervisor")
+		try:
+			process = subprocess.Popen(
+			    ["python3", "-m", "maloja","run"],
+			    stdout=subprocess.DEVNULL,
+			    stderr=subprocess.DEVNULL,
+			)
+		except Exception as e:
+			log("Error starting Maloja: " + str(e),module="supervisor")
+		else:
+			try:
+				process.wait()
+			except Exception as e:
+				log("Maloja crashed: " + str(e),module="supervisor")
+
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
 	globalconf.malojaconfig.load_environment()
@@ -117,6 +136,7 @@ def main(*args,**kwargs):
 		"restart":restart,
 		"stop":stop,
 		"run":run_server,
+		"supervisor":run_supervisor,
 		"debug":debug,
 		"setup":onlysetup,
 		# admin scripts
