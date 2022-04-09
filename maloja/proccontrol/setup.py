@@ -38,13 +38,13 @@ def setup():
 		keyname = malojaconfig.get_setting_info(k)['name']
 		key = malojaconfig[k]
 		if key is False:
-			print("\t" + "Currently not using a " + col['red'](keyname) + " for image display.")
+			print(f"\tCurrently not using a {col['red'](keyname)} for image display.")
 		elif key is None or key == "ASK":
-			print("\t" + "Please enter your " + col['gold'](keyname) + ". If you do not want to use one at this moment, simply leave this empty and press Enter.")
-			key = prompt("",types=(str,),default=False,skip=SKIP)
+			promptmsg = f"\tPlease enter your {col['gold'](keyname)}. If you do not want to use one at this moment, simply leave this empty and press Enter."
+			key = prompt(promptmsg,types=(str,),default=False,skip=SKIP)
 			malojaconfig[k] = key
 		else:
-			print("\t" + col['lawngreen'](keyname) + " found.")
+			print(f"\t{col['lawngreen'](keyname)} found.")
 
 
 	# OWN API KEY
