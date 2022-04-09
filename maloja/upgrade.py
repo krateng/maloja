@@ -11,19 +11,33 @@ from .globalconf import data_dir, dir_settings
 from .apis import _apikeys
 
 
+# Dealing with old style tsv files - these should be phased out everywhere
+def read_tsvs(path,types):
+	result = []
+	for f in os.listdir(path):
+		if f.split('.')[-1].lower() != 'tsv': continue
+		filepath = os.path.join(path,f)
+		result += read_tsv(filepath,types)
+	return result
+
+def read_tsv(filename,types):
+	with open(filename,'r') as filed:
+		reader = csv.reader(filed,delimiter="\t")
+		rawentries = [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+	converted_entries = [[coltype(col) for col,coltype in zip(entry,types)] for entry in rawentries]
+	return converted_entries
+
+
 def upgrade_apikeys():
 
 	oldfile = os.path.join(dir_settings['config'],"clients","authenticated_machines.tsv")
 	if os.path.exists(oldfile):
 		try:
-				with open(oldfile,'r') as filed:
-					reader = csv.reader(filed,delimiter="\t")
-					entries = [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+				entries = read_tsv(oldfile)
 				for key,identifier in entries:
 					_apikeys.apikeystore[identifier] = key
 				os.remove(oldfile)
 		except:
-			raise
 			pass
 
 
@@ -48,9 +62,8 @@ def upgrade_db(callback_add_scrobbles):
 				else:
 					origin = 'unknown'
 
-				# TODO still tsv module here!
-				from doreah import tsv
-				scrobbles = tsv.parse(os.path.join(oldfolder,sf),"int","string","string","string","string",comments=False)
+				scrobbles = read_tsv(os.path.join(oldfolder,sf),[int,str,str,str,str])
+				#scrobbles = tsv.parse(os.path.join(oldfolder,sf),"int","string","string","string","string",comments=False)
 				scrobblelist = []
 				log(f"\tImporting from {sf} ({idx}/{len(scrobblefiles)}) - {len(scrobbles)} Scrobbles")
 				for scrobble in scrobbles:
