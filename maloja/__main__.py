@@ -10,7 +10,7 @@ from doreah.io import col
 from doreah.logging import log
 
 from . import __pkginfo__ as pkginfo
-from . import globalconf
+from .pkg_global import conf
 from .proccontrol import tasks
 from .setup import setup
 from .dev import generate
@@ -55,7 +55,7 @@ def start():
 			sp = subprocess.Popen(["python3","-m","maloja","supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 			print(col["green"]("Maloja started!"))
 
-			port = globalconf.malojaconfig["PORT"]
+			port = conf.malojaconfig["PORT"]
 
 			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /admin_setup to get started.")
 			print("If you're installing this on your local machine, these links should get you there:")
@@ -115,16 +115,16 @@ def run_supervisor():
 
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
-	globalconf.malojaconfig.load_environment()
+	conf.malojaconfig.load_environment()
 	direct()
 
 def print_info():
 	print_header_info()
-	print(col['lightblue']("Configuration Directory:"),globalconf.dir_settings['config'])
-	print(col['lightblue']("Data Directory:         "),globalconf.dir_settings['state'])
-	print(col['lightblue']("Log Directory:          "),globalconf.dir_settings['logs'])
-	print(col['lightblue']("Network:                "),f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
-	print(col['lightblue']("Timezone:               "),f"UTC{globalconf.malojaconfig['timezone']:+d}")
+	print(col['lightblue']("Configuration Directory:"),conf.dir_settings['config'])
+	print(col['lightblue']("Data Directory:         "),conf.dir_settings['state'])
+	print(col['lightblue']("Log Directory:          "),conf.dir_settings['logs'])
+	print(col['lightblue']("Network:                "),f"IPv{ip_address(conf.malojaconfig['host']).version}, Port {conf.malojaconfig['port']}")
+	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
 	print()
 	print()
 

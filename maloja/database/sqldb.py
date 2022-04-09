@@ -5,7 +5,7 @@ import math
 from datetime import datetime
 from threading import Lock
 
-from ..globalconf import data_dir
+from ..pkg_global.conf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual
 
 from doreah.logging import log

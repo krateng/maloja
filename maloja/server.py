@@ -20,7 +20,7 @@ from . import database
 from .database.jinjaview import JinjaDBConnection
 from .images import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, data_dir
+from .pkg_global.conf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
 

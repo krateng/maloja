@@ -2,7 +2,7 @@ import re
 import os
 import csv
 
-from .globalconf import data_dir, malojaconfig
+from .pkg_global.conf import data_dir, malojaconfig
 
 # need to do this as a class so it can retain loaded settings from file
 # apparently this is not true

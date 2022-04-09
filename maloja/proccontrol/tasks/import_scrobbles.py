@@ -4,7 +4,7 @@ import json, csv
 from doreah.io import col, ask, prompt
 
 from ...cleanup import *
-from ...globalconf import data_dir
+from ...pkg_global.conf import data_dir
 
 
 c = CleanerAgent()

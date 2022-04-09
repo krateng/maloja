@@ -11,7 +11,7 @@ from nimrodel import Multi
 
 
 from .. import database
-from ..globalconf import malojaconfig, data_dir
+from ..pkg_global.conf import malojaconfig, data_dir
 
 
 

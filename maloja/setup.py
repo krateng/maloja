@@ -6,7 +6,7 @@ from distutils import dir_util
 from doreah.io import col, ask, prompt
 from doreah import auth
 
-from .globalconf import data_dir, dir_settings, malojaconfig
+from .pkg_global.conf import data_dir, dir_settings, malojaconfig
 
 
 
