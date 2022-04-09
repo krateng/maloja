@@ -1,17 +1,17 @@
 # Maloja
 
-[![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge)](https://github.com/krateng/maloja)
-[![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge)](https://pypi.org/project/malojaserver/)
-[![](https://img.shields.io/docker/v/krateng/maloja?label=Docker&style=for-the-badge)](https://hub.docker.com/r/krateng/maloja)
+[![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge&logo=github&logoColor=white)](https://github.com/krateng/maloja)
+[![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/malojaserver/)
+[![](https://img.shields.io/docker/v/krateng/maloja?label=Dockerhub&style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/krateng/maloja)
 
 [![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
 [![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
-You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
-
 ![screenshot](screenshot.png?raw=true)
+
+You can check [my own Maloja page](https://maloja.krateng.ch) as an example instance.
 
 
 ## Table of Contents
