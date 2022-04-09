@@ -2,7 +2,6 @@
 import sys
 import os
 from threading import Thread
-import setproctitle
 from importlib import resources
 from css_html_js_minify import html_minify, css_minify
 import datauri
@@ -42,8 +41,6 @@ BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 webserver = Bottle()
 
-#rename process, this is now required for the daemon manager to work
-setproctitle.setproctitle("Maloja")
 
 
 ######
