@@ -1,0 +1,41 @@
+# no linting is currently enforced, this is just for reference
+[MASTER]
+disable=C0114,C0115,C0116, # docstrings
+        W0703,             # broad exception catching
+        W1514,             # open without encoding
+
+[VARIABLES]
+allow-global-unused-variables=no
+
+[BASIC]
+argument-naming-style=snake_case
+attr-naming-style=snake_case
+class-naming-style=PascalCase
+const-naming-style=UPPER_CASE
+function-naming-style=snake_case
+variable-naming-style=snake_case
+indent-string='\t'
+good-names=i,j,k, # loops
+           x,y,   # dimensions
+		   e      # exceptions
+
+max-line-length=200
+max-module-lines=1000
+
+[DESIGN]
+
+max-args=8
+max-attributes=7
+max-bool-expr=5
+max-branches=12
+max-locals=15
+max-parents=7
+max-public-methods=20
+max-returns=6
+max-statements=50
+min-public-methods=2
+
+[EXCEPTIONS]
+
+overgeneral-exceptions=BaseException,
+                       Exception
