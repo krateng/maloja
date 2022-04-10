@@ -88,7 +88,7 @@ Then install all the requirements and build the package:
 
 ### Docker
 
-Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Dockerfile.
+Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
 
 Of note are these settings which should be passed as environmental variables to the container:
 
