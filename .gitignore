@@ -4,7 +4,6 @@
 *.xcf
 /nohup.out
 *-old
-/*.yml
 /pylintrc
 .venv/*
 /testdata*
