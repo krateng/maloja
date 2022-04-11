@@ -41,11 +41,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-# skipping this until https://github.com/peter-evans/dockerhub-description/issues/10 is fixed
-#      - name: Update Readme and short description
-#        uses: peter-evans/dockerhub-description@616d1b63e806b630b975af3b4fe3304307b20f40
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
-#          repository: krateng/maloja
-#          short-description: ${{ github.event.repository.description }}
+      - name: Update Readme and short description
+        uses: peter-evans/dockerhub-description@1cf9afbac3c5d2fdc66416a464c2c38260cb6f8d
+        continue-on-error: true
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+          repository: krateng/maloja
+          short-description: ${{ github.event.repository.description }}
