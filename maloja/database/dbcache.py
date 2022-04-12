@@ -114,9 +114,10 @@ def trim_cache():
 		log(f"{ramprct}% RAM usage, reducing caches!")
 		ratio = 0.6
 		targetsize = max(int(len(cache) * ratio),50)
-		log(f"Reducing to {targetsize} entries")
-		cache.set_size(targetsize)
-		cache.set_size(HIGH_NUMBER)
+		#log(f"Reducing to {targetsize} entries")
+		#cache.set_size(targetsize)
+		#cache.set_size(HIGH_NUMBER)
+		cache.clear()
 		#log(f"New RAM usage: {psutil.virtual_memory().percent}%")
 		print_stats()
 
