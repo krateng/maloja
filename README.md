@@ -154,7 +154,7 @@ To backup your data, run `maloja backup`, optional with `--include_images`.
 
 ## How to scrobble
 
-You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `/etc/maloja/clients` folder. It is recommended to define a different API key for every scrobbler you use.
+You can set up any amount of API keys in the file `apikeys.yml` in your configuration folder (or via the web interface). It is recommended to define a different API key for every scrobbler you use.
 
 ### Native support
 
