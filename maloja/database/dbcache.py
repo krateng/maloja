@@ -11,9 +11,12 @@ from doreah.logging import log
 from ..globalconf import malojaconfig
 
 HIGH_NUMBER = 1000000
+CACHE_SIZE = 10000
+ENTITY_CACHE_SIZE = 1000000
+CACHE_ADJUST_STEP = 100
 
-cache = lru.LRU(HIGH_NUMBER)
-entitycache = lru.LRU(HIGH_NUMBER)
+cache = lru.LRU(CACHE_SIZE)
+entitycache = lru.LRU(ENTITY_CACHE_SIZE)
 
 hits, misses = 0, 0
 
@@ -111,13 +114,16 @@ def invalidate_entity_cache():
 def trim_cache():
 	ramprct = psutil.virtual_memory().percent
 	if ramprct > malojaconfig["DB_MAX_MEMORY"]:
-		log(f"{ramprct}% RAM usage, reducing caches!")
-		ratio = 0.6
-		targetsize = max(int(len(cache) * ratio),50)
+		log(f"{ramprct}% RAM usage, clearing cache and adjusting size!")
+		#ratio = 0.6
+		#targetsize = max(int(len(cache) * ratio),50)
 		#log(f"Reducing to {targetsize} entries")
 		#cache.set_size(targetsize)
 		#cache.set_size(HIGH_NUMBER)
 		cache.clear()
+		if cache.get_size() > CACHE_ADJUST_STEP:
+			cache.set_size(cache.get_size() - CACHE_ADJUST_STEP)
+
 		#log(f"New RAM usage: {psutil.virtual_memory().percent}%")
 		print_stats()
 
