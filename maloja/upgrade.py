@@ -44,7 +44,7 @@ def upgrade_apikeys():
 def upgrade_db(callback_add_scrobbles):
 
 	oldfolder = os.path.join(dir_settings['state'],"scrobbles")
-	newfolder = os.path.join(dir_settings['state'],".oldscrobbles")
+	newfolder = os.path.join(dir_settings['state'],".v2scrobbles")
 	os.makedirs(newfolder,exist_ok=True)
 	if os.path.exists(oldfolder):
 		scrobblefiles = [f for f in os.listdir(oldfolder) if f.endswith(".tsv")]
