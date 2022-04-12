@@ -2,7 +2,7 @@
 
 
 {% if charts is undefined %}
-	{% set charts = dbp.get_charts_artists(limitkeys) %}
+	{% set charts = dbc.get_charts_artists(limitkeys) %}
 {% endif %}
 
 {% set charts_14 = charts | fixlength(14) %}
@@ -23,7 +23,7 @@
 						{% set rank = entry.rank %}
 						<td>
 							<a href="{{ links.url(artist) }}">
-							<div style='background-image:url("{{ utilities.getArtistImage(artist,fast=True) }}")'>
+							<div style='background-image:url("{{ images.get_artist_image(artist) }}")'>
 								<span class='stats'>#{{ rank }}</span> <span>{{ artist }}</span>
 							</div>
 							</a>

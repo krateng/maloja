@@ -14,17 +14,10 @@ from .control import getInstance
 
 setproctitle.setproctitle("maloja_supervisor")
 
-def update():
-	log("Updating...",module="supervisor")
-	try:
-		os.system("pip3 install maloja --upgrade --no-cache-dir")
-	except:
-		log("Could not update.",module="supervisor")
-
 def start():
 	try:
 		return subprocess.Popen(
-		    ["python3", "-m", "maloja.server"],
+		    ["python3", "-m", "maloja","run"],
 		    stdout=subprocess.DEVNULL,
 		    stderr=subprocess.DEVNULL,
 		)
@@ -35,8 +28,6 @@ def start():
 
 while True:
 	log("Maloja is not running, starting...",module="supervisor")
-	if malojaconfig["UPDATE_AFTER_CRASH"]:
-		update()
 	process = start()
 
 	process.wait()

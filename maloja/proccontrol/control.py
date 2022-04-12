@@ -12,12 +12,13 @@ from .. import __pkginfo__ as info
 from .. import globalconf
 
 
+
 def print_header_info():
 	print()
-	print("#####")
-	print("Maloja v" + info.VERSION)
+	#print("#####")
+	print(col['yellow']("Maloja"),"v" + info.VERSION)
 	print(info.HOMEPAGE)
-	print("#####")
+	#print("#####")
 	print()
 
 
@@ -79,12 +80,16 @@ def stop():
 	print("Maloja stopped!")
 	return True
 
-
+def onlysetup():
+	print_header_info()
+	setup()
+	print("Setup complete!")
 
 def direct():
 	print_header_info()
 	setup()
 	from .. import server
+	server.run_server()
 
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
@@ -93,29 +98,31 @@ def debug():
 
 def print_info():
 	print_header_info()
-	print("Configuration Directory:",globalconf.dir_settings['config'])
-	print("Data Directory:         ",globalconf.dir_settings['state'])
-	print("Log Directory:          ",globalconf.dir_settings['logs'])
-	print("Network:                ",f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
-	print("Timezone:               ",f"UTC{globalconf.malojaconfig['timezone']:+d}")
+	print(col['lightblue']("Configuration Directory:"),globalconf.dir_settings['config'])
+	print(col['lightblue']("Data Directory:         "),globalconf.dir_settings['state'])
+	print(col['lightblue']("Log Directory:          "),globalconf.dir_settings['logs'])
+	print(col['lightblue']("Network:                "),f"IPv{ip_address(globalconf.malojaconfig['host']).version}, Port {globalconf.malojaconfig['port']}")
+	print(col['lightblue']("Timezone:               "),f"UTC{globalconf.malojaconfig['timezone']:+d}")
 	print()
-	print("#####")
 	print()
 
-@mainfunction({"l":"level","v":"version","V":"version"},flags=['version'],shield=True)
+@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
+		# server
 		"start":start,
 		"restart":restart,
 		"stop":stop,
 		"run":direct,
 		"debug":debug,
-		"import":tasks.loadexternal,
-		"backup":tasks.backuphere,
-	#	"update":update,
-		"fix":tasks.fixdb,
-		"generate":tasks.generate_scrobbles,
+		"setup":onlysetup,
+		# admin scripts
+		"import":tasks.import_scrobbles,		# maloja import /x/y.csv
+		"backup":tasks.backup,					# maloja backup --targetfolder /x/y --include_images
+		"generate":tasks.generate,				# maloja generate 400
+		"export":tasks.export,					# maloja export
+		# aux
 		"info":print_info
 	}
 
@@ -124,8 +131,11 @@ def main(*args,**kwargs):
 	else:
 		try:
 			action, *args = args
-			actions[action](*args,**kwargs)
+			action = actions[action]
 		except (ValueError, KeyError):
 			print("Valid commands: " + " ".join(a for a in actions))
+			return
+
+		return action(*args,**kwargs)
 
 	return True

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Push Extension to Web Store
-        uses: Klemensas/chrome-extension-upload-action@$VERSION
+        uses: Klemensas/chrome-extension-upload-action@1e8ede84548583abf1a2a495f4242c4c51539337
         with:
           refresh-token: '${{ secrets.GOOGLE_REFRESHTOKEN }}'
           client-id: '${{ secrets.GOOGLE_CLIENTID }}'

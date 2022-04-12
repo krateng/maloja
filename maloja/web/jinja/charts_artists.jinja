@@ -5,11 +5,11 @@
 	<script src="/datechange.js" async></script>
 {% endblock %}
 
-{% set charts = dbp.get_charts_artists(filterkeys,limitkeys) %}
+{% set charts = dbc.get_charts_artists(filterkeys,limitkeys) %}
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set topartist = charts[0].artist %}
-	{% set img = utilities.getArtistImage(artist=topartist,fast=True) %}
+	{% set img = images.get_artist_image(topartist) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

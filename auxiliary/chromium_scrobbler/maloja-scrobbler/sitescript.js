@@ -32,7 +32,7 @@ Node.prototype.xpath = getxpath;
 
 bar = document.xpath(maloja_scrobbler_selector_playbar, XPathResult.FIRST_ORDERED_NODE_TYPE);
 if (bar == null) {
-	console.log("Nothing playing right now!");
+	console.log("[Maloja Scrobbler] Nothing playing right now!");
 	chrome.runtime.sendMessage({type:"stopPlayback",time:Math.floor(Date.now()),artist:"",title:""});
 }
 else {
@@ -78,12 +78,12 @@ else {
 		label_paused = "Play"
 	}
 	if (control == label_paused) {
-		console.log("Not playing right now");
+		console.log("[Maloja Scrobbler] Not playing right now");
 		chrome.runtime.sendMessage({type:"stopPlayback",time:Math.floor(Date.now()),artist:artist,title:title});
 		//stopPlayback()
 	}
 	else if (control == label_playing) {
-		console.log("Playing " + artist + " - " + title + " (" + durationSeconds + " sec)");
+		console.log("[Maloja Scrobbler] Playing " + artist + " - " + title + " (" + durationSeconds + " sec)");
 		chrome.runtime.sendMessage({type:"startPlayback",time:Math.floor(Date.now()),artist:artist,title:title,duration:durationSeconds});
 		//startPlayback(artist,title,durationSeconds)
 	}

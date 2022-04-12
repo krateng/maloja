@@ -1,18 +1,41 @@
-from ..database import *
-from ..globalconf import malojaconfig, apikeystore
-from ..__pkginfo__ import VERSION
-from ..malojauri import uri_to_internal
-from .. import utilities
+import os
 
-from bottle import response, static_file
+from bottle import response, static_file, request, FormsDict
+
+from doreah.logging import log
+from doreah.auth import authenticated_api, authenticated_api_with_alternate, authenticated_function
 
 # nimrodel API
 from nimrodel import EAPI as API
 from nimrodel import Multi
 
 
+from .. import database
+from ..globalconf import malojaconfig, data_dir
+
+
+
+from ..__pkginfo__ import VERSION
+from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
+from .. import images
+from ._apikeys import apikeystore, api_key_correct
+
+
+
+
+
+
+
+
+
+
+
+
 api = API(delay=True)
 api.__apipath__ = "mlj_1"
+
+
+
 
 
 @api.get("test")
@@ -24,7 +47,7 @@ def test_server(key=None):
 	:param string key: An API key to be tested. Optional.
 	"""
 	response.set_header("Access-Control-Allow-Origin","*")
-	if key is not None and not (checkAPIkey(key)):
+	if key is not None and not apikeystore.check_key(key):
 		response.status = 403
 		return {"error":"Wrong API key"}
 
@@ -44,7 +67,7 @@ def server_info():
 		"name":malojaconfig["NAME"],
 		"version":VERSION.split("."),
 		"versionstring":VERSION,
-		"db_status":dbstatus
+		"db_status":database.dbstatus
 	}
 
 
@@ -56,7 +79,7 @@ def get_scrobbles_external(**keys):
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
-	result = get_scrobbles(**ckeys)
+	result = database.get_scrobbles(**ckeys)
 
 	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
 	result = result[offset:]
@@ -81,7 +104,7 @@ def get_scrobbles_num_external(**keys):
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
-	result = get_scrobbles_num(**ckeys)
+	result = database.get_scrobbles_num(**ckeys)
 	return {"amount":result}
 
 
@@ -91,14 +114,14 @@ def get_tracks_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	result = get_tracks(**ckeys)
+	result = database.get_tracks(**ckeys)
 	return {"list":result}
 
 
 
 @api.get("artists")
 def get_artists_external():
-	result = get_artists()
+	result = database.get_artists()
 	return {"list":result}
 
 
@@ -110,7 +133,7 @@ def get_charts_artists_external(**keys):
 	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
-	result = get_charts_artists(**ckeys)
+	result = database.get_charts_artists(**ckeys)
 	return {"list":result}
 
 
@@ -120,7 +143,7 @@ def get_charts_tracks_external(**keys):
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
-	result = get_charts_tracks(**ckeys)
+	result = database.get_charts_tracks(**ckeys)
 	return {"list":result}
 
 
@@ -131,7 +154,7 @@ def get_pulse_external(**keys):
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
-	results = get_pulse(**ckeys)
+	results = database.get_pulse(**ckeys)
 	return {"list":results}
 
 
@@ -142,7 +165,7 @@ def get_performance_external(**keys):
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
-	results = get_performance(**ckeys)
+	results = database.get_performance(**ckeys)
 	return {"list":results}
 
 
@@ -153,7 +176,7 @@ def get_top_artists_external(**keys):
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
-	results = get_top_artists(**ckeys)
+	results = database.get_top_artists(**ckeys)
 	return {"list":results}
 
 
@@ -166,23 +189,23 @@ def get_top_tracks_external(**keys):
 
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
 
-	results = get_top_tracks(**ckeys)
+	results = database.get_top_tracks(**ckeys)
 	return {"list":results}
 
 
 
 
 @api.get("artistinfo")
-def artistInfo_external(**keys):
+def artist_info_external(**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
-	return artistInfo(**ckeys)
+	return database.artist_info(**ckeys)
 
 
 
 @api.get("trackinfo")
-def trackInfo_external(artist:Multi[str],**keys):
+def track_info_external(artist:Multi[str],**keys):
 	# transform into a multidict so we can use our nomral uri_to_internal function
 	keys = FormsDict(keys)
 	for a in artist:
@@ -190,50 +213,60 @@ def trackInfo_external(artist:Multi[str],**keys):
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
 	ckeys = {**k_filter}
 
-	return trackInfo(**ckeys)
+	return database.track_info(**ckeys)
 
 
 @api.get("compare")
 def compare_external(**keys):
-	return compare(keys["remote"])
+	return database.compare(keys["remote"])
 
-
-
-@api.get("newscrobble")
-@authenticated_api_with_alternate(api_key_correct)
-def get_post_scrobble(artist:Multi,**keys):
-	"""DEPRECATED. Use the equivalent POST method instead."""
-	artists = artist
-	title = keys.get("title")
-	album = keys.get("album")
-	duration = keys.get("seconds")
-	time = keys.get("time")
-	if time is not None: time = int(time)
-
-	return incoming_scrobble(artists,title,album=album,duration=duration,time=time)
 
 @api.post("newscrobble")
-@authenticated_api_with_alternate(api_key_correct)
-def post_scrobble(artist:Multi=None,**keys):
+@authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
+def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 	"""Submit a new scrobble.
 
 	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
 	:param string artists: List of artists. Overwritten by artist parameter.
 	:param string title: Title of the track.
 	:param string album: Name of the album. Optional.
+	:param string albumartists: Album artists. Optional.
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
+	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
+	:param boolean nofix: Skip server-side metadata parsing. Optional.
 	"""
-	#artists = "/".join(artist)
-	artists = artist if artist is not None else keys.get("artists")
-	title = keys.get("title")
-	album = keys.get("album")
-	duration = keys.get("seconds")
-	time = keys.get("time")
-	nofix = keys.get("nofix") is not None
-	if time is not None: time = int(time)
 
-	return incoming_scrobble(artists,title,album=album,duration=duration,time=time,fix=not nofix)
+	rawscrobble = {
+		'track_artists':artist if artist is not None else keys.get("artists"),
+		'track_title':keys.get('title'),
+		'album_name':keys.get('album'),
+		'album_artists':keys.get('albumartists'),
+		'scrobble_duration':keys.get('duration'),
+		'track_length':keys.get('length'),
+		'scrobble_time':int(keys.get('time')) if (keys.get('time') is not None) else None
+	}
+
+	# for logging purposes, don't pass values that we didn't actually supply
+	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
+
+	result = database.incoming_scrobble(
+		rawscrobble,
+		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
+		api='native/v1',
+		fix=(keys.get("nofix") is None)
+	)
+
+	if result:
+		return {
+			'status': 'success',
+			'track': {
+				'artists':result['track']['artists'],
+				'title':result['track']['title']
+			}
+		}
+	else:
+		return {"status":"failure"}
 
 
 
@@ -259,15 +292,14 @@ def import_rulemodule(**keys):
 @authenticated_api
 def rebuild(**keys):
 	log("Database rebuild initiated!")
-	sync()
+	database.sync()
 	dbstatus['rebuildinprogress'] = True
 	from ..proccontrol.tasks.fixexisting import fix
 	fix()
-	global cla, coa
+	global cla
 	cla = CleanerAgent()
-	coa = CollectorAgent()
-	build_db()
-	invalidate_caches()
+	database.build_db()
+	database.invalidate_caches()
 
 
 
@@ -279,8 +311,8 @@ def search(**keys):
 	if max_ is not None: max_ = int(max_)
 	query = query.lower()
 
-	artists = db_search(query,type="ARTIST")
-	tracks = db_search(query,type="TRACK")
+	artists = database.db_search(query,type="ARTIST")
+	tracks = database.db_search(query,type="TRACK")
 
 
 
@@ -296,14 +328,14 @@ def search(**keys):
 		    'name': a,
 		    'link': "/artist?" + compose_querystring(internal_to_uri({"artist": a})),
 		}
-		result["image"] = "/image?" + compose_querystring(internal_to_uri({"artist":a}))
+		result["image"] = images.get_artist_image(a)
 		artists_result.append(result)
 
 	tracks_result = []
 	for t in tracks:
 		result = t
 		result["link"] = "/track?" + compose_querystring(internal_to_uri({"track":t}))
-		result["image"] = "/image?" + compose_querystring(internal_to_uri({"track":t}))
+		result["image"] = images.get_track_image(t)
 		tracks_result.append(result)
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
@@ -318,13 +350,15 @@ def add_picture(b64,artist:Multi=[],title=None):
 	if title is not None: keys.append("title",title)
 	k_filter, _, _, _, _ = uri_to_internal(keys)
 	if "track" in k_filter: k_filter = k_filter["track"]
-	utilities.set_image(b64,**k_filter)
+	images.set_image(b64,**k_filter)
 
 
 @api.post("newrule")
 @authenticated_api
 def newrule(**keys):
-	tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
+	pass
+	# TODO after implementing new rule system
+	#tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
 	#addEntry("rules/webmade.tsv",[k for k in keys])
 
 
@@ -354,3 +388,20 @@ def get_backup(**keys):
 	archivefile = backup(tmpfolder)
 
 	return static_file(os.path.basename(archivefile),root=tmpfolder)
+
+@api.get("export")
+@authenticated_api
+def get_export(**keys):
+	from ..proccontrol.tasks.export import export
+	import tempfile
+
+	tmpfolder = tempfile.gettempdir()
+	resultfile = export(tmpfolder)
+
+	return static_file(os.path.basename(resultfile),root=tmpfolder)
+
+
+@api.post("delete_scrobble")
+@authenticated_api
+def delete_scrobble(timestamp):
+	database.remove_scrobble(timestamp)

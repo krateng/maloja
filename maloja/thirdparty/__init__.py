@@ -11,6 +11,7 @@ import json
 import urllib.parse, urllib.request
 import base64
 from doreah.logging import log
+from threading import BoundedSemaphore
 
 from ..globalconf import malojaconfig
 from .. import database
@@ -21,6 +22,11 @@ services = {
 	"import":[],
 	"metadata":[]
 }
+
+# have a limited number of worker threads so we don't completely hog the cpu with
+# these requests. they are mostly network bound, so python will happily open up 200 new
+# requests and then when all the responses come in we suddenly can't load pages anymore
+thirdpartylock = BoundedSemaphore(4)
 
 
 def import_scrobbles(identifier):
@@ -34,27 +40,29 @@ def proxy_scrobble_all(artists,title,timestamp):
 		service.scrobble(artists,title,timestamp)
 
 def get_image_track_all(track):
-	for service in services["metadata"]:
-		try:
-			res = service.get_image_track(track)
-			if res is not None:
-				log("Got track image for " + str(track) + " from " + service.name)
-				return res
-			else:
-				log("Could not get track image for " + str(track) + " from " + service.name)
-		except Exception as e:
-			log("Error getting track image from " + service.name + ": " + repr(e))
+	with thirdpartylock:
+		for service in services["metadata"]:
+			try:
+				res = service.get_image_track(track)
+				if res is not None:
+					log("Got track image for " + str(track) + " from " + service.name)
+					return res
+				else:
+					log("Could not get track image for " + str(track) + " from " + service.name)
+			except Exception as e:
+				log("Error getting track image from " + service.name + ": " + repr(e))
 def get_image_artist_all(artist):
-	for service in services["metadata"]:
-		try:
-			res = service.get_image_artist(artist)
-			if res is not None:
-				log("Got artist image for " + str(artist) + " from " + service.name)
-				return res
-			else:
-				log("Could not get artist image for " + str(artist) + " from " + service.name)
-		except Exception as e:
-			log("Error getting artist image from " + service.name + ": " + repr(e))
+	with thirdpartylock:
+		for service in services["metadata"]:
+			try:
+				res = service.get_image_artist(artist)
+				if res is not None:
+					log("Got artist image for " + str(artist) + " from " + service.name)
+					return res
+				else:
+					log("Could not get artist image for " + str(artist) + " from " + service.name)
+			except Exception as e:
+				log("Error getting artist image from " + service.name + ": " + repr(e))
 
 
 
@@ -87,13 +95,13 @@ class GenericInterface:
 			s = cls()
 			if s.active_proxyscrobble():
 				services["proxyscrobble"].append(s)
-				log(cls.name + " registered as proxy scrobble target")
+				#log(cls.name + " registered as proxy scrobble target")
 			if s.active_import():
 				services["import"].append(s)
-				log(cls.name + " registered as scrobble import source")
+				#log(cls.name + " registered as scrobble import source")
 			if s.active_metadata():
 				services["metadata"].append(s)
-				log(cls.name + " registered as metadata provider")
+				#log(cls.name + " registered as metadata provider")
 
 	def authorize(self):
 		return True
@@ -154,7 +162,7 @@ class ImportInterface(GenericInterface,abstract=True):
 
 	def import_scrobbles(self):
 		for scrobble in self.get_remote_scrobbles():
-			database.createScrobble(
+			database.incoming_scrobble(
 				artists=scrobble['artists'],
 				title=scrobble['title'],
 				time=scrobble['time']

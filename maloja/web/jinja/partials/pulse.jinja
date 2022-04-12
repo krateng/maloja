@@ -1,6 +1,6 @@
 {% import 'snippets/links.jinja' as links %}
 
-{% set ranges = dbp.get_pulse(filterkeys,limitkeys,delimitkeys) %}
+{% set ranges = dbc.get_pulse(filterkeys,limitkeys,delimitkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
 {% if maxbar < 1 %}{% set maxbar = 1 %}{% endif %}

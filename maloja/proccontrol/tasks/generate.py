@@ -2,6 +2,7 @@ import random
 import datetime
 from doreah.io import ask
 
+
 artists = [
 	"Chou Tzuyu","Jennie Kim","Kim Seolhyun","Nancy McDonie","Park Junghwa","Hirai Momo","Rosé Park","Laura Brehm","HyunA",
 	"Jeremy Soule","Jerry Goldsmith","Howard Shore","Tilman Sillescu","James Newton Howard","Bear McCreary","David Newman",
@@ -65,15 +66,28 @@ def generate_track():
 
 
 
-def generate(targetfile):
-	if ask("Generate random scrobbles?",default=False):
-		with open(targetfile,"a") as fd:
-			for _ in range(200):
-				track = generate_track()
-				for _ in range(random.randint(1, 50)):
-					timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+def generate(n=200):
 
-					entry = "\t".join([str(timestamp),"␟".join(track['artists']),track['title'],"-"])
-					fd.write(entry)
-					fd.write("\n")
-		print("Done!")
+	from ...database.sqldb import add_scrobbles
+	
+	n = int(n)
+
+	if ask("Generate random scrobbles?",default=False):
+		scrobbles = []
+		for _ in range(n):
+			track = generate_track()
+			print("Generated",track)
+			for _ in range(random.randint(1, 50)):
+				timestamp = random.randint(1, int(datetime.datetime.now().timestamp()))
+
+				scrobbles.append({
+					"time":timestamp,
+					 	"track":{
+					 		"artists":track['artists'],
+					 		"title":track['title']
+					 	},
+						"duration":None,
+					 	"origin":"generated"
+				})
+
+		add_scrobbles(scrobbles)

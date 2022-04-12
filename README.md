@@ -1,28 +1,26 @@
 # Maloja
 
-[![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge)](https://github.com/krateng/maloja)
-[![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge)](https://pypi.org/project/malojaserver/)
-[![](https://img.shields.io/docker/v/krateng/maloja?label=Docker&style=for-the-badge)](https://hub.docker.com/r/krateng/maloja)
+[![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge&logo=github&logoColor=white)](https://github.com/krateng/maloja)
+[![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/malojaserver/)
+[![](https://img.shields.io/docker/v/krateng/maloja?label=Dockerhub&style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/krateng/maloja)
 
 [![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
 [![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
-You can check [my own Maloja page](https://maloja.krateng.ch) to see what it looks like (it's down fairly often because I use it as staging environment, that doesn't reflect the stability of the Maloja software!).
+![screenshot](screenshot.png?raw=true)
 
-> If you're a new Maloja user, consider installing [Version 3 Beta](https://github.com/krateng/maloja/tree/v3) right away. This way, you avoid having to upgrade later and you might help catch some bugs.
->
-> Simply clone this repository and change branches with `git checkout v3`, then follow the [Readme](https://github.com/krateng/maloja/blob/v3/README.md) of that branch to install from source or run the included Containerfile.
->
-> Thank you for your help testing the new release!
+You can check [my own Maloja page](https://maloja.krateng.ch) as an example instance.
 
 
 ## Table of Contents
 * [Features](#features)
 * [How to install](#how-to-install)
-	* [LXC / VM / Bare Metal](#lxc--vm--bare-metal)
-	* [Docker](#docker)
+	* [Requirements](#requirements)
+	* [PyPI](#pypi)
+	* [From Source](#from-source)
+	* [Docker / Podman](#docker-podman)
 	* [Extras](#extras)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
@@ -49,27 +47,25 @@ You can check [my own Maloja page](https://maloja.krateng.ch) to see what it loo
 
 ## How to install
 
-### LXC / VM / Bare Metal
+### Requirements
+
+Maloja should run on any x86 or ARM machine that runs Python.
 
 I can support you with issues best if you use **Alpine Linux**.
 
-#### From PyPI
+Your CPU should have a single core passmark score of at the very least 1500. 500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
 
-You can download the included script `install_alpine.sh` and run it with
+### PyPI
 
-```console
-	sh install_alpine.sh
-```
-
-You can also simply call the install command
+You can install Maloja with
 
 ```console
 	pip install malojaserver
 ```
 
-directly (e.g. if you're not on Alpine) - make sure you have all the system packages installed.
+To make sure all dependencies are installed, you can also use one of the included scripts in the `install` folder.
 
-#### From Source
+### From Source
 
 Clone this repository and enter the directory with
 
@@ -78,15 +74,15 @@ Clone this repository and enter the directory with
 	cd maloja
 ```
 
-Then install all the requirements and build the package:
+Then install all the requirements and build the package, e.g.:
 
 ```console
-	sh ./install/install_dependencies.sh
+	sh ./install/install_dependencies_alpine.sh
 	pip install -r requirements.txt
 	pip install .
 ```
 
-### Docker
+### Docker / Podman
 
 Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
 
@@ -95,21 +91,20 @@ Of note are these settings which should be passed as environmental variables to 
 * `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
 * `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
-* `MALOJA_HOST` (Optional) -- Maloja uses IPv6 by default for the host. Set this to `0.0.0.0` if you cannot initially access the webserver
 
-You must also publish a port on your host machine to bind to the container's web port (default 42010)
+You must publish a port on your host machine to bind to the container's web port (default 42010). The container uses IPv4 per default.
 
-An example of a minimum run configuration when accessing maloja from an IPv4 address IE `localhost:42010`:
+An example of a minimum run configuration to access maloja via `localhost:42010`:
 
 ```console
-	docker run -p 42010:42010 -e MALOJA_HOST=0.0.0.0 maloja
+	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata maloja
 ```
 
 ### Extras
 
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!
 
-* Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 address unless you changed your settings to use IPv4.
+* Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 or IPv4 address according to your settings.
 
 * You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
 
@@ -140,11 +135,13 @@ If you need to run the server in the foreground, use
 
 ### Data
 
-* If you would like to import all your previous last.fm scrobbles, use [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv)). Use the command `maloja import *filename*`	to import the downloaded file into Maloja.
+If you would like to import your previous scrobbles, use the command `maloja import *filename*`. This works on:
 
-* To backup your data, run `maloja backup` or, to only backup essential data (no artwork etc), `maloja backup -l minimal`.
+* a Last.fm export generated by [benfoxall's website](https://benjaminbenben.com/lastfm-to-csv/) ([GitHub page](https://github.com/benfoxall/lastfm-to-csv))
+* an official [Spotify data export file](https://www.spotify.com/us/account/privacy/)
+* the export of another Maloja instance
 
-* To fix your database (e.g. after you've added new rules), use `maloja fix`.
+To backup your data, run `maloja backup`, optional with `--include_images`.
 
 ### Customization
 
@@ -157,7 +154,7 @@ If you need to run the server in the foreground, use
 
 ## How to scrobble
 
-You can set up any amount of API keys in the file `authenticated_machines.tsv` in the `/etc/maloja/clients` folder. It is recommended to define a different API key for every scrobbler you use.
+You can set up any amount of API keys in the file `apikeys.yml` in your configuration folder (or via the web interface). It is recommended to define a different API key for every scrobbler you use.
 
 ### Native support
 
@@ -167,7 +164,6 @@ These solutions allow you to directly setup scrobbling to your Maloja server:
 * [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Desktop Application
 * [Cmus-maloja-scrobbler](https://git.sr.ht/~xyank/cmus-maloja-scrobbler) Script
 * [OngakuKiroku](https://github.com/Atelier-Shiori/OngakuKiroku) Desktop Application (Mac)
-* [Albula](https://github.com/krateng/albula) Music Server
 * [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
 
 ### Native API

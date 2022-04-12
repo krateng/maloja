@@ -1,15 +1,15 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+apk update
 apk add \
-	python3 \
-	python3-dev \
 	gcc \
+	g++ \
+	python3-dev \
 	libxml2-dev \
 	libxslt-dev \
 	libffi-dev \
 	libc-dev \
 	py3-pip \
 	linux-headers \
+	python3 \
 	tzdata \
 	vips
-pip3 install wheel
-pip3 install malojaserver

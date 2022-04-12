@@ -1,11 +1,11 @@
 # technical
 import sys
-import signal
 import os
 from threading import Thread
 import setproctitle
-import pkg_resources
+from importlib import resources
 from css_html_js_minify import html_minify, css_minify
+import datauri
 
 
 # server stuff
@@ -14,18 +14,19 @@ import waitress
 
 # doreah toolkit
 from doreah.logging import log
-from doreah.timing import Clock
 from doreah import auth
 
 # rest of the project
 from . import database
-from .utilities import resolveImage
+from .database.jinjaview import JinjaDBConnection
+from .images import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, apikeystore, data_dir
+from .globalconf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
-from .apis import init_apis
+from .apis import init_apis, apikeystore
 
 
+from .proccontrol.profiler import profile
 
 
 ######
@@ -34,10 +35,10 @@ from .apis import init_apis
 
 PORT = malojaconfig["PORT"]
 HOST = malojaconfig["HOST"]
-THREADS = 24
+THREADS = 12
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
-STATICFOLDER = pkg_resources.resource_filename(__name__,"web/static")
+#STATICFOLDER = importlib.resources.path(__name__,"web/static")
 
 webserver = Bottle()
 
@@ -52,9 +53,12 @@ setproctitle.setproctitle("Maloja")
 
 def generate_css():
 	cssstr = ""
-	for file in os.listdir(os.path.join(STATICFOLDER,"css")):
-		with open(os.path.join(STATICFOLDER,"css",file),"r") as filed:
-			cssstr += filed.read()
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+
+		for file in os.listdir(os.path.join(staticfolder,"css")):
+			if file.endswith(".css"):
+				with open(os.path.join(staticfolder,"css",file),"r") as filed:
+					cssstr += filed.read()
 
 	for file in os.listdir(data_dir['css']()):
 		if file.endswith(".css"):
@@ -158,10 +162,21 @@ def deprecated_api(pth):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	relevant, _, _, _, _ = uri_to_internal(keys)
-	result = resolveImage(**relevant)
-	if result == "": return ""
-	redirect(result,307)
+	if keys['type'] == 'track':
+		result = resolve_track_image(keys['id'])
+	elif keys['type'] == 'artist':
+		result = resolve_artist_image(keys['id'])
+
+	if result is None or result['value'] in [None,'']:
+		return ""
+	if result['type'] == 'raw':
+		# data uris are directly served as image because a redirect to a data uri
+		# doesnt work
+		duri = datauri.DataURI(result['value'])
+		response.content_type = duri.mimetype
+		return duri.data
+	if result['type'] == 'url':
+		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
 @webserver.route("/images/<pth:re:.*\\.jpg>")
@@ -172,39 +187,48 @@ def static_image(pth):
 	ext = pth.split(".")[-1]
 	small_pth = pth + "-small"
 	if os.path.exists(data_dir['images'](small_pth)):
-		response = static_file(small_pth,root=data_dir['images']())
+		resp = static_file(small_pth,root=data_dir['images']())
 	else:
 		try:
 			from pyvips import Image
 			thumb = Image.thumbnail(data_dir['images'](pth),300)
 			thumb.webpsave(data_dir['images'](small_pth))
-			response = static_file(small_pth,root=data_dir['images']())
+			resp = static_file(small_pth,root=data_dir['images']())
 		except Exception:
-			response = static_file(pth,root=data_dir['images']())
+			resp = static_file(pth,root=data_dir['images']())
 
 	#response = static_file("images/" + pth,root="")
-	response.set_header("Cache-Control", "public, max-age=86400")
-	response.set_header("Content-Type", "image/" + ext)
-	return response
+	resp.set_header("Cache-Control", "public, max-age=86400")
+	resp.set_header("Content-Type", "image/" + ext)
+	return resp
 
 
 @webserver.route("/style.css")
 def get_css():
 	response.content_type = 'text/css'
-	global css
-	if malojaconfig["DEV_MODE"]: css = generate_css()
-	return css
+	if malojaconfig["DEV_MODE"]: return generate_css()
+	else: return css
 
 
 @webserver.route("/login")
 def login():
 	return auth.get_login_page()
 
+# old
 @webserver.route("/<name>.<ext>")
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
-	assert ext in ["txt","ico","jpeg","jpg","png","less","js"]
-	response = static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
+	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf"]
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+		response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
+	response.set_header("Cache-Control", "public, max-age=3600")
+	return response
+
+# new, direct reference
+@webserver.route("/static/<path:path>")
+def static(path):
+	with resources.files('maloja') / 'web' / 'static' as staticfolder:
+		response = static_file(path,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
@@ -212,47 +236,46 @@ def static(name,ext):
 
 ### DYNAMIC
 
-def static_html(name):
+def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))
 
 	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
 
-	clock = Clock()
-	clock.start()
+	with JinjaDBConnection() as conn:
 
-	loc_context = {
-		"adminmode":adminmode,
-		"apikey":request.cookies.get("apikey") if adminmode else None,
-		"apikeys":apikeystore,
-		"_urikeys":keys, #temporary!
-	}
-	loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
+		loc_context = {
+			"dbc":conn,
+			"adminmode":adminmode,
+			"apikey":request.cookies.get("apikey") if adminmode else None,
+			"apikeys":apikeystore,
+			"_urikeys":keys, #temporary!
+		}
+		loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
 
-	template = jinja_environment.get_template(name + '.jinja')
-	try:
-		res = template.render(**loc_context)
-	except (ValueError, IndexError):
-		abort(404,"This Artist or Track does not exist")
+		template = jinja_environment.get_template(name + '.jinja')
+		try:
+			res = template.render(**loc_context)
+		except (ValueError, IndexError):
+			abort(404,"This Artist or Track does not exist")
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
-	log("Generated page {name} in {time:.5f}s".format(name=name,time=clock.stop()),module="debug_performance")
 	return clean_html(res)
 
 @webserver.route("/<name:re:admin.*>")
 @auth.authenticated
-def static_html_private(name):
-	return static_html(name)
+def jinja_page_private(name):
+	return jinja_page(name)
 
 @webserver.route("/<name>")
-def static_html_public(name):
-	return static_html(name)
+def jinja_page_public(name):
+	return jinja_page(name)
 
 @webserver.route("")
 @webserver.route("/")
 def mainpage():
-	return static_html("start")
+	return jinja_page("start")
 
 
 # Shortlinks
@@ -263,27 +286,6 @@ def redirect_artist(artist):
 @webserver.get("/track/<artists:path>/<title>")
 def redirect_track(artists,title):
 	redirect("/track?title=" + title + "&" + "&".join("artist=" + artist for artist in artists.split("/")))
-
-
-######
-### SHUTDOWN
-#####
-
-
-def graceful_exit(sig=None,frame=None):
-	#urllib.request.urlopen("http://[::1]:" + str(DATABASE_PORT) + "/sync")
-	log("Received signal to shutdown")
-	try:
-		database.sync()
-	except Exception as e:
-		log("Error while shutting down!",e)
-	log("Server shutting down...")
-	sys.exit(0)
-
-#set graceful shutdown
-signal.signal(signal.SIGINT, graceful_exit)
-signal.signal(signal.SIGTERM, graceful_exit)
-
 
 
 
@@ -302,11 +304,8 @@ def run_server():
 
 	try:
 		#run(webserver, host=HOST, port=MAIN_PORT, server='waitress')
+		log(f"Listening on {HOST}:{PORT}")
 		waitress.serve(webserver, host=HOST, port=PORT, threads=THREADS)
 	except OSError:
 		log("Error. Is another Maloja process already running?")
 		raise
-
-
-
-run_server()

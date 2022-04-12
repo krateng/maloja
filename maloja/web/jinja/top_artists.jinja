@@ -4,9 +4,9 @@
 
 <!-- find representative -->
 
-{% set entries = dbp.get_top_artists(limitkeys,delimitkeys) %}
+{% set entries = dbc.get_top_artists(limitkeys,delimitkeys) %}
 {% set repr = entries | find_representative('artist','scrobbles') %}
-{% set img = "/favicon.png" if repr is none else utilities.getArtistImage(repr.artist) %}
+{% set img = "/favicon.png" if repr is none else images.get_artist_image(repr.artist) %}
 
 
 {% block content %}

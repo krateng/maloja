@@ -130,11 +130,12 @@ function searchresult_manualscrobbling() {
 			track.innerHTML = "<a href='" + tracklink + "'>" +  trackstr + "</a>";
 			row = document.createElement("tr")
 			col1 = document.createElement("td")
-			col1.className = "button"
-			col1.innerHTML = "Scrobble!"
-			col1.onclick = function(){ scrobble(t["artists"],t["title"])};
+			button = document.createElement("button")
+			button.innerHTML = "Scrobble!"
+			button.onclick = function(){ scrobble(t["artists"],t["title"])};
 			col2 = document.createElement("td")
 			row.appendChild(col1)
+			col1.appendChild(button)
 			row.appendChild(col2)
 			col2.appendChild(track)
 			document.getElementById("searchresults").appendChild(row);

@@ -1,47 +1,51 @@
 import tarfile
-from datetime import datetime
+import time
 import glob
 import os
-from ...globalconf import data_dir
+from ...globalconf import dir_settings
 from pathlib import PurePath
 
 from doreah.logging import log
+from doreah.io import col
 
 
-user_files = {
-	"minimal":{
-		"rules":["*.tsv"],
-		"scrobbles":["*.tsv"]
-	},
-	"full":{
-		"clients":["apikeys.yml"],
-		"images":["artists","tracks"],
-		"settings":["settings.ini"]
-	}
-}
+basic_files = [
+	('config',	['rules/*.tsv','settings.ini','apikeys.yml','custom_css/*.css']),
+	('state',	['auth/auth.ddb','malojadb.sqlite'])
+]
+expanded_files = [
+	('state',	['images'])
+]
 
-def backup(folder,level="full"):
+def backup(targetfolder=None,include_images=False):
 
-	selected_files = user_files["minimal"] if level == "minimal" else {**user_files["minimal"], **user_files["full"]}
-	real_files = {cat:[] for cat in selected_files}
-	for cat in selected_files:
-		catfolder = data_dir[cat]
-		for g in selected_files[cat]:
-			real_files[cat] += glob.glob(catfolder(g))
+	if targetfolder is None:
+		targetfolder = os.getcwd()
+
+	if include_images:
+		file_patterns = basic_files + expanded_files
+	else:
+		file_patterns = basic_files
+
+	real_files = {}
+	for category,patterns in file_patterns:
+		real_files.setdefault(category,[])
+		for pattern in patterns:
+			real_files[category] += glob.glob(os.path.join(dir_settings[category],pattern))
 
 	log("Creating backup...")
 
 
-	now = datetime.utcnow()
-	timestr = now.strftime("%Y_%m_%d_%H_%M_%S")
-	filename = "maloja_backup_" + timestr + ".tar.gz"
-	archivefile = os.path.join(folder,filename)
-	assert not os.path.exists(archivefile)
-	with tarfile.open(name=archivefile,mode="x:gz") as archive:
-		for cat, value in real_files.items():
-			for f in value:
+	timestr = time.strftime("%Y_%m_%d_%H_%M_%S")
+	filename = f"maloja_backup_{timestr}.tar.gz"
+	outputfile = os.path.join(targetfolder,filename)
+	assert not os.path.exists(outputfile)
+
+	with tarfile.open(name=outputfile,mode="x:gz") as archive:
+		for category, filelist in real_files.items():
+			for f in filelist:
 				p = PurePath(f)
-				r = p.relative_to(data_dir[cat]())
-				archive.add(f,arcname=os.path.join(cat,r))
-	log("Backup created!")
-	return archivefile
+				r = p.relative_to(dir_settings[category])
+				archive.add(f,arcname=os.path.join(category,r))
+	log("Backup created: " + col['yellow'](outputfile))
+	return outputfile

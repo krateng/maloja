@@ -7,11 +7,11 @@
 	<script src="/datechange.js" async></script>
 {% endblock %}
 
-{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+{% set charts = dbc.get_charts_tracks(filterkeys,limitkeys) %}
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set toptrack = charts[0].track %}
-	{% set img = utilities.getTrackImage(artists=toptrack.artists,title=toptrack.title,fast=True) %}
+	{% set img = images.get_track_image(toptrack) %}
 {% else %}
 	{% set img = "/favicon.png" %}
 {% endif %}

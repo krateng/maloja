@@ -36,7 +36,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
 	limitkeys["timerange"] = get_range_object(since=since,to=to,within=within)
 
 	#3
-	delimitkeys = {"step":"month","stepn":1,"trail":1}
+	delimitkeys = {"step":"year","stepn":1,"trail":1}
 	if "step" in keys: [delimitkeys["step"],delimitkeys["stepn"]] = (keys["step"].split("-") + [1])[:2]
 	if "stepn" in keys: delimitkeys["stepn"] = keys["stepn"] #overwrite if explicitly given
 	if "stepn" in delimitkeys: delimitkeys["stepn"] = int(delimitkeys["stepn"]) #in both cases, convert it here

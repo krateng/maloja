@@ -58,9 +58,15 @@ class MTRangeGeneric:
 	def unlimited(self):
 		return False
 
+	def timestamps(self):
+		return (self.first_stamp(),self.last_stamp())
+
 	# whether we currently live or will ever again live in this range
 	def active(self):
 		return (self.last_stamp() > datetime.utcnow().timestamp())
+
+	def __contains__(self,timestamp):
+		return timestamp >= self.first_stamp() and timestamp <= self.last_stamp()
 
 # Any range that has one defining base unit, whether week, year, etc.
 class MTRangeSingular(MTRangeGeneric):

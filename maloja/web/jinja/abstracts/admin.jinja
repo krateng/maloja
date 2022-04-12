@@ -21,10 +21,12 @@
 						['setup','Server Setup'],
 						['settings','Settings'],
 						['apikeys','API Keys'],
-						['manual','Manual Scrobbling'],
-						['issues','Database Maintenance']
+						['manual','Manual Scrobbling']
+
 					] %}
-					{# ['import','Scrobble Import']  hide page for now #}
+					{# ['import','Scrobble Import'],
+					  	['issues','Database Maintenance']
+					hide for now #}
 						{% if page=='admin_' + tab_url %}
 							<span style="opacity:0.5;">{{ tab_name }}</span>
 						{% else %}

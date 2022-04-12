@@ -6,6 +6,10 @@ chrome.runtime.onMessage.addListener(onInternalMessage);
 
 tabManagers = {}
 
+
+const ALWAYS_SCROBBLE_SECONDS = 60*3;
+// Longer songs are always scrobbled when playing at least 2 minutes
+
 pages = {
 	"Plex Web":{
 		"patterns":[
@@ -282,7 +286,7 @@ class Controller {
 
 		//ONLY CASE 2: Playback ended
 		if (artist != this.currentArtist || title != this.currentTitle) {
-			if (this.alreadyPlayed > this.currentLength / 2) {
+			if ((this.alreadyPlayed > this.currentLength / 2) || (this.alreadyPlayed > ALWAYS_SCROBBLE_SECONDS)) {
 				scrobble(this.currentArtist,this.currentTitle,this.alreadyPlayed)
 				this.alreadyPlayed = 0
 			}

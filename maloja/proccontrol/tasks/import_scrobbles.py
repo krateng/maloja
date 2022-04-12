@@ -1,9 +1,9 @@
 import os, datetime, re
-
 import json, csv
 
-from ...cleanup import *
 from doreah.io import col, ask, prompt
+
+from ...cleanup import *
 from ...globalconf import data_dir
 
 
@@ -21,6 +21,8 @@ outputs = {
 
 def import_scrobbles(inputf):
 
+	from ...database.sqldb import add_scrobbles
+
 	result = {
 		"CONFIDENT_IMPORT": 0,
 		"UNCERTAIN_IMPORT": 0,
@@ -32,76 +34,85 @@ def import_scrobbles(inputf):
 	filename = os.path.basename(inputf)
 
 	if re.match(".*\.csv",filename):
-		type = "Last.fm"
-		outputf = data_dir['scrobbles']("lastfmimport.tsv")
+		typeid,typedesc = "lastfm","Last.fm"
 		importfunc = parse_lastfm
 
 	elif re.match("endsong_[0-9]+\.json",filename):
-		type = "Spotify"
-		outputf = data_dir['scrobbles']("spotifyimport.tsv")
+		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_full
 
 	elif re.match("StreamingHistory[0-9]+\.json",filename):
-		type = "Spotify"
-		outputf = data_dir['scrobbles']("spotifyimport.tsv")
+		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite
+
+	elif re.match("maloja_export_[0-9]+\.json",filename):
+		typeid,typedesc = "maloja","Maloja"
+		importfunc = parse_maloja
 
 	else:
 		print("File",inputf,"could not be identified as a valid import source.")
 		return result
 
 
-	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](type)} export")
+	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](typedesc)} export")
+	print("This could take a while...")
 
+	timestamps = set()
+	scrobblebuffer = []
 
-	if os.path.exists(outputf):
-		while True:
-			action = prompt(f"Already imported {type} data. [O]verwrite, [A]ppend or [C]ancel?",default='c').lower()[0]
-			if action == 'c':
-				return result
-			elif action == 'a':
-				mode = 'a'
-				break
-			elif action == 'o':
-				mode = 'w'
-				break
-			else:
-				print("Could not understand response.")
-	else:
-		mode = 'w'
+	for status,scrobble,msg in importfunc(inputf):
+		result[status] += 1
+		outputs[status](msg)
+		if status in ['CONFIDENT_IMPORT','UNCERTAIN_IMPORT']:
 
+			# prevent duplicate timestamps
+			while scrobble['scrobble_time'] in timestamps:
+				scrobble['scrobble_time'] += 1
+			timestamps.add(scrobble['scrobble_time'])
 
-	with open(outputf,mode) as outputfd:
+			# clean up
+			(scrobble['track_artists'],scrobble['track_title']) = c.fullclean(scrobble['track_artists'],scrobble['track_title'])
 
-		timestamps = set()
+			# extra info
+			extrainfo = {}
+			if scrobble.get('album_name'): extrainfo['album_name'] = scrobble['album_name']
+			# saving this in the scrobble instead of the track because for now it's not meant
+			# to be authorative information, just payload of the scrobble
 
-		for status,scrobble,msg in importfunc(inputf):
-			result[status] += 1
-			outputs[status](msg)
-			if status in ['CONFIDENT_IMPORT','UNCERTAIN_IMPORT']:
+			scrobblebuffer.append({
+				"time":scrobble['scrobble_time'],
+				 	"track":{
+				 		"artists":scrobble['track_artists'],
+				 		"title":scrobble['track_title'],
+				 		"length":None
+				 	},
+				 	"duration":scrobble['scrobble_duration'],
+				 	"origin":"import:" + typeid,
+					"extra":extrainfo
+			})
 
-				while scrobble['timestamp'] in timestamps:
-					scrobble['timestamp'] += 1
-				timestamps.add(scrobble['timestamp'])
+			if (result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']) % 1000 == 0:
+				print(f"Imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles...")
+				add_scrobbles(scrobblebuffer)
+				scrobblebuffer = []
 
-				# Format fields for tsv
-				scrobble['timestamp'] = str(scrobble['timestamp'])
-				scrobble['duration'] = str(scrobble['duration']) if scrobble['duration'] is not None else '-'
-				scrobble['album'] = scrobble['album'] if scrobble['album'] is not None else '-'
-				(artists,scrobble['title']) = c.fullclean(scrobble['artiststr'],scrobble['title'])
-				scrobble['artiststr'] = "␟".join(artists)
+	add_scrobbles(scrobblebuffer)
 
-				outputline = "\t".join([
-					scrobble['timestamp'],
-					scrobble['artiststr'],
-					scrobble['title'],
-					scrobble['album'],
-					scrobble['duration']
-				])
-				outputfd.write(outputline + '\n')
+	msg = f"Successfully imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles"
+	if result['UNCERTAIN_IMPORT'] > 0:
+		warningmsg = col['orange'](f"{result['UNCERTAIN_IMPORT']} Warning{'s' if result['UNCERTAIN_IMPORT'] != 1 else ''}!")
+		msg += f" ({warningmsg})"
+	print(msg)
 
-				if (result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']) % 100 == 0:
-					print(f"Imported {result['CONFIDENT_IMPORT'] + result['UNCERTAIN_IMPORT']} scrobbles...")
+	msg = f"Skipped {result['CONFIDENT_SKIP'] + result['UNCERTAIN_SKIP']} scrobbles"
+	if result['UNCERTAIN_SKIP'] > 0:
+		warningmsg = col['indianred'](f"{result['UNCERTAIN_SKIP']} Warning{'s' if result['UNCERTAIN_SKIP'] != 1 else ''}!")
+		msg += f" ({warningmsg})"
+	print(msg)
+
+	if result['FAIL'] > 0:
+		print(col['red'](f"{result['FAIL']} Error{'s' if result['FAIL'] != 1 else ''}!"))
+
 
 	return result
 
@@ -136,11 +147,11 @@ def parse_spotify_lite(inputf):
 					continue
 
 				yield ("CONFIDENT_IMPORT",{
-					'title':title,
-					'artiststr': artist,
-					'timestamp': timestamp,
-					'duration':played,
-					'album': None
+					'track_title':title,
+					'track_artists': artist,
+					'scrobble_time': timestamp,
+					'scrobble_duration':played,
+					'album_name': None
 				},'')
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
@@ -240,11 +251,11 @@ def parse_spotify_full(inputf):
 
 
 				yield (status,{
-					'title':title,
-					'artiststr': artist,
-					'album': album,
-					'timestamp': timestamp,
-					'duration':played
+					'track_title':title,
+					'track_artists': artist,
+					'album_name': album,
+					'scrobble_time': timestamp,
+					'scrobble_duration':played
 				},msg)
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
@@ -266,15 +277,36 @@ def parse_lastfm(inputf):
 
 			try:
 				yield ('CONFIDENT_IMPORT',{
-					'title': title,
-					'artiststr': artist,
-					'album': album,
-					'timestamp': int(datetime.datetime.strptime(
+					'track_title': title,
+					'track_artists': artist,
+					'album_name': album,
+					'scrobble_time': int(datetime.datetime.strptime(
 						time + '+0000',
 						"%d %b %Y %H:%M%z"
 					).timestamp()),
-					'duration':None
+					'scrobble_duration':None
 				},'')
 			except Exception as e:
 				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
+
+
+def parse_maloja(inputf):
+
+	with open(inputf,'r') as inputfd:
+		data = json.load(inputfd)
+
+	scrobbles = data['scrobbles']
+
+	for s in scrobbles:
+		try:
+			yield ('CONFIDENT_IMPORT',{
+				'track_title': s['track']['title'],
+				'track_artists': s['track']['artists'],
+				'album_name': s['track'].get('album',{}).get('name',''),
+				'scrobble_time': s['time'],
+				'scrobble_duration': s['duration']
+			},'')
+		except Exception as e:
+			yield ('FAIL',None,f"{s} could not be parsed. Scrobble not imported. ({repr(e)})")
+			continue

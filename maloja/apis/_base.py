@@ -58,7 +58,7 @@ class APIHandler:
 
 
 	def wrapper(self,path:Multi=[],**keys):
-		log("API request: " + str(path))# + " | Keys: " + str({k:keys.get(k) for k in keys}))
+		log(f"{self.__apiname__} API request: {path}")# + " | Keys: " + str({k:keys.get(k) for k in keys}))
 
 		try:
 			response.status,result = self.handle(path,keys)
@@ -89,13 +89,10 @@ class APIHandler:
 		return method(path,keys)
 
 
-	def scrobble(self,artiststr,titlestr,time=None,duration=None,album=None):
-		logmsg = "Incoming scrobble (API: {api}): ARTISTS: {artiststr}, TRACK: {titlestr}"
-		log(logmsg.format(api=self.__apiname__,artiststr=artiststr,titlestr=titlestr))
-		if time is None: time = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+	def scrobble(self,rawscrobble,client=None):
+
+		# fixing etc is handled by the main scrobble function
 		try:
-			(artists,title) = cla.fullclean(artiststr,titlestr)
-			database.createScrobble(artists,title,time)
-			database.sync()
+			return database.incoming_scrobble(rawscrobble,api=self.__apiname__,client=client)
 		except:
 			raise ScrobblingException()

@@ -1,21 +1,14 @@
-# generic temporary / dev files
+# temporary / generated files
 *.pyc
-*.note
-*.xcf
-/nohup.out
-/*-old
-/*.yml
-/pylintrc
-.venv/*
-/testdata*
 
-# build
+# environments / builds
+.venv/*
+testdata*
 /dist
 /build
 /*.egg-info
 
-# currently not using
-/screenshot*.png
-
-# only for development, normally external
-/doreah
+# dev files
+*.xcf
+*.note
+*-old

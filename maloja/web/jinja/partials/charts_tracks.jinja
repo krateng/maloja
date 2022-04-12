@@ -2,7 +2,7 @@
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
 {% if charts is undefined %}
-	{% set charts = dbp.get_charts_tracks(filterkeys,limitkeys) %}
+	{% set charts = dbc.get_charts_tracks(filterkeys,limitkeys) %}
 {% endif %}
 {% if compare %}
 	{% if compare is true %}
@@ -10,7 +10,7 @@
 		{% if compare is none %}{% set compare = False %}{% endif %}
 	{% endif %}
 	{% if compare %}
-		{% set prevtracks = dbp.get_charts_tracks(filterkeys,{'timerange':compare}) %}
+		{% set prevtracks = dbc.get_charts_tracks(filterkeys,{'timerange':compare}) %}
 
 		{% set lastranks = {} %}
 		{% for t in prevtracks %}

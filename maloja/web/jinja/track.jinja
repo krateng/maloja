@@ -1,5 +1,5 @@
 {% extends "abstracts/base.jinja" %}
-{% block title %}Maloja - {{ track.title }}{% endblock %}
+{% block title %}Maloja - {{ info.track.title }}{% endblock %}
 
 {% import 'snippets/links.jinja' as links %}
 
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% set track = filterkeys.track %}
-{% set info = db.trackInfo(track) %}
+{% set info = dbc.track_info({'track':track}) %}
 
 {% set initialrange ='month' %}
 
@@ -33,16 +33,16 @@
 			{% if adminmode %}
 			<div
 				class="changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
-				style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');"
+				style="background-image:url('{{ images.get_track_image(track) }}');"
 			></div>
 			{% else %}
-			<div style="background-image:url('{{ utilities.getTrackImage(artists=track.artists,title=track.title,fast=True) }}');">
+			<div style="background-image:url('{{ images.get_track_image(track) }}');">
 			</div>
 			{% endif %}
 		</td>
 		<td class="text">
 			<span>{{ links.links(track.artists) }}</span><br/>
-			<h1 class="headerwithextra">{{ track.title }}</h1>
+			<h1 class="headerwithextra">{{ info.track.title }}</h1>
 				{{ awards.certs(track) }}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>

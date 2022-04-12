@@ -2,6 +2,7 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 import datetime
+from ._apikeys import apikeystore
 
 from ..globalconf import malojaconfig
 
@@ -36,7 +37,9 @@ class Listenbrainz(APIHandler):
 		except:
 			raise BadAuthException()
 
-		if token not in database.allAPIkeys():
+		client = apikeystore.check_and_identify_key(token)
+
+		if not client:
 			raise InvalidAuthException()
 
 		try:
@@ -59,7 +62,11 @@ class Listenbrainz(APIHandler):
 				except:
 					raise MalformedJSONException()
 
-				self.scrobble(artiststr,titlestr,timestamp)
+				self.scrobble({
+					'track_artists':[artiststr],
+					'track_title':titlestr,
+					'scrobble_time':timestamp
+				},client=client)
 
 			return 200,{"status":"ok"}
 
@@ -69,7 +76,7 @@ class Listenbrainz(APIHandler):
 			token = self.get_token_from_request_keys(keys)
 		except:
 			raise BadAuthException()
-		if token not in database.allAPIkeys():
+		if not apikeystore.check_key(token):
 			raise InvalidAuthException()
 		else:
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":malojaconfig["NAME"]}

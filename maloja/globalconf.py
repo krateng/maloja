@@ -1,9 +1,10 @@
 import os
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
-from doreah.keystore import KeyStore
+
 
 from .__pkginfo__ import VERSION
+
 
 
 
@@ -14,10 +15,9 @@ from .__pkginfo__ import VERSION
 # DIRECRORY_CONFIG, DIRECRORY_STATE, DIRECTORY_LOGS and DIRECTORY_CACHE
 # config can only be determined by environment variable, the others can be loaded
 # from the config files
-# explicit settings will always be respected. if there are none:
-# first check if there is any indication of one of the possibilities being populated already
-# if not, use the first we have permissions for
-# after we decide which to use, fix it in settings to avoid future heuristics
+# explicit settings will always be respected, fallback to default
+
+# if default isn't usable, and config writable, find alternative and fix it in settings
 
 # USEFUL FUNCS
 pthj = os.path.join
@@ -146,13 +146,11 @@ malojaconfig = Configuration(
 			"port":(tp.Integer(),												"Port",							42010),
 		},
 		"Technical":{
-			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 							300,	"Days until images are refetched"),
-			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",					30,		"Days until failed image fetches are reattempted"),
-			"use_db_cache":(tp.Boolean(),										"Use DB Cache",										True),
-			"cache_database_short":(tp.Boolean(),								"Use volatile Database Cache",						True),
-			"cache_database_perm":(tp.Boolean(),								"Use permanent Database Cache",						True),
-			"db_cache_entries":(tp.Integer(),									"Maximal Cache entries",							10000),
-			"db_max_memory":(tp.Integer(max=100,min=20),						"RAM Percentage Theshold",							75,		"Maximal percentage of RAM that should be used by whole system before Maloja discards cache entries. Use a higher number if your Maloja runs on a dedicated instance (e.g. a container)")
+			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 				60,		"Days until images are refetched"),
+			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",		5,		"Days until failed image fetches are reattempted"),
+			"db_max_memory":(tp.Integer(min=0,max=100),							"RAM Percentage soft limit",			80,		"RAM Usage in percent at which Maloja should no longer increase its database cache."),
+			"use_request_cache":(tp.Boolean(),									"Use request-local DB Cache",			True),
+			"use_global_cache":(tp.Boolean(),									"Use global DB Cache",					True)
 		},
 		"Fluff":{
 			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),
@@ -175,6 +173,7 @@ malojaconfig = Configuration(
 			"other_maloja_api_key":(tp.String(),								"Other Maloja Instance API Key",None),
 			"track_search_provider":(tp.String(),								"Track Search Provider",		None),
 			"send_stats":(tp.Boolean(),											"Send Statistics",				None),
+			"proxy_images":(tp.Boolean(),										"Image Proxy",					True,	"Whether third party images should be downloaded and served directly by Maloja (instead of just linking their URL)")
 
 		},
 		"Database":{
@@ -182,7 +181,7 @@ malojaconfig = Configuration(
 			"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"],	"Phrases that should be removed from song titles"),
 			"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring","Ft.","Ft","Feat.","Feat","Featuring"],				"Delimiters used for extra artists, even when in the title field"),
 			"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"],																			"Delimiters in informal artist strings with spaces expected around them"),
-			"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/"],																					"Delimiters used to tag multiple artists when only one tag field is available")
+			"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/","|","␝","␞","␟"],																					"Delimiters used to tag multiple artists when only one tag field is available")
 		},
 		"Web Interface":{
 			"default_range_charts_artists":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Artist Charts",	"year"),
@@ -191,43 +190,55 @@ malojaconfig = Configuration(
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
-			"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
+			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
 			"timezone":(tp.Integer(),											"UTC Offset",					0),
-			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p")
+			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p"),
+			"theme":(tp.String(),												"Theme",						"maloja")
 		}
 	},
 	configfile=newsettingsfile,
 	save_endpoint="/apis/mlj_1/settings",
-	env_prefix="MALOJA_"
+	env_prefix="MALOJA_",
+	extra_files=["/run/secrets/maloja.yml","/run/secrets/maloja.ini"]
 
 )
 
 if found_new_config_dir:
-	malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+	try:
+		malojaconfig["DIRECTORY_CONFIG"] = maloja_dir_config
+	except PermissionError as e:
+		pass
 	# this really doesn't matter because when are we gonna load info about where
 	# the settings file is stored from the settings file
 	# but oh well
 
-malojaconfig.render_help(pthj(maloja_dir_config,"settings.md"),
-	top_text='''If you wish to adjust settings in the settings.ini file, do so while the server
-is not running in order to avoid data being overwritten.
+try:
+	malojaconfig.render_help(pthj(maloja_dir_config,"settings.md"),
+		top_text='''If you wish to adjust settings in the settings.ini file, do so while the server
+	is not running in order to avoid data being overwritten.
 
-Technically, each setting can be set via environment variable or the settings
-file - simply add the prefix `MALOJA_` for environment variables. It is recommended
-to use the settings file where possible and not configure each aspect of your
-server via environment variables!''')
+	Technically, each setting can be set via environment variable or the settings
+	file - simply add the prefix `MALOJA_` for environment variables. It is recommended
+	to use the settings file where possible and not configure each aspect of your
+	server via environment variables!
+
+	You also can specify additional settings in the files`/run/secrets/maloja.yml` or
+	`/run/secrets/maloja.ini`, as well as their values directly in files of the respective
+	name in `/run/secrets/` (e.g. `/run/secrets/lastfm_api_key`).''')
+except PermissionError as e:
+	pass
 
 
 ### STEP 3 - check all possible folders for files (old installation)
 
 
 
-
-for datatype in ("state","cache","logs"):
-	# obviously default values shouldn't trigger this
-	# if user has nothing specified, we need to use this
-	if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
-		find_good_folder(datatype,malojaconfig)
+if not malojaconfig.readonly:
+	for datatype in ("state","cache","logs"):
+		# obviously default values shouldn't trigger this
+		# if user has nothing specified, we need to use this
+		if malojaconfig.get_specified(directory_info[datatype]['setting']) is None and malojaconfig.get_specified('DATA_DIRECTORY') is None:
+			find_good_folder(datatype,malojaconfig)
 
 
 
@@ -261,14 +272,20 @@ data_directories = {
 	"auth":pthj(dir_settings['state'],"auth"),
 	"backups":pthj(dir_settings['state'],"backups"),
 	"images":pthj(dir_settings['state'],"images"),
-	"scrobbles":pthj(dir_settings['state'],"scrobbles"),
+	"scrobbles":pthj(dir_settings['state']),
 	"rules":pthj(dir_settings['config'],"rules"),
 	"clients":pthj(dir_settings['config']),
 	"settings":pthj(dir_settings['config']),
 	"css":pthj(dir_settings['config'],"custom_css"),
-	"logs":pthj(dir_settings['logs']),
-	"cache":pthj(dir_settings['cache']),
+
+	"config":dir_settings['config'],
+	"state":dir_settings['state'],
+	"logs":dir_settings['logs'],
+	"cache":dir_settings['cache'],
 }
+
+for identifier,path in data_directories.items():
+	os.makedirs(path,exist_ok=True)
 
 
 data_dir = {
@@ -291,9 +308,6 @@ with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
 from doreah import config
 
 config(
-	caching={
-		"folder": data_dir['cache']()
-	},
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
@@ -304,7 +318,6 @@ config(
 		"logfolder": data_dir['logs']() if malojaconfig["LOGGING"] else None
 	},
 	regular={
-		"autostart": False,
 		"offset": malojaconfig["TIMEZONE"]
 	}
 )
@@ -312,23 +325,6 @@ config(
 
 
 
-### API KEYS
-
-
-
-### symmetric keys are fine for now since we hopefully use HTTPS
-apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
-
-oldfile = pthj(dir_settings['config'],"clients","authenticated_machines.tsv")
-if os.path.exists(oldfile):
-	try:
-		from doreah import tsv
-		clients = tsv.parse(oldfile,"string","string")
-		for key,identifier in clients:
-			apikeystore[identifier] = key
-		os.remove(oldfile)
-	except:
-		pass
 
 
 # what the fuck did i just write

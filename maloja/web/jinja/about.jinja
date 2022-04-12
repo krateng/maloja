@@ -1,0 +1,55 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - About{% endblock %}
+
+{% block content %}
+<table class="top_info">
+	<tr>
+		<td class="image">
+
+			<div style="background-image:url('/favicon.png');">
+			</div>
+		</td>
+		<td class="text">
+			<h1 class="headerwithextra">Maloja</h1>
+				<br/>
+				<span>Version {{ pkginfo.VERSION }}</span><br/>
+				{# {% if adminmode %}
+				<span>Python {{ platform.sys.version }}</span><br/>
+				<span>{{ platform.system() }} {{ platform.release() }} ({{ platform.machine() }})</span><br/>
+				<br/>
+				{% set pid = psutil.os.getpid() %}
+				{% set proc = psutil.Process(pid) %}
+				CPU:
+				{{ proc.cpu_percent() | int }}% Maloja,
+				{{ (psutil.getloadavg()[2]/psutil.os.cpu_count() * 100) | int }}% System
+				<br/>
+				RAM:
+				{{ (proc.memory_info().rss / (1024*1024)) | int }}MB Maloja ({{ proc.memory_percent() | int }}%),
+				{{ (psutil.virtual_memory().used / (1024*1024)) | int }}MB System ({{ psutil.virtual_memory().percent | int }}%)
+				{% endif %} #}
+
+			<p class="stats">
+
+			</p>
+
+
+
+		</td>
+	</tr>
+</table>
+
+Get your own Maloja server:
+<br/><br/>
+<a href="https://github.com/krateng/maloja" class="hidelink">
+	<img src="https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge" />
+</a>
+<a href="https://pypi.org/project/malojaserver/" class="hidelink">
+	<img src="https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge" />
+</a>
+<a href="https://hub.docker.com/r/krateng/maloja" class="hidelink">
+	<img src="https://img.shields.io/docker/v/krateng/maloja?label=Docker&style=for-the-badge" />
+</a>
+<br/><br/>
+Maloja is released under the <a class='textlink' href='https://github.com/krateng/maloja/blob/master/LICENSE'>GNU General Public License v3.0</a>.
+
+{% endblock %}
