@@ -11,24 +11,30 @@ from ..globalconf import data_dir
 
 profiler = cProfile.Profile()
 
+FULL_PROFILE = False
+
 def profile(func):
 	def newfunc(*args,**kwargs):
 
-		benchmarkfolder = data_dir['logs']("benchmarks")
-		os.makedirs(benchmarkfolder,exist_ok=True)
+		if FULL_PROFILE:
+			benchmarkfolder = data_dir['logs']("benchmarks")
+			os.makedirs(benchmarkfolder,exist_ok=True)
 
 		clock = Clock()
 		clock.start()
 
-		profiler.enable()
+		if FULL_PROFILE:
+			profiler.enable()
 		result = func(*args,**kwargs)
-		profiler.disable()
-		
+		if FULL_PROFILE:
+			profiler.disable()
+
 		log(f"Executed {func.__name__} ({args}, {kwargs}) in {clock.stop():.2f}s",module="debug_performance")
-		try:
-			pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{func.__name__}.stats"))
-		except:
-			pass
+		if FULL_PROFILE:
+			try:
+				pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{func.__name__}.stats"))
+			except:
+				pass
 
 		return result
 
