@@ -67,7 +67,7 @@ def upgrade_db(callback_add_scrobbles):
 				scrobblelist = []
 				log(f"\tImporting from {sf} ({idx}/{len(scrobblefiles)}) - {len(scrobbles)} Scrobbles")
 				for scrobble in scrobbles:
-					timestamp, artists, title, album, duration = scrobble
+					timestamp, artists, title, album, duration, *_ = scrobble + [None,None]
 					if album in ('-',''): album = None
 					if duration in ('-',''): duration = None
 					scrobblelist.append({
