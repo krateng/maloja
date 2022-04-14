@@ -2,14 +2,14 @@
 
 {% import 'snippets/links.jinja' as links %}
 
-{% if 'artists' in entity %}
+{% if entity is mapping and 'artists' in entity %}
 	{% set img = images.get_track_image(entity) %}
 {% else %}
 	{% set img = images.get_artist_image(entity) %}
 {% endif %}
 
 <td class='icon'><div style="background-image:url('{{ img }}')"></div></td>
-{% if "artists" in entity %}
+{% if entity is mapping and 'artists' in entity %}
 	{% if settings['TRACK_SEARCH_PROVIDER'] %}
 		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
 	{% endif %}
