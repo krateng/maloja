@@ -249,7 +249,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{data.artist1}}\",\n    \"title\": \"{{data.artist2}}\"\n}"
+									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{data.artist1}}\",\n    \"title\": \"{{data.title1}}\"\n}"
 								},
 								"url": {
 									"raw": "{{url}}/api/newscrobble",
