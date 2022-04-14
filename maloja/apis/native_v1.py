@@ -278,7 +278,7 @@ def post_scrobble(
 		duration:int=None,
 		length:int=None,
 		time:int=None,
-		nofix:bool=False,
+		nofix=None,
 		auth_result=None):
 	"""Submit a new scrobble.
 
@@ -290,7 +290,7 @@ def post_scrobble(
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
 	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
-	:param boolean nofix: Skip server-side metadata parsing. Optional.
+	:param flag nofix: Skip server-side metadata parsing. Optional.
 	"""
 
 	rawscrobble = {
@@ -310,7 +310,7 @@ def post_scrobble(
 		rawscrobble,
 		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
 		api='native/v1',
-		fix=not nofix
+		fix=(nofix is None)
 	)
 
 	if result:
