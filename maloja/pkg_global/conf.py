@@ -142,7 +142,7 @@ malojaconfig = Configuration(
 			"dev_mode":(tp.Boolean(),											"Enable developer mode",		False),
 		},
 		"Network":{
-			"host":(tp.String(),												"Host",							"::",					"Host for your server - most likely :: for IPv6 or 0.0.0.0 for IPv4"),
+			"host":(tp.String(),												"Host",							"*",					"Host for your server, e.g. '*' for dual stack, '::' for IPv6 or '0.0.0.0' for IPv4"),
 			"port":(tp.Integer(),												"Port",							42010),
 		},
 		"Technical":{
