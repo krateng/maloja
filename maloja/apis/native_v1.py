@@ -44,7 +44,7 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 		if filterkeys:
 			func.__doc__ += f"""
 				:param string title: Track title
-				:param string artist: Track artist
+				:param string artist: Track artist. Can be specified multiple times.
 				:param bool associated: Whether to include associated artists.
 				"""
 		if limitkeys:
@@ -142,7 +142,7 @@ def get_scrobbles_num_external(**keys):
 @api.get("tracks")
 @add_common_args_to_docstring(filterkeys=True)
 def get_tracks_external(**keys):
-	"""Returns all tracks of an artist.
+	"""Returns all tracks (optionally of an artist).
 	"""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
@@ -155,7 +155,7 @@ def get_tracks_external(**keys):
 @api.get("artists")
 @add_common_args_to_docstring()
 def get_artists_external():
-	""""""
+	"""Returns all artists."""
 	result = database.get_artists()
 	return {"list":result}
 
@@ -166,7 +166,7 @@ def get_artists_external():
 @api.get("charts/artists")
 @add_common_args_to_docstring(limitkeys=True)
 def get_charts_artists_external(**keys):
-	""""""
+	"""Returns artist charts"""
 	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
@@ -178,7 +178,7 @@ def get_charts_artists_external(**keys):
 @api.get("charts/tracks")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
 def get_charts_tracks_external(**keys):
-	""""""
+	"""Returns track charts"""
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
@@ -191,7 +191,7 @@ def get_charts_tracks_external(**keys):
 @api.get("pulse")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_pulse_external(**keys):
-	""""""
+	"""Returns amounts of scrobbles in specified time frames"""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -204,7 +204,7 @@ def get_pulse_external(**keys):
 @api.get("performance")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_performance_external(**keys):
-	""""""
+	"""Returns artist's or track's rank in specified time frames"""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -217,7 +217,7 @@ def get_performance_external(**keys):
 @api.get("top/artists")
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_artists_external(**keys):
-	""""""
+	"""Returns respective number 1 artists in specified time frames"""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -230,7 +230,7 @@ def get_top_artists_external(**keys):
 @api.get("top/tracks")
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_tracks_external(**keys):
-	""""""
+	"""Returns respective number 1 tracks in specified time frames"""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -245,7 +245,7 @@ def get_top_tracks_external(**keys):
 @api.get("artistinfo")
 @add_common_args_to_docstring(filterkeys=True)
 def artist_info_external(**keys):
-	""""""
+	"""Returns information about an artist"""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -256,7 +256,7 @@ def artist_info_external(**keys):
 @api.get("trackinfo")
 @add_common_args_to_docstring(filterkeys=True)
 def track_info_external(artist:Multi[str],**keys):
-	""""""
+	"""Returns information about a track"""
 	# transform into a multidict so we can use our nomral uri_to_internal function
 	keys = FormsDict(keys)
 	for a in artist:
@@ -330,7 +330,7 @@ def post_scrobble(
 @api.post("importrules")
 @authenticated_api
 def import_rulemodule(**keys):
-	""""""
+	"""Internal Use Only"""
 	filename = keys.get("filename")
 	remove = keys.get("remove") is not None
 	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -348,7 +348,7 @@ def import_rulemodule(**keys):
 @api.post("rebuild")
 @authenticated_api
 def rebuild(**keys):
-	""""""
+	"""Internal Use Only"""
 	log("Database rebuild initiated!")
 	database.sync()
 	dbstatus['rebuildinprogress'] = True
@@ -364,7 +364,7 @@ def rebuild(**keys):
 
 @api.get("search")
 def search(**keys):
-	""""""
+	"""Internal Use Only"""
 	query = keys.get("query")
 	max_ = keys.get("max")
 	if max_ is not None: max_ = int(max_)
@@ -403,7 +403,7 @@ def search(**keys):
 @api.post("addpicture")
 @authenticated_api
 def add_picture(b64,artist:Multi=[],title=None):
-	""""""
+	"""Internal Use Only"""
 	keys = FormsDict()
 	for a in artist:
 		keys.append("artist",a)
@@ -416,7 +416,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 @api.post("newrule")
 @authenticated_api
 def newrule(**keys):
-	""""""
+	"""Internal Use Only"""
 	pass
 	# TODO after implementing new rule system
 	#tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
@@ -426,26 +426,26 @@ def newrule(**keys):
 @api.post("settings")
 @authenticated_api
 def set_settings(**keys):
-	""""""
+	"""Internal Use Only"""
 	malojaconfig.update(keys)
 
 @api.post("apikeys")
 @authenticated_api
 def set_apikeys(**keys):
-	""""""
+	"""Internal Use Only"""
 	apikeystore.update(keys)
 
 @api.post("import")
 @authenticated_api
 def import_scrobbles(identifier):
-	""""""
+	"""Internal Use Only"""
 	from ..thirdparty import import_scrobbles
 	import_scrobbles(identifier)
 
 @api.get("backup")
 @authenticated_api
 def get_backup(**keys):
-	""""""
+	"""Internal Use Only"""
 	from ..proccontrol.tasks.backup import backup
 	import tempfile
 
@@ -457,7 +457,7 @@ def get_backup(**keys):
 @api.get("export")
 @authenticated_api
 def get_export(**keys):
-	""""""
+	"""Internal Use Only"""
 	from ..proccontrol.tasks.export import export
 	import tempfile
 
@@ -470,5 +470,5 @@ def get_export(**keys):
 @api.post("delete_scrobble")
 @authenticated_api
 def delete_scrobble(timestamp):
-	""""""
+	"""Internal Use Only"""
 	database.remove_scrobble(timestamp)
