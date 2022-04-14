@@ -39,17 +39,19 @@ api.__apipath__ = "mlj_1"
 
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
 	def decorator(func):
+		timeformats = "Possible formats include '2022', '2022/08', '2022/08/01', '2022/W42', 'today', 'thismonth', 'monday', 'august'"
+
 		if filterkeys:
-			func.__doc__ += """
+			func.__doc__ += f"""
 				:param string title: Track title
 				:param string artist: Track artist
 				:param bool associated: Whether to include associated artists.
 				"""
 		if limitkeys:
-			func.__doc__ += """
-				:param string from: Start of the desired time range. Can also be called since or start.
-				:param string until: End of the desired range. Can also be called to or end.
-				:param string in: Desired range. Can also be called within or during.
+			func.__doc__ += f"""
+				:param string from: Start of the desired time range. Can also be called since or start. {timeformats}
+				:param string until: End of the desired range. Can also be called to or end. {timeformats}
+				:param string in: Desired range. Can also be called within or during. {timeformats}
 			"""
 		if delimitkeys:
 			func.__doc__ += """
