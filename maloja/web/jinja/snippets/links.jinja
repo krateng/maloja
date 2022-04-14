@@ -1,5 +1,5 @@
 {% macro link(entity) -%}
-	{% if 'artists' in entity %}
+	{% if entity is mapping and 'artists' in entity %}
 		{% set name = entity.title %}
 	{% else %}
 		{% set name = entity %}
@@ -17,7 +17,7 @@
 
 
 {% macro url(entity) %}
-	{% if 'artists' in entity -%}
+	{% if entity is mapping and 'artists' in entity -%}
 		{{ mlj_uri.create_uri("/track",{'track':entity}) }}
 	{%- else -%}
 		{{ mlj_uri.create_uri("/artist",{'artist':entity}) }}

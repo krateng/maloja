@@ -151,14 +151,13 @@ def main(*args,**kwargs):
 
 	if "version" in kwargs:
 		print(info.VERSION)
+		return True
 	else:
 		try:
 			action, *args = args
 			action = actions[action]
 		except (ValueError, KeyError):
 			print("Valid commands: " + " ".join(a for a in actions))
-			return
+			return False
 
 		return action(*args,**kwargs)
-
-	return True

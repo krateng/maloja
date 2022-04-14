@@ -44,7 +44,7 @@ def upgrade_apikeys():
 def upgrade_db(callback_add_scrobbles):
 
 	oldfolder = os.path.join(dir_settings['state'],"scrobbles")
-	newfolder = os.path.join(dir_settings['state'],".oldscrobbles")
+	newfolder = os.path.join(dir_settings['state'],".v2scrobbles")
 	os.makedirs(newfolder,exist_ok=True)
 	if os.path.exists(oldfolder):
 		scrobblefiles = [f for f in os.listdir(oldfolder) if f.endswith(".tsv")]
@@ -67,7 +67,7 @@ def upgrade_db(callback_add_scrobbles):
 				scrobblelist = []
 				log(f"\tImporting from {sf} ({idx}/{len(scrobblefiles)}) - {len(scrobbles)} Scrobbles")
 				for scrobble in scrobbles:
-					timestamp, artists, title, album, duration = scrobble
+					timestamp, artists, title, album, duration, *_ = scrobble + [None,None]
 					if album in ('-',''): album = None
 					if duration in ('-',''): duration = None
 					scrobblelist.append({

@@ -5,6 +5,7 @@ from threading import Thread
 from importlib import resources
 from css_html_js_minify import html_minify, css_minify
 import datauri
+import time
 
 
 # server stuff
@@ -34,7 +35,7 @@ from .dev.profiler import profile
 
 PORT = malojaconfig["PORT"]
 HOST = malojaconfig["HOST"]
-THREADS = 12
+THREADS = 16
 BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 #STATICFOLDER = importlib.resources.path(__name__,"web/static")
@@ -233,6 +234,7 @@ def static(path):
 
 ### DYNAMIC
 
+@profile
 def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))
@@ -292,11 +294,37 @@ def redirect_track(artists,title):
 #####
 
 
+# warning interception
+import logging
+
+class WaitressLogHandler():
+	def __init__(self):
+		self.lastwarned = 0
+		self.barrier = 5
+		self.level = 20
+		self.filters = []
+	def handle(self,record):
+		if record.name == 'waitress.queue':
+			now = time.time()
+			depth = record.args[0]
+
+			if depth > self.barrier:
+				log(f"Waitress Task Queue Depth at {depth}")
+				self.lastwarned = now
+				self.barrier = max(depth,self.barrier+5)
+			elif now - self.lastwarned > 5:
+				self.barrier = max(5,self.barrier-5)
+		else:
+			log(f"Waitress: {record.msg % record.args}")
+logging.getLogger().addHandler(WaitressLogHandler())
+
+
 def run_server():
 	log("Starting up Maloja server...")
 
 	## start database
 	Thread(target=database.start_db).start()
+
 
 
 	try:
