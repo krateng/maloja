@@ -78,11 +78,13 @@ def test_server(key=None):
 	always respond with 200.
 
 	:param string key: An API key to be tested. Optional.
+	:return: status (String), error (String)
+	:rtype: Dictionary
 	"""
 	response.set_header("Access-Control-Allow-Origin","*")
 	if key is not None and not apikeystore.check_key(key):
 		response.status = 403
-		return {"error":"Wrong API key"}
+		return {"status":"error","error":"Wrong API key"}
 
 	else:
 		response.status = 200
@@ -92,6 +94,9 @@ def test_server(key=None):
 @api.get("serverinfo")
 def server_info():
 	"""Returns basic information about the server.
+
+	:return: name (String), version (Tuple), versionstring (String), db_status (String). Additional keys can be added at any point, but will not be removed within API version.
+	:rtype: Dictionary
 	"""
 
 
@@ -113,6 +118,9 @@ def server_info():
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_external(**keys):
 	"""Returns a list of scrobbles.
+
+	:return: list (List)
+	:rtype: Dictionary
 	"""
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
 	ckeys = {**k_filter, **k_time, **k_amount}
@@ -130,6 +138,9 @@ def get_scrobbles_external(**keys):
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_num_external(**keys):
 	"""Returns amount of scrobbles.
+
+	:return: amount (Integer)
+	:rtype: Dictionary
 	"""
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
@@ -143,6 +154,9 @@ def get_scrobbles_num_external(**keys):
 @add_common_args_to_docstring(filterkeys=True)
 def get_tracks_external(**keys):
 	"""Returns all tracks (optionally of an artist).
+
+	:return: list (List)
+	:rtype: Dictionary
 	"""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
@@ -155,7 +169,10 @@ def get_tracks_external(**keys):
 @api.get("artists")
 @add_common_args_to_docstring()
 def get_artists_external():
-	"""Returns all artists."""
+	"""Returns all artists.
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	result = database.get_artists()
 	return {"list":result}
 
@@ -166,7 +183,10 @@ def get_artists_external():
 @api.get("charts/artists")
 @add_common_args_to_docstring(limitkeys=True)
 def get_charts_artists_external(**keys):
-	"""Returns artist charts"""
+	"""Returns artist charts
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
@@ -178,7 +198,10 @@ def get_charts_artists_external(**keys):
 @api.get("charts/tracks")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
 def get_charts_tracks_external(**keys):
-	"""Returns track charts"""
+	"""Returns track charts
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
@@ -191,7 +214,10 @@ def get_charts_tracks_external(**keys):
 @api.get("pulse")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_pulse_external(**keys):
-	"""Returns amounts of scrobbles in specified time frames"""
+	"""Returns amounts of scrobbles in specified time frames
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -204,7 +230,10 @@ def get_pulse_external(**keys):
 @api.get("performance")
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_performance_external(**keys):
-	"""Returns artist's or track's rank in specified time frames"""
+	"""Returns artist's or track's rank in specified time frames
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -217,7 +246,10 @@ def get_performance_external(**keys):
 @api.get("top/artists")
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_artists_external(**keys):
-	"""Returns respective number 1 artists in specified time frames"""
+	"""Returns respective number 1 artists in specified time frames
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -230,7 +262,10 @@ def get_top_artists_external(**keys):
 @api.get("top/tracks")
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_tracks_external(**keys):
-	"""Returns respective number 1 tracks in specified time frames"""
+	"""Returns respective number 1 tracks in specified time frames
+
+	:return: list (List)
+	:rtype: Dictionary"""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -245,7 +280,10 @@ def get_top_tracks_external(**keys):
 @api.get("artistinfo")
 @add_common_args_to_docstring(filterkeys=True)
 def artist_info_external(**keys):
-	"""Returns information about an artist"""
+	"""Returns information about an artist
+
+	:return: artist (String), scrobbles (Integer), position (Integer), associated (List), medals (Mapping), topweeks (Integer)
+	:rtype: Dictionary"""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -256,7 +294,10 @@ def artist_info_external(**keys):
 @api.get("trackinfo")
 @add_common_args_to_docstring(filterkeys=True)
 def track_info_external(artist:Multi[str],**keys):
-	"""Returns information about a track"""
+	"""Returns information about a track
+
+	:return: track (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
+	:rtype: Dictionary"""
 	# transform into a multidict so we can use our nomral uri_to_internal function
 	keys = FormsDict(keys)
 	for a in artist:
@@ -291,6 +332,9 @@ def post_scrobble(
 	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
 	:param flag nofix: Skip server-side metadata parsing. Optional.
+
+	:return: status (String), track (Mapping)
+	:rtype: Dictionary
 	"""
 
 	rawscrobble = {
