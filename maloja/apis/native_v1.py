@@ -37,6 +37,36 @@ api.__apipath__ = "mlj_1"
 
 
 
+def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
+	def decorator(func):
+		if filterkeys:
+			func.__doc__ += """
+				:param string title: Track title
+				:param string artist: Track artist
+				:param bool associated: Whether to include associated artists.
+				"""
+		if limitkeys:
+			func.__doc__ += """
+				:param string from: Start of the desired time range. Can also be called since or start.
+				:param string until: End of the desired range. Can also be called to or end.
+				:param string in: Desired range. Can also be called within or during.
+			"""
+		if delimitkeys:
+			func.__doc__ += """
+				:param string step: Step, e.g. month or week.
+				:param int stepn: Number of base type units per step
+				:param int trail: How many preceding steps should be factored in.
+				:param bool cumulative: Instead of a fixed trail length, use all history up to this point.
+			"""
+		if amountkeys:
+			func.__doc__ += """
+				:param int page: Page to show
+				:param int perpage: Entries per page.
+				:param int max: Legacy. Show first page with this many entries.
+			"""
+		return func
+	return decorator
+
 
 
 @api.get("test")
@@ -59,6 +89,8 @@ def test_server(key=None):
 
 @api.get("serverinfo")
 def server_info():
+	"""Returns basic information about the server.
+	"""
 
 
 	response.set_header("Access-Control-Allow-Origin","*")
@@ -76,7 +108,10 @@ def server_info():
 
 
 @api.get("scrobbles")
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_external(**keys):
+	"""Returns a list of scrobbles.
+	"""
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
@@ -89,19 +124,11 @@ def get_scrobbles_external(**keys):
 	return {"list":result}
 
 
-# info for comparison
-@api.get("info")
-def info_external(**keys):
-
-	response.set_header("Access-Control-Allow-Origin","*")
-	response.set_header("Content-Type","application/json")
-
-	return info()
-
-
-
 @api.get("numscrobbles")
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_num_external(**keys):
+	"""Returns amount of scrobbles.
+	"""
 	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_amount}
 
@@ -111,7 +138,10 @@ def get_scrobbles_num_external(**keys):
 
 
 @api.get("tracks")
+@add_common_args_to_docstring(filterkeys=True)
 def get_tracks_external(**keys):
+	"""Returns all tracks of an artist.
+	"""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -121,7 +151,9 @@ def get_tracks_external(**keys):
 
 
 @api.get("artists")
+@add_common_args_to_docstring()
 def get_artists_external():
+	""""""
 	result = database.get_artists()
 	return {"list":result}
 
@@ -130,7 +162,9 @@ def get_artists_external():
 
 
 @api.get("charts/artists")
+@add_common_args_to_docstring(limitkeys=True)
 def get_charts_artists_external(**keys):
+	""""""
 	_, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time}
 
@@ -140,7 +174,9 @@ def get_charts_artists_external(**keys):
 
 
 @api.get("charts/tracks")
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True)
 def get_charts_tracks_external(**keys):
+	""""""
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter, **k_time}
 
@@ -151,7 +187,9 @@ def get_charts_tracks_external(**keys):
 
 
 @api.get("pulse")
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_pulse_external(**keys):
+	""""""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -162,7 +200,9 @@ def get_pulse_external(**keys):
 
 
 @api.get("performance")
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_performance_external(**keys):
+	""""""
 	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
@@ -173,7 +213,9 @@ def get_performance_external(**keys):
 
 
 @api.get("top/artists")
+@add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_artists_external(**keys):
+	""""""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -184,7 +226,9 @@ def get_top_artists_external(**keys):
 
 
 @api.get("top/tracks")
+@add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_tracks_external(**keys):
+	""""""
 	_, k_time, k_internal, _, _ = uri_to_internal(keys)
 	ckeys = {**k_time, **k_internal}
 
@@ -197,7 +241,9 @@ def get_top_tracks_external(**keys):
 
 
 @api.get("artistinfo")
+@add_common_args_to_docstring(filterkeys=True)
 def artist_info_external(**keys):
+	""""""
 	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
 	ckeys = {**k_filter}
 
@@ -206,7 +252,9 @@ def artist_info_external(**keys):
 
 
 @api.get("trackinfo")
+@add_common_args_to_docstring(filterkeys=True)
 def track_info_external(artist:Multi[str],**keys):
+	""""""
 	# transform into a multidict so we can use our nomral uri_to_internal function
 	keys = FormsDict(keys)
 	for a in artist:
@@ -215,11 +263,6 @@ def track_info_external(artist:Multi[str],**keys):
 	ckeys = {**k_filter}
 
 	return database.track_info(**ckeys)
-
-
-@api.get("compare")
-def compare_external(**keys):
-	return database.compare(keys["remote"])
 
 
 @api.post("newscrobble")
@@ -275,6 +318,7 @@ def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 @api.post("importrules")
 @authenticated_api
 def import_rulemodule(**keys):
+	""""""
 	filename = keys.get("filename")
 	remove = keys.get("remove") is not None
 	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -292,6 +336,7 @@ def import_rulemodule(**keys):
 @api.post("rebuild")
 @authenticated_api
 def rebuild(**keys):
+	""""""
 	log("Database rebuild initiated!")
 	database.sync()
 	dbstatus['rebuildinprogress'] = True
@@ -307,6 +352,7 @@ def rebuild(**keys):
 
 @api.get("search")
 def search(**keys):
+	""""""
 	query = keys.get("query")
 	max_ = keys.get("max")
 	if max_ is not None: max_ = int(max_)
@@ -345,6 +391,7 @@ def search(**keys):
 @api.post("addpicture")
 @authenticated_api
 def add_picture(b64,artist:Multi=[],title=None):
+	""""""
 	keys = FormsDict()
 	for a in artist:
 		keys.append("artist",a)
@@ -357,6 +404,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 @api.post("newrule")
 @authenticated_api
 def newrule(**keys):
+	""""""
 	pass
 	# TODO after implementing new rule system
 	#tsv.add_entry(data_dir['rules']("webmade.tsv"),[k for k in keys])
@@ -366,22 +414,26 @@ def newrule(**keys):
 @api.post("settings")
 @authenticated_api
 def set_settings(**keys):
+	""""""
 	malojaconfig.update(keys)
 
 @api.post("apikeys")
 @authenticated_api
 def set_apikeys(**keys):
+	""""""
 	apikeystore.update(keys)
 
 @api.post("import")
 @authenticated_api
 def import_scrobbles(identifier):
+	""""""
 	from ..thirdparty import import_scrobbles
 	import_scrobbles(identifier)
 
 @api.get("backup")
 @authenticated_api
 def get_backup(**keys):
+	""""""
 	from ..proccontrol.tasks.backup import backup
 	import tempfile
 
@@ -393,6 +445,7 @@ def get_backup(**keys):
 @api.get("export")
 @authenticated_api
 def get_export(**keys):
+	""""""
 	from ..proccontrol.tasks.export import export
 	import tempfile
 
@@ -405,4 +458,5 @@ def get_export(**keys):
 @api.post("delete_scrobble")
 @authenticated_api
 def delete_scrobble(timestamp):
+	""""""
 	database.remove_scrobble(timestamp)
