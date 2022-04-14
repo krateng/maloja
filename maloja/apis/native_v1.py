@@ -269,14 +269,24 @@ def track_info_external(artist:Multi[str],**keys):
 
 @api.post("newscrobble")
 @authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
-def post_scrobble(artist:Multi=None,auth_result=None,**keys):
+def post_scrobble(
+		artist:Multi=None,
+		artists:list=[],
+		title:str="",
+		album:str=None,
+		albumartists:list=[],
+		duration:int=None,
+		length:int=None,
+		time:int=None,
+		nofix:bool=False,
+		auth_result=None):
 	"""Submit a new scrobble.
 
 	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
-	:param string artists: List of artists. Overwritten by artist parameter.
+	:param list artists: List of artists. Overwritten by artist parameter.
 	:param string title: Title of the track.
 	:param string album: Name of the album. Optional.
-	:param string albumartists: Album artists. Optional.
+	:param list albumartists: Album artists. Optional.
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
 	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
@@ -284,13 +294,13 @@ def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 	"""
 
 	rawscrobble = {
-		'track_artists':artist if artist is not None else keys.get("artists"),
-		'track_title':keys.get('title'),
-		'album_name':keys.get('album'),
-		'album_artists':keys.get('albumartists'),
-		'scrobble_duration':keys.get('duration'),
-		'track_length':keys.get('length'),
-		'scrobble_time':int(keys.get('time')) if (keys.get('time') is not None) else None
+		'track_artists':artist if artist is not None else artists,
+		'track_title':title,
+		'album_name':album,
+		'album_artists':albumartists,
+		'scrobble_duration':duration,
+		'track_length':length,
+		'scrobble_time':time
 	}
 
 	# for logging purposes, don't pass values that we didn't actually supply
@@ -300,7 +310,7 @@ def post_scrobble(artist:Multi=None,auth_result=None,**keys):
 		rawscrobble,
 		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
 		api='native/v1',
-		fix=(keys.get("nofix") is None)
+		fix=not nofix
 	)
 
 	if result:
