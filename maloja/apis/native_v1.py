@@ -515,4 +515,13 @@ def get_export(**keys):
 @authenticated_function(api=True)
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
-	database.remove_scrobble(timestamp)
+	return database.remove_scrobble(timestamp)
+
+
+@api.post("edit_artist")
+@authenticated_function(api=True)
+def edit_artist(oldname,newname):
+	# we probably wanna pass the id to the web interface at some point
+	# but for now we just use the old name as identifer as it's always unique
+	"""Internal Use Only"""
+	return database.change_artist_name(oldname,newname)

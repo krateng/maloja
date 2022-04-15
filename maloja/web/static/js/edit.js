@@ -41,6 +41,12 @@ function editEntity() {
 
 	})
 
+	// manually clicking away
+	namefield.addEventListener('blur',function(e){
+		doneEditing();
+
+	})
+
 	namefield.focus();
 	selectAll(namefield);
 }
@@ -48,4 +54,13 @@ function editEntity() {
 function doneEditing() {
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "false";
+	newname = document.getElementById('main_entity_name').innerHTML;
+
+	neo.xhttpreq(
+		"/apis/mlj_1/edit_artist",
+		data={'oldname':original_entity,'newname':newname},
+		method="POST",
+		callback=(()=>window.location = "?artist=" + newname),
+		json=true
+	);
 }

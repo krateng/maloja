@@ -137,6 +137,13 @@ def remove_scrobble(timestamp):
 	result = sqldb.delete_scrobble(timestamp)
 	dbcache.invalidate_caches(timestamp)
 
+@waitfordb
+def change_artist_name(oldname,newname):
+	log(f"Renaming {oldname} to {newname}")
+	id = sqldb.get_artist_id(oldname)
+	sqldb.edit_artist(id,newname)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
 
 

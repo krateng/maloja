@@ -353,6 +353,19 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	return result.inserted_primary_key[0]
 
 
+### Edit existing
+
+@connection_provider
+def edit_artist(id,artistdict,dbconn=None):
+	dbentry = artist_dict_to_db(artistdict)
+
+	op = DB['artists'].update().where(
+		DB['artists'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
+
 
 
 

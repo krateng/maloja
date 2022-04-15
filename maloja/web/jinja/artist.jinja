@@ -29,7 +29,9 @@
 
 {% block content %}
 
-
+<script>
+	const original_entity = "{{ artist }}"
+</script>
 
 
 
@@ -72,6 +74,7 @@
 		</td>
 	</tr>
 </table>
+
 
 <h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 
