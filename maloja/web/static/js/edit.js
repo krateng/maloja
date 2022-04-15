@@ -55,12 +55,24 @@ function doneEditing() {
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "false";
 	newname = document.getElementById('main_entity_name').innerHTML;
+	var searchParams = new URLSearchParams(window.location.search);
+
+	if (entity_type == 'artist') {
+		var endpoint = "/apis/mlj_1/edit_artist";
+	    searchParams.set("artist", newname);
+		var payload = {'id':entity_id,'name':newname};
+	}
+	else if (entity_type == 'track') {
+		var endpoint = "/apis/mlj_1/edit_track";
+	    searchParams.set("title", newname);
+		var payload = {'id':entity_id,'title':newname}
+	}
 
 	neo.xhttpreq(
-		"/apis/mlj_1/edit_artist",
-		data={'oldname':original_entity,'newname':newname},
+		endpoint,
+		data=payload,
 		method="POST",
-		callback=(()=>window.location = "?artist=" + newname),
+		callback=(()=>window.location = "?" + searchParams.toString()),
 		json=true
 	);
 }

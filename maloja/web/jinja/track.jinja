@@ -23,6 +23,11 @@
 
 {% block content %}
 
+<script>
+	const entity_id = {{ info.id }};
+	const entity_type = 'track';
+</script>
+
 
 {% import 'partials/awards_track.jinja' as awards %}
 
@@ -43,6 +48,7 @@
 		<td class="text">
 			<span>{{ links.links(track.artists) }}</span><br/>
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title }}</h1>
+				{% if adminmode %}{% include 'icons/edit.jinja' %}{% endif %}
 				{{ awards.certs(track) }}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>

@@ -520,8 +520,12 @@ def delete_scrobble(timestamp):
 
 @api.post("edit_artist")
 @authenticated_function(api=True)
-def edit_artist(oldname,newname):
-	# we probably wanna pass the id to the web interface at some point
-	# but for now we just use the old name as identifer as it's always unique
+def edit_artist(id,name):
 	"""Internal Use Only"""
-	return database.change_artist_name(oldname,newname)
+	return database.edit_artist(id,name)
+
+@api.post("edit_track")
+@authenticated_function(api=True)
+def edit_track(id,title):
+	"""Internal Use Only"""
+	return database.edit_track(id,{'title':title})

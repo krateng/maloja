@@ -138,13 +138,20 @@ def remove_scrobble(timestamp):
 	dbcache.invalidate_caches(timestamp)
 
 @waitfordb
-def change_artist_name(oldname,newname):
-	log(f"Renaming {oldname} to {newname}")
-	id = sqldb.get_artist_id(oldname)
-	sqldb.edit_artist(id,newname)
+def edit_artist(id,artistinfo):
+	artist = sqldb.get_artist(id)
+	log(f"Renaming {artist} to {artistinfo}")
+	sqldb.edit_artist(id,artistinfo)
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 
+@waitfordb
+def edit_track(id,trackinfo):
+	track = sqldb.get_track(id)
+	log(f"Renaming {track['title']} to {trackinfo['title']}")
+	sqldb.edit_track(id,trackinfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
 
 
@@ -280,7 +287,8 @@ def artist_info(dbconn=None,**keys):
 
 	artist = keys.get('artist')
 
-	artist = sqldb.get_artist(sqldb.get_artist_id(artist,dbconn=dbconn),dbconn=dbconn)
+	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
+	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -298,7 +306,8 @@ def artist_info(dbconn=None,**keys):
 				"silver": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['silver']],
 				"bronze": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist])
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist]),
+			"id":artist_id
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -316,7 +325,8 @@ def track_info(dbconn=None,**keys):
 
 	track = keys.get('track')
 
-	track = sqldb.get_track(sqldb.get_track_id(track,dbconn=dbconn),dbconn=dbconn)
+	track_id = sqldb.get_track_id(track,dbconn=dbconn)
+	track = sqldb.get_track(track_id,dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
@@ -340,7 +350,8 @@ def track_info(dbconn=None,**keys):
 			"bronze": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['bronze']],
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_toptracks if e == track])
+		"topweeks":len([e for e in cached.weekly_toptracks if e == track]),
+		"id":track_id
 	}
 
 

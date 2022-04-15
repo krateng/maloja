@@ -366,6 +366,16 @@ def edit_artist(id,artistdict,dbconn=None):
 	)
 	result = dbconn.execute(op)
 
+@connection_provider
+def edit_track(id,trackdict,dbconn=None):
+	dbentry = track_dict_to_db(trackdict)
+
+	op = DB['tracks'].update().where(
+		DB['tracks'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
 
 
 
