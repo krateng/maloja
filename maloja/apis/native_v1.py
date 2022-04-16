@@ -122,13 +122,12 @@ def test_server(key=None):
 def server_info():
 	"""Returns basic information about the server.
 
-	:return: name (String), version (Tuple), versionstring (String), db_status (String). Additional keys can be added at any point, but will not be removed within API version.
+	:return: name (String), version (Tuple), versionstring (String), db_status (Mapping). Additional keys can be added at any point, but will not be removed within API version.
 	:rtype: Dictionary
 	"""
 
 
 	response.set_header("Access-Control-Allow-Origin","*")
-	response.set_header("Content-Type","application/json")
 
 	return {
 		"name":malojaconfig["NAME"],
