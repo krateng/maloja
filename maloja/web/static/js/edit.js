@@ -29,7 +29,7 @@ function editEntity() {
 	namefield.addEventListener('keypress',function(e){
 		if (e.which === 13) {
 			e.preventDefault();
-			doneEditing();
+			namefield.blur(); // this leads to below
 		}
 
 	})
@@ -41,7 +41,7 @@ function editEntity() {
 
 	})
 
-	// manually clicking away
+	// manually clicking away OR enter
 	namefield.addEventListener('blur',function(e){
 		doneEditing();
 
