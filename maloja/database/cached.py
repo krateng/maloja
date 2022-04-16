@@ -25,28 +25,28 @@ def update_medals():
 	medals_artists.clear()
 	medals_tracks.clear()
 
-	for year in mjt.ranges(step="year"):
-		if year == mjt.thisyear(): break
+	with sqldb.engine.begin() as conn:
+		for year in mjt.ranges(step="year"):
+			if year == mjt.thisyear(): break
 
-		with sqldb.engine.begin() as conn:
 			charts_artists = sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=conn)
 			charts_tracks = sqldb.count_scrobbles_by_track(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=conn)
 
-		entry_artists = {'gold':[],'silver':[],'bronze':[]}
-		entry_tracks = {'gold':[],'silver':[],'bronze':[]}
-		medals_artists[year.desc()] = entry_artists
-		medals_tracks[year.desc()] = entry_tracks
+			entry_artists = {'gold':[],'silver':[],'bronze':[]}
+			entry_tracks = {'gold':[],'silver':[],'bronze':[]}
+			medals_artists[year.desc()] = entry_artists
+			medals_tracks[year.desc()] = entry_tracks
 
-		for entry in charts_artists:
-			if entry['rank'] == 1: entry_artists['gold'].append(entry['artist_id'])
-			elif entry['rank'] == 2: entry_artists['silver'].append(entry['artist_id'])
-			elif entry['rank'] == 3: entry_artists['bronze'].append(entry['artist_id'])
-			else: break
-		for entry in charts_tracks:
-			if entry['rank'] == 1: entry_tracks['gold'].append(entry['track_id'])
-			elif entry['rank'] == 2: entry_tracks['silver'].append(entry['track_id'])
-			elif entry['rank'] == 3: entry_tracks['bronze'].append(entry['track_id'])
-			else: break
+			for entry in charts_artists:
+				if entry['rank'] == 1: entry_artists['gold'].append(entry['artist_id'])
+				elif entry['rank'] == 2: entry_artists['silver'].append(entry['artist_id'])
+				elif entry['rank'] == 3: entry_artists['bronze'].append(entry['artist_id'])
+				else: break
+			for entry in charts_tracks:
+				if entry['rank'] == 1: entry_tracks['gold'].append(entry['track_id'])
+				elif entry['rank'] == 2: entry_tracks['silver'].append(entry['track_id'])
+				elif entry['rank'] == 3: entry_tracks['bronze'].append(entry['track_id'])
+				else: break
 
 
 
@@ -58,16 +58,17 @@ def update_weekly():
 	weekly_topartists.clear()
 	weekly_toptracks.clear()
 
-	for week in mjt.ranges(step="week"):
-		if week == mjt.thisweek(): break
+	with sqldb.engine.begin() as conn:
+		for week in mjt.ranges(step="week"):
+			if week == mjt.thisweek(): break
 
-		with sqldb.engine.begin() as conn:
+
 			charts_artists = sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=conn)
 			charts_tracks = sqldb.count_scrobbles_by_track(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=conn)
 
-		for entry in charts_artists:
-			if entry['rank'] == 1: weekly_topartists.append(entry['artist_id'])
-			else: break
-		for entry in charts_tracks:
-			if entry['rank'] == 1: weekly_toptracks.append(entry['track_id'])
-			else: break
+			for entry in charts_artists:
+				if entry['rank'] == 1: weekly_topartists.append(entry['artist_id'])
+				else: break
+			for entry in charts_tracks:
+				if entry['rank'] == 1: weekly_toptracks.append(entry['track_id'])
+				else: break
