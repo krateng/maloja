@@ -51,6 +51,11 @@ class DatabaseNotBuilt(HTTPError):
 		)
 
 
+class MissingScrobbleParameters(Exception):
+	def __init__(self,params=[]):
+		self.params = params
+
+
 def waitfordb(func):
 	def newfunc(*args,**kwargs):
 		if not dbstatus['healthy']: raise DatabaseNotBuilt()
@@ -86,10 +91,14 @@ cla = CleanerAgent()
 
 def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
-	if (not "track_artists" in rawscrobble) or (len(rawscrobble['track_artists']) == 0) or (not "track_title" in rawscrobble):
+	missing = []
+	for necessary_arg in ["track_artists","track_title"]:
+		if not necessary_arg in rawscrobble or len(rawscrobble[necessary_arg]) == 0:
+			missing.append(necessary_arg)
+	if len(missing) > 0:
 		log(f"Invalid Scrobble [Client: {client} | API: {api}]: {rawscrobble} ",color='red')
-		#return {"status":"failure"}
-		return False
+		raise MissingScrobbleParameters(missing)
+
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
