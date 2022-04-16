@@ -320,7 +320,8 @@ def post_scrobble(
 		length:int=None,
 		time:int=None,
 		nofix=None,
-		auth_result=None):
+		auth_result=None,
+		**extra_kwargs):
 	"""Submit a new scrobble.
 
 	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
@@ -358,15 +359,22 @@ def post_scrobble(
 	)
 
 	if result:
-		return {
+		response = {
 			'status': 'success',
 			'track': {
 				'artists':result['track']['artists'],
 				'title':result['track']['title']
 			}
 		}
+		if extra_kwargs:
+			response['warnings'] = [
+				{'type':'invalid_keyword_ignored','value':k}
+				for k in extra_kwargs
+			]
 	else:
-		return {"status":"failure"}
+		response = {"status":"failure"}
+
+	return response
 
 
 
