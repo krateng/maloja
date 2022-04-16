@@ -302,11 +302,11 @@ def artist_info(dbconn=None,**keys):
 			"position":position,
 			"associated":others,
 			"medals":{
-				"gold": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['gold']],
-				"silver": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['silver']],
-				"bronze": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['bronze']],
+				"gold": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['gold']],
+				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
+				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist]),
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id]),
 			"id":artist_id
 		}
 	except:
@@ -345,12 +345,12 @@ def track_info(dbconn=None,**keys):
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['gold']],
-			"silver": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['silver']],
-			"bronze": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['bronze']],
+			"gold": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['gold']],
+			"silver": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['silver']],
+			"bronze": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['bronze']],
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_toptracks if e == track]),
+		"topweeks":len([e for e in cached.weekly_toptracks if e == track_id]),
 		"id":track_id
 	}
 

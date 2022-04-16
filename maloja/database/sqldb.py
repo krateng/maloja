@@ -508,7 +508,7 @@ def get_tracks(dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_artist(since,to,dbconn=None):
+def count_scrobbles_by_artist(since,to,resolve_ids=True,dbconn=None):
 	jointable = sql.join(
 		DB['scrobbles'],
 		DB['trackartists'],
@@ -536,16 +536,18 @@ def count_scrobbles_by_artist(since,to,dbconn=None):
 	).order_by(sql.desc('count'))
 	result = dbconn.execute(op).all()
 
-
-	counts = [row.count for row in result]
-	artists = get_artists_map([row.artist_id for row in result])
-	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	if resolve_ids:
+		counts = [row.count for row in result]
+		artists = get_artists_map([row.artist_id for row in result])
+		result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'artist_id':row.artist_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track(since,to,dbconn=None):
+def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 
 
 	op = sql.select(
@@ -557,10 +559,12 @@ def count_scrobbles_by_track(since,to,dbconn=None):
 	).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
 	result = dbconn.execute(op).all()
 
-
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result])
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		counts = [row.count for row in result]
+		tracks = get_tracks_map([row.track_id for row in result])
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
