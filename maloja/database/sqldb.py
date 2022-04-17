@@ -275,7 +275,9 @@ def delete_scrobble(scrobble_id,dbconn=None):
 			DB['scrobbles'].c.timestamp == scrobble_id
 		)
 
-		dbconn.execute(op)
+		result = dbconn.execute(op)
+
+	return True
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
@@ -367,6 +369,8 @@ def edit_artist(id,artistdict,dbconn=None):
 	)
 	result = dbconn.execute(op)
 
+	return True
+
 @connection_provider
 def edit_track(id,trackdict,dbconn=None):
 	dbentry = track_dict_to_db(trackdict)
@@ -377,6 +381,8 @@ def edit_track(id,trackdict,dbconn=None):
 		**dbentry
 	)
 	result = dbconn.execute(op)
+
+	return True
 
 
 ### Merge
@@ -392,6 +398,8 @@ def merge_tracks(target_id,source_ids,dbconn=None):
 	result = dbconn.execute(op)
 	clean_db()
 
+	return True
+
 @connection_provider
 def merge_artists(target_id,source_ids,dbconn=None):
 
@@ -402,6 +410,8 @@ def merge_artists(target_id,source_ids,dbconn=None):
 	)
 	result = dbconn.execute(op)
 	clean_db()
+
+	return True
 
 
 

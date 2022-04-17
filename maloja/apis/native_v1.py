@@ -588,30 +588,45 @@ def get_export(**keys):
 @authenticated_function(api=True)
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
-	return database.remove_scrobble(timestamp)
+	result = database.remove_scrobble(timestamp)
+	return {
+		"status":"success"
+	}
 
 
 @api.post("edit_artist")
 @authenticated_function(api=True)
 def edit_artist(id,name):
 	"""Internal Use Only"""
-	return database.edit_artist(id,name)
+	result = database.edit_artist(id,name)
+	return {
+		"status":"success"
+	}
 
 @api.post("edit_track")
 @authenticated_function(api=True)
 def edit_track(id,title):
 	"""Internal Use Only"""
-	return database.edit_track(id,{'title':title})
+	result = database.edit_track(id,{'title':title})
+	return {
+		"status":"success"
+	}
 
 
 @api.post("merge_tracks")
 @authenticated_function(api=True)
 def merge_tracks(target_id,source_ids):
 	"""Internal Use Only"""
-	return database.merge_tracks(target_id,source_ids)
+	result = database.merge_tracks(target_id,source_ids)
+	return {
+		"status":"success"
+	}
 
 @api.post("merge_artists")
 @authenticated_function(api=True)
 def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
-	return database.merge_artists(target_id,source_ids)
+	result = database.merge_artists(target_id,source_ids)
+	return {
+		"status":"success"
+	}
