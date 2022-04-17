@@ -5,6 +5,7 @@
 
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
+	<script src="/edit.js"></script>
 	<script>
 		function scrobble(encodedtrack) {
 			neo.xhttprequest('/apis/mlj_1/newscrobble?nofix&' + encodedtrack,data={},method="POST").then(response=>{window.location.reload()});
@@ -26,6 +27,7 @@
 <script>
 	const entity_id = {{ info.id }};
 	const entity_type = 'track';
+	const entity_name = {{ track.title | tojson }};
 </script>
 
 

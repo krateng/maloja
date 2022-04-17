@@ -1,5 +1,7 @@
 // JS for all web interface editing / deletion of scrobble data
 
+
+
 function toggleDeleteConfirm(element) {
 	element.parentElement.parentElement.classList.toggle('active');
 }
@@ -22,14 +24,21 @@ function selectAll(e) {
 }
 
 function editEntity() {
+
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "plaintext-only";
 
-	// dont allow new lines, done on enter
-	namefield.addEventListener('keypress',function(e){
-		if (e.which === 13) {
+	namefield.addEventListener('keydown',function(e){
+		// dont allow new lines, done on enter
+		if (e.key === "Enter") {
 			e.preventDefault();
 			namefield.blur(); // this leads to below
+		}
+		// cancel on esc
+		else if (e.key === "Escape" || e.key === "Esc") {
+			e.preventDefault();
+			namefield.innerHTML = entity_name;
+			namefield.blur();
 		}
 
 	})
@@ -54,25 +63,30 @@ function editEntity() {
 function doneEditing() {
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "false";
-	newname = document.getElementById('main_entity_name').innerHTML;
-	var searchParams = new URLSearchParams(window.location.search);
+	newname = namefield.innerHTML;
 
-	if (entity_type == 'artist') {
-		var endpoint = "/apis/mlj_1/edit_artist";
-	    searchParams.set("artist", newname);
-		var payload = {'id':entity_id,'name':newname};
-	}
-	else if (entity_type == 'track') {
-		var endpoint = "/apis/mlj_1/edit_track";
-	    searchParams.set("title", newname);
-		var payload = {'id':entity_id,'title':newname}
+	if (newname != entity_name) {
+		var searchParams = new URLSearchParams(window.location.search);
+
+		if (entity_type == 'artist') {
+			var endpoint = "/apis/mlj_1/edit_artist";
+		    searchParams.set("artist", newname);
+			var payload = {'id':entity_id,'name':newname};
+		}
+		else if (entity_type == 'track') {
+			var endpoint = "/apis/mlj_1/edit_track";
+		    searchParams.set("title", newname);
+			var payload = {'id':entity_id,'title':newname}
+		}
+
+		neo.xhttpreq(
+			endpoint,
+			data=payload,
+			method="POST",
+			callback=(()=>window.location = "?" + searchParams.toString()),
+			json=true
+		);
 	}
 
-	neo.xhttpreq(
-		endpoint,
-		data=payload,
-		method="POST",
-		callback=(()=>window.location = "?" + searchParams.toString()),
-		json=true
-	);
+
 }

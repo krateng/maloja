@@ -6,6 +6,7 @@
 
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
+	<script src="/edit.js"></script>
 {% endblock %}
 
 {% set artist = filterkeys.artist %}
@@ -32,6 +33,7 @@
 <script>
 	const entity_id = {{ info.id }};
 	const entity_type = 'artist';
+	const entity_name = {{ artist | tojson }};
 </script>
 
 
