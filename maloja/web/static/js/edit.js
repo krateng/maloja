@@ -37,15 +37,15 @@ function editEntity() {
 		// cancel on esc
 		else if (e.key === "Escape" || e.key === "Esc") {
 			e.preventDefault();
-			namefield.innerHTML = entity_name;
+			namefield.textContent = entity_name;
 			namefield.blur();
 		}
 
 	})
 	// emergency, not pretty because it will move cursor
 	namefield.addEventListener('input',function(e){
-		if (namefield.innerHTML.includes("\n")) {
-			namefield.innerHTML = namefield.innerHTML.replace("\n","");
+		if (namefield.textContent.includes("\n")) {
+			namefield.textContent = namefield.textContent.replace("\n","");
 		}
 
 	})
@@ -63,7 +63,7 @@ function editEntity() {
 function doneEditing() {
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "false";
-	newname = namefield.innerHTML;
+	newname = namefield.textContent;
 
 	if (newname != entity_name) {
 		var searchParams = new URLSearchParams(window.location.search);
