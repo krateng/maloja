@@ -4,6 +4,7 @@ minor_release_name: "Yeonhee"
     notes:
     - "[Architecture] Switched to SQLite for main database"
     - "[Architecture] Switched to SQLite for artwork cache"
+    - "[Feature] Added scrobble deletion from web interface"
 3.0.1:
     commit: "700b81217cb585df631d6f069243c56074cd1b71"
     notes:

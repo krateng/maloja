@@ -190,6 +190,29 @@ div.searchresults table.searchresults_tracks td span:nth-child(1) {
 }
 
 
+/**
+Notifications
+**/
+
+div#notification_area {
+	position: fixed;
+	width:420px;
+	bottom:40px;
+	right:20px;
+}
+div#notification_area div.notification {
+	background-color:white;
+	width:400px;
+	height:100px;
+	margin-bottom:7px;
+	padding:9px;
+	opacity:0.4;
+}
+div#notification_area div.notification:hover {
+	opacity:0.95;
+}
+
+
 @media (max-width: 1000px) {
 
 	div.footer {
