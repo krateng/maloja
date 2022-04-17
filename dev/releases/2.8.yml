@@ -1,0 +1,13 @@
+minor_release_name: "Haeun"
+2.8.0:
+    commit: "25661f82af9338a024aae429cdafec7c86692aa5"
+2.8.1:
+    commit: "1321fcb45ebe0291c9fd47ff2eb8cc329035acf3"
+2.8.2:
+    commit: "e27a83bdc99a06a207c67c6f0034bc0a554c89af"
+2.8.3:
+    commit: "6acab324dbd3594dcfbf944bfdfb5c8fe173354b"
+2.8.4:
+    commit: "f7f1b1225e64b54d8962467182bddcc1de237f51"
+2.8.5:
+    commit: "1dbc0b7fca05830d654076c74a91b6b74f470d5b"

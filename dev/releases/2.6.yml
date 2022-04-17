@@ -1,0 +1,21 @@
+minor_release_name: "HyunA"
+2.6.0:
+    commit: "b161da1c1a1632725a44e998ff0d1872b3d5d184"
+2.6.1:
+    commit: "1eae55e3bba335d41da0d21dfc383b838d9f0d03"
+2.6.2:
+    commit: "dd3c83920b668466f2c053434bfd6be93bf32942"
+2.6.3:
+    commit: "27f3ff6d085f42bdb67385f967db904022339d1d"
+2.6.4:
+    commit: "5f8e73e6c714e9ca94a66f48d1b72fe516bbb0da"
+2.6.5:
+    commit: "0fdd7669cced6c2b47f657e510bda03a053ee7ae"
+2.6.6:
+    commit: "87cdb9987efe08b466f99f9ccb8b808131f9fbcd"
+2.6.7:
+    commit: "0bdc4654bfb0f42d838e15c3d36dab0b4472db00"
+2.6.8:
+    commit: "bdfb2a4a0b48362aabda7bb735296d83a02b932d"
+2.6.9:
+    commit: "cb7a6d224152048176e6187ede6d60625961ab39"

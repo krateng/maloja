@@ -1,0 +1,23 @@
+minor_release_name: "Mina"
+2.14.0:
+    commit: "1b0e3ffdb2389ae6ca484c78840756d0b7e5c0be"
+2.14.1:
+    commit: "fb2dff8addc7eaf740c5e30cbcd6791aab882c56"
+2.14.2:
+    commit: "cd8e0ff90abf7d01761b0576c4168254b9b1f7c1"
+2.14.3:
+    commit: "f806fb8ed24dd1474b80e7b1a9a7637cdbd35905"
+2.14.4:
+    commit: "868b8396a0a4ff0f687e651772d746af6d9dfab1"
+2.14.5:
+    commit: "21d1643988e40a02531bcc708f43925789d854d1"
+2.14.6:
+    commit: "ccbb3d3a807fd77a1481f9d44f311c7f8df659c7"
+2.14.7:
+    commit: "634df2ffafdfa00b6caf981108d333e30bf160f8"
+2.14.8:
+    commit: "ec5723d2b3122faaa5b76c5a1b156c9a915af9d6"
+2.14.9:
+    commit: "2c73c81434e1a591685a4b1d267a9eb6dbd57174"
+2.14.10:
+    commit: "e152a2edde836f8fb30427d13eb1e9e0d591a00b"

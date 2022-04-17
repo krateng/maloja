@@ -1,0 +1,5 @@
+minor_release_name: "Irene"
+'2.0':
+    commit: "55621ef4efdf61c3092d42565e897dfbaa0244c8"
+    notes:
+    - "[Architecture] Refactored into Python Package"
