@@ -22,6 +22,14 @@
 {% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
 
 
+{% block icon_bar %}
+	{% if adminmode %}
+		{% include 'icons/edit.jinja' %}
+		{% include 'icons/merge.jinja' %}
+		{% include 'icons/merge_mark.jinja' %}
+	{% endif %}
+{% endblock %}
+
 {% block content %}
 
 <script>
@@ -50,7 +58,6 @@
 		<td class="text">
 			<span>{{ links.links(track.artists) }}</span><br/>
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title }}</h1>
-				{% if adminmode %}{% include 'icons/edit.jinja' %}{% endif %}
 				{{ awards.certs(track) }}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>

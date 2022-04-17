@@ -80,9 +80,11 @@
 			</div>
 		</div>
 
-		<a href="/admin_overview">
+		<div id="icon_bar">
+			{% block icon_bar %}{% endblock %}
 			{% include 'icons/settings.jinja' %}
-		</a>
+		</div>
+
 
 	</body>
 </html>

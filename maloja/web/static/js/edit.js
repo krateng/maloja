@@ -61,6 +61,7 @@ function editEntity() {
 }
 
 function doneEditing() {
+	window.getSelection().removeAllRanges();
 	var namefield = document.getElementById('main_entity_name');
 	namefield.contentEditable = "false";
 	newname = namefield.textContent;
