@@ -1,6 +1,6 @@
 [project]
 name = "malojaserver"
-version = "3.0.3"
+version = "3.0.4"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
 requires-python = ">=3.6"
@@ -40,7 +40,7 @@ full = [
 ]
 
 [project.scripts]
-maloja = "maloja:main"
+maloja = "maloja.__main__:main"
 
 [build-system]
 requires = ["flit_core >=3.2,<4"]

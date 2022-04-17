@@ -1,0 +1,19 @@
+minor_release_name: "Nancy"
+2.3.0:
+    commit: "8793b149f501fe5f3e237d7ae0fcd23c8f4e5e9d"
+2.3.1:
+    commit: "7c6e2ad60f15d8c4ac85a0808a0abd07549a4a2b"
+2.3.2:
+    commit: "5a08fd78c69c4047b82ff9c394ea23d25356758e"
+2.3.3:
+    commit: "9cf1fb3ed83817168dfe2ac30a42dcadb080c043"
+2.3.4:
+    commit: "eb82282e58259b243958e7590506bd26f8e92db0"
+2.3.5:
+    commit: "a4f13f6923b7783509462944f1abb235b4a068d0"
+2.3.6:
+    commit: "b611387011e4cbd274e210d0c21c83d15302281c"
+2.3.7:
+    commit: "b17060184b6897b18cf8af28a3817c9989aac96f"
+2.3.8:
+    commit: "afe01c8341acd4cf9f4b84fbba85aab6777fd230"

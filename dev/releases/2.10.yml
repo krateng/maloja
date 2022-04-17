@@ -1,0 +1,17 @@
+minor_release_name: "Yeri"
+2.10.0:
+    commit: "ce9d882856be8f6caca14ab7e5b9f13d6c31940b"
+2.10.1:
+    commit: "f555ee9d9fc485c6a241f4a8fa88bd68527ed2e2"
+2.10.2:
+    commit: "9a6617b4b1117a6e53d818aadcda886c831e16db"
+2.10.3:
+    commit: "5b7d1fd8e9f70a8bf9c5bfbe4aca5b796578e114"
+2.10.4:
+    commit: "3cf0dd9767fe62702b2f5c4f0267a234338a972b"
+2.10.5:
+    commit: "034bd064f11ef18ebbfcb25bd8acac8eacce1324"
+2.10.6:
+    commit: "f62fd254dd44deca50a860f3a966390ae9c3662c"
+2.10.7:
+    commit: "212fbf368e38281f45a0d8dd63dc051dbd8cd8cf"

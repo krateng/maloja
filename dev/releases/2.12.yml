@@ -1,0 +1,41 @@
+minor_release_name: "Tzuyu"
+2.12.0:
+    commit: "723efcb8ba12f7bda9acc21d81d9930265881c15"
+2.12.1:
+    commit: "a42ed56d2de47f88f873737f0f1374e99be895bf"
+2.12.2:
+    commit: "5006ad2bf1a6d5132ed07d28a7f6f0a9a454d5a7"
+2.12.3:
+    commit: "2a5d9498d1dd7bb6ac62a27d518a87542ec3f344"
+2.12.4:
+    commit: "06c32e205e95df8d3d1e27876887b7da7aa2bdf4"
+2.12.5:
+    commit: "c2f8ecc2dfa1ac4febde228fce150e08fb47be38"
+2.12.6:
+    commit: "a652a22a96ab693a4e7c3271520e6ad79fa025af"
+2.12.7:
+    commit: "5455abd0d1c9ecc8e000d04257f721babacb18e9"
+2.12.8:
+    commit: "8ebd27ab76ad2dcaf1dfef0cc171900fa20d5ee5"
+2.12.9:
+    commit: "49598e914f4e2d7895959bea954238db8a6cee78"
+2.12.10:
+    commit: "9037403777faa089092cf103181027febf6f0340"
+2.12.12:
+    commit: "eaaa0f3b53aa102ba1eb709c1803e94752017d86"
+2.12.13:
+    commit: "c31770a34c96cecc87af78f861819cc49fe98dda"
+2.12.14:
+    commit: "5157ce825eea9bf7b74123cb02dd28e25c6a0767"
+2.12.15:
+    commit: "33af60ed2c8c980f17338827a9cb96e7f2fd2572"
+2.12.16:
+    commit: "26dfdfb569d0beaf4ba8c6c67a9e2295d1362eed"
+2.12.17:
+    commit: "21012234409c01fec3cb5c506f0b4ba74b735b0b"
+2.12.18:
+    commit: "59eaa2264aefa6c9ed5f38e8490f77150bcae27b"
+2.12.19:
+    commit: "8958eb1b547f07d5d063c46cbe59ec57e000ecae"
+2.12.20:
+    commit: "7774d9a9361db986092e143e1bc397ce7a7524dd"

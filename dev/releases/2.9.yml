@@ -1,0 +1,23 @@
+minor_release_name: "Yaorenmao"
+2.9.0:
+    commit: "8b4e9609e994d74506fd91471bd5a622b75b2f08"
+2.9.1:
+    commit: "52a9faae90175841b2c259dd4677697e513e12f9"
+2.9.2:
+    commit: "5cf7ca2e9bbf66082c4afb76b4033ff17c9cf8c8"
+2.9.3:
+    commit: "e8c316f1992c3e5f171891272f32d959bb1fa4f0"
+2.9.4:
+    commit: "e8a87cb8a5e2f63850ff3c02ed5aa8ee388460ed"
+2.9.5:
+    commit: "09d3f103832bb7e26949a8f2df60c25851886bdc"
+2.9.6:
+    commit: "9fb352cc6fe2bc41c56304e5ba941035fc1ac82d"
+2.9.7:
+    commit: "f4a563f080f7dba336034feb1c0c42057f8d8d8c"
+2.9.8:
+    commit: "2da9f154be240b8648d68a7eb2a3291738cfc93c"
+2.9.9:
+    commit: "f7861c44b4a44b0cdd34e9f3f62530b8bf2837e3"
+2.9.10:
+    commit: "22172d8b57df2ad1282f8d835183be45843fdd6a"

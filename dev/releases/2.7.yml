@@ -1,0 +1,25 @@
+minor_release_name: "Shanshan"
+2.7.0:
+    commit: "8d7fb9a2c8be3f813ee5994be1818f9f81088faa"
+2.7.1:
+    commit: "6885fbdeccb8b690fa0af59d8fd341e44803798f"
+2.7.2:
+    commit: "4113d1761e28a7ee3b3cdabe4404cf3876f1fc84"
+2.7.3:
+    commit: "1563a15abde175022b50fa085c6b9b19a6021c31"
+2.7.4:
+    commit: "3e6bcc45d55446c6607664e407768391b47c5421"
+2.7.5:
+    commit: "fa05c406606e269fb4153465611caeb71c12b486"
+2.7.6:
+    commit: "47087b4288cbfa6000ca019a000f27ee5846d161"
+2.7.7:
+    commit: "379ee49f1c61df9720346d3d021dea040587d54d"
+2.7.8:
+    commit: "75bd823ad0cc24efecd1de193436a28dfaecd4f3"
+2.7.9:
+    commit: "fb04dd507cee42092b889fe72cdf9975ea48e3b1"
+2.7.10:
+    commit: "7fc879f77818371721e21c13e9df98796cf632de"
+2.7.11:
+    commit: "44a2739a3b6e58cb90b7f7dfca2197834cf30464"

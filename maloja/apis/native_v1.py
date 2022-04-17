@@ -37,6 +37,28 @@ api.__apipath__ = "mlj_1"
 
 
 
+
+errors = {
+	database.MissingScrobbleParameters: lambda e: (400,{
+		"status":"failure",
+		"error":{
+			'type':'missing_scrobble_data',
+			'value':e.params,
+			'desc':"A scrobble requires these parameters."
+		}
+	}),
+	Exception: lambda e: (500,{
+		"status":"failure",
+		"error":{
+			'type':'unknown_error',
+			'value':e.__repr__(),
+			'desc':"The server has encountered an exception."
+		}
+	})
+}
+
+
+
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
 	def decorator(func):
 		timeformats = "Possible formats include '2022', '2022/08', '2022/08/01', '2022/W42', 'today', 'thismonth', 'monday', 'august'"
@@ -84,24 +106,28 @@ def test_server(key=None):
 	response.set_header("Access-Control-Allow-Origin","*")
 	if key is not None and not apikeystore.check_key(key):
 		response.status = 403
-		return {"status":"error","error":"Wrong API key"}
+		return {
+			"status":"error",
+			"error":"Wrong API key"
+		}
 
 	else:
 		response.status = 200
-		return {"status":"ok"}
+		return {
+			"status":"ok"
+		}
 
 
 @api.get("serverinfo")
 def server_info():
 	"""Returns basic information about the server.
 
-	:return: name (String), version (Tuple), versionstring (String), db_status (String). Additional keys can be added at any point, but will not be removed within API version.
+	:return: name (String), version (Tuple), versionstring (String), db_status (Mapping). Additional keys can be added at any point, but will not be removed within API version.
 	:rtype: Dictionary
 	"""
 
 
 	response.set_header("Access-Control-Allow-Origin","*")
-	response.set_header("Content-Type","application/json")
 
 	return {
 		"name":malojaconfig["NAME"],
@@ -131,7 +157,9 @@ def get_scrobbles_external(**keys):
 	result = result[offset:]
 	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
 
-	return {"list":result}
+	return {
+		"list":result
+	}
 
 
 @api.get("numscrobbles")
@@ -146,7 +174,10 @@ def get_scrobbles_num_external(**keys):
 	ckeys = {**k_filter, **k_time, **k_amount}
 
 	result = database.get_scrobbles_num(**ckeys)
-	return {"amount":result}
+
+	return {
+		"amount":result
+	}
 
 
 
@@ -162,7 +193,10 @@ def get_tracks_external(**keys):
 	ckeys = {**k_filter}
 
 	result = database.get_tracks(**ckeys)
-	return {"list":result}
+
+	return {
+		"list":result
+	}
 
 
 
@@ -174,7 +208,10 @@ def get_artists_external():
 	:return: list (List)
 	:rtype: Dictionary"""
 	result = database.get_artists()
-	return {"list":result}
+
+	return {
+		"list":result
+	}
 
 
 
@@ -191,7 +228,10 @@ def get_charts_artists_external(**keys):
 	ckeys = {**k_time}
 
 	result = database.get_charts_artists(**ckeys)
-	return {"list":result}
+
+	return {
+		"list":result
+	}
 
 
 
@@ -206,7 +246,10 @@ def get_charts_tracks_external(**keys):
 	ckeys = {**k_filter, **k_time}
 
 	result = database.get_charts_tracks(**ckeys)
-	return {"list":result}
+
+	return {
+		"list":result
+	}
 
 
 
@@ -222,7 +265,10 @@ def get_pulse_external(**keys):
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
 	results = database.get_pulse(**ckeys)
-	return {"list":results}
+
+	return {
+		"list":results
+	}
 
 
 
@@ -238,7 +284,10 @@ def get_performance_external(**keys):
 	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
 	results = database.get_performance(**ckeys)
-	return {"list":results}
+
+	return {
+		"list":results
+	}
 
 
 
@@ -254,7 +303,10 @@ def get_top_artists_external(**keys):
 	ckeys = {**k_time, **k_internal}
 
 	results = database.get_top_artists(**ckeys)
-	return {"list":results}
+
+	return {
+		"list":results
+	}
 
 
 
@@ -272,7 +324,10 @@ def get_top_tracks_external(**keys):
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
 
 	results = database.get_top_tracks(**ckeys)
-	return {"list":results}
+
+	return {
+		"list":results
+	}
 
 
 
@@ -325,7 +380,7 @@ def post_scrobble(
 	"""Submit a new scrobble.
 
 	:param string artist: Artist. Can be submitted multiple times as query argument for multiple artists.
-	:param list artists: List of artists. Overwritten by artist parameter.
+	:param list artists: List of artists.
 	:param string title: Title of the track.
 	:param string album: Name of the album. Optional.
 	:param list albumartists: Album artists. Optional.
@@ -339,7 +394,7 @@ def post_scrobble(
 	"""
 
 	rawscrobble = {
-		'track_artists':artist if artist is not None else artists,
+		'track_artists':(artist or []) + artists,
 		'track_title':title,
 		'album_name':album,
 		'album_artists':albumartists,
@@ -351,15 +406,15 @@ def post_scrobble(
 	# for logging purposes, don't pass values that we didn't actually supply
 	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
 
-	result = database.incoming_scrobble(
-		rawscrobble,
-		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
-		api='native/v1',
-		fix=(nofix is None)
-	)
+	try:
+		result = database.incoming_scrobble(
+			rawscrobble,
+			client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
+			api='native/v1',
+			fix=(nofix is None)
+		)
 
-	if result:
-		response = {
+		responsedict = {
 			'status': 'success',
 			'track': {
 				'artists':result['track']['artists'],
@@ -367,14 +422,24 @@ def post_scrobble(
 			}
 		}
 		if extra_kwargs:
-			response['warnings'] = [
-				{'type':'invalid_keyword_ignored','value':k}
+			responsedict['warnings'] = [
+				{'type':'invalid_keyword_ignored','value':k,
+				'desc':"This key was not recognized by the server and has been discarded."}
 				for k in extra_kwargs
 			]
-	else:
-		response = {"status":"failure"}
+		if artist and artists:
+			responsedict['warnings'] = [
+				{'type':'mixed_schema','value':['artist','artists'],
+				'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
+			]
+		return responsedict
+	except Exception as e:
+		for etype in errors:
+			if isinstance(e,etype):
+				errorhandling = errors[etype](e)
+				response.status = errorhandling[0]
+				return errorhandling[1]
 
-	return response
 
 
 

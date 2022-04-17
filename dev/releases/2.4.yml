@@ -1,0 +1,29 @@
+minor_release_name: "Songhee"
+2.4.0:
+    commit: "6aa65bf1ce273d9fd36d44f6e24439981b2228a3"
+2.4.1:
+    commit: "b117e6f7ec80afc6210314ce97bac087d5ab7b54"
+2.4.2:
+    commit: "d989134e65c20ab33b0ea8e4a132655074057757"
+2.4.3:
+    commit: "9b787fa3b13d77a9cfbe21061f519defac7fafd0"
+2.4.4:
+    commit: "948772b1c26070d7814871824b970fb60fc6976d"
+2.4.5:
+    commit: "2da5ab83b3a410b02af48e70b298069218a7e2a3"
+2.4.6:
+    commit: "65f9c88da4d56df37e4a3f974d7f660502c7a310"
+2.4.7:
+    commit: "c166620d5f9706e54f9cd67044d42bf8583575d8"
+2.4.8:
+    commit: "98c1527f778958b1a3322a4f026cfe2c421388aa"
+2.4.9:
+    commit: "b21b27bb6e230901281bb524f84e177c937b48fd"
+2.4.10:
+    commit: "08fe4695f6d5ef09789688481db478d0decbd5df"
+2.4.11:
+    commit: "5c6a901f5118be54ae44affbd6881b14bc30e04a"
+2.4.12:
+    commit: "6658165baedeee3939084ba4500de3de06bbc045"
+2.4.13:
+    commit: "57403a89ab1d679523341d6a607d0b03e495ff35"

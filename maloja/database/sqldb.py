@@ -284,6 +284,7 @@ def delete_scrobble(scrobble_id,dbconn=None):
 def get_track_id(trackdict,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
+	artist_ids = list(set(artist_ids))
 
 
 

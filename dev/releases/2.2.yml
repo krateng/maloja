@@ -1,0 +1,11 @@
+minor_release_name: "Rosé"
+2.2.0:
+    commit: "33cea26a791e224625aa9bc523e2cf90e39c8a50"
+2.2.1:
+    commit: "fbce600c4edd2b530e6673b89513b1a26b068b64"
+2.2.2:
+    commit: "c518627670f5614a2b9931471337a1a6b2ee344f"
+2.2.3:
+    commit: "a2cc27ddd46c7cf9959f33478eac396e18f90055"
+2.2.4:
+    commit: "c6deb1543779ce8b09af6bcbdc35e7668af86010"

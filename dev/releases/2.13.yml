@@ -1,0 +1,11 @@
+minor_release_name: "Aqua"
+2.13.0:
+    commit: "8555b28fbc9a220577260014b7f71f433263cb9f"
+2.13.1:
+    commit: "cefed03bc95dd5641b918f79b6ed14b2bfc9898d"
+2.13.2:
+    commit: "0f5ccd4645ead8d1ad48a532752d401424edb236"
+2.13.3:
+    commit: "40648b66f36894a297633c650e570ac77555d143"
+2.13.4:
+    commit: "0ccd39ffd99b19e4cd1b1a14f97bfb4385662eeb"
