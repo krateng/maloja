@@ -379,6 +379,31 @@ def edit_track(id,trackdict,dbconn=None):
 	result = dbconn.execute(op)
 
 
+### Merge
+
+@connection_provider
+def merge_tracks(target_id,source_ids,dbconn=None):
+
+	op = DB['scrobbles'].update().where(
+		DB['scrobbles'].c.track_id.in_(source_ids)
+	).values(
+		track_id=target_id
+	)
+	result = dbconn.execute(op)
+	clean_db()
+
+@connection_provider
+def merge_artists(target_id,source_ids,dbconn=None):
+
+	op = DB['trackartists'].update().where(
+		DB['trackartists'].c.artist_id.in_(source_ids)
+	).values(
+		artist_id=target_id
+	)
+	result = dbconn.execute(op)
+	clean_db()
+
+
 
 ### Functions that get rows according to parameters
 

@@ -602,3 +602,16 @@ def edit_artist(id,name):
 def edit_track(id,title):
 	"""Internal Use Only"""
 	return database.edit_track(id,{'title':title})
+
+
+@api.post("merge_tracks")
+@authenticated_function(api=True)
+def merge_tracks(target_id,source_ids):
+	"""Internal Use Only"""
+	return database.merge_tracks(target_id,source_ids)
+
+@api.post("merge_artists")
+@authenticated_function(api=True)
+def merge_artists(target_id,source_ids):
+	"""Internal Use Only"""
+	return database.merge_artists(target_id,source_ids)

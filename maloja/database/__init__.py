@@ -162,7 +162,21 @@ def edit_track(id,trackinfo):
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 
+@waitfordb
+def merge_artists(target_id,source_ids):
+	sources = [sqldb.get_artist(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Merging {sources} into {target}")
+	sqldb.merge_artists(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
 
+@waitfordb
+def merge_tracks(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_track(target_id)
+	log(f"Merging {sources} into {target}")
+	sqldb.merge_tracks(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
 
 
 
