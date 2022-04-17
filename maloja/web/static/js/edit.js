@@ -108,7 +108,7 @@ function doneEditing() {
 // MERGING
 
 function markForMerge() {
-	const lcst = window.localStorage;
+	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
 	var current_stored = (lcst.getItem(key) || '').split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
@@ -119,7 +119,7 @@ function markForMerge() {
 }
 
 function merge() {
-	const lcst = window.localStorage;
+	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
 	var current_stored = lcst.getItem(key).split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
