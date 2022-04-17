@@ -16,8 +16,17 @@ function toggleDeleteConfirm(element) {
 }
 
 function deleteScrobble(id,element) {
-	element.parentElement.parentElement.parentElement.classList.add('removed');
-	neo.xhttpreq("/apis/mlj_1/delete_scrobble",data={'timestamp':id},method="POST",callback=(()=>null),json=true);
+	var callback_func = function(req){
+		if (req.status == 200) {
+			element.parentElement.parentElement.parentElement.classList.add('removed');
+			notifyCallback(req);
+		}
+		else {
+			notifyCallback(req);
+		}
+	};
+
+	neo.xhttpreq("/apis/mlj_1/delete_scrobble",data={'timestamp':id},method="POST",callback=callback_func,json=true);
 }
 
 
@@ -77,11 +86,20 @@ function doneEditing() {
 			var payload = {'id':entity_id,'title':newname}
 		}
 
+		callback_func = function(req){
+			if (req.status == 200) {
+				window.location = "?" + searchParams.toString();
+			}
+			else {
+				notifyCallback(req);
+			}
+		};
+
 		neo.xhttpreq(
 			endpoint,
 			data=payload,
 			method="POST",
-			callback=(()=>window.location = "?" + searchParams.toString()),
+			callback=callback_func,
 			json=true
 		);
 	}
@@ -97,6 +115,7 @@ function markForMerge() {
 	current_stored.push(entity_id);
 	current_stored = [...new Set(current_stored)];
 	lcst.setItem(key,current_stored); //this already formats it correctly
+	notify("Success","Marked " + entity_name + " for merge, currently " + current_stored.length + " marked!")
 }
 
 function merge() {
@@ -105,6 +124,15 @@ function merge() {
 	var current_stored = lcst.getItem(key).split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
 
+	callback_func = function(req){
+		if (req.status == 200) {
+			window.location.reload();
+		}
+		else {
+			notifyCallback(req);
+		}
+	};
+
 	neo.xhttpreq(
 		"/apis/mlj_1/merge_" + entity_type + "s",
 		data={
@@ -112,7 +140,7 @@ function merge() {
 			'target_id':entity_id
 		},
 		method="POST",
-		callback=(()=>window.location.reload()),
+		callback=callback_func,
 		json=true
 	);
 
