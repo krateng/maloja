@@ -268,11 +268,17 @@ def parse_lastfm(inputf):
 	with open(inputf,'r',newline='') as inputfd:
 		reader = csv.reader(inputfd)
 
+		line = 0
 		for row in reader:
+			line += 1
 			try:
 				artist,album,title,time = row
 			except ValueError:
-				yield ('FAIL',None,f"{row} does not look like a valid entry. Scrobble not imported.")
+				yield ('FAIL',None,f"{row} (Line {line}) does not look like a valid entry. Scrobble not imported.")
+				continue
+
+			if time == '':
+				yield ('FAIL',None,f"{row} (Line {line}) is missing a timestamp.")
 				continue
 
 			try:
@@ -287,7 +293,7 @@ def parse_lastfm(inputf):
 					'scrobble_duration':None
 				},'')
 			except Exception as e:
-				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
+				yield ('FAIL',None,f"{row} (Line {line}) could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
 
 
