@@ -28,3 +28,7 @@ minor_release_name: "Yeonhee"
     - "[Feature] Added better feedback to native API endpoints"
     - "[Bugfix] Fixed native API receiving superfluous keywords"
     - "[Bugfix] Fixed crash when importing scrobbles with artists with similar names"
+3.0.5:
+    notes:
+    - "[Feature] Added notification system for web interface"
+    - "[Bugfix] Fixed crash when encountering error in Lastfm import"
