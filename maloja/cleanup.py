@@ -139,8 +139,10 @@ class CleanerAgent:
 		if t.strip().lower() in self.rules_replacetitle:
 			return self.rules_replacetitle[t.strip().lower()]
 
-		#t = t.replace("[","(").replace("]",")")
+		t = t.replace("[","(").replace("]",")")
 
+		# we'll leave these matching all bracket types so future changes
+		# won't require readaption
 		t = re.sub(r" [\(\[]as made famous by .*?[\)\]]","",t)
 		t = re.sub(r" [\(\[]originally by .*?[\)\]]","",t)
 		t = re.sub(r" [\(\[].*?Remaster.*?[\)\]]","",t)
