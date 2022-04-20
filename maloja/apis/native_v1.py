@@ -589,3 +589,9 @@ def get_export(**keys):
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
 	database.remove_scrobble(timestamp)
+
+@api.post("reparse_scrobble")
+@authenticated_function(api=True)
+def reparse_scrobble(timestamp):
+	"""Internal Use Only"""
+	database.reparse_scrobble(timestamp)

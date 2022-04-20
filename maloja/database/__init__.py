@@ -102,7 +102,35 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
-	# raw scrobble to processed info
+	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client);
+
+	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
+	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
+
+	dbcache.invalidate_caches(scrobbledict['time'])
+
+	#return {"status":"success","scrobble":scrobbledict}
+	return scrobbledict
+
+@waitfordb
+def reparse_scrobble(timestamp):
+    log(f"Reparsing Scrobble {timestamp}")
+    scrobble = sqldb.get_scrobble(timestamp)
+
+    if not scrobble:
+        return
+    
+    scrobbledict = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
+
+    track_id = sqldb.get_track_id(scrobbledict['track'])
+    
+    # check if id changed
+    if sqldb.get_track_id(scrobble['track']) != track_id:
+        sqldb.update_scrobble_track_id(timestamp, track_id)
+
+
+def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
+    # raw scrobble to processed info
 	scrobbleinfo = {**rawscrobble}
 	if fix:
 		scrobbleinfo['track_artists'],scrobbleinfo['track_title'] = cla.fullclean(scrobbleinfo['track_artists'],scrobbleinfo['track_title'])
@@ -129,15 +157,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 		"rawscrobble":rawscrobble
 	}
 
-
-	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
-	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
-
-	dbcache.invalidate_caches(scrobbledict['time'])
-
-	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
-
 
 
 @waitfordb

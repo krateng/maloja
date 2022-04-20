@@ -277,6 +277,17 @@ def delete_scrobble(scrobble_id,dbconn=None):
 
 		dbconn.execute(op)
 
+@connection_provider
+def update_scrobble_track_id(scrobble_id, track_id, dbconn=None):
+
+	with SCROBBLE_LOCK:
+
+		op = DB['scrobbles'].update().where(
+			DB['scrobbles'].c.timestamp == scrobble_id
+		).values(track_id=track_id)
+
+		dbconn.execute(op)
+
 ### these will 'get' the ID of an entity, creating it if necessary
 
 @cached_wrapper
@@ -691,7 +702,16 @@ def get_artist(id,dbconn=None):
 	return artist_db_to_dict(artistinfo)
 
 
+@cached_wrapper
+@connection_provider
+def get_scrobble(timestamp,dbconn=None):
+	op = DB['scrobbles'].select().where(
+		DB['scrobbles'].c.timestamp==timestamp
+	)
+	result = dbconn.execute(op).all()
 
+	scrobble = result[0]
+	return scrobbles_db_to_dict([scrobble], True)[0]
 
 
 ##### MAINTENANCE

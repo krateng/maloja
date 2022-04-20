@@ -10,3 +10,12 @@ function deleteScrobble(id,element) {
 	neo.xhttpreq("/apis/mlj_1/delete_scrobble",data={'timestamp':id},method="POST",callback=(()=>null),json=true);
 
 }
+
+function toggleReparseConfirm(element) {
+	element.parentElement.parentElement.classList.toggle('active');
+}
+
+function reparseScrobble(id) {
+	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=(()=>null),json=true);
+
+}
