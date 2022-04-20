@@ -612,6 +612,10 @@ table.list td.searchProvider:hover {
 
 table.list td.delete_area {
 	text-align: right;
+	width:0em;
+}
+
+table.list td.delete_area.active {
 	width:7em;
 }
 
