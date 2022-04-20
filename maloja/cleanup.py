@@ -109,9 +109,9 @@ class CleanerAgent:
 
 
 		for d in self.delimiters_feat:
-			if re.match(r"(.*) \(" + d + " (.*)\)",a) is not None:
-				return self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\1",a)) + \
-						self.parseArtists(re.sub(r"(.*) \(" + d + " (.*)\)",r"\2",a))
+			if re.match(r"(.*) [\(\[]" + d + " (.*)[\)\]]",a) is not None:
+				return self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\1",a)) + \
+						self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\2",a))
 
 
 
@@ -141,9 +141,11 @@ class CleanerAgent:
 
 		t = t.replace("[","(").replace("]",")")
 
-		t = re.sub(r" \(as made famous by .*?\)","",t)
-		t = re.sub(r" \(originally by .*?\)","",t)
-		t = re.sub(r" \(.*?Remaster.*?\)","",t)
+		# we'll leave these matching all bracket types so future changes
+		# won't require readaption
+		t = re.sub(r" [\(\[]as made famous by .*?[\)\]]","",t)
+		t = re.sub(r" [\(\[]originally by .*?[\)\]]","",t)
+		t = re.sub(r" [\(\[].*?Remaster.*?[\)\]]","",t)
 
 		for s in malojaconfig["REMOVE_FROM_TITLE"]:
 			if s in t:
@@ -156,9 +158,9 @@ class CleanerAgent:
 
 	def parseTitleForArtists(self,t):
 		for d in self.delimiters_feat:
-			if re.match(r"(.*) \(" + d + " (.*?)\)",t) is not None:
-				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) \(" + d + " (.*?)\)",r"\1",t))
-				artists += self.parseArtists(re.sub(r"(.*) \(" + d + " (.*?)\).*",r"\2",t))
+			if re.match(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",t) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",r"\1",t))
+				artists += self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]].*",r"\2",t))
 				return (title,artists)
 			if re.match(r"(.*) - " + d + " (.*)",t) is not None:
 				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) - " + d + " (.*)",r"\1",t))

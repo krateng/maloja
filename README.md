@@ -97,7 +97,7 @@ You must publish a port on your host machine to bind to the container's web port
 An example of a minimum run configuration to access maloja via `localhost:42010`:
 
 ```console
-	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata maloja
+	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
 ```
 
 ### Extras
