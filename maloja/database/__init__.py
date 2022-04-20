@@ -117,7 +117,7 @@ def reparse_scrobble(timestamp):
     log(f"Reparsing Scrobble {timestamp}")
     scrobble = sqldb.get_scrobble(timestamp)
 
-    if not scrobble:
+    if not scrobble or not scrobble['rawscrobble']:
         return
     
     scrobbledict = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
