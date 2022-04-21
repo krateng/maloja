@@ -39,10 +39,9 @@ COPY . .
 
 RUN pip install /usr/src/app
 
-# Docker-specific configuration and default to IPv4
+# Docker-specific configuration
+# defaulting to IPv4 is no longer necessary (default host is dual stack)
 ENV MALOJA_SKIP_SETUP=yes
-ENV MALOJA_HOST=0.0.0.0
-
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 42010
