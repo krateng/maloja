@@ -47,5 +47,5 @@ function notifyCallback(request) {
 	}
 
 
-	notify(body.status,body.desc || "",notification_type);
+	notify("Error: " + body.error.type,body.error.desc || "",notification_type);
 }
