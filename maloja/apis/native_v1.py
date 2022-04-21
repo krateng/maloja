@@ -44,7 +44,7 @@ errors = {
 		"error":{
 			'type':'missing_scrobble_data',
 			'value':e.params,
-			'desc':"A scrobble requires these parameters."
+			'desc':"The scrobble is missing needed parameters."
 		}
 	}),
 	database.exceptions.EntityExists: lambda e: (409,{

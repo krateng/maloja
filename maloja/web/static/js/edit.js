@@ -108,6 +108,38 @@ function doneEditing() {
 
 // MERGING
 
+function showValidMergeIcons() {
+	const lcst = window.sessionStorage;
+	var key = "marked_for_merge_" + entity_type;
+	var current_stored = (lcst.getItem(key) || '').split(",");
+	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+
+	var mergeicon = document.getElementById('mergeicon');
+	var mergemarkicon = document.getElementById('mergemarkicon');
+	var mergecancelicon = document.getElementById('mergecancelicon');
+
+	mergeicon.classList.add('hide');
+	mergemarkicon.classList.add('hide');
+	mergecancelicon.classList.add('hide');
+
+	if (current_stored.length == 0) {
+		mergemarkicon.classList.remove('hide');
+	}
+	else {
+		mergecancelicon.classList.remove('hide');
+
+		if (current_stored.includes(entity_id)) {
+
+		}
+		else {
+			mergemarkicon.classList.remove('hide');
+			mergeicon.classList.remove('hide');
+		}
+	}
+
+}
+
+
 function markForMerge() {
 	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
@@ -117,6 +149,7 @@ function markForMerge() {
 	current_stored = [...new Set(current_stored)];
 	lcst.setItem(key,current_stored); //this already formats it correctly
 	notify("Success","Marked " + entity_name + " for merge, currently " + current_stored.length + " marked!")
+	showValidMergeIcons();
 }
 
 function merge() {
@@ -146,4 +179,11 @@ function merge() {
 	);
 
 	lcst.removeItem(key);
+}
+
+function cancelMerge() {
+	const lcst = window.sessionStorage;
+	var key = "marked_for_merge_" + entity_type;
+	lcst.setItem(key,[]);
+	showValidMergeIcons();
 }
