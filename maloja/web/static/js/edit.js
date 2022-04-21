@@ -92,6 +92,7 @@ function doneEditing() {
 			}
 			else {
 				notifyCallback(req);
+				namefield.textContent = entity_name;
 			}
 		};
 

@@ -363,7 +363,15 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 
 @connection_provider
 def edit_artist(id,artistupdatedict,dbconn=None):
+
+	artist = get_artist(id)
+	changedartist = artistupdatedict # well
+
 	dbentry = artist_dict_to_db(artistupdatedict)
+
+	existing_artist = get_artist_id(changedartist,create_new=False,dbconn=dbconn)
+	if existing_artist:
+		raise exc.ArtistExists(changedartist)
 
 	op = DB['artists'].update().where(
 		DB['artists'].c.id==id
