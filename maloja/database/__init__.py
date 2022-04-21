@@ -112,10 +112,11 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
 
+
 @waitfordb
 def reparse_scrobble(timestamp):
     log(f"Reparsing Scrobble {timestamp}")
-    scrobble = sqldb.get_scrobble(timestamp)
+    scrobble = sqldb.get_scrobble(timestamp=timestamp, include_internal=True)
 
     if not scrobble or not scrobble['rawscrobble']:
         return
@@ -184,6 +185,7 @@ def get_scrobbles(dbconn=None,**keys):
 		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
 	return list(reversed(result))
+
 
 @waitfordb
 def get_scrobbles_num(dbconn=None,**keys):

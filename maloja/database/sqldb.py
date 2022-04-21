@@ -704,14 +704,14 @@ def get_artist(id,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_scrobble(timestamp,dbconn=None):
+def get_scrobble(timestamp, include_internal=False, dbconn=None):
 	op = DB['scrobbles'].select().where(
 		DB['scrobbles'].c.timestamp==timestamp
 	)
 	result = dbconn.execute(op).all()
 
 	scrobble = result[0]
-	return scrobbles_db_to_dict([scrobble], True)[0]
+	return scrobbles_db_to_dict(rows=[scrobble], include_internal=include_internal)[0]
 
 
 ##### MAINTENANCE
