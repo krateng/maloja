@@ -117,7 +117,8 @@ def import_scrobbles(inputf):
 	return result
 
 def parse_spotify_lite(inputf):
-	inputfolder = os.path.dirname(inputf)
+	pth = os.path
+	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
 	filenames = re.compile(r'StreamingHistory[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
@@ -161,8 +162,8 @@ def parse_spotify_lite(inputf):
 
 
 def parse_spotify_full(inputf):
-
-	inputfolder = os.path.dirname(inputf)
+	pth = os.path
+	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
 	filenames = re.compile(r'endsong_[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
