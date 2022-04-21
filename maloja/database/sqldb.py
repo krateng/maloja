@@ -369,8 +369,8 @@ def edit_artist(id,artistupdatedict,dbconn=None):
 
 	dbentry = artist_dict_to_db(artistupdatedict)
 
-	existing_artist = get_artist_id(changedartist,create_new=False,dbconn=dbconn)
-	if existing_artist:
+	existing_artist_id = get_artist_id(changedartist,create_new=False,dbconn=dbconn)
+	if existing_artist_id not in (None,id):
 		raise exc.ArtistExists(changedartist)
 
 	op = DB['artists'].update().where(
@@ -390,8 +390,8 @@ def edit_track(id,trackupdatedict,dbconn=None):
 
 	dbentry = track_dict_to_db(trackupdatedict)
 
-	existing_track = get_track_id(changedtrack,create_new=False,dbconn=dbconn)
-	if existing_track:
+	existing_track_id = get_track_id(changedtrack,create_new=False,dbconn=dbconn)
+	if existing_track_id not in (None,id):
 		raise exc.TrackExists(changedtrack)
 
 	op = DB['tracks'].update().where(
