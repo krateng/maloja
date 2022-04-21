@@ -7,6 +7,7 @@ from threading import Lock
 
 from ..pkg_global.conf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual
+from . import exceptions as exc
 
 from doreah.logging import log
 from doreah.regular import runhourly, runmonthly
@@ -283,7 +284,7 @@ def delete_scrobble(scrobble_id,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_track_id(trackdict,dbconn=None):
+def get_track_id(trackdict,create_new=True,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
@@ -312,6 +313,8 @@ def get_track_id(trackdict,dbconn=None):
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
 			return row.id
+
+	if not create_new: return None
 
 
 	op = DB['tracks'].insert().values(
@@ -372,8 +375,16 @@ def edit_artist(id,artistupdatedict,dbconn=None):
 	return True
 
 @connection_provider
-def edit_track(id,trackdict,dbconn=None):
-	dbentry = track_dict_to_db(trackdict)
+def edit_track(id,trackupdatedict,dbconn=None):
+
+	track = get_track(id)
+	track.update(trackupdatedict)
+
+	dbentry = track_dict_to_db(trackupdatedict)
+
+	existing_track = get_track_id(track,create_new=False,dbconn=dbconn)
+	if existing_track:
+		raise exc.TrackExists(track)
 
 	op = DB['tracks'].update().where(
 		DB['tracks'].c.id==id

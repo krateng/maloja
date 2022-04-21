@@ -621,6 +621,7 @@ def edit_artist(id,name):
 
 @api.post("edit_track")
 @authenticated_function(api=True)
+@catch_exceptions
 def edit_track(id,title):
 	"""Internal Use Only"""
 	result = database.edit_track(id,{'title':title})
