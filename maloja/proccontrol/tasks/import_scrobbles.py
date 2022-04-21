@@ -122,6 +122,10 @@ def parse_spotify_lite(inputf):
 	filenames = re.compile(r'StreamingHistory[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
+	if len(inputfiles) == 0:
+		print("No files found!")
+		return
+
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
 		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
@@ -167,6 +171,10 @@ def parse_spotify_full(inputf):
 	filenames = re.compile(r'endsong_[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
+	if len(inputfiles) == 0:
+		print("No files found!")
+		return
+		
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
 		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
