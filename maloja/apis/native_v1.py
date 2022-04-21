@@ -57,6 +57,20 @@ errors = {
 	})
 }
 
+def catch_exceptions(func):
+	def protector(*args,**kwargs):
+		try:
+			return func(*args,**kwargs)
+		except Exception as e:
+			for etype in errors:
+				if isinstance(e,etype):
+					errorhandling = errors[etype](e)
+					response.status = errorhandling[0]
+					return errorhandling[1]
+
+	protector.__doc__ = func.__doc__
+	protector.__annotations__ = func.__annotations__
+	return protector
 
 
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
@@ -365,6 +379,7 @@ def track_info_external(artist:Multi[str],**keys):
 
 @api.post("newscrobble")
 @authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
+@catch_exceptions
 def post_scrobble(
 		artist:Multi=None,
 		artists:list=[],
@@ -406,40 +421,33 @@ def post_scrobble(
 	# for logging purposes, don't pass values that we didn't actually supply
 	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
 
-	try:
-		result = database.incoming_scrobble(
-			rawscrobble,
-			client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
-			api='native/v1',
-			fix=(nofix is None)
-		)
 
-		responsedict = {
-			'status': 'success',
-			'track': {
-				'artists':result['track']['artists'],
-				'title':result['track']['title']
-			}
+	result = database.incoming_scrobble(
+		rawscrobble,
+		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
+		api='native/v1',
+		fix=(nofix is None)
+	)
+
+	responsedict = {
+		'status': 'success',
+		'track': {
+			'artists':result['track']['artists'],
+			'title':result['track']['title']
 		}
-		if extra_kwargs:
-			responsedict['warnings'] = [
-				{'type':'invalid_keyword_ignored','value':k,
-				'desc':"This key was not recognized by the server and has been discarded."}
-				for k in extra_kwargs
-			]
-		if artist and artists:
-			responsedict['warnings'] = [
-				{'type':'mixed_schema','value':['artist','artists'],
-				'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
-			]
-		return responsedict
-	except Exception as e:
-		for etype in errors:
-			if isinstance(e,etype):
-				errorhandling = errors[etype](e)
-				response.status = errorhandling[0]
-				return errorhandling[1]
-
+	}
+	if extra_kwargs:
+		responsedict['warnings'] = [
+			{'type':'invalid_keyword_ignored','value':k,
+			'desc':"This key was not recognized by the server and has been discarded."}
+			for k in extra_kwargs
+		]
+	if artist and artists:
+		responsedict['warnings'] = [
+			{'type':'mixed_schema','value':['artist','artists'],
+			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
+		]
+	return responsedict
 
 
 
