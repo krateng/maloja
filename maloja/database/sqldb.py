@@ -359,8 +359,8 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 ### Edit existing
 
 @connection_provider
-def edit_artist(id,artistdict,dbconn=None):
-	dbentry = artist_dict_to_db(artistdict)
+def edit_artist(id,artistupdatedict,dbconn=None):
+	dbentry = artist_dict_to_db(artistupdatedict)
 
 	op = DB['artists'].update().where(
 		DB['artists'].c.id==id
@@ -424,7 +424,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,db
 	if since is None: since=0
 	if to is None: to=now()
 
-	artist_id = get_artist_id(artist)
+	artist_id = get_artist_id(artist,dbconn=dbconn)
 
 	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
 
@@ -447,7 +447,7 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbco
 	if since is None: since=0
 	if to is None: to=now()
 
-	track_id = get_track_id(track)
+	track_id = get_track_id(track,dbconn=dbconn)
 
 	op = DB['scrobbles'].select().where(
 		DB['scrobbles'].c.timestamp<=to,
@@ -513,7 +513,7 @@ def get_artists_of_track(track_id,resolve_references=True,dbconn=None):
 @connection_provider
 def get_tracks_of_artist(artist,dbconn=None):
 
-	artist_id = get_artist_id(artist)
+	artist_id = get_artist_id(artist,dbconn=dbconn)
 
 	op = sql.join(DB['tracks'],DB['trackartists']).select().where(
 		DB['trackartists'].c.artist_id==artist_id
@@ -608,7 +608,7 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 @connection_provider
 def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
-	artist_id = get_artist_id(artist)
+	artist_id = get_artist_id(artist,dbconn=dbconn)
 
 	jointable = sql.join(
 		DB['scrobbles'],
@@ -628,7 +628,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 
 	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result])
+	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
 	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
@@ -710,7 +710,7 @@ def get_associated_artists(*artists,dbconn=None):
 @cached_wrapper
 @connection_provider
 def get_credited_artists(*artists,dbconn=None):
-	artist_ids = [get_artist_id(a) for a in artists]
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
 
 	jointable = sql.join(
 		DB['associated_artists'],
