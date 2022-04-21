@@ -378,13 +378,13 @@ def edit_artist(id,artistupdatedict,dbconn=None):
 def edit_track(id,trackupdatedict,dbconn=None):
 
 	track = get_track(id)
-	track.update(trackupdatedict)
+	changedtrack = {**track,**trackupdatedict}
 
 	dbentry = track_dict_to_db(trackupdatedict)
 
-	existing_track = get_track_id(track,create_new=False,dbconn=dbconn)
+	existing_track = get_track_id(changedtrack,create_new=False,dbconn=dbconn)
 	if existing_track:
-		raise exc.TrackExists(track)
+		raise exc.TrackExists(changedtrack)
 
 	op = DB['tracks'].update().where(
 		DB['tracks'].c.id==id
