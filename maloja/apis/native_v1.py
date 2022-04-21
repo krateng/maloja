@@ -116,6 +116,7 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 
 
 @api.get("test")
+@catch_exceptions
 def test_server(key=None):
 	"""Pings the server. If an API key is supplied, the server will respond with 200
 	if the key is correct and 403 if it isn't. If no key is supplied, the server will
@@ -141,6 +142,7 @@ def test_server(key=None):
 
 
 @api.get("serverinfo")
+@catch_exceptions
 def server_info():
 	"""Returns basic information about the server.
 
@@ -163,6 +165,7 @@ def server_info():
 
 
 @api.get("scrobbles")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_external(**keys):
 	"""Returns a list of scrobbles.
@@ -185,6 +188,7 @@ def get_scrobbles_external(**keys):
 
 
 @api.get("numscrobbles")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_num_external(**keys):
 	"""Returns amount of scrobbles.
@@ -204,6 +208,7 @@ def get_scrobbles_num_external(**keys):
 
 
 @api.get("tracks")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
 def get_tracks_external(**keys):
 	"""Returns all tracks (optionally of an artist).
@@ -223,6 +228,7 @@ def get_tracks_external(**keys):
 
 
 @api.get("artists")
+@catch_exceptions
 @add_common_args_to_docstring()
 def get_artists_external():
 	"""Returns all artists.
@@ -240,6 +246,7 @@ def get_artists_external():
 
 
 @api.get("charts/artists")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True)
 def get_charts_artists_external(**keys):
 	"""Returns artist charts
@@ -258,6 +265,7 @@ def get_charts_artists_external(**keys):
 
 
 @api.get("charts/tracks")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
 def get_charts_tracks_external(**keys):
 	"""Returns track charts
@@ -277,6 +285,7 @@ def get_charts_tracks_external(**keys):
 
 
 @api.get("pulse")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_pulse_external(**keys):
 	"""Returns amounts of scrobbles in specified time frames
@@ -296,6 +305,7 @@ def get_pulse_external(**keys):
 
 
 @api.get("performance")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_performance_external(**keys):
 	"""Returns artist's or track's rank in specified time frames
@@ -315,6 +325,7 @@ def get_performance_external(**keys):
 
 
 @api.get("top/artists")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_artists_external(**keys):
 	"""Returns respective number 1 artists in specified time frames
@@ -334,6 +345,7 @@ def get_top_artists_external(**keys):
 
 
 @api.get("top/tracks")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_tracks_external(**keys):
 	"""Returns respective number 1 tracks in specified time frames
@@ -355,6 +367,7 @@ def get_top_tracks_external(**keys):
 
 
 @api.get("artistinfo")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
 def artist_info_external(**keys):
 	"""Returns information about an artist
@@ -369,6 +382,7 @@ def artist_info_external(**keys):
 
 
 @api.get("trackinfo")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
 def track_info_external(artist:Multi[str],**keys):
 	"""Returns information about a track
@@ -462,6 +476,7 @@ def post_scrobble(
 
 @api.post("importrules")
 @authenticated_function(api=True)
+@catch_exceptions
 def import_rulemodule(**keys):
 	"""Internal Use Only"""
 	filename = keys.get("filename")
@@ -480,6 +495,7 @@ def import_rulemodule(**keys):
 
 @api.post("rebuild")
 @authenticated_function(api=True)
+@catch_exceptions
 def rebuild(**keys):
 	"""Internal Use Only"""
 	log("Database rebuild initiated!")
@@ -496,6 +512,7 @@ def rebuild(**keys):
 
 
 @api.get("search")
+@catch_exceptions
 def search(**keys):
 	"""Internal Use Only"""
 	query = keys.get("query")
@@ -535,6 +552,7 @@ def search(**keys):
 
 @api.post("addpicture")
 @authenticated_function(api=True)
+@catch_exceptions
 def add_picture(b64,artist:Multi=[],title=None):
 	"""Internal Use Only"""
 	keys = FormsDict()
@@ -548,6 +566,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 
 @api.post("newrule")
 @authenticated_function(api=True)
+@catch_exceptions
 def newrule(**keys):
 	"""Internal Use Only"""
 	pass
@@ -558,18 +577,21 @@ def newrule(**keys):
 
 @api.post("settings")
 @authenticated_function(api=True)
+@catch_exceptions
 def set_settings(**keys):
 	"""Internal Use Only"""
 	malojaconfig.update(keys)
 
 @api.post("apikeys")
 @authenticated_function(api=True)
+@catch_exceptions
 def set_apikeys(**keys):
 	"""Internal Use Only"""
 	apikeystore.update(keys)
 
 @api.post("import")
 @authenticated_function(api=True)
+@catch_exceptions
 def import_scrobbles(identifier):
 	"""Internal Use Only"""
 	from ..thirdparty import import_scrobbles
@@ -577,6 +599,7 @@ def import_scrobbles(identifier):
 
 @api.get("backup")
 @authenticated_function(api=True)
+@catch_exceptions
 def get_backup(**keys):
 	"""Internal Use Only"""
 	from ..proccontrol.tasks.backup import backup
@@ -589,6 +612,7 @@ def get_backup(**keys):
 
 @api.get("export")
 @authenticated_function(api=True)
+@catch_exceptions
 def get_export(**keys):
 	"""Internal Use Only"""
 	from ..proccontrol.tasks.export import export
@@ -602,6 +626,7 @@ def get_export(**keys):
 
 @api.post("delete_scrobble")
 @authenticated_function(api=True)
+@catch_exceptions
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
 	result = database.remove_scrobble(timestamp)
@@ -612,6 +637,7 @@ def delete_scrobble(timestamp):
 
 @api.post("edit_artist")
 @authenticated_function(api=True)
+@catch_exceptions
 def edit_artist(id,name):
 	"""Internal Use Only"""
 	result = database.edit_artist(id,name)
@@ -632,6 +658,7 @@ def edit_track(id,title):
 
 @api.post("merge_tracks")
 @authenticated_function(api=True)
+@catch_exceptions
 def merge_tracks(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_tracks(target_id,source_ids)
@@ -641,6 +668,7 @@ def merge_tracks(target_id,source_ids):
 
 @api.post("merge_artists")
 @authenticated_function(api=True)
+@catch_exceptions
 def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_artists(target_id,source_ids)
