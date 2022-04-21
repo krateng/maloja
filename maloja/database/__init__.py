@@ -7,7 +7,7 @@ from .. import images
 from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
-from ..globalconf import data_dir, malojaconfig
+from ..pkg_global.conf import data_dir, malojaconfig
 from ..apis import apikeystore
 #db
 from . import sqldb
@@ -167,9 +167,47 @@ def remove_scrobble(timestamp):
 	result = sqldb.delete_scrobble(timestamp)
 	dbcache.invalidate_caches(timestamp)
 
+	return result
 
+@waitfordb
+def edit_artist(id,artistinfo):
+	artist = sqldb.get_artist(id)
+	log(f"Renaming {artist} to {artistinfo}")
+	result = sqldb.edit_artist(id,artistinfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
+	return result
 
+@waitfordb
+def edit_track(id,trackinfo):
+	track = sqldb.get_track(id)
+	log(f"Renaming {track['title']} to {trackinfo['title']}")
+	result = sqldb.edit_track(id,trackinfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def merge_artists(target_id,source_ids):
+	sources = [sqldb.get_artist(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_artists(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+
+	return result
+
+@waitfordb
+def merge_tracks(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_track(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_tracks(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+
+	return result
 
 
 
@@ -304,7 +342,8 @@ def artist_info(dbconn=None,**keys):
 
 	artist = keys.get('artist')
 
-	artist = sqldb.get_artist(sqldb.get_artist_id(artist,dbconn=dbconn),dbconn=dbconn)
+	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
+	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -318,11 +357,12 @@ def artist_info(dbconn=None,**keys):
 			"position":position,
 			"associated":others,
 			"medals":{
-				"gold": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['gold']],
-				"silver": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['silver']],
-				"bronze": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['bronze']],
+				"gold": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['gold']],
+				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
+				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist])
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id]),
+			"id":artist_id
 		}
 	except:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -340,7 +380,8 @@ def track_info(dbconn=None,**keys):
 
 	track = keys.get('track')
 
-	track = sqldb.get_track(sqldb.get_track_id(track,dbconn=dbconn),dbconn=dbconn)
+	track_id = sqldb.get_track_id(track,dbconn=dbconn)
+	track = sqldb.get_track(track_id,dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
@@ -359,12 +400,13 @@ def track_info(dbconn=None,**keys):
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['gold']],
-			"silver": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['silver']],
-			"bronze": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['bronze']],
+			"gold": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['gold']],
+			"silver": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['silver']],
+			"bronze": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['bronze']],
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_toptracks if e == track])
+		"topweeks":len([e for e in cached.weekly_toptracks if e == track_id]),
+		"id":track_id
 	}
 
 

@@ -5,6 +5,7 @@
 
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
+	<script src="/edit.js"></script>
 	<script>
 		function scrobble(encodedtrack) {
 			neo.xhttprequest('/apis/mlj_1/newscrobble?nofix&' + encodedtrack,data={},method="POST").then(response=>{window.location.reload()});
@@ -21,7 +22,23 @@
 {% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
 
 
+{% block icon_bar %}
+	{% if adminmode %}
+		{% include 'icons/edit.jinja' %}
+		{% include 'icons/merge.jinja' %}
+		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_cancel.jinja' %}
+		<script>showValidMergeIcons();</script>
+	{% endif %}
+{% endblock %}
+
 {% block content %}
+
+<script>
+	const entity_id = {{ info.id }};
+	const entity_type = 'track';
+	const entity_name = {{ track.title | tojson }};
+</script>
 
 
 {% import 'partials/awards_track.jinja' as awards %}
@@ -42,7 +59,7 @@
 		</td>
 		<td class="text">
 			<span>{{ links.links(track.artists) }}</span><br/>
-			<h1 class="headerwithextra">{{ info.track.title }}</h1>
+			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title }}</h1>
 				{{ awards.certs(track) }}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>

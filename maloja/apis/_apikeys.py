@@ -4,7 +4,7 @@
 from doreah.keystore import KeyStore
 from doreah.logging import log
 
-from ..globalconf import data_dir
+from ..pkg_global.conf import data_dir
 
 apikeystore = KeyStore(file=data_dir['clients']("apikeys.yml"),save_endpoint="/apis/mlj_1/apikeys")
 

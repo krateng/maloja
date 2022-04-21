@@ -2,11 +2,10 @@ import os
 
 import cProfile, pstats
 
-
 from doreah.logging import log
 from doreah.timing import Clock
 
-from ..globalconf import data_dir
+from ..pkg_global.conf import data_dir
 
 
 profiler = cProfile.Profile()

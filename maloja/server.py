@@ -2,7 +2,6 @@
 import sys
 import os
 from threading import Thread
-import setproctitle
 from importlib import resources
 from css_html_js_minify import html_minify, css_minify
 import datauri
@@ -22,12 +21,12 @@ from . import database
 from .database.jinjaview import JinjaDBConnection
 from .images import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, data_dir
+from .pkg_global.conf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
 
 
-from .proccontrol.profiler import profile
+from .dev.profiler import profile
 
 
 ######
@@ -43,8 +42,6 @@ BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 
 webserver = Bottle()
 
-#rename process, this is now required for the daemon manager to work
-setproctitle.setproctitle("Maloja")
 
 
 ######

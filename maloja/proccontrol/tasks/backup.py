@@ -2,7 +2,7 @@ import tarfile
 import time
 import glob
 import os
-from ...globalconf import dir_settings
+from ...pkg_global.conf import dir_settings
 from pathlib import PurePath
 
 from doreah.logging import log

@@ -3,7 +3,7 @@ from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
 
-from .__pkginfo__ import VERSION
+from ..__pkginfo__ import VERSION
 
 
 

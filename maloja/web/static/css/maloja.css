@@ -55,8 +55,18 @@ div.header h1 {
  settings icon
 **/
 
-div.clickable_icon {
+div#icon_bar {
+	position:fixed;
+	right:30px;
+	top:30px;
+}
+
+div#icon_bar div.clickable_icon {
 	display: inline-block;
+	height:26px;
+	width:26px;
+}
+div.clickable_icon {
 	fill: var(--text-color);
 	cursor: pointer;
 }
@@ -67,11 +77,6 @@ div.clickable_icon.danger:hover {
 	fill: red;
 }
 
-div#settingsicon {
-	position:fixed;
-	right:30px;
-	top:30px;
-}
 
 
 /**
