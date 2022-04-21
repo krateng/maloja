@@ -38,14 +38,17 @@ function notifyCallback(request) {
 	var body = request.response;
 	var status = request.status;
 
-
 	if (status == 200) {
 		var notification_type = 'info';
+		var title = "Success!";
+		var msg = "Scrobbled " + body.track.title + " by " + body.track.artists.join(", ");
 	}
 	else {
 		var notification_type = 'warning';
+		var title = "Error: " + body.error.type;
+		var msg = body.error.desc || "";
 	}
 
 
-	notify("Error: " + body.error.type,body.error.desc || "",notification_type);
+	notify(title,msg,notification_type);
 }
