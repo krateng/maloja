@@ -43,6 +43,8 @@ RUN pip install /usr/src/app
 ENV MALOJA_SKIP_SETUP=yes
 ENV MALOJA_HOST=0.0.0.0
 
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 42010
 # use exec form for better signal handling https://docs.docker.com/engine/reference/builder/#entrypoint
 ENTRYPOINT ["maloja", "run"]
