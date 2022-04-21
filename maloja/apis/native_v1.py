@@ -47,6 +47,14 @@ errors = {
 			'desc':"A scrobble requires these parameters."
 		}
 	}),
+	database.exceptions.EntityExists: lambda e: (409,{
+		"status":"failure",
+		"error":{
+			'type':'entity_exists',
+			'value':e.entitydict,
+			'desc':"This entity already exists in the database."
+		}
+	}),
 	Exception: lambda e: (500,{
 		"status":"failure",
 		"error":{
