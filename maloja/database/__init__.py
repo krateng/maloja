@@ -102,7 +102,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
-	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client);
+	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client)
 
 	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
 	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])

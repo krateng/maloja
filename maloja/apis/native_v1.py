@@ -459,7 +459,7 @@ def post_scrobble(
 			'artists':result['track']['artists'],
 			'title':result['track']['title']
 		},
-		'desc':f"Scrobbled {result['track']['title']} by {','.join(result['track']['artists'])}"
+		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}"
 	}
 	if extra_kwargs:
 		responsedict['warnings'] = [
