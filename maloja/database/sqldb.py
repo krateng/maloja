@@ -208,21 +208,22 @@ def artist_db_to_dict(row,dbconn=None):
 
 
 ### DICT -> DB
+# These should return None when no data is in the dict so they can be used for update statements
 
 def scrobble_dict_to_db(info,dbconn=None):
 	return {
-		"timestamp":info['time'],
-		"origin":info['origin'],
-		"duration":info['duration'],
-		"track_id":get_track_id(info['track'],dbconn=dbconn),
-		"extra":json.dumps(info.get('extra',{})),
-		"rawscrobble":json.dumps(info.get('rawscrobble',{}))
+		"timestamp":info.get('time'),
+		"origin":info.get('origin'),
+		"duration":info.get('duration'),
+		"track_id":get_track_id(info.get('track'),dbconn=dbconn),
+		"extra":json.dumps(info.get('extra')),
+		"rawscrobble":json.dumps(info.get('rawscrobble'))
 	}
 
 def track_dict_to_db(info,dbconn=None):
 	return {
-		"title":info['title'],
-		"title_normalized":normalize_name(info['title']),
+		"title":info.get('title'),
+		"title_normalized":normalize_name(info.get('title'),'') or None,
 		"length":info.get('length')
 	}
 
@@ -280,16 +281,6 @@ def delete_scrobble(scrobble_id,dbconn=None):
 
 	return True
 
-@connection_provider
-def update_scrobble_track_id(scrobble_id, track_id, dbconn=None):
-
-	with SCROBBLE_LOCK:
-
-		op = DB['scrobbles'].update().where(
-			DB['scrobbles'].c.timestamp == scrobble_id
-		).values(track_id=track_id)
-
-		dbconn.execute(op)
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
@@ -372,13 +363,34 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 
 ### Edit existing
 
+
+@connection_provider
+def edit_scrobble(scrobble_id,scrobbleupdatedict,dbconn=None):
+
+	dbentry = scrobble_dict_to_db(scrobbleupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	print("Updating scrobble",dbentry)
+
+	with SCROBBLE_LOCK:
+
+		op = DB['scrobbles'].update().where(
+			DB['scrobbles'].c.timestamp == scrobble_id
+		).values(
+			**dbentry
+		)
+
+		dbconn.execute(op)
+
+
 @connection_provider
 def edit_artist(id,artistupdatedict,dbconn=None):
 
 	artist = get_artist(id)
 	changedartist = artistupdatedict # well
 
-	dbentry = artist_dict_to_db(artistupdatedict)
+	dbentry = artist_dict_to_db(artistupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
 
 	existing_artist_id = get_artist_id(changedartist,create_new=False,dbconn=dbconn)
 	if existing_artist_id not in (None,id):
@@ -396,10 +408,11 @@ def edit_artist(id,artistupdatedict,dbconn=None):
 @connection_provider
 def edit_track(id,trackupdatedict,dbconn=None):
 
-	track = get_track(id)
+	track = get_track(id,dbconn=dbconn)
 	changedtrack = {**track,**trackupdatedict}
 
-	dbentry = track_dict_to_db(trackupdatedict)
+	dbentry = track_dict_to_db(trackupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
 
 	existing_track_id = get_track_id(changedtrack,create_new=False,dbconn=dbconn)
 	if existing_track_id not in (None,id):
