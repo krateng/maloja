@@ -693,6 +693,6 @@ def reparse_scrobble(timestamp):
 		}
 	else:
 		return {
-			"status":"no-operation",
+			"status":"no_operation",
 			"desc":"The scrobble was not changed."
 		}

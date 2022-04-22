@@ -40,7 +40,21 @@ function toggleReparseConfirm(element) {
 function reparseScrobble(id, element) {
 	toggleReparseConfirm(element);
 
-	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=notifyCallback,json=true);
+	callback_func = function(req){
+		if (req.status == 200) {
+			if (req.response.status != 'no_operation') {
+				window.location.reload();
+			}
+			else {
+				notifyCallback(req);
+			}
+		}
+		else {
+			notifyCallback(req);
+		}
+	};
+
+	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=callback_func,json=true);
 
 }
 
