@@ -163,7 +163,7 @@ function markForMerge() {
 	current_stored.push(entity_id);
 	current_stored = [...new Set(current_stored)];
 	lcst.setItem(key,current_stored); //this already formats it correctly
-	notify("Success","Marked " + entity_name + " for merge, currently " + current_stored.length + " marked!")
+	notify("Marked " + entity_name + " for merge","Currently " + current_stored.length + " marked!")
 	showValidMergeIcons();
 }
 
@@ -201,4 +201,5 @@ function cancelMerge() {
 	var key = "marked_for_merge_" + entity_type;
 	lcst.setItem(key,[]);
 	showValidMergeIcons();
+	notify("Cancelled merge!","")
 }

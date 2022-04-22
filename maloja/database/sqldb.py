@@ -446,6 +446,7 @@ def merge_tracks(target_id,source_ids,dbconn=None):
 @connection_provider
 def merge_artists(target_id,source_ids,dbconn=None):
 
+	# todo: songs that have both artists!
 
 	op = DB['trackartists'].update().where(
 		DB['trackartists'].c.artist_id.in_(source_ids)

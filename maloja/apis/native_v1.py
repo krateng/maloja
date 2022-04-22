@@ -53,7 +53,7 @@ errors = {
 		"error":{
 			'type':'entity_exists',
 			'value':e.entitydict,
-			'desc':"This entity already exists in the database."
+			'desc':"This entity already exists in the database. Consider merging instead."
 		}
 	}),
 	Exception: lambda e: (500,{
