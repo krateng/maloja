@@ -458,7 +458,8 @@ def post_scrobble(
 		'track': {
 			'artists':result['track']['artists'],
 			'title':result['track']['title']
-		}
+		},
+		'desc':f"Scrobbled {result['track']['title']} by {','.join(result['track']['artists'])}"
 	}
 	if extra_kwargs:
 		responsedict['warnings'] = [
@@ -684,6 +685,12 @@ def merge_artists(target_id,source_ids):
 def reparse_scrobble(timestamp):
 	"""Internal Use Only"""
 	result = database.reparse_scrobble(timestamp)
-	return {
-		"status":"success"
-	}
+	if result:
+		return {
+			"status":"success"
+		}
+	else:
+		return {
+			"status":"no-operation",
+			"desc":"No action was taken."
+		}

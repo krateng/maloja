@@ -119,7 +119,7 @@ def reparse_scrobble(timestamp):
 	scrobble = sqldb.get_scrobble(timestamp=timestamp, include_internal=True)
 
 	if not scrobble or not scrobble['rawscrobble']:
-		return
+		return False
 
 	newscrobble = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
 
@@ -128,6 +128,9 @@ def reparse_scrobble(timestamp):
 	# check if id changed
 	if sqldb.get_track_id(scrobble['track']) != track_id:
 		sqldb.edit_scrobble(timestamp, {'track':newscrobble['track']})
+		return True
+
+	return False
 
 
 def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):

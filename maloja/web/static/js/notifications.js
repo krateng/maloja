@@ -41,7 +41,7 @@ function notifyCallback(request) {
 	if (status == 200) {
 		var notification_type = 'info';
 		var title = "Success!";
-		var msg = "Scrobbled " + body.track.title + " by " + body.track.artists.join(", ");
+		var msg = body.desc || body;
 	}
 	else {
 		var notification_type = 'warning';
