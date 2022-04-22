@@ -634,7 +634,8 @@ def delete_scrobble(timestamp):
 	"""Internal Use Only"""
 	result = database.remove_scrobble(timestamp)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"Scrobble was deleted!"
 	}
 
 
@@ -687,10 +688,11 @@ def reparse_scrobble(timestamp):
 	result = database.reparse_scrobble(timestamp)
 	if result:
 		return {
-			"status":"success"
+			"status":"success",
+			"desc":f"Scrobble was reparsed!"
 		}
 	else:
 		return {
 			"status":"no-operation",
-			"desc":"No action was taken."
+			"desc":"The scrobble was not changed."
 		}

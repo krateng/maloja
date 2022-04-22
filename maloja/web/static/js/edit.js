@@ -19,7 +19,7 @@ function toggleDeleteConfirm(element) {
 function deleteScrobble(id,element) {
 	var callback_func = function(req){
 		if (req.status == 200) {
-			element.parentElement.parentElement.parentElement.classList.add('removed');
+			element.parentElement.parentElement.parentElement.parentElement.classList.add('removed');
 			notifyCallback(req);
 		}
 		else {

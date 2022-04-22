@@ -655,10 +655,10 @@ table.list tr td.scrobble_action_area.active span.scrobble_action_type.active sp
 	display: none;
 }
 
-table.list tr.removed td.scrobble_action_area span.scrobble_action_type span.confirmactions {
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type {
 	display: none;
 }
-table.list tr.removed td.scrobble_action_area span.scrobble_action_type span.initializeactions {
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type {
 	display: none;
 }
 table.list tr.removed {
