@@ -373,7 +373,13 @@ def artist_info(dbconn=None,**keys):
 		replaceartist = sqldb.get_credited_artists(artist)[0]
 		c = [e for e in alltimecharts if e["artist"] == replaceartist][0]
 		position = c["rank"]
-		return {"artist":artist,"replace":replaceartist,"scrobbles":scrobbles,"position":position}
+		return {
+			"artist":artist,
+			"replace":replaceartist,
+			"scrobbles":scrobbles,
+			"position":position,
+			"id":artist_id
+		}
 
 
 
