@@ -422,12 +422,16 @@ def merge_tracks(target_id,source_ids,dbconn=None):
 @connection_provider
 def merge_artists(target_id,source_ids,dbconn=None):
 
+
 	op = DB['trackartists'].update().where(
 		DB['trackartists'].c.artist_id.in_(source_ids)
 	).values(
 		artist_id=target_id
 	)
 	result = dbconn.execute(op)
+
+	# this could have created duplicate tracks
+	merge_duplicate_tracks(artist_id=target_id)
 	clean_db()
 
 	return True
@@ -829,6 +833,48 @@ def renormalize_names():
 
 				with engine.begin() as conn:
 					rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
+
+
+
+def merge_duplicate_tracks(artist_id):
+	with engine.begin() as conn:
+		rows = conn.execute(
+			DB['trackartists'].select().where(
+				DB['trackartists'].c.artist_id == artist_id
+			)
+		)
+		affected_tracks = [r.track_id for r in rows]
+
+		track_artists = {}
+		rows = conn.execute(
+			DB['trackartists'].select().where(
+				DB['trackartists'].c.track_id.in_(affected_tracks)
+			)
+		)
+
+
+		for row in rows:
+			track_artists.setdefault(row.track_id,[]).append(row.artist_id)
+
+		artist_combos = {}
+		for track_id in track_artists:
+			artist_combos.setdefault(tuple(sorted(track_artists[track_id])),[]).append(track_id)
+
+		for c in artist_combos:
+			if len(artist_combos[c]) > 1:
+				track_identifiers = {}
+				for track_id in artist_combos[c]:
+					track_identifiers.setdefault(normalize_name(get_track(track_id)['title']),[]).append(track_id)
+				for track in track_identifiers:
+					if len(track_identifiers[track]) > 1:
+						target,*src = track_identifiers[track]
+						log("Merging",src,"into",target)
+						merge_tracks(target,src)
+
+
+
+
+
 
 
 
