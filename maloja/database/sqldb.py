@@ -158,8 +158,8 @@ def connection_provider(func):
 
 
 ### DB -> DICT
-def scrobbles_db_to_dict(rows,include_internal=False):
-	tracks = get_tracks_map(set(row.track_id for row in rows))
+def scrobbles_db_to_dict(rows,include_internal=False,dbconn=None):
+	tracks = get_tracks_map(set(row.track_id for row in rows),dbconn=dbconn)
 	return [
 		{
 			**{
@@ -177,11 +177,11 @@ def scrobbles_db_to_dict(rows,include_internal=False):
 		for row in rows
 	]
 
-def scrobble_db_to_dict(row):
-	return scrobbles_db_to_dict([row])[0]
+def scrobble_db_to_dict(row,dbconn=None):
+	return scrobbles_db_to_dict([row],dbconn=dbconn)[0]
 
-def tracks_db_to_dict(rows):
-	artists = get_artists_of_tracks(set(row.id for row in rows))
+def tracks_db_to_dict(rows,dbconn=None):
+	artists = get_artists_of_tracks(set(row.id for row in rows),dbconn=dbconn)
 	return [
 		{
 			"artists":artists[row.id],
@@ -192,41 +192,41 @@ def tracks_db_to_dict(rows):
 		for row in rows
 	]
 
-def track_db_to_dict(row):
-	return tracks_db_to_dict([row])[0]
+def track_db_to_dict(row,dbconn=None):
+	return tracks_db_to_dict([row],dbconn=dbconn)[0]
 
-def artists_db_to_dict(rows):
+def artists_db_to_dict(rows,dbconn=None):
 	return [
 		row.name
 		for row in rows
 	]
 
-def artist_db_to_dict(row):
-	return artists_db_to_dict([row])[0]
+def artist_db_to_dict(row,dbconn=None):
+	return artists_db_to_dict([row],dbconn=dbconn)[0]
 
 
 
 
 ### DICT -> DB
 
-def scrobble_dict_to_db(info):
+def scrobble_dict_to_db(info,dbconn=None):
 	return {
 		"timestamp":info['time'],
 		"origin":info['origin'],
 		"duration":info['duration'],
-		"track_id":get_track_id(info['track']),
+		"track_id":get_track_id(info['track'],dbconn=dbconn),
 		"extra":json.dumps(info.get('extra',{})),
 		"rawscrobble":json.dumps(info.get('rawscrobble',{}))
 	}
 
-def track_dict_to_db(info):
+def track_dict_to_db(info,dbconn=None):
 	return {
 		"title":info['title'],
 		"title_normalized":normalize_name(info['title']),
 		"length":info.get('length')
 	}
 
-def artist_dict_to_db(info):
+def artist_dict_to_db(info,dbconn=None):
 	return {
 		"name": info,
 		"name_normalized":normalize_name(info)
@@ -250,7 +250,7 @@ def add_scrobbles(scrobbleslist,dbconn=None):
 
 		ops = [
 			DB['scrobbles'].insert().values(
-				**scrobble_dict_to_db(s)
+				**scrobble_dict_to_db(s,dbconn=dbconn)
 			) for s in scrobbleslist
 		]
 
@@ -286,7 +286,7 @@ def delete_scrobble(scrobble_id,dbconn=None):
 @connection_provider
 def get_track_id(trackdict,create_new=True,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
-	artist_ids = [get_artist_id(a) for a in trackdict['artists']]
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
 
 
@@ -318,7 +318,7 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 
 
 	op = DB['tracks'].insert().values(
-		**track_dict_to_db(trackdict)
+		**track_dict_to_db(trackdict,dbconn=dbconn)
 	)
 	result = dbconn.execute(op)
 	track_id = result.inserted_primary_key[0]
@@ -459,7 +459,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,db
 	result = dbconn.execute(op).all()
 
 	if resolve_references:
-		result = scrobbles_db_to_dict(result)
+		result = scrobbles_db_to_dict(result,dbconn=dbconn)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
 	return result
 
@@ -498,7 +498,7 @@ def get_scrobbles(since=None,to=None,resolve_references=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_references:
-		result = scrobbles_db_to_dict(result)
+		result = scrobbles_db_to_dict(result,dbconn=dbconn)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
 	return result
 
@@ -528,7 +528,7 @@ def get_artists_of_track(track_id,resolve_references=True,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 
-	artists = [get_artist(row.artist_id) if resolve_references else row.artist_id for row in result]
+	artists = [get_artist(row.artist_id,dbconn=dbconn) if resolve_references else row.artist_id for row in result]
 	return artists
 
 
@@ -543,7 +543,7 @@ def get_tracks_of_artist(artist,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 
-	return tracks_db_to_dict(result)
+	return tracks_db_to_dict(result,dbconn=dbconn)
 
 @cached_wrapper
 @connection_provider
@@ -552,7 +552,7 @@ def get_artists(dbconn=None):
 	op = DB['artists'].select()
 	result = dbconn.execute(op).all()
 
-	return artists_db_to_dict(result)
+	return artists_db_to_dict(result,dbconn=dbconn)
 
 @cached_wrapper
 @connection_provider
@@ -561,7 +561,7 @@ def get_tracks(dbconn=None):
 	op = DB['tracks'].select()
 	result = dbconn.execute(op).all()
 
-	return tracks_db_to_dict(result)
+	return tracks_db_to_dict(result,dbconn=dbconn)
 
 ### functions that count rows for parameters
 
@@ -597,7 +597,7 @@ def count_scrobbles_by_artist(since,to,resolve_ids=True,dbconn=None):
 
 	if resolve_ids:
 		counts = [row.count for row in result]
-		artists = get_artists_map([row.artist_id for row in result])
+		artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
 	else:
 		result = [{'scrobbles':row.count,'artist_id':row.artist_id} for row in result]
@@ -620,7 +620,7 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 
 	if resolve_ids:
 		counts = [row.count for row in result]
-		tracks = get_tracks_map([row.track_id for row in result])
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	else:
 		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
@@ -671,7 +671,7 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 
 	artists = {}
 	for row in result:
-		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row))
+		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
 	return artists
 
 
@@ -686,7 +686,7 @@ def get_tracks_map(track_ids,dbconn=None):
 	tracks = {}
 	result = list(result)
 	# this will get a list of artistdicts in the correct order of our rows
-	trackdicts = tracks_db_to_dict(result)
+	trackdicts = tracks_db_to_dict(result,dbconn=dbconn)
 	for row,trackdict in zip(result,trackdicts):
 		tracks[row.id] = trackdict
 	return tracks
@@ -703,7 +703,7 @@ def get_artists_map(artist_ids,dbconn=None):
 	artists = {}
 	result = list(result)
 	# this will get a list of artistdicts in the correct order of our rows
-	artistdicts = artists_db_to_dict(result)
+	artistdicts = artists_db_to_dict(result,dbconn=dbconn)
 	for row,artistdict in zip(result,artistdicts):
 		artists[row.id] = artistdict
 	return artists
@@ -714,7 +714,7 @@ def get_artists_map(artist_ids,dbconn=None):
 @cached_wrapper
 @connection_provider
 def get_associated_artists(*artists,dbconn=None):
-	artist_ids = [get_artist_id(a) for a in artists]
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
 
 	jointable = sql.join(
 		DB['associated_artists'],
@@ -727,7 +727,7 @@ def get_associated_artists(*artists,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 
-	artists = artists_db_to_dict(result)
+	artists = artists_db_to_dict(result,dbconn=dbconn)
 	return artists
 
 @cached_wrapper
@@ -747,7 +747,7 @@ def get_credited_artists(*artists,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 
-	artists = artists_db_to_dict(result)
+	artists = artists_db_to_dict(result,dbconn=dbconn)
 	return artists
 
 
@@ -762,7 +762,7 @@ def get_track(id,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	trackinfo = result[0]
-	return track_db_to_dict(trackinfo)
+	return track_db_to_dict(trackinfo,dbconn=dbconn)
 
 @cached_wrapper
 @connection_provider
@@ -773,7 +773,7 @@ def get_artist(id,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	artistinfo = result[0]
-	return artist_db_to_dict(artistinfo)
+	return artist_db_to_dict(artistinfo,dbconn=dbconn)
 
 
 
@@ -823,15 +823,14 @@ def renormalize_names():
 		with engine.begin() as conn:
 			rows = conn.execute(DB['artists'].select()).all()
 
-		for row in rows:
-			id = row.id
-			name = row.name
-			norm_actual = row.name_normalized
-			norm_target = normalize_name(name)
-			if norm_actual != norm_target:
-				log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
+			for row in rows:
+				id = row.id
+				name = row.name
+				norm_actual = row.name_normalized
+				norm_target = normalize_name(name)
+				if norm_actual != norm_target:
+					log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
 
-				with engine.begin() as conn:
 					rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
 
 
