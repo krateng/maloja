@@ -216,14 +216,14 @@ def scrobble_dict_to_db(info,dbconn=None):
 		"origin":info.get('origin'),
 		"duration":info.get('duration'),
 		"track_id":get_track_id(info.get('track'),dbconn=dbconn),
-		"extra":json.dumps(info.get('extra')),
-		"rawscrobble":json.dumps(info.get('rawscrobble'))
+		"extra":json.dumps(info.get('extra')) if info.get('extra') else None,
+		"rawscrobble":json.dumps(info.get('rawscrobble')) if info.get('rawscrobble') else None
 	}
 
 def track_dict_to_db(info,dbconn=None):
 	return {
 		"title":info.get('title'),
-		"title_normalized":normalize_name(info.get('title'),'') or None,
+		"title_normalized":normalize_name(info.get('title','')) or None,
 		"length":info.get('length')
 	}
 
