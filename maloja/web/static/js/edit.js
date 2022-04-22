@@ -13,6 +13,7 @@ function selectAll(e) {
 // DELETION
 function toggleDeleteConfirm(element) {
 	element.parentElement.parentElement.classList.toggle('active');
+	element.parentElement.parentElement.parentElement.classList.toggle('active');
 }
 
 function deleteScrobble(id,element) {
@@ -27,6 +28,20 @@ function deleteScrobble(id,element) {
 	};
 
 	neo.xhttpreq("/apis/mlj_1/delete_scrobble",data={'timestamp':id},method="POST",callback=callback_func,json=true);
+}
+
+// REPARSING
+
+function toggleReparseConfirm(element) {
+	element.parentElement.parentElement.classList.toggle('active');
+	element.parentElement.parentElement.parentElement.classList.toggle('active');
+}
+
+function reparseScrobble(id, element) {
+	toggleReparseConfirm(element);
+
+	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=notifyCallback,json=true);
+
 }
 
 
@@ -186,15 +201,4 @@ function cancelMerge() {
 	var key = "marked_for_merge_" + entity_type;
 	lcst.setItem(key,[]);
 	showValidMergeIcons();
-}
-
-function toggleReparseConfirm(element) {
-	element.parentElement.parentElement.classList.toggle('active');
-}
-
-function reparseScrobble(id, element) {
-	toggleReparseConfirm(element);
-	
-	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=(()=>null),json=true);
-
 }

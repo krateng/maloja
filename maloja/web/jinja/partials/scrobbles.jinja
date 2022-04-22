@@ -17,34 +17,32 @@
 			{{ entityrow.row(s.track) }}
 			{% if adminmode %}
 
-			<td class='delete_area'>
-				<span class="confirmactions">
-					<button class="smallbutton warning" onclick="reparseScrobble({{ s.time }},this)">Confirm</button>
-					<button class="smallbutton" onclick="toggleReparseConfirm(this)">Cancel</button>
+			<td class='scrobble_action_area'>
+				<span class='scrobble_action_type'>
+					<span class="confirmactions">
+						<button class="smallbutton warning" onclick="reparseScrobble({{ s.time }},this)">Reparse</button>
+						<button class="smallbutton" onclick="toggleReparseConfirm(this)">Cancel</button>
+					</span>
+
+					<span class="initializeactions">
+						<div class='refreshicon clickable_icon danger' onclick="toggleReparseConfirm(this)">
+							{% include 'icons/reparse.jinja' %}
+						</div>
+					</span>
 				</span>
 
-				<span class="initializeactions">
-					<div class='refreshicon clickable_icon danger' onclick="toggleReparseConfirm(this)">
-						<svg style="width:14px;height:14px" viewBox="0 0 24 24">
-							<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-						</svg>
-					</div>
-				</span>
+				<span class='scrobble_action_type'>
 
-			</td>
+					<span class="confirmactions">
+						<button class="smallbutton warning" onclick="deleteScrobble({{ s.time }},this)">Delete</button>
+						<button class="smallbutton" onclick="toggleDeleteConfirm(this)">Cancel</button>
+					</span>
 
-			<td class='delete_area'>
-				<span class="confirmactions">
-					<button class="smallbutton warning" onclick="deleteScrobble({{ s.time }},this)">Confirm</button>
-					<button class="smallbutton" onclick="toggleDeleteConfirm(this)">Cancel</button>
-				</span>
-
-				<span class="initializeactions">
-					<div class='deleteicon clickable_icon danger' onclick="toggleDeleteConfirm(this)">
-						<svg style="width:14px;height:14px" viewBox="0 0 24 24">
-							<path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" />
-						</svg>
-					</div>
+					<span class="initializeactions">
+						<div class='deleteicon clickable_icon danger' onclick="toggleDeleteConfirm(this)">
+							{% include 'icons/delete.jinja' %}
+						</div>
+					</span>
 				</span>
 
 			</td>

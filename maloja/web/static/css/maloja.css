@@ -615,35 +615,50 @@ table.list td.searchProvider:hover {
 	color: gold;
 }
 
-table.list td.delete_area {
+table.list td.scrobble_action_area {
 	text-align: right;
-	width:0em;
+	width:2em;
+	overflow:visible;
 }
 
-table.list td.delete_area.active {
-	width:7em;
+table.list tr td.scrobble_action_area span.scrobble_action_type {
+	display:inline-block;
+	float:right;
+}
+
+table.list td.scrobble_action_area span.scrobble_action_type.active {
 }
 
 /* rows that can be deleted in some form
 	'active' class on the delete area cell to toggle confirm prompt
 	'removed' class on the whole row to delete
 */
-table.list tr td.delete_area span.confirmactions {
+table.list tr td.scrobble_action_area span.scrobble_action_type span.confirmactions {
 	display: none;
 }
-table.list tr td.delete_area span.initializeactions {
+table.list tr td.scrobble_action_area span.scrobble_action_type span.initializeactions {
 	display: initial;
 }
-table.list tr td.delete_area.active span.confirmactions {
+
+/* when other action is active, hide all */
+table.list tr td.scrobble_action_area.active span.scrobble_action_type span.initializeactions {
+	display: none;
+}
+table.list tr td.scrobble_action_area.active span.scrobble_action_type span.initializeactions {
+	display: none;
+}
+/* except this one itself is active */
+table.list tr td.scrobble_action_area.active span.scrobble_action_type.active span.confirmactions {
 	display: initial;
 }
-table.list tr td.delete_area.active span.initializeactions {
+table.list tr td.scrobble_action_area.active span.scrobble_action_type.active span.initializeactions {
 	display: none;
 }
-table.list tr.removed td.delete_area span.confirmactions {
+
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type span.confirmactions {
 	display: none;
 }
-table.list tr.removed td.delete_area span.initializeactions {
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type span.initializeactions {
 	display: none;
 }
 table.list tr.removed {
