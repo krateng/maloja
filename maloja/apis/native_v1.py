@@ -1,5 +1,6 @@
 import os
 import math
+import traceback
 
 from bottle import response, static_file, request, FormsDict
 
@@ -70,6 +71,7 @@ def catch_exceptions(func):
 		try:
 			return func(*args,**kwargs)
 		except Exception as e:
+			print(traceback.format_exc())
 			for etype in errors:
 				if isinstance(e,etype):
 					errorhandling = errors[etype](e)
