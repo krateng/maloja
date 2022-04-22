@@ -680,6 +680,10 @@ def merge_artists(target_id,source_ids):
 
 @api.post("reparse_scrobble")
 @authenticated_function(api=True)
+@catch_exceptions
 def reparse_scrobble(timestamp):
 	"""Internal Use Only"""
-	database.reparse_scrobble(timestamp)
+	result = database.reparse_scrobble(timestamp)
+	return {
+		"status":"success"
+	}

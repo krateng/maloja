@@ -115,23 +115,23 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 @waitfordb
 def reparse_scrobble(timestamp):
-    log(f"Reparsing Scrobble {timestamp}")
-    scrobble = sqldb.get_scrobble(timestamp=timestamp, include_internal=True)
+	log(f"Reparsing Scrobble {timestamp}")
+	scrobble = sqldb.get_scrobble(timestamp=timestamp, include_internal=True)
 
-    if not scrobble or not scrobble['rawscrobble']:
-        return
-    
-    scrobbledict = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
+	if not scrobble or not scrobble['rawscrobble']:
+		return
 
-    track_id = sqldb.get_track_id(scrobbledict['track'])
-    
-    # check if id changed
-    if sqldb.get_track_id(scrobble['track']) != track_id:
-        sqldb.update_scrobble_track_id(timestamp, track_id)
+	scrobbledict = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
+
+	track_id = sqldb.get_track_id(scrobbledict['track'])
+
+	# check if id changed
+	if sqldb.get_track_id(scrobble['track']) != track_id:
+		sqldb.update_scrobble_track_id(timestamp, track_id)
 
 
 def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
-    # raw scrobble to processed info
+	# raw scrobble to processed info
 	scrobbleinfo = {**rawscrobble}
 	if fix:
 		scrobbleinfo['track_artists'],scrobbleinfo['track_title'] = cla.fullclean(scrobbleinfo['track_artists'],scrobbleinfo['track_title'])
