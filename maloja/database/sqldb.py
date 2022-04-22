@@ -446,14 +446,46 @@ def merge_tracks(target_id,source_ids,dbconn=None):
 @connection_provider
 def merge_artists(target_id,source_ids,dbconn=None):
 
-	# todo: songs that have both artists!
+	# some tracks could already have multiple of the to be merged artists
 
-	op = DB['trackartists'].update().where(
-		DB['trackartists'].c.artist_id.in_(source_ids)
-	).values(
-		artist_id=target_id
+	# find literally all tracksartist entries that have any of the artists involved
+	op = DB['trackartists'].select().where(
+		DB['trackartists'].c.artist_id.in_(source_ids + [target_id])
 	)
 	result = dbconn.execute(op)
+
+	track_ids = set(row.track_id for row in result)
+
+	# now just delete them all lmao
+	op = DB['trackartists'].delete().where(
+		#DB['trackartists'].c.track_id.in_(track_ids),
+		DB['trackartists'].c.artist_id.in_(source_ids + [target_id]),
+	)
+
+	result = dbconn.execute(op)
+
+	# now add back the real new artist
+	op = DB['trackartists'].insert().values([
+		{'track_id':track_id,'artist_id':target_id}
+		for track_id in track_ids
+	])
+
+	result = dbconn.execute(op)
+
+#	tracks_artists = {}
+#	for row in result:
+#		tracks_artists.setdefault(row.track_id,[]).append(row.artist_id)
+#
+#	multiple = {k:v for k,v in tracks_artists.items() if len(v) > 1}
+#
+#	print([(get_track(k),[get_artist(a) for a in v]) for k,v in multiple.items()])
+#
+#	op = DB['trackartists'].update().where(
+#		DB['trackartists'].c.artist_id.in_(source_ids)
+#	).values(
+#		artist_id=target_id
+#	)
+#	result = dbconn.execute(op)
 
 	# this could have created duplicate tracks
 	merge_duplicate_tracks(artist_id=target_id)
@@ -901,7 +933,6 @@ def merge_duplicate_tracks(artist_id):
 				for track in track_identifiers:
 					if len(track_identifiers[track]) > 1:
 						target,*src = track_identifiers[track]
-						log("Merging",src,"into",target)
 						merge_tracks(target,src)
 
 
