@@ -36,3 +36,6 @@ minor_release_name: "Yeonhee"
 3.0.6:
     notes:
     - "[Bugfix] Better parsing of featuring artists"
+    - "[Bugfix] Fixed buffered output in Docker"
+    - "[Bugfix] Fixed importing a Spotify file without path"
+    - "[Bugfix] No longer releasing database lock during scrobble creation"
