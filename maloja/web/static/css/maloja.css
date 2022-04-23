@@ -517,7 +517,7 @@ table.list {
 table.list tr {
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
-	height: 1.4em;
+	height: 1.5em;
 
 }
 
