@@ -496,7 +496,7 @@ def start_db():
 def db_search(query,type=None):
 	results = []
 	if type=="ARTIST":
-		results = [a for a in sqldb.get_artists() if sqldb.normalize_name(query) in sqldb.normalize_name(a)]
+		results = sqldb.search_artist(query)
 	if type=="TRACK":
-		results = [t for t in sqldb.get_tracks() if sqldb.normalize_name(query) in sqldb.normalize_name(t['title'])]
+		results = sqldb.search_track(query)
 	return results

@@ -141,6 +141,16 @@ If you would like to import your previous scrobbles, use the command `maloja imp
 * an official [Spotify data export file](https://www.spotify.com/us/account/privacy/)
 * the export of another Maloja instance
 
+⚠️ Never import your data while maloja is running. When you need to do import inside docker container start it in shell mode instead and perform import before starting the container as mentioned above.
+
+```console
+	docker run -it --entrypoint sh -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
+	cd /mljdata
+	maloja import my_last_fm_export.csv
+```
+
+---
+
 To backup your data, run `maloja backup`, optional with `--include_images`.
 
 ### Customization
@@ -156,56 +166,9 @@ To backup your data, run `maloja backup`, optional with `--include_images`.
 
 You can set up any amount of API keys in the file `apikeys.yml` in your configuration folder (or via the web interface). It is recommended to define a different API key for every scrobbler you use.
 
-### Native support
+Some scrobbler clients support Maloja's native API. You can also use any scrobbler that allows you to set a custom Listenbrainz or GNUFM server. See [API.md](API.md) for details.
 
-These solutions allow you to directly setup scrobbling to your Maloja server:
-* [Tauon](https://tauonmusicbox.rocks) Desktop Player
-* [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) Browser Extension
-* [Multi Scrobbler](https://github.com/FoxxMD/multi-scrobbler) Desktop Application
-* [Cmus-maloja-scrobbler](https://git.sr.ht/~xyank/cmus-maloja-scrobbler) Script
-* [OngakuKiroku](https://github.com/Atelier-Shiori/OngakuKiroku) Desktop Application (Mac)
-* [Maloja Scrobbler](https://chrome.google.com/webstore/detail/maloja-scrobbler/cfnbifdmgbnaalphodcbandoopgbfeeh) Chromium Extension (also included in the repository) for Plex Web, Spotify, Bandcamp, Soundcloud or Youtube Music
-
-### Native API
-
-If you want to implement your own method of scrobbling, it's very simple: You only need one POST request to `/apis/mlj_1/newscrobble` with the keys `artist`, `title` and `key` (and optionally `album`,`duration` (in seconds) and `time`(for cached scrobbles)) - either as form-data or json.
-
-If you're the maintainer of a music player or server and would like to implement native Maloja scrobbling, feel free to reach out - I'll try my best to help. For Python applications, you can simply use the [`malojalib` package](https://pypi.org/project/maloja-lib/) for a consistent interface even with future updates.
-
-### Standard-compliant API
-
-You can use any third-party scrobbler that supports the audioscrobbler (GNUFM) or the ListenBrainz protocol. This is still somewhat experimental, but give it a try with these settings:
-
-GNU FM | &nbsp;
------- | ---------
-Gnukebox URL | Your Maloja URL followed by `/apis/audioscrobbler`
-Username | Doesn't matter
-Password | Any of your API keys
-
-ListenBrainz | &nbsp;
------- | ---------
-API URL | Your Maloja URL followed by `/apis/listenbrainz`
-Username | Doesn't matter
-Auth Token | Any of your API keys
-
-Audioscrobbler v1.2 | &nbsp;
------- | ---------
-Server URL | Your Maloja URL followed by `/apis/audioscrobbler_legacy`
-Username | Doesn't matter
-Password | Any of your API keys
-
-Known working scrobblers:
-* [Pano Scrobbler](https://github.com/kawaiiDango/pScrobbler) for Android
-* [Simple Scrobbler](https://simple-last-fm-scrobbler.github.io) for Android
-* [Airsonic Advanced](https://github.com/airsonic-advanced/airsonic-advanced) (requires you to supply the full endpoint (`yoururl.tld/apis/listenbrainz/1/submit-listens`))
-* [Funkwhale](https://dev.funkwhale.audio/funkwhale/funkwhale) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
-* [mpdscribble](https://github.com/MusicPlayerDaemon/mpdscribble) (use the legacy API `yoururl.tld/apis/audioscrobbler_legacy`)
-
-I'm thankful for any feedback whether other scrobblers work!
-
-
-
-### Manual
+If you're the maintainer of a music player or server and would like to implement native Maloja scrobbling, feel free to reach out!
 
 If you can't automatically scrobble your music, you can always do it manually on the `/admin_manual` page of your Maloja server.
 
