@@ -141,6 +141,16 @@ If you would like to import your previous scrobbles, use the command `maloja imp
 * an official [Spotify data export file](https://www.spotify.com/us/account/privacy/)
 * the export of another Maloja instance
 
+⚠️ Never import your data while maloja is running. When you need to do import inside docker container start it in shell mode instead and perform import before starting the container as mentioned above.
+
+```console
+	docker run -it --entrypoint sh -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
+	cd /mljdata
+	maloja import my_last_fm_export.csv
+```
+
+---
+
 To backup your data, run `maloja backup`, optional with `--include_images`.
 
 ### Customization
