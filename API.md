@@ -57,6 +57,7 @@ No application should ever rely on the non-existence of fields in the JSON data 
 
 ## General Structure
 
+  
 Most endpoints follow this structure:
 
 | Key | Type | Description |
@@ -65,9 +66,10 @@ Most endpoints follow this structure:
 | `error` | Mapping | Details about the error if one occured. |
 | `warnings` | List | Any warnings that did not result in failure, but should be noted. Field is omitted if there are no warnings! |
 | `desc` | String | Human-readable feedback. This can be shown directly to the user if desired. |
+| `list` | List | List of returned [entities](#Entity-Structure) |
 
+  
 Both errors and warnings have the following structure:
-
 
 | Key | Type | Description |
 | --- | --- | --- |
