@@ -33,8 +33,8 @@ jobs:
         uses: docker/metadata-action@f2a13332ac1ce8c0a71aeac48a150dbb1838ab67
         with:
           images: |
-            krateng/maloja
-            ghcr.io/krateng/maloja
+            ${{ github.repository_owner }}/maloja
+            ghcr.io/${{ github.repository_owner }}/maloja
           # generate Docker tags based on the following events/attributes
           tags: |
             type=semver,pattern={{version}}
