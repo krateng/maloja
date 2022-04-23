@@ -63,6 +63,7 @@ build =[
 ]
 run = [
 	"python3",
+	"py3-lxml",
 	"tzdata"
 ]
 opt = [

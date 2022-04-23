@@ -1,3 +1,0 @@
-# this is a more static file that enables container images to be cached
-# it should contain packages that take long to build and don't change frequently
-lxml
