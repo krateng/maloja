@@ -1,0 +1,13 @@
+minor_release_name: "Soyeon"
+3.1.0:
+    notes:
+    - "[Architecture] Cleaned up legacy process control"
+    - "[Architecture] Added proper exception framework to native API"
+    - "[Feature] Implemented track title and artist name editing from web interface"
+    - "[Feature] Implemented track and artist merging from web interface"
+    - "[Feature] Implemented scrobble reparsing from web interface"
+    - "[Performance] Implemented search in database"
+    - "[Bugfix] Better parsing of featuring artists"
+    - "[Bugfix] Fixed buffered output in Docker"
+    - "[Bugfix] Fixed importing a Spotify file without path"
+    - "[Bugfix] No longer releasing database lock during scrobble creation"
