@@ -20,7 +20,32 @@ Server URL | Your Maloja URL followed by `/apis/audioscrobbler_legacy`
 Username | Doesn't matter
 Password | Any of your API keys
 
-Note that this is the base URL - some scrobblers ask you for the full endpoint instead.
+| :warning:    | Note that these are the base URLs - some scrobblers ask you for the full endpoint instead. |
+|---------------|:------------------------|
+
+## Scrobbling Guideline
+
+Maloja makes no assumptions about scrobbling behaviour. The clients should decide when and whether a play is scrobbled - the server will accept it as long as it contains all necessary data. However, a general guideline is:
+
+* As soon as a track has been played for 50% of its length or 4 minutes, it should be counted as a scrobble
+* That scrobble should be submitted when the play has ended in order to know its duration
+* If the total play duration is enough to count as a scrobble, but not longer than the total track length + enough for a second scrobble, it should be submitted as a scrobble with the according duration
+* If the duration exceeds this value, the first scrobble should be submitted as a scrobble with the duration of the full track length, while the second scrobble is queued up following the above suggestions in regards to remaining time
+
+
+<table>
+  <tr><td>:memo: Example </td><tr>
+  <tr><td>
+
+The user starts playing '(Fine Layers of) Slaysenflite', which is exactly 3:00 minutes long.
+* If the user ends the play after 1:22, no scrobble is submitted
+* If the user ends the play after 2:06, a scrobble with `"duration":126` is submitted
+* If the user jumps back several times and ends the play after 3:57, a scrobble with `"duration":237` is submitted
+* If the user jumps back several times and ends the play after 4:49, two scrobbles with `"duration":180` and `"duration":109` should be submitted
+    
+  </td></tr>
+<table>
+
 
 # API Documentation
 
@@ -64,8 +89,11 @@ Whenever a list of entities is returned, they have the following fields:
 | `duration` | Integer | How long the track was played for in seconds |
 | `origin` | String | Client that submitted the scrobble, or import source |
 
-**Example**
 
+<table>
+  <tr><td>:memo: Example </td><tr>
+  <tr><td>
+   
 ```json
 {
   "time": 1650684324,
@@ -78,6 +106,11 @@ Whenever a list of entities is returned, they have the following fields:
   "origin": "client:navidrome_desktop"
 }
 ```
+    
+  </tr></td>
+</table>
+  
+
 
 ### Track
 
@@ -87,8 +120,10 @@ Whenever a list of entities is returned, they have the following fields:
 | `title` | String | The title of the track |
 | `length` | Integer | The full length of the track in seconds |
 
-**Example**
-
+<table>
+  <tr><td>:memo: Example </td><tr>
+  <tr><td>
+   
 ```json
 {
   "artists": ["Blackpink","Chou Tzuyu"],
@@ -96,6 +131,11 @@ Whenever a list of entities is returned, they have the following fields:
   "length": 171
 }
 ```
+    
+  </tr></td>
+</table>
+
+
 
 ### Artist
 
@@ -103,6 +143,13 @@ Artists are just represented as raw Strings.
 
 **Example**
 
+<table>
+  <tr><td>:memo: Example </td><tr>
+  <tr><td>
+   
 ```json
 "Red Velvet"
 ```
+    
+  </tr></td>
+</table>
