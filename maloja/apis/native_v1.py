@@ -537,17 +537,19 @@ def search(**keys):
 	artists_result = []
 	for a in artists:
 		result = {
-		    'name': a,
+			'artist': a,
 		    'link': "/artist?" + compose_querystring(internal_to_uri({"artist": a})),
+			'image': images.get_artist_image(a)
 		}
-		result["image"] = images.get_artist_image(a)
 		artists_result.append(result)
 
 	tracks_result = []
 	for t in tracks:
-		result = t
-		result["link"] = "/track?" + compose_querystring(internal_to_uri({"track":t}))
-		result["image"] = images.get_track_image(t)
+		result = {
+			'track': t,
+			'link': "/track?" + compose_querystring(internal_to_uri({"track":t})),
+			'image': images.get_track_image(t)
+		}
 		tracks_result.append(result)
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}

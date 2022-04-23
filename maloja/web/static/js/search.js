@@ -61,7 +61,7 @@ function searchresult() {
 		}
 
 		for (var i=0;i<artists.length;i++) {
-			name = artists[i]["name"];
+			name = artists[i]["artist"];
 			link = artists[i]["link"];
 			image = artists[i]["image"];
 
@@ -74,8 +74,8 @@ function searchresult() {
 		}
 		for (var i=0;i<tracks.length;i++) {
 
-			artists = tracks[i]["artists"].join(", ");
-			title = tracks[i]["title"];
+			artists = tracks[i]["track"]["artists"].join(", ");
+			title = tracks[i]["track"]["title"];
 			link = tracks[i]["link"];
 			image = tracks[i]["image"];
 
