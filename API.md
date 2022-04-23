@@ -1,8 +1,55 @@
+# Scrobbling
+
+In order to scrobble from a wide selection of clients, you can use Maloja's standard-compliant APIs with the following settings:
+
+GNU FM | &nbsp;
+------ | ---------
+Gnukebox URL | Your Maloja URL followed by `/apis/audioscrobbler`
+Username | Doesn't matter
+Password | Any of your API keys
+
+ListenBrainz | &nbsp;
+------ | ---------
+API URL | Your Maloja URL followed by `/apis/listenbrainz`
+Username | Doesn't matter
+Auth Token | Any of your API keys
+
+Audioscrobbler v1.2 | &nbsp;
+------ | ---------
+Server URL | Your Maloja URL followed by `/apis/audioscrobbler_legacy`
+Username | Doesn't matter
+Password | Any of your API keys
+
+Note that this is the base URL - some scrobblers ask you for the full endpoint instead.
+
+# API Documentation
+
 The native Maloja API is reachable at `/apis/mlj_1`. Endpoints are listed on `/api_explorer`.
 
 All endpoints return JSON data. POST request can be made with query string or form data arguments, but this is discouraged - JSON should be used whenever possible.
 
 No application should ever rely on the non-existence of fields in the JSON data - i.e., additional fields can be added at any time without this being considered a breaking change. Existing fields should usually not be removed or changed, but it is always a good idea to add basic handling for missing fields.
+
+## General Structure
+
+Most endpoints follow this structure:
+
+| Key | Type | Description |
+| --- | --- | --- |
+| `status` | String | Status of the request. Can be `success`, `ok`, `error`, `failure`, `no_operation` |
+| `error` | Mapping | Details about the error if one occured. |
+| `warnings` | List | Any warnings that did not result in failure, but should be noted. Field is omitted if there are no warnings! |
+| `desc` | String | Human-readable feedback. This can be shown directly to the user if desired. |
+
+Both errors and warnings have the following structure:
+
+
+| Key | Type | Description |
+| --- | --- | --- |
+| `type` | String | Name of the error or warning type |
+| `value` | varies | Specific data for this error or warning instance |
+| `desc` | String | Human-readable error or warning description. This can be shown directly to the user if desired. |
+
 
 ## Entity Structure
 
@@ -59,26 +106,3 @@ Artists are just represented as raw Strings.
 ```json
 "Red Velvet"
 ```
-
-## General Structure
-
-Most endpoints follow this structure:
-
-| Key | Type | Description |
-| --- | --- | --- |
-| `status` | String | Status of the request. Can be `success`, `ok`, `error`, `failure`, `no_operation` |
-| `error` | Mapping | Details about the error if one occured. |
-| `warnings` | List | Any warnings that did not result in failure, but should be noted. Field is omitted if there are no warnings! |
-| `desc` | String | Human-readable feedback. This can be shown directly to the user if desired. |
-
-Both errors and warnings have the following structure:
-
-
-| Key | Type | Description |
-| --- | --- | --- |
-| `type` | String | Name of the error or warning type |
-| `value` | varies | Specific data for this error or warning instance |
-| `desc` | String | Human-readable error or warning description. This can be shown directly to the user if desired. |
-
-
-
