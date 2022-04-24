@@ -13,7 +13,7 @@ def find_representative(sequence,attribute_id,attribute_count):
 
 		newsequence = [e for e in newsequence if e[attribute_count] == max(el[attribute_count] for el in newsequence)]
 		return newsequence[0]
-	except:
+	except Exception:
 		return None
 	finally:
 		for e in newsequence:

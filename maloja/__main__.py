@@ -30,13 +30,13 @@ def print_header_info():
 def get_instance():
 	try:
 		return int(subprocess.check_output(["pidof","maloja"]))
-	except:
+	except Exception:
 		return None
 
 def get_instance_supervisor():
 	try:
 		return int(subprocess.check_output(["pidof","maloja_supervisor"]))
-	except:
+	except Exception:
 		return None
 
 def restart():
@@ -62,7 +62,7 @@ def start():
 			print("\t" + col["blue"]("http://localhost:" + str(port)))
 			print("\t" + col["blue"]("http://localhost:" + str(port) + "/admin_setup"))
 			return True
-		except:
+		except Exception:
 			print("Error while starting Maloja.")
 			return False
 

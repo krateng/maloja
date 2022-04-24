@@ -62,7 +62,7 @@ class APIHandler:
 
 		try:
 			response.status,result = self.handle(path,keys)
-		except:
+		except Exception:
 			exceptiontype = sys.exc_info()[0]
 			if exceptiontype in self.errors:
 				response.status,result = self.errors[exceptiontype]
@@ -82,7 +82,7 @@ class APIHandler:
 		try:
 			methodname = self.get_method(path,keys)
 			method = self.methods[methodname]
-		except:
+		except Exception:
 			log("Could not find a handler for method " + str(methodname) + " in API " + self.__apiname__,module="debug")
 			log("Keys: " + str(keys),module="debug")
 			raise InvalidMethodException()
@@ -94,5 +94,5 @@ class APIHandler:
 		# fixing etc is handled by the main scrobble function
 		try:
 			return database.incoming_scrobble(rawscrobble,api=self.__apiname__,client=client)
-		except:
+		except Exception:
 			raise ScrobblingException()

@@ -94,7 +94,7 @@ def dl_image(url):
 		uri = datauri.DataURI.make(mime,charset='ascii',base64=True,data=data)
 		log(f"Downloaded {url} for local caching")
 		return uri
-	except:
+	except Exception:
 		log(f"Image {url} could not be downloaded for local caching")
 		return None
 
@@ -260,7 +260,7 @@ def local_files(artist=None,artists=None,title=None):
 			for f in os.listdir(data_dir['images'](purename)):
 				if f.split(".")[-1] in ["png","jpg","jpeg","gif"]:
 					images.append("/images/" + purename + "/" + f)
-		except:
+		except Exception:
 			pass
 
 	return images

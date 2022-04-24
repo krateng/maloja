@@ -28,7 +28,7 @@ def is_dir_usable(pth):
 		os.mknod(pthj(pth,".test"))
 		os.remove(pthj(pth,".test"))
 		return True
-	except:
+	except Exception:
 		return False
 
 def get_env_vars(key,pathsuffix=[]):

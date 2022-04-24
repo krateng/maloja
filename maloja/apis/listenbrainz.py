@@ -34,7 +34,7 @@ class Listenbrainz(APIHandler):
 	def submit(self,pathnodes,keys):
 		try:
 			token = self.get_token_from_request_keys(keys)
-		except:
+		except Exception:
 			raise BadAuthException()
 
 		client = apikeystore.check_and_identify_key(token)
@@ -45,7 +45,7 @@ class Listenbrainz(APIHandler):
 		try:
 			listentype = keys["listen_type"]
 			payload = keys["payload"]
-		except:
+		except Exception:
 			raise MalformedJSONException()
 
 		if listentype == "playing_now":
@@ -57,9 +57,9 @@ class Listenbrainz(APIHandler):
 					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
 					try:
 						timestamp = int(listen["listened_at"])
-					except:
+					except Exception:
 						timestamp = None
-				except:
+				except Exception:
 					raise MalformedJSONException()
 
 				self.scrobble({
@@ -74,7 +74,7 @@ class Listenbrainz(APIHandler):
 	def validate_token(self,pathnodes,keys):
 		try:
 			token = self.get_token_from_request_keys(keys)
-		except:
+		except Exception:
 			raise BadAuthException()
 		if not apikeystore.check_key(token):
 			raise InvalidAuthException()

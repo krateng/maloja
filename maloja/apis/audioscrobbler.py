@@ -76,7 +76,7 @@ class Audioscrobbler(APIHandler):
 			#(artists,title) = cla.fullclean(artiststr,titlestr)
 			try:
 				timestamp = int(keys["timestamp"])
-			except:
+			except Exception:
 				timestamp = None
 			#database.createScrobble(artists,title,timestamp)
 			self.scrobble({'track_artists':[artiststr],'track_title':titlestr,'scrobble_time':timestamp},client=client)

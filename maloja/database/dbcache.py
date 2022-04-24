@@ -147,10 +147,10 @@ else:
 def serialize(obj):
 	try:
 		return serialize(obj.hashable())
-	except:
+	except Exception:
 		try:
 			return json.dumps(obj)
-		except:
+		except Exception:
 			if isinstance(obj, (list, tuple, set)):
 				return "[" + ",".join(serialize(o) for o in obj) + "]"
 			elif isinstance(obj,dict):
