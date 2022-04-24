@@ -35,7 +35,9 @@ minor_release_name: "Yeonhee"
     - "[Bugfix] Fixed crash when encountering error in Lastfm import"
 3.0.6:
     notes:
+    - "[Performance] Implemented search in database"
     - "[Bugfix] Better parsing of featuring artists"
     - "[Bugfix] Fixed buffered output in Docker"
     - "[Bugfix] Fixed importing a Spotify file without path"
     - "[Bugfix] No longer releasing database lock during scrobble creation"
+    - "[Distribution] Experimental arm64 image"
