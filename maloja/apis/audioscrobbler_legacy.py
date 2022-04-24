@@ -80,7 +80,7 @@ class AudioscrobblerLegacy(APIHandler):
 			artiststr,titlestr = keys[artist_key], keys[track_key]
 			try:
 				timestamp = int(keys[time_key])
-			except:
+			except Exception:
 				timestamp = None
 			#database.createScrobble(artists,title,timestamp)
 			self.scrobble({

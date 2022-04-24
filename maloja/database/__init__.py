@@ -256,7 +256,7 @@ def get_top_artists(dbconn=None,**keys):
 		try:
 			res = get_charts_artists(timerange=rng,dbconn=dbconn)[0]
 			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"]})
-		except:
+		except Exception:
 			results.append({"range":rng,"artist":None,"scrobbles":0})
 
 	return results
@@ -272,7 +272,7 @@ def get_top_tracks(dbconn=None,**keys):
 		try:
 			res = get_charts_tracks(timerange=rng,dbconn=dbconn)[0]
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
-		except:
+		except Exception:
 			results.append({"range":rng,"track":None,"scrobbles":0})
 
 	return results
@@ -302,7 +302,7 @@ def artist_info(dbconn=None,**keys):
 			},
 			"topweeks":len([e for e in cached.weekly_topartists if e == artist])
 		}
-	except:
+	except Exception:
 		# if the artist isnt in the charts, they are not being credited and we
 		# need to show information about the credited one
 		replaceartist = sqldb.get_credited_artists(artist)[0]
@@ -370,7 +370,7 @@ def get_predefined_rulesets(dbconn=None):
 					else: name = rawf.split("_")[1]
 					desc = line2.replace("# DESC: ","") if "# DESC: " in line2 else ""
 					author = rawf.split("_")[0]
-			except:
+			except Exception:
 				continue
 
 			ruleset = {"file":rawf}

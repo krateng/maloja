@@ -430,7 +430,7 @@ def time_fix(t):
 	try:
 		t = [int(p) for p in t]
 		return MTRangeGregorian(t[:3])
-	except:
+	except Exception:
 		pass
 
 	if isinstance(t[1],str) and t[1].startswith("w"):
@@ -438,7 +438,7 @@ def time_fix(t):
 			year = int(t[0])
 			weeknum = int(t[1][1:])
 			return MTRangeWeek(year=year,week=weeknum)
-		except:
+		except Exception:
 			raise
 
 

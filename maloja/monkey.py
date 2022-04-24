@@ -11,21 +11,21 @@ try:
 	from simplejson import JSONEncoder
 	JSONEncoder._olddefault = JSONEncoder.default
 	JSONEncoder.default = newdefault
-except:
+except Exception:
 	pass
 
 try:
 	from json import JSONEncoder
 	JSONEncoder._olddefault = JSONEncoder.default
 	JSONEncoder.default = newdefault
-except:
+except Exception:
 	pass
 
 try:
 	from ujson import JSONEncoder
 	JSONEncoder._olddefault = JSONEncoder.default
 	JSONEncoder.default = newdefault
-except:
+except Exception:
 	pass
 
 
@@ -51,7 +51,7 @@ class expandeddate(date):
 	def fromchrcalendar(cls,y,w,d):
 		try:
 			return datetime.date.fromisocalendar(y,w,d) - timedelta(days=1) #sunday instead of monday
-		except:
+		except Exception:
 			# pre python3.8 compatibility
 
 			firstdayofyear = datetime.date(y,1,1)

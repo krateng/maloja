@@ -33,7 +33,7 @@ def profile(func):
 		if FULL_PROFILE:
 			try:
 				pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{func.__name__}.stats"))
-			except:
+			except Exception:
 				pass
 
 		return result

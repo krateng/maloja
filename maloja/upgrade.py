@@ -37,7 +37,7 @@ def upgrade_apikeys():
 				for key,identifier in entries:
 					_apikeys.apikeystore[identifier] = key
 				os.remove(oldfile)
-		except:
+		except Exception:
 			pass
 
 

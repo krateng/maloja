@@ -146,7 +146,7 @@ def remove_identical(*dicts):
 			try: #multidicts
 				for v in d.getall(k):
 					keys.append(k,v)
-			except: #normaldicts
+			except Exception: #normaldicts
 				v = d.get(k)
 				keys.append(k,v)
 

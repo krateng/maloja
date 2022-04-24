@@ -230,7 +230,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 		for node in self.metadata[resp]:
 			try:
 				res = res[node]
-			except:
+			except Exception:
 				return None
 		return res
 

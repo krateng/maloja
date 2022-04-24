@@ -57,7 +57,7 @@ class MusicBrainz(MetadataInterface):
 			if imgurl is not None: imgurl = self.postprocess_url(imgurl)
 			return imgurl
 
-		except:
+		except Exception:
 			return None
 		finally:
 			time.sleep(2)
