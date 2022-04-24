@@ -311,7 +311,7 @@ config(
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
-		"stylesheets":["/style.css"],
+		"stylesheets":["/maloja.css"],
 		"dbfile":data_dir['auth']("auth.ddb")
 	},
 	logging={
