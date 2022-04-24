@@ -10,10 +10,8 @@ from doreah.logging import log
 
 from ..pkg_global.conf import malojaconfig
 
-HIGH_NUMBER = 1000000
-CACHE_SIZE = 10000
-ENTITY_CACHE_SIZE = 1000000
-CACHE_ADJUST_STEP = 100
+CACHE_SIZE = 1000
+ENTITY_CACHE_SIZE = 100000
 
 cache = lru.LRU(CACHE_SIZE)
 entitycache = lru.LRU(ENTITY_CACHE_SIZE)
@@ -38,8 +36,10 @@ def print_stats():
 
 def cached_wrapper(inner_func):
 
-	if not malojaconfig['USE_GLOBAL_CACHE']: return inner_func
+
 	def outer_func(*args,**kwargs):
+		if not malojaconfig['USE_GLOBAL_CACHE']: inner_func(*args,**kwargs)
+
 		if 'dbconn' in kwargs:
 			conn = kwargs.pop('dbconn')
 		else:
@@ -65,8 +65,9 @@ def cached_wrapper(inner_func):
 # cache that's aware of what we're calling
 def cached_wrapper_individual(inner_func):
 
-	if not malojaconfig['USE_GLOBAL_CACHE']: return inner_func
+
 	def outer_func(set_arg,**kwargs):
+		if not malojaconfig['USE_GLOBAL_CACHE']: return inner_func(set_arg,**kwargs)
 
 
 		if 'dbconn' in kwargs:
@@ -95,16 +96,15 @@ def cached_wrapper_individual(inner_func):
 	return outer_func
 
 def invalidate_caches(scrobbletime=None):
-	if malojaconfig['USE_GLOBAL_CACHE']:
-		cleared, kept = 0, 0
-		for k in cache.keys():
-			# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
-			if scrobbletime is None or (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
-				cleared += 1
-				del cache[k]
-			else:
-				kept += 1
-		log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
+	cleared, kept = 0, 0
+	for k in cache.keys():
+		# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
+		if scrobbletime is None or (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
+			cleared += 1
+			del cache[k]
+		else:
+			kept += 1
+	log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
 
 
 def invalidate_entity_cache():
@@ -121,8 +121,8 @@ def trim_cache():
 		#cache.set_size(targetsize)
 		#cache.set_size(HIGH_NUMBER)
 		cache.clear()
-		if cache.get_size() > CACHE_ADJUST_STEP:
-			cache.set_size(cache.get_size() - CACHE_ADJUST_STEP)
+		#if cache.get_size() > CACHE_ADJUST_STEP:
+		#	cache.set_size(cache.get_size() - CACHE_ADJUST_STEP)
 
 		#log(f"New RAM usage: {psutil.virtual_memory().percent}%")
 		print_stats()
