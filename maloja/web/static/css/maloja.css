@@ -73,14 +73,13 @@ div#icon_bar div.clickable_icon {
 	height:26px;
 	width:26px;
 }
-div.clickable_icon {
-	fill: var(--text-color);
+div.clickable_icon svg {
 	cursor: pointer;
 }
-div.clickable_icon:hover {
+div.clickable_icon:hover svg {
 	fill: var(--text-color-focus);
 }
-div.clickable_icon.danger:hover {
+div.clickable_icon.danger:hover svg {
 	fill: red;
 }
 
