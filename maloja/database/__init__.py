@@ -118,7 +118,9 @@ def reparse_scrobble(timestamp):
 	# check if id changed
 	if sqldb.get_track_id(scrobble['track']) != track_id:
 		sqldb.edit_scrobble(timestamp, {'track':newscrobble['track']})
-		return True
+		dbcache.invalidate_entity_cache()
+		dbcache.invalidate_caches()
+		return sqldb.get_scrobble(timestamp=timestamp)
 
 	return False
 

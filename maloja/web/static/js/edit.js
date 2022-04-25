@@ -43,7 +43,11 @@ function reparseScrobble(id, element) {
 	callback_func = function(req){
 		if (req.status == 200) {
 			if (req.response.status != 'no_operation') {
-				window.location.reload();
+				//window.location.reload();
+				notifyCallback(req);
+				var newtrack = req.response.scrobble.track;
+				var row = element.parentElement.parentElement.parentElement.parentElement;
+				changeScrobbleRow(row,newtrack);
 			}
 			else {
 				notifyCallback(req);
@@ -56,6 +60,43 @@ function reparseScrobble(id, element) {
 
 	neo.xhttpreq("/apis/mlj_1/reparse_scrobble",data={'timestamp':id},method="POST",callback=callback_func,json=true);
 
+}
+
+function changeScrobbleRow(element,newtrack) {
+	element.classList.add('changed');
+
+	setTimeout(function(){
+		element.getElementsByClassName('track')[0].innerHTML = createTrackCell(newtrack);
+	},200);
+	setTimeout(function(){element.classList.remove('changed')},300);
+}
+
+function createTrackCell(trackinfo) {
+
+	var trackquery = new URLSearchParams();
+	trackinfo.artists.forEach((a)=>trackquery.append('artist',a));
+	trackquery.append('title',trackinfo.title);
+
+	tracklink = document.createElement('a');
+	tracklink.href = "/track?" + trackquery.toString();
+	tracklink.textContent = trackinfo.title;
+
+	artistelements = []
+	var artistholder = document.createElement('span');
+	artistholder.classList.add('artist_in_trackcolumn');
+	for (var a of trackinfo.artists) {
+		var artistquery = new URLSearchParams();
+		artistquery.append('artist',a);
+
+		artistlink = document.createElement('a');
+		artistlink.href = "/artist?" + artistquery.toString();
+		artistlink.textContent = a;
+
+		artistelements.push(artistlink.outerHTML)
+	}
+
+	artistholder.innerHTML = artistelements.join(", ");
+	return artistholder.outerHTML + " – " + tracklink.outerHTML;
 }
 
 

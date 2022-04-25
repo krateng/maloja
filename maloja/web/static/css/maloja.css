@@ -525,6 +525,7 @@ table.list tr {
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
 	height: 1.45em;
+	transition: opacity 2s;
 
 }
 
@@ -671,6 +672,13 @@ table.list tr.removed td.scrobble_action_area span.scrobble_action_type {
 table.list tr.removed {
 	text-decoration: line-through;
 	opacity:0.4;
+}
+
+
+table.list tr.changed {
+	/*background-color: rgba(222,209,180,0.7) !important;*/
+	opacity:0;
+	transition: opacity 0.2s;
 }
 
 

@@ -708,7 +708,8 @@ def reparse_scrobble(timestamp):
 	if result:
 		return {
 			"status":"success",
-			"desc":f"Scrobble was reparsed!"
+			"desc":f"Scrobble was reparsed!",
+			"scrobble":result
 		}
 	else:
 		return {
