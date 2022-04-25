@@ -320,7 +320,8 @@ class MTRangeComposite(MTRangeGeneric):
 		if self.since is None: return FIRST_SCROBBLE
 		else: return self.since.first_stamp()
 	def last_stamp(self):
-		if self.to is None: return int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp())
+		#if self.to is None: return int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp())
+		if self.to is None: return today().last_stamp()
 		else: return self.to.last_stamp()
 
 	def next(self,step=1):
