@@ -40,12 +40,20 @@ api.__apipath__ = "mlj_1"
 
 
 errors = {
-	database.MissingScrobbleParameters: lambda e: (400,{
+	database.exceptions.MissingScrobbleParameters: lambda e: (400,{
 		"status":"failure",
 		"error":{
 			'type':'missing_scrobble_data',
 			'value':e.params,
 			'desc':"The scrobble is missing needed parameters."
+		}
+	}),
+	database.exceptions.MissingEntityParameter: lambda e: (400,{
+		"status":"error",
+		"error":{
+			'type':'missing_entity_parameter',
+			'value':None,
+			'desc':"This API call is not valid without an entity (track or artist)."
 		}
 	}),
 	database.exceptions.EntityExists: lambda e: (409,{
@@ -56,7 +64,16 @@ errors = {
 			'desc':"This entity already exists in the database. Consider merging instead."
 		}
 	}),
-	Exception: lambda e: (500,{
+	database.exceptions.DatabaseNotBuilt: lambda e: (503,{
+		"status":"error",
+		"error":{
+			'type':'server_not_ready',
+			'value':'db_upgrade',
+			'desc':"The database is being upgraded. Please try again later."
+		}
+	}),
+	# for http errors, use their status code
+	Exception: lambda e: ((e.status_code if hasattr(e,'statuscode') else 500),{
 		"status":"failure",
 		"error":{
 			'type':'unknown_error',
@@ -386,7 +403,7 @@ def artist_info_external(**keys):
 @api.get("trackinfo")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def track_info_external(artist:Multi[str],**keys):
+def track_info_external(artist:Multi[str]=[],**keys):
 	"""Returns information about a track
 
 	:return: track (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)

@@ -1,5 +1,5 @@
 # server
-from bottle import request, response, FormsDict, HTTPError
+from bottle import request, response, FormsDict
 
 # rest of the project
 from ..cleanup import CleanerAgent
@@ -13,6 +13,7 @@ from ..apis import apikeystore
 from . import sqldb
 from . import cached
 from . import dbcache
+from . import exceptions
 
 # doreah toolkit
 from doreah.logging import log
@@ -42,23 +43,12 @@ dbstatus = {
 	"rebuildinprogress":False,
 	"complete":False			# information is complete
 }
-class DatabaseNotBuilt(HTTPError):
-	def __init__(self):
-		super().__init__(
-			status=503,
-			body="The Maloja Database is being upgraded to Version 3. This could take quite a long time! (~ 2-5 minutes per 10 000 scrobbles)",
-			headers={"Retry-After":120}
-		)
 
-
-class MissingScrobbleParameters(Exception):
-	def __init__(self,params=[]):
-		self.params = params
 
 
 def waitfordb(func):
 	def newfunc(*args,**kwargs):
-		if not dbstatus['healthy']: raise DatabaseNotBuilt()
+		if not dbstatus['healthy']: raise exceptions.DatabaseNotBuilt()
 		return func(*args,**kwargs)
 	return newfunc
 
@@ -97,7 +87,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 			missing.append(necessary_arg)
 	if len(missing) > 0:
 		log(f"Invalid Scrobble [Client: {client} | API: {api}]: {rawscrobble} ",color='red')
-		raise MissingScrobbleParameters(missing)
+		raise exceptions.MissingScrobbleParameters(missing)
 
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
@@ -305,6 +295,8 @@ def get_performance(dbconn=None,**keys):
 				if c["artist"] == artist:
 					rank = c["rank"]
 					break
+		else:
+			raise exceptions.MissingEntityParameter()
 		results.append({"range":rng,"rank":rank})
 
 	return results
@@ -344,6 +336,7 @@ def get_top_tracks(dbconn=None,**keys):
 def artist_info(dbconn=None,**keys):
 
 	artist = keys.get('artist')
+	if artist is None: raise exceptions.MissingEntityParameter()
 
 	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
 	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
@@ -388,6 +381,7 @@ def artist_info(dbconn=None,**keys):
 def track_info(dbconn=None,**keys):
 
 	track = keys.get('track')
+	if track is None: raise exceptions.MissingEntityParameter()
 
 	track_id = sqldb.get_track_id(track,dbconn=dbconn)
 	track = sqldb.get_track(track_id,dbconn=dbconn)
