@@ -1,6 +1,7 @@
 # Scrobbling
 
-In order to scrobble from a wide selection of clients, you can use Maloja's standard-compliant APIs with the following settings:
+Scrobbling can be done with the native API, see [below](#submitting-a-scrobble).
+In order to scrobble from a wide selection of clients, you can also use Maloja's standard-compliant APIs with the following settings:
 
 GNU FM | &nbsp;
 ------ | ---------
@@ -41,7 +42,7 @@ The user starts playing '(Fine Layers of) Slaysenflite', which is exactly 3:00 m
 * If the user ends the play after 1:22, no scrobble is submitted
 * If the user ends the play after 2:06, a scrobble with `"duration":126` is submitted
 * If the user jumps back several times and ends the play after 3:57, a scrobble with `"duration":237` is submitted
-* If the user jumps back several times and ends the play after 4:49, two scrobbles with `"duration":180` and `"duration":109` should be submitted
+* If the user jumps back several times and ends the play after 4:49, two scrobbles with `"duration":180` and `"duration":109` are submitted
     
   </td></tr>
 <table>
@@ -54,11 +55,26 @@ The native Maloja API is reachable at `/apis/mlj_1`. Endpoints are listed on `/a
 All endpoints return JSON data. POST request can be made with query string or form data arguments, but this is discouraged - JSON should be used whenever possible.
 
 No application should ever rely on the non-existence of fields in the JSON data - i.e., additional fields can be added at any time without this being considered a breaking change. Existing fields should usually not be removed or changed, but it is always a good idea to add basic handling for missing fields.
+  
+## Submitting a Scrobble
+
+The POST endpoint `/newscrobble` is used to submit new scrobbles. These use a flat JSON structure with the following fields:
+  
+| Key | Type | Description |
+| --- | --- | --- |
+| `artists` | List(String) | Track artists |
+| `title` | String | Track title |
+| `album` | String | Name of the album (Optional) |
+| `albumartists` | List(String) | Album artists (Optional) |
+| `duration` | Integer | How long the song was listened to in seconds (Optional) |
+| `length` | Integer | Actual length of the full song in seconds (Optional) |
+| `time` | Integer | Timestamp of the listen if it was not at the time of submitting (Optional) |
+| `nofix` | Boolean | Skip server-side metadata fixing (Optional) |
 
 ## General Structure
 
-  
-Most endpoints follow this structure:
+The API is not fully consistent in order to ensure backwards-compatibility. Refer to the individual endpoints.  
+Generally, most endpoints follow this structure:
 
 | Key | Type | Description |
 | --- | --- | --- |
@@ -66,7 +82,7 @@ Most endpoints follow this structure:
 | `error` | Mapping | Details about the error if one occured. |
 | `warnings` | List | Any warnings that did not result in failure, but should be noted. Field is omitted if there are no warnings! |
 | `desc` | String | Human-readable feedback. This can be shown directly to the user if desired. |
-| `list` | List | List of returned [entities](#Entity-Structure) |
+| `list` | List | List of returned [entities](#entity-structure) |
 
   
 Both errors and warnings have the following structure:
@@ -87,7 +103,7 @@ Whenever a list of entities is returned, they have the following fields:
 | Key | Type | Description |
 | --- | --- | --- |
 | `time` | Integer | Timestamp of the Scrobble in UTC |
-| `track` | Mapping | The [track](#Track) being scrobbled |
+| `track` | Mapping | The [track](#track) being scrobbled |
 | `duration` | Integer | How long the track was played for in seconds |
 | `origin` | String | Client that submitted the scrobble, or import source |
 
@@ -118,7 +134,7 @@ Whenever a list of entities is returned, they have the following fields:
 
 | Key | Type | Description |
 | --- | --- | --- |
-| `artists` | List | The [artists](#Artist) credited with the track |
+| `artists` | List | The [artists](#artist) credited with the track |
 | `title` | String | The title of the track |
 | `length` | Integer | The full length of the track in seconds |
 
