@@ -202,6 +202,7 @@ def get_scrobbles_external(**keys):
 	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -221,6 +222,7 @@ def get_scrobbles_num_external(**keys):
 	result = database.get_scrobbles_num(**ckeys)
 
 	return {
+		"status":"ok",
 		"amount":result
 	}
 
@@ -241,6 +243,7 @@ def get_tracks_external(**keys):
 	result = database.get_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -257,6 +260,7 @@ def get_artists_external():
 	result = database.get_artists()
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -278,6 +282,7 @@ def get_charts_artists_external(**keys):
 	result = database.get_charts_artists(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -297,6 +302,7 @@ def get_charts_tracks_external(**keys):
 	result = database.get_charts_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -317,6 +323,7 @@ def get_pulse_external(**keys):
 	results = database.get_pulse(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -337,6 +344,7 @@ def get_performance_external(**keys):
 	results = database.get_performance(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -357,6 +365,7 @@ def get_top_artists_external(**keys):
 	results = database.get_top_artists(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -379,6 +388,7 @@ def get_top_tracks_external(**keys):
 	results = database.get_top_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 

@@ -954,7 +954,7 @@ def merge_duplicate_tracks(artist_id,dbconn=None):
 			for track in track_identifiers:
 				if len(track_identifiers[track]) > 1:
 					target,*src = track_identifiers[track]
-					merge_tracks(target,src)
+					merge_tracks(target,src,dbconn=dbconn)
 
 
 
