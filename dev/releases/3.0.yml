@@ -42,3 +42,10 @@ minor_release_name: "Yeonhee"
     - "[Bugfix] Fixed importing a Spotify file without path"
     - "[Bugfix] No longer releasing database lock during scrobble creation"
     - "[Distribution] Experimental arm64 image"
+3.0.7:
+    commit: "62abc319303a6cb6463f7c27b6ef09b76fc67f86"
+    notes:
+    - "[Bugix] Improved signal handling"
+    - "[Bugix] Fixed constant re-caching of all-time stats, significantly increasing page load speed"
+    - "[Logging] Disabled cache information when cache is not used"
+    - "[Distribution] Experimental arm/v7 image"

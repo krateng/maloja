@@ -117,6 +117,8 @@ def connection_provider(func):
 			with engine.connect() as connection:
 				kwargs['dbconn'] = connection
 				return func(*args,**kwargs)
+
+	wrapper.__innerfunc__ = func
 	return wrapper
 
 ##### DB <-> Dict translations
