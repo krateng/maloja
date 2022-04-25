@@ -6,6 +6,7 @@ FOLDER = "dev/releases"
 
 releases = {}
 for f in os.listdir(FOLDER):
+	if f == "branch.yml": continue
 	#maj,min = (int(i) for i in f.split('.')[:2])
 
 	with open(os.path.join(FOLDER,f)) as fd:

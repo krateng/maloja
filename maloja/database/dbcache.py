@@ -5,6 +5,7 @@
 import lru
 import psutil
 import json
+import sys
 from doreah.regular import runhourly
 from doreah.logging import log
 
@@ -12,16 +13,10 @@ from ..globalconf import malojaconfig
 
 
 
-
-
 if malojaconfig['USE_GLOBAL_CACHE']:
-	CACHE_SIZE = 1000
-	ENTITY_CACHE_SIZE = 100000
 
-	cache = lru.LRU(CACHE_SIZE)
-	entitycache = lru.LRU(ENTITY_CACHE_SIZE)
-
-	hits, misses = 0, 0
+	cache = lru.LRU(10000)
+	entitycache = lru.LRU(100000)
 
 
 
@@ -31,11 +26,10 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 		trim_cache()
 
 	def print_stats():
-		log(f"Cache Size: {len(cache)} [{len(entitycache)} E], System RAM Utilization: {psutil.virtual_memory().percent}%, Cache Hits: {hits}/{hits+misses}")
-		#print("Full rundown:")
-		#import sys
-		#for k in cache.keys():
-		#	print(f"\t{k}\t{sys.getsizeof(cache[k])}")
+		for name,c in (('Cache',cache),('Entity Cache',entitycache)):
+			hits, misses = c.get_stats()
+			log(f"{name}: Size: {len(c)} | Hits: {hits}/{hits+misses} | Estimated Memory: {human_readable_size(c)}")
+		log(f"System RAM Utilization: {psutil.virtual_memory().percent}%")
 
 
 	def cached_wrapper(inner_func):
@@ -49,12 +43,9 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 			global hits, misses
 			key = (serialize(args),serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
 
-			if key in cache:
-				hits += 1
-				return cache.get(key)
-
-			else:
-				misses += 1
+			try:
+				return cache[key]
+			except KeyError:
 				result = inner_func(*args,**kwargs,dbconn=conn)
 				cache[key] = result
 				return result
@@ -67,25 +58,18 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 	# cache that's aware of what we're calling
 	def cached_wrapper_individual(inner_func):
 
-
 		def outer_func(set_arg,**kwargs):
-
-
 			if 'dbconn' in kwargs:
 				conn = kwargs.pop('dbconn')
 			else:
 				conn = None
 
-			#global hits, misses
 			result = {}
 			for id in set_arg:
-				if (inner_func,id) in entitycache:
+				try:
 					result[id] = entitycache[(inner_func,id)]
-					#hits += 1
-				else:
+				except KeyError:
 					pass
-					#misses += 1
-
 
 			remaining = inner_func(set(e for e in set_arg if e not in result),dbconn=conn)
 			for id in remaining:
@@ -115,13 +99,14 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 	def trim_cache():
 		ramprct = psutil.virtual_memory().percent
 		if ramprct > malojaconfig["DB_MAX_MEMORY"]:
-			log(f"{ramprct}% RAM usage, clearing cache and adjusting size!")
+			log(f"{ramprct}% RAM usage, clearing cache!")
+			for c in (cache,entitycache):
+				c.clear()
 			#ratio = 0.6
 			#targetsize = max(int(len(cache) * ratio),50)
 			#log(f"Reducing to {targetsize} entries")
 			#cache.set_size(targetsize)
 			#cache.set_size(HIGH_NUMBER)
-			cache.clear()
 			#if cache.get_size() > CACHE_ADJUST_STEP:
 			#	cache.set_size(cache.get_size() - CACHE_ADJUST_STEP)
 
@@ -156,3 +141,32 @@ def serialize(obj):
 			elif isinstance(obj,dict):
 				return "{" + ",".join(serialize(o) + ":" + serialize(obj[o]) for o in obj) + "}"
 			return json.dumps(obj.hashable())
+
+
+
+def get_size_of(obj,counted=None):
+	if counted is None:
+		counted = set()
+	if id(obj) in counted: return 0
+	size = sys.getsizeof(obj)
+	counted.add(id(obj))
+	try:
+		for k,v in obj.items():
+			size += get_size_of(v,counted=counted)
+	except:
+		try:
+			for i in obj:
+				size += get_size_of(i,counted=counted)
+		except:
+			pass
+	return size
+
+def human_readable_size(obj):
+	units = ['','K','M','G','T','P']
+	idx = 0
+	bytes = get_size_of(obj)
+	while bytes > 1024 and len(units) > idx+1:
+		bytes = bytes / 1024
+		idx += 1
+
+	return f"{bytes:.2f} {units[idx]}B"
