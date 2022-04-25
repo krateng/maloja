@@ -58,6 +58,10 @@ div.header h1 {
  settings icon
 **/
 
+svg {
+	fill: var(--text-color);
+}
+
 div#icon_bar {
 	position:fixed;
 	right:30px;
