@@ -1,0 +1,3 @@
+- "[Bugix] Improved signal handling"
+- "[Bugix] Fixed constant re-caching of all-time stats"
+- "[Performance] Disabled caches per default"
