@@ -115,8 +115,9 @@ def connection_provider(func):
 			return func(*args,**kwargs)
 		else:
 			with engine.connect() as connection:
-				kwargs['dbconn'] = connection
-				return func(*args,**kwargs)
+				with connection.begin():
+					kwargs['dbconn'] = connection
+					return func(*args,**kwargs)
 
 	wrapper.__innerfunc__ = func
 	return wrapper
