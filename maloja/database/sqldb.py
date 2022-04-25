@@ -442,7 +442,7 @@ def merge_tracks(target_id,source_ids,dbconn=None):
 		track_id=target_id
 	)
 	result = dbconn.execute(op)
-	clean_db()
+	clean_db(dbconn=dbconn)
 
 	return True
 
@@ -491,8 +491,8 @@ def merge_artists(target_id,source_ids,dbconn=None):
 #	result = dbconn.execute(op)
 
 	# this could have created duplicate tracks
-	merge_duplicate_tracks(artist_id=target_id)
-	clean_db()
+	merge_duplicate_tracks(artist_id=target_id,dbconn=dbconn)
+	clean_db(dbconn=dbconn)
 
 	return True
 
@@ -871,38 +871,37 @@ def search_track(searchterm,dbconn=None):
 ##### MAINTENANCE
 
 @runhourly
-def clean_db():
+@connection_provider
+def clean_db(dbconn=None):
 
-	with SCROBBLE_LOCK:
-		with engine.begin() as conn:
-			log(f"Database Cleanup...")
+	log(f"Database Cleanup...")
 
-			to_delete = [
-				# tracks with no scrobbles (trackartist entries first)
-				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
-				"from tracks where id not in (select track_id from scrobbles)",
-				# artists with no tracks
-				"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
-				# tracks with no artists (scrobbles first)
-				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-				"from tracks where id not in (select track_id from trackartists)"
-			]
+	to_delete = [
+		# tracks with no scrobbles (trackartist entries first)
+		"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+		"from tracks where id not in (select track_id from scrobbles)",
+		# artists with no tracks
+		"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
+		# tracks with no artists (scrobbles first)
+		"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+		"from tracks where id not in (select track_id from trackartists)"
+	]
 
-			for d in to_delete:
-				selection = conn.execute(sql.text(f"select * {d}"))
-				for row in selection.all():
-					log(f"Deleting {row}")
-				deletion = conn.execute(sql.text(f"delete {d}"))
+	for d in to_delete:
+		selection = dbconn.execute(sql.text(f"select * {d}"))
+		for row in selection.all():
+			log(f"Deleting {row}")
+		deletion = dbconn.execute(sql.text(f"delete {d}"))
 
-			log("Database Cleanup complete!")
-
+	log("Database Cleanup complete!")
 
 
-			#if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
-			#if a3>0: log(f"Deleted {a3} artists without tracks")
+	#if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
-			#if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+	#if a3>0: log(f"Deleted {a3} artists without tracks")
+
+	#if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
 
 
 
@@ -923,40 +922,39 @@ def renormalize_names():
 					rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
 
 
-
-def merge_duplicate_tracks(artist_id):
-	with engine.begin() as conn:
-		rows = conn.execute(
-			DB['trackartists'].select().where(
-				DB['trackartists'].c.artist_id == artist_id
-			)
+@connection_provider
+def merge_duplicate_tracks(artist_id,dbconn=None):
+	rows = dbconn.execute(
+		DB['trackartists'].select().where(
+			DB['trackartists'].c.artist_id == artist_id
 		)
-		affected_tracks = [r.track_id for r in rows]
+	)
+	affected_tracks = [r.track_id for r in rows]
 
-		track_artists = {}
-		rows = conn.execute(
-			DB['trackartists'].select().where(
-				DB['trackartists'].c.track_id.in_(affected_tracks)
-			)
+	track_artists = {}
+	rows = dbconn.execute(
+		DB['trackartists'].select().where(
+			DB['trackartists'].c.track_id.in_(affected_tracks)
 		)
+	)
 
 
-		for row in rows:
-			track_artists.setdefault(row.track_id,[]).append(row.artist_id)
+	for row in rows:
+		track_artists.setdefault(row.track_id,[]).append(row.artist_id)
 
-		artist_combos = {}
-		for track_id in track_artists:
-			artist_combos.setdefault(tuple(sorted(track_artists[track_id])),[]).append(track_id)
+	artist_combos = {}
+	for track_id in track_artists:
+		artist_combos.setdefault(tuple(sorted(track_artists[track_id])),[]).append(track_id)
 
-		for c in artist_combos:
-			if len(artist_combos[c]) > 1:
-				track_identifiers = {}
-				for track_id in artist_combos[c]:
-					track_identifiers.setdefault(normalize_name(get_track(track_id)['title']),[]).append(track_id)
-				for track in track_identifiers:
-					if len(track_identifiers[track]) > 1:
-						target,*src = track_identifiers[track]
-						merge_tracks(target,src)
+	for c in artist_combos:
+		if len(artist_combos[c]) > 1:
+			track_identifiers = {}
+			for track_id in artist_combos[c]:
+				track_identifiers.setdefault(normalize_name(get_track(track_id)['title']),[]).append(track_id)
+			for track in track_identifiers:
+				if len(track_identifiers[track]) > 1:
+					target,*src = track_identifiers[track]
+					merge_tracks(target,src)
 
 
 
