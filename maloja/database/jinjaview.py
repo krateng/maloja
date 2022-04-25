@@ -23,7 +23,8 @@ class JinjaDBConnection:
 		return self
 	def __exit__(self, exc_type, exc_value, exc_traceback):
 		self.conn.close()
-		log(f"Generated page with {self.hits}/{self.hits+self.misses} local Cache hits",module="debug_performance")
+		if malojaconfig['USE_REQUEST_CACHE']:
+			log(f"Generated page with {self.hits}/{self.hits+self.misses} local Cache hits",module="debug_performance")
 		del self.cache
 	def __getattr__(self,name):
 		originalmethod = getattr(database,name)
