@@ -1,6 +1,7 @@
 import os
 import signal
 import subprocess
+import time
 
 from setproctitle import setproctitle
 from ipaddress import ip_address
@@ -40,9 +41,10 @@ def get_instance_supervisor():
 		return None
 
 def restart():
-	stop()
-	start()
-
+	if stop():
+		start()
+	else:
+		print(col["red"]("Could not stop Maloja!"))
 
 def start():
 	if get_instance_supervisor() is not None:
@@ -69,16 +71,28 @@ def start():
 
 def stop():
 
-	pid_sv = get_instance_supervisor()
-	if pid_sv is not None:
-		os.kill(pid_sv,signal.SIGTERM)
+	for attempt in [(signal.SIGTERM,2),(signal.SIGTERM,5),(signal.SIGKILL,3),(signal.SIGKILL,5)]:
 
-	pid = get_instance()
-	if pid is not None:
-		os.kill(pid,signal.SIGTERM)
+		pid_sv = get_instance_supervisor()
+		pid = get_instance()
 
-	if pid is None and pid_sv is None:
-		return False
+		if pid is None and pid_sv is None:
+			print("Maloja stopped!")
+			return True
+
+		if pid_sv is not None:
+			os.kill(pid_sv,attempt[0])
+		if pid is not None:
+			os.kill(pid,attempt[0])
+
+		time.sleep(attempt[1])
+
+	return False
+
+
+
+
+
 
 	print("Maloja stopped!")
 	return True
