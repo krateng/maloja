@@ -1,6 +1,6 @@
 [project]
 name = "malojaserver"
-version = "3.0.5"
+version = "3.0.6"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
 requires-python = ">=3.7"
@@ -62,6 +62,7 @@ build =[
 ]
 run = [
 	"python3",
+	"py3-lxml",
 	"tzdata"
 ]
 opt = [

@@ -11,6 +11,7 @@ apk add \
 	py3-pip \
 	linux-headers \
 	python3 \
+	py3-lxml \
 	tzdata \
 	vips
 

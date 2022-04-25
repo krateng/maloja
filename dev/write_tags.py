@@ -43,7 +43,7 @@ for version in releases:
 	try:
 		prev_tag = sp.check_output(["git","show",f'v{maj}.{min}.{hot}']).decode()
 		prev_tag_commit = prev_tag.split('\n')[6].split(" ")[1]
-	except:
+	except Exception:
 		pass
 	else:
 		assert prev_tag_commit == info['commit']
