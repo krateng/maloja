@@ -189,6 +189,7 @@ def merge_artists(target_id,source_ids):
 	log(f"Merging {sources} into {target}")
 	result = sqldb.merge_artists(target_id,source_ids)
 	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
 	return result
 
@@ -199,6 +200,7 @@ def merge_tracks(target_id,source_ids):
 	log(f"Merging {sources} into {target}")
 	result = sqldb.merge_tracks(target_id,source_ids)
 	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
 	return result
 
