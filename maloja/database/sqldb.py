@@ -5,8 +5,9 @@ import math
 from datetime import datetime
 from threading import Lock
 
-from ..globalconf import data_dir
+from ..pkg_global.conf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual
+from . import exceptions as exc
 
 from doreah.logging import log
 from doreah.regular import runhourly, runmonthly
@@ -114,8 +115,9 @@ def connection_provider(func):
 			return func(*args,**kwargs)
 		else:
 			with engine.connect() as connection:
-				kwargs['dbconn'] = connection
-				return func(*args,**kwargs)
+				with connection.begin():
+					kwargs['dbconn'] = connection
+					return func(*args,**kwargs)
 
 	wrapper.__innerfunc__ = func
 	return wrapper
@@ -209,21 +211,22 @@ def artist_db_to_dict(row,dbconn=None):
 
 
 ### DICT -> DB
+# These should return None when no data is in the dict so they can be used for update statements
 
 def scrobble_dict_to_db(info,dbconn=None):
 	return {
-		"timestamp":info['time'],
-		"origin":info['origin'],
-		"duration":info['duration'],
-		"track_id":get_track_id(info['track'],dbconn=dbconn),
-		"extra":json.dumps(info.get('extra',{})),
-		"rawscrobble":json.dumps(info.get('rawscrobble',{}))
+		"timestamp":info.get('time'),
+		"origin":info.get('origin'),
+		"duration":info.get('duration'),
+		"track_id":get_track_id(info.get('track'),dbconn=dbconn),
+		"extra":json.dumps(info.get('extra')) if info.get('extra') else None,
+		"rawscrobble":json.dumps(info.get('rawscrobble')) if info.get('rawscrobble') else None
 	}
 
 def track_dict_to_db(info,dbconn=None):
 	return {
-		"title":info['title'],
-		"title_normalized":normalize_name(info['title']),
+		"title":info.get('title'),
+		"title_normalized":normalize_name(info.get('title','')) or None,
 		"length":info.get('length')
 	}
 
@@ -277,13 +280,16 @@ def delete_scrobble(scrobble_id,dbconn=None):
 			DB['scrobbles'].c.timestamp == scrobble_id
 		)
 
-		dbconn.execute(op)
+		result = dbconn.execute(op)
+
+	return True
+
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
 @cached_wrapper
 @connection_provider
-def get_track_id(trackdict,dbconn=None):
+def get_track_id(trackdict,create_new=True,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
@@ -312,6 +318,8 @@ def get_track_id(trackdict,dbconn=None):
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
 			return row.id
+
+	if not create_new: return None
 
 
 	op = DB['tracks'].insert().values(
@@ -356,6 +364,137 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	return result.inserted_primary_key[0]
 
 
+### Edit existing
+
+
+@connection_provider
+def edit_scrobble(scrobble_id,scrobbleupdatedict,dbconn=None):
+
+	dbentry = scrobble_dict_to_db(scrobbleupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	print("Updating scrobble",dbentry)
+
+	with SCROBBLE_LOCK:
+
+		op = DB['scrobbles'].update().where(
+			DB['scrobbles'].c.timestamp == scrobble_id
+		).values(
+			**dbentry
+		)
+
+		dbconn.execute(op)
+
+
+@connection_provider
+def edit_artist(id,artistupdatedict,dbconn=None):
+
+	artist = get_artist(id)
+	changedartist = artistupdatedict # well
+
+	dbentry = artist_dict_to_db(artistupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	existing_artist_id = get_artist_id(changedartist,create_new=False,dbconn=dbconn)
+	if existing_artist_id not in (None,id):
+		raise exc.ArtistExists(changedartist)
+
+	op = DB['artists'].update().where(
+		DB['artists'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
+
+	return True
+
+@connection_provider
+def edit_track(id,trackupdatedict,dbconn=None):
+
+	track = get_track(id,dbconn=dbconn)
+	changedtrack = {**track,**trackupdatedict}
+
+	dbentry = track_dict_to_db(trackupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	existing_track_id = get_track_id(changedtrack,create_new=False,dbconn=dbconn)
+	if existing_track_id not in (None,id):
+		raise exc.TrackExists(changedtrack)
+
+	op = DB['tracks'].update().where(
+		DB['tracks'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
+
+	return True
+
+
+### Merge
+
+@connection_provider
+def merge_tracks(target_id,source_ids,dbconn=None):
+
+	op = DB['scrobbles'].update().where(
+		DB['scrobbles'].c.track_id.in_(source_ids)
+	).values(
+		track_id=target_id
+	)
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
+
+@connection_provider
+def merge_artists(target_id,source_ids,dbconn=None):
+
+	# some tracks could already have multiple of the to be merged artists
+
+	# find literally all tracksartist entries that have any of the artists involved
+	op = DB['trackartists'].select().where(
+		DB['trackartists'].c.artist_id.in_(source_ids + [target_id])
+	)
+	result = dbconn.execute(op)
+
+	track_ids = set(row.track_id for row in result)
+
+	# now just delete them all lmao
+	op = DB['trackartists'].delete().where(
+		#DB['trackartists'].c.track_id.in_(track_ids),
+		DB['trackartists'].c.artist_id.in_(source_ids + [target_id]),
+	)
+
+	result = dbconn.execute(op)
+
+	# now add back the real new artist
+	op = DB['trackartists'].insert().values([
+		{'track_id':track_id,'artist_id':target_id}
+		for track_id in track_ids
+	])
+
+	result = dbconn.execute(op)
+
+#	tracks_artists = {}
+#	for row in result:
+#		tracks_artists.setdefault(row.track_id,[]).append(row.artist_id)
+#
+#	multiple = {k:v for k,v in tracks_artists.items() if len(v) > 1}
+#
+#	print([(get_track(k),[get_artist(a) for a in v]) for k,v in multiple.items()])
+#
+#	op = DB['trackartists'].update().where(
+#		DB['trackartists'].c.artist_id.in_(source_ids)
+#	).values(
+#		artist_id=target_id
+#	)
+#	result = dbconn.execute(op)
+
+	# this could have created duplicate tracks
+	merge_duplicate_tracks(artist_id=target_id,dbconn=dbconn)
+	clean_db(dbconn=dbconn)
+
+	return True
 
 
 
@@ -488,7 +627,7 @@ def get_tracks(dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_artist(since,to,dbconn=None):
+def count_scrobbles_by_artist(since,to,resolve_ids=True,dbconn=None):
 	jointable = sql.join(
 		DB['scrobbles'],
 		DB['trackartists'],
@@ -516,16 +655,18 @@ def count_scrobbles_by_artist(since,to,dbconn=None):
 	).order_by(sql.desc('count'))
 	result = dbconn.execute(op).all()
 
-
-	counts = [row.count for row in result]
-	artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	if resolve_ids:
+		counts = [row.count for row in result]
+		artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'artist_id':row.artist_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track(since,to,dbconn=None):
+def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 
 
 	op = sql.select(
@@ -537,10 +678,12 @@ def count_scrobbles_by_track(since,to,dbconn=None):
 	).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
 	result = dbconn.execute(op).all()
 
-
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		counts = [row.count for row in result]
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
@@ -695,6 +838,17 @@ def get_artist(id,dbconn=None):
 
 @cached_wrapper
 @connection_provider
+def get_scrobble(timestamp, include_internal=False, dbconn=None):
+	op = DB['scrobbles'].select().where(
+		DB['scrobbles'].c.timestamp==timestamp
+	)
+	result = dbconn.execute(op).all()
+
+	scrobble = result[0]
+	return scrobbles_db_to_dict(rows=[scrobble], include_internal=include_internal)[0]
+
+@cached_wrapper
+@connection_provider
 def search_artist(searchterm,dbconn=None):
 	op = DB['artists'].select().where(
 		DB['artists'].c.name_normalized.ilike(normalize_name(f"%{searchterm}%"))
@@ -717,38 +871,37 @@ def search_track(searchterm,dbconn=None):
 ##### MAINTENANCE
 
 @runhourly
-def clean_db():
+@connection_provider
+def clean_db(dbconn=None):
 
-	with SCROBBLE_LOCK:
-		with engine.begin() as conn:
-			log(f"Database Cleanup...")
+	log(f"Database Cleanup...")
 
-			to_delete = [
-				# tracks with no scrobbles (trackartist entries first)
-				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
-				"from tracks where id not in (select track_id from scrobbles)",
-				# artists with no tracks
-				"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
-				# tracks with no artists (scrobbles first)
-				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-				"from tracks where id not in (select track_id from trackartists)"
-			]
+	to_delete = [
+		# tracks with no scrobbles (trackartist entries first)
+		"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+		"from tracks where id not in (select track_id from scrobbles)",
+		# artists with no tracks
+		"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
+		# tracks with no artists (scrobbles first)
+		"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+		"from tracks where id not in (select track_id from trackartists)"
+	]
 
-			for d in to_delete:
-				selection = conn.execute(sql.text(f"select * {d}"))
-				for row in selection.all():
-					log(f"Deleting {row}")
-				deletion = conn.execute(sql.text(f"delete {d}"))
+	for d in to_delete:
+		selection = dbconn.execute(sql.text(f"select * {d}"))
+		for row in selection.all():
+			log(f"Deleting {row}")
+		deletion = dbconn.execute(sql.text(f"delete {d}"))
 
-			log("Database Cleanup complete!")
-
+	log("Database Cleanup complete!")
 
 
-			#if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
-			#if a3>0: log(f"Deleted {a3} artists without tracks")
+	#if a2+a1>0: log(f"Deleted {a2} tracks without scrobbles ({a1} track artist entries)")
 
-			#if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
+	#if a3>0: log(f"Deleted {a3} artists without tracks")
+
+	#if a5+a4>0: log(f"Deleted {a5} tracks without artists ({a4} scrobbles)")
 
 
 
@@ -767,6 +920,46 @@ def renormalize_names():
 					log(f"{name} should be normalized to {norm_target}, but is instead {norm_actual}, fixing...")
 
 					rows = conn.execute(DB['artists'].update().where(DB['artists'].c.id == id).values(name_normalized=norm_target))
+
+
+@connection_provider
+def merge_duplicate_tracks(artist_id,dbconn=None):
+	rows = dbconn.execute(
+		DB['trackartists'].select().where(
+			DB['trackartists'].c.artist_id == artist_id
+		)
+	)
+	affected_tracks = [r.track_id for r in rows]
+
+	track_artists = {}
+	rows = dbconn.execute(
+		DB['trackartists'].select().where(
+			DB['trackartists'].c.track_id.in_(affected_tracks)
+		)
+	)
+
+
+	for row in rows:
+		track_artists.setdefault(row.track_id,[]).append(row.artist_id)
+
+	artist_combos = {}
+	for track_id in track_artists:
+		artist_combos.setdefault(tuple(sorted(track_artists[track_id])),[]).append(track_id)
+
+	for c in artist_combos:
+		if len(artist_combos[c]) > 1:
+			track_identifiers = {}
+			for track_id in artist_combos[c]:
+				track_identifiers.setdefault(normalize_name(get_track(track_id)['title']),[]).append(track_id)
+			for track in track_identifiers:
+				if len(track_identifiers[track]) > 1:
+					target,*src = track_identifiers[track]
+					merge_tracks(target,src,dbconn=dbconn)
+
+
+
+
+
 
 
 

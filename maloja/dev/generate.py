@@ -1,5 +1,6 @@
 import random
 import datetime
+
 from doreah.io import ask
 
 
@@ -66,10 +67,10 @@ def generate_track():
 
 
 
-def generate(n=200):
+def generate_scrobbles(n=200):
 
-	from ...database.sqldb import add_scrobbles
-	
+	from ..database.sqldb import add_scrobbles
+
 	n = int(n)
 
 	if ask("Generate random scrobbles?",default=False):

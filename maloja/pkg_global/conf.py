@@ -3,7 +3,7 @@ from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
 
-from .__pkginfo__ import VERSION
+from ..__pkginfo__ import VERSION
 
 
 
@@ -311,7 +311,7 @@ config(
 	auth={
 		"multiuser":False,
 		"cookieprefix":"maloja",
-		"stylesheets":["/style.css"],
+		"stylesheets":["/maloja.css"],
 		"dbfile":data_dir['auth']("auth.ddb")
 	},
 	logging={

@@ -8,7 +8,7 @@ import csv
 import os
 
 from . import sqldb
-from ..globalconf import data_dir
+from ..pkg_global.conf import data_dir
 
 
 def load_associated_rules():

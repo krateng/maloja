@@ -1,4 +1,4 @@
-from .globalconf import data_dir, malojaconfig
+from .pkg_global.conf import data_dir, malojaconfig
 from . import thirdparty
 from . import database
 

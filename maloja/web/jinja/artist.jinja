@@ -6,6 +6,7 @@
 
 {% block scripts %}
 	<script src="/rangeselect.js"></script>
+	<script src="/edit.js"></script>
 {% endblock %}
 
 {% set artist = filterkeys.artist %}
@@ -26,10 +27,23 @@
 
 {% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
+{% block icon_bar %}
+	{% if adminmode %}
+		{% include 'icons/edit.jinja' %}
+		{% include 'icons/merge.jinja' %}
+		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_cancel.jinja' %}
+		<script>showValidMergeIcons();</script>
+	{% endif %}
+{% endblock %}
 
 {% block content %}
 
-
+<script>
+	const entity_id = {{ info.id }};
+	const entity_type = 'artist';
+	const entity_name = {{ artist | tojson }};
+</script>
 
 
 
@@ -47,7 +61,7 @@
 			{% endif %}
 		</td>
 		<td class="text">
-			<h1 class="headerwithextra">{{ info.artist }}</h1>
+			<h1 id="main_entity_name" class="headerwithextra">{{ info.artist }}</h1>
 				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
 				{% if competes and included %}
@@ -56,7 +70,9 @@
 					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>
 				{% endif %}
 
-			<p class="stats"><a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a></p>
+			<p class="stats">
+				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
+			</p>
 
 
 
@@ -71,6 +87,7 @@
 		</td>
 	</tr>
 </table>
+
 
 <h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 

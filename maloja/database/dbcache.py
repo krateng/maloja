@@ -9,7 +9,7 @@ import sys
 from doreah.regular import runhourly
 from doreah.logging import log
 
-from ..globalconf import malojaconfig
+from ..pkg_global.conf import malojaconfig
 
 
 

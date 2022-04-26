@@ -9,8 +9,12 @@
 {% set charts_cycler = cycler(*charts_14) %}
 
 
+
 <table class="tiles_top"><tr>
 {% for segment in range(3) %}
+	{% if charts_14[0] is none and loop.first %}
+	{% include 'icons/nodata.jinja' %}
+	{% else %}
 	<td>
 	{% set segmentsize = segment+1 %}
 	<table class="tiles_{{ segmentsize }}x{{ segmentsize }} tiles_sub">
@@ -35,6 +39,7 @@
 			</tr>
 		{%- endfor -%}
 	</table>
-</td>
+	</td>
+	{% endif %}
 {% endfor %}
 </tr></table>

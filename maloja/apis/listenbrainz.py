@@ -4,7 +4,7 @@ from .. import database
 import datetime
 from ._apikeys import apikeystore
 
-from ..globalconf import malojaconfig
+from ..pkg_global.conf import malojaconfig
 
 
 class Listenbrainz(APIHandler):

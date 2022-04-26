@@ -1,5 +1,5 @@
 # server
-from bottle import request, response, FormsDict, HTTPError
+from bottle import request, response, FormsDict
 
 # rest of the project
 from ..cleanup import CleanerAgent
@@ -7,12 +7,13 @@ from .. import images
 from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
-from ..globalconf import data_dir, malojaconfig
+from ..pkg_global.conf import data_dir, malojaconfig
 from ..apis import apikeystore
 #db
 from . import sqldb
 from . import cached
 from . import dbcache
+from . import exceptions
 
 # doreah toolkit
 from doreah.logging import log
@@ -42,23 +43,12 @@ dbstatus = {
 	"rebuildinprogress":False,
 	"complete":False			# information is complete
 }
-class DatabaseNotBuilt(HTTPError):
-	def __init__(self):
-		super().__init__(
-			status=503,
-			body="The Maloja Database is being upgraded to Version 3. This could take quite a long time! (~ 2-5 minutes per 10 000 scrobbles)",
-			headers={"Retry-After":120}
-		)
 
-
-class MissingScrobbleParameters(Exception):
-	def __init__(self,params=[]):
-		self.params = params
 
 
 def waitfordb(func):
 	def newfunc(*args,**kwargs):
-		if not dbstatus['healthy']: raise DatabaseNotBuilt()
+		if not dbstatus['healthy']: raise exceptions.DatabaseNotBuilt()
 		return func(*args,**kwargs)
 	return newfunc
 
@@ -97,11 +87,45 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 			missing.append(necessary_arg)
 	if len(missing) > 0:
 		log(f"Invalid Scrobble [Client: {client} | API: {api}]: {rawscrobble} ",color='red')
-		raise MissingScrobbleParameters(missing)
+		raise exceptions.MissingScrobbleParameters(missing)
 
 
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
+	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client)
+
+	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
+	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
+
+	dbcache.invalidate_caches(scrobbledict['time'])
+
+	#return {"status":"success","scrobble":scrobbledict}
+	return scrobbledict
+
+
+@waitfordb
+def reparse_scrobble(timestamp):
+	log(f"Reparsing Scrobble {timestamp}")
+	scrobble = sqldb.get_scrobble(timestamp=timestamp, include_internal=True)
+
+	if not scrobble or not scrobble['rawscrobble']:
+		return False
+
+	newscrobble = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
+
+	track_id = sqldb.get_track_id(newscrobble['track'])
+
+	# check if id changed
+	if sqldb.get_track_id(scrobble['track']) != track_id:
+		sqldb.edit_scrobble(timestamp, {'track':newscrobble['track']})
+		dbcache.invalidate_entity_cache()
+		dbcache.invalidate_caches()
+		return sqldb.get_scrobble(timestamp=timestamp)
+
+	return False
+
+
+def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 	# raw scrobble to processed info
 	scrobbleinfo = {**rawscrobble}
 	if fix:
@@ -129,15 +153,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 		"rawscrobble":rawscrobble
 	}
 
-
-	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
-	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
-
-	dbcache.invalidate_caches(scrobbledict['time'])
-
-	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
-
 
 
 @waitfordb
@@ -146,9 +162,49 @@ def remove_scrobble(timestamp):
 	result = sqldb.delete_scrobble(timestamp)
 	dbcache.invalidate_caches(timestamp)
 
+	return result
 
+@waitfordb
+def edit_artist(id,artistinfo):
+	artist = sqldb.get_artist(id)
+	log(f"Renaming {artist} to {artistinfo}")
+	result = sqldb.edit_artist(id,artistinfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
 
+	return result
 
+@waitfordb
+def edit_track(id,trackinfo):
+	track = sqldb.get_track(id)
+	log(f"Renaming {track['title']} to {trackinfo['title']}")
+	result = sqldb.edit_track(id,trackinfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def merge_artists(target_id,source_ids):
+	sources = [sqldb.get_artist(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_artists(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def merge_tracks(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_track(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_tracks(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
 
 
 
@@ -164,6 +220,7 @@ def get_scrobbles(dbconn=None,**keys):
 		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
 	return list(reversed(result))
+
 
 @waitfordb
 def get_scrobbles_num(dbconn=None,**keys):
@@ -242,6 +299,8 @@ def get_performance(dbconn=None,**keys):
 				if c["artist"] == artist:
 					rank = c["rank"]
 					break
+		else:
+			raise exceptions.MissingEntityParameter()
 		results.append({"range":rng,"rank":rank})
 
 	return results
@@ -281,8 +340,10 @@ def get_top_tracks(dbconn=None,**keys):
 def artist_info(dbconn=None,**keys):
 
 	artist = keys.get('artist')
+	if artist is None: raise exceptions.MissingEntityParameter()
 
-	artist = sqldb.get_artist(sqldb.get_artist_id(artist,dbconn=dbconn),dbconn=dbconn)
+	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
+	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -296,11 +357,12 @@ def artist_info(dbconn=None,**keys):
 			"position":position,
 			"associated":others,
 			"medals":{
-				"gold": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['gold']],
-				"silver": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['silver']],
-				"bronze": [year for year in cached.medals_artists if artist in cached.medals_artists[year]['bronze']],
+				"gold": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['gold']],
+				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
+				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist])
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id]),
+			"id":artist_id
 		}
 	except Exception:
 		# if the artist isnt in the charts, they are not being credited and we
@@ -308,7 +370,13 @@ def artist_info(dbconn=None,**keys):
 		replaceartist = sqldb.get_credited_artists(artist)[0]
 		c = [e for e in alltimecharts if e["artist"] == replaceartist][0]
 		position = c["rank"]
-		return {"artist":artist,"replace":replaceartist,"scrobbles":scrobbles,"position":position}
+		return {
+			"artist":artist,
+			"replace":replaceartist,
+			"scrobbles":scrobbles,
+			"position":position,
+			"id":artist_id
+		}
 
 
 
@@ -317,8 +385,10 @@ def artist_info(dbconn=None,**keys):
 def track_info(dbconn=None,**keys):
 
 	track = keys.get('track')
+	if track is None: raise exceptions.MissingEntityParameter()
 
-	track = sqldb.get_track(sqldb.get_track_id(track,dbconn=dbconn),dbconn=dbconn)
+	track_id = sqldb.get_track_id(track,dbconn=dbconn)
+	track = sqldb.get_track(track_id,dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
@@ -337,12 +407,13 @@ def track_info(dbconn=None,**keys):
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['gold']],
-			"silver": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['silver']],
-			"bronze": [year for year in cached.medals_tracks if track in cached.medals_tracks[year]['bronze']],
+			"gold": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['gold']],
+			"silver": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['silver']],
+			"bronze": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['bronze']],
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_toptracks if e == track])
+		"topweeks":len([e for e in cached.weekly_toptracks if e == track_id]),
+		"id":track_id
 	}
 
 

@@ -69,8 +69,9 @@ function scrobble(artists,title) {
 		"title":title
 	}
 
+
 	if (title != "" && artists.length > 0) {
-		neo.xhttpreq("/apis/mlj_1/newscrobble",data=payload,method="POST",callback=scrobbledone,json=true)
+		neo.xhttpreq("/apis/mlj_1/newscrobble",data=payload,method="POST",callback=notifyCallback,json=true)
 	}
 
 	document.getElementById("title").value = "";

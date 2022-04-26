@@ -7,7 +7,7 @@ import csv
 from doreah.logging import log
 from doreah.io import col
 
-from .globalconf import data_dir, dir_settings
+from .pkg_global.conf import data_dir, dir_settings
 from .apis import _apikeys
 
 

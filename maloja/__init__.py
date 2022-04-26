@@ -1,4 +1,4 @@
 # monkey patching
-from . import monkey
+from .pkg_global import monkey
 # configuration before all else
-from . import globalconf
+from .pkg_global import conf

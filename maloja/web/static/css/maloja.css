@@ -1,3 +1,6 @@
+@import url("/grisons.css");
+
+
 body {
 	padding:15px;
 	padding-bottom:35px;
@@ -55,23 +58,31 @@ div.header h1 {
  settings icon
 **/
 
-div.clickable_icon {
-	display: inline-block;
+svg {
 	fill: var(--text-color);
-	cursor: pointer;
-}
-div.clickable_icon:hover {
-	fill: var(--text-color-focus);
-}
-div.clickable_icon.danger:hover {
-	fill: red;
 }
 
-div#settingsicon {
+div#icon_bar {
 	position:fixed;
 	right:30px;
 	top:30px;
 }
+
+div#icon_bar div.clickable_icon {
+	display: inline-block;
+	height:26px;
+	width:26px;
+}
+div.clickable_icon svg {
+	cursor: pointer;
+}
+div.clickable_icon:hover svg {
+	fill: var(--text-color-focus);
+}
+div.clickable_icon.danger:hover svg {
+	fill: red;
+}
+
 
 
 /**
@@ -198,7 +209,7 @@ div#notification_area {
 div#notification_area div.notification {
 	background-color:white;
 	width:400px;
-	height:100px;
+	height:50px;
 	margin-bottom:7px;
 	padding:9px;
 	opacity:0.4;
@@ -512,7 +523,8 @@ table.list {
 table.list tr {
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
-	height: 1.4em;
+	height: 1.45em;
+	transition: opacity 2s;
 
 }
 
@@ -610,36 +622,62 @@ table.list td.searchProvider:hover {
 	color: gold;
 }
 
-table.list td.delete_area {
+table.list td.scrobble_action_area {
 	text-align: right;
-	width:7em;
+	width:2em;
+	overflow:visible;
+}
+
+table.list tr td.scrobble_action_area span.scrobble_action_type {
+	display:inline-block;
+	float:right;
+}
+
+table.list td.scrobble_action_area span.scrobble_action_type.active {
 }
 
 /* rows that can be deleted in some form
 	'active' class on the delete area cell to toggle confirm prompt
 	'removed' class on the whole row to delete
 */
-table.list tr td.delete_area span.confirmactions {
+table.list tr td.scrobble_action_area span.scrobble_action_type span.confirmactions {
 	display: none;
 }
-table.list tr td.delete_area span.initializeactions {
+table.list tr td.scrobble_action_area span.scrobble_action_type span.initializeactions {
 	display: initial;
 }
-table.list tr td.delete_area.active span.confirmactions {
+
+/* when other action is active, hide all */
+table.list tr td.scrobble_action_area.active span.scrobble_action_type span.initializeactions {
+	display: none;
+}
+table.list tr td.scrobble_action_area.active span.scrobble_action_type span.initializeactions {
+	display: none;
+}
+/* except this one itself is active */
+table.list tr td.scrobble_action_area.active span.scrobble_action_type.active span.confirmactions {
 	display: initial;
 }
-table.list tr td.delete_area.active span.initializeactions {
+table.list tr td.scrobble_action_area.active span.scrobble_action_type.active span.initializeactions {
 	display: none;
 }
-table.list tr.removed td.delete_area span.confirmactions {
+
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type {
 	display: none;
 }
-table.list tr.removed td.delete_area span.initializeactions {
+table.list tr.removed td.scrobble_action_area span.scrobble_action_type {
 	display: none;
 }
 table.list tr.removed {
 	text-decoration: line-through;
 	opacity:0.4;
+}
+
+
+table.list tr.changed {
+	/*background-color: rgba(222,209,180,0.7) !important;*/
+	opacity:0;
+	transition: opacity 0.2s;
 }
 
 

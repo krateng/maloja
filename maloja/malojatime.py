@@ -3,7 +3,7 @@ from calendar import monthrange
 from os.path import commonprefix
 import math
 
-from .globalconf import malojaconfig
+from .pkg_global.conf import malojaconfig
 
 
 OFFSET = malojaconfig["TIMEZONE"]

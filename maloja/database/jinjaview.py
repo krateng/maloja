@@ -3,7 +3,7 @@ from . sqldb import engine
 
 from .dbcache import serialize
 
-from ..globalconf import malojaconfig
+from ..pkg_global.conf import malojaconfig
 
 from doreah.logging import log
 

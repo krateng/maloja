@@ -1,5 +1,6 @@
 import os
 import math
+import traceback
 
 from bottle import response, static_file, request, FormsDict
 
@@ -12,7 +13,7 @@ from nimrodel import Multi
 
 
 from .. import database
-from ..globalconf import malojaconfig, data_dir
+from ..pkg_global.conf import malojaconfig, data_dir
 
 
 
@@ -39,15 +40,40 @@ api.__apipath__ = "mlj_1"
 
 
 errors = {
-	database.MissingScrobbleParameters: lambda e: (400,{
+	database.exceptions.MissingScrobbleParameters: lambda e: (400,{
 		"status":"failure",
 		"error":{
 			'type':'missing_scrobble_data',
 			'value':e.params,
-			'desc':"A scrobble requires these parameters."
+			'desc':"The scrobble is missing needed parameters."
 		}
 	}),
-	Exception: lambda e: (500,{
+	database.exceptions.MissingEntityParameter: lambda e: (400,{
+		"status":"error",
+		"error":{
+			'type':'missing_entity_parameter',
+			'value':None,
+			'desc':"This API call is not valid without an entity (track or artist)."
+		}
+	}),
+	database.exceptions.EntityExists: lambda e: (409,{
+		"status":"failure",
+		"error":{
+			'type':'entity_exists',
+			'value':e.entitydict,
+			'desc':"This entity already exists in the database. Consider merging instead."
+		}
+	}),
+	database.exceptions.DatabaseNotBuilt: lambda e: (503,{
+		"status":"error",
+		"error":{
+			'type':'server_not_ready',
+			'value':'db_upgrade',
+			'desc':"The database is being upgraded. Please try again later."
+		}
+	}),
+	# for http errors, use their status code
+	Exception: lambda e: ((e.status_code if hasattr(e,'statuscode') else 500),{
 		"status":"failure",
 		"error":{
 			'type':'unknown_error',
@@ -57,6 +83,21 @@ errors = {
 	})
 }
 
+def catch_exceptions(func):
+	def protector(*args,**kwargs):
+		try:
+			return func(*args,**kwargs)
+		except Exception as e:
+			print(traceback.format_exc())
+			for etype in errors:
+				if isinstance(e,etype):
+					errorhandling = errors[etype](e)
+					response.status = errorhandling[0]
+					return errorhandling[1]
+
+	protector.__doc__ = func.__doc__
+	protector.__annotations__ = func.__annotations__
+	return protector
 
 
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
@@ -94,6 +135,7 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 
 
 @api.get("test")
+@catch_exceptions
 def test_server(key=None):
 	"""Pings the server. If an API key is supplied, the server will respond with 200
 	if the key is correct and 403 if it isn't. If no key is supplied, the server will
@@ -119,6 +161,7 @@ def test_server(key=None):
 
 
 @api.get("serverinfo")
+@catch_exceptions
 def server_info():
 	"""Returns basic information about the server.
 
@@ -141,6 +184,7 @@ def server_info():
 
 
 @api.get("scrobbles")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_external(**keys):
 	"""Returns a list of scrobbles.
@@ -158,11 +202,13 @@ def get_scrobbles_external(**keys):
 	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
 
 @api.get("numscrobbles")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
 def get_scrobbles_num_external(**keys):
 	"""Returns amount of scrobbles.
@@ -176,12 +222,14 @@ def get_scrobbles_num_external(**keys):
 	result = database.get_scrobbles_num(**ckeys)
 
 	return {
+		"status":"ok",
 		"amount":result
 	}
 
 
 
 @api.get("tracks")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
 def get_tracks_external(**keys):
 	"""Returns all tracks (optionally of an artist).
@@ -195,12 +243,14 @@ def get_tracks_external(**keys):
 	result = database.get_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
 
 
 @api.get("artists")
+@catch_exceptions
 @add_common_args_to_docstring()
 def get_artists_external():
 	"""Returns all artists.
@@ -210,6 +260,7 @@ def get_artists_external():
 	result = database.get_artists()
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -218,6 +269,7 @@ def get_artists_external():
 
 
 @api.get("charts/artists")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True)
 def get_charts_artists_external(**keys):
 	"""Returns artist charts
@@ -230,12 +282,14 @@ def get_charts_artists_external(**keys):
 	result = database.get_charts_artists(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
 
 
 @api.get("charts/tracks")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
 def get_charts_tracks_external(**keys):
 	"""Returns track charts
@@ -248,6 +302,7 @@ def get_charts_tracks_external(**keys):
 	result = database.get_charts_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":result
 	}
 
@@ -255,6 +310,7 @@ def get_charts_tracks_external(**keys):
 
 
 @api.get("pulse")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_pulse_external(**keys):
 	"""Returns amounts of scrobbles in specified time frames
@@ -267,6 +323,7 @@ def get_pulse_external(**keys):
 	results = database.get_pulse(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -274,6 +331,7 @@ def get_pulse_external(**keys):
 
 
 @api.get("performance")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
 def get_performance_external(**keys):
 	"""Returns artist's or track's rank in specified time frames
@@ -286,6 +344,7 @@ def get_performance_external(**keys):
 	results = database.get_performance(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -293,6 +352,7 @@ def get_performance_external(**keys):
 
 
 @api.get("top/artists")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_artists_external(**keys):
 	"""Returns respective number 1 artists in specified time frames
@@ -305,6 +365,7 @@ def get_top_artists_external(**keys):
 	results = database.get_top_artists(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -312,6 +373,7 @@ def get_top_artists_external(**keys):
 
 
 @api.get("top/tracks")
+@catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
 def get_top_tracks_external(**keys):
 	"""Returns respective number 1 tracks in specified time frames
@@ -326,6 +388,7 @@ def get_top_tracks_external(**keys):
 	results = database.get_top_tracks(**ckeys)
 
 	return {
+		"status":"ok",
 		"list":results
 	}
 
@@ -333,6 +396,7 @@ def get_top_tracks_external(**keys):
 
 
 @api.get("artistinfo")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
 def artist_info_external(**keys):
 	"""Returns information about an artist
@@ -347,8 +411,9 @@ def artist_info_external(**keys):
 
 
 @api.get("trackinfo")
+@catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def track_info_external(artist:Multi[str],**keys):
+def track_info_external(artist:Multi[str]=[],**keys):
 	"""Returns information about a track
 
 	:return: track (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
@@ -365,6 +430,7 @@ def track_info_external(artist:Multi[str],**keys):
 
 @api.post("newscrobble")
 @authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
+@catch_exceptions
 def post_scrobble(
 		artist:Multi=None,
 		artists:list=[],
@@ -406,46 +472,41 @@ def post_scrobble(
 	# for logging purposes, don't pass values that we didn't actually supply
 	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
 
-	try:
-		result = database.incoming_scrobble(
-			rawscrobble,
-			client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
-			api='native/v1',
-			fix=(nofix is None)
-		)
 
-		responsedict = {
-			'status': 'success',
-			'track': {
-				'artists':result['track']['artists'],
-				'title':result['track']['title']
-			}
-		}
-		if extra_kwargs:
-			responsedict['warnings'] = [
-				{'type':'invalid_keyword_ignored','value':k,
-				'desc':"This key was not recognized by the server and has been discarded."}
-				for k in extra_kwargs
-			]
-		if artist and artists:
-			responsedict['warnings'] = [
-				{'type':'mixed_schema','value':['artist','artists'],
-				'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
-			]
-		return responsedict
-	except Exception as e:
-		for etype in errors:
-			if isinstance(e,etype):
-				errorhandling = errors[etype](e)
-				response.status = errorhandling[0]
-				return errorhandling[1]
+	result = database.incoming_scrobble(
+		rawscrobble,
+		client='browser' if auth_result.get('doreah_native_auth_check') else auth_result.get('client'),
+		api='native/v1',
+		fix=(nofix is None)
+	)
 
+	responsedict = {
+		'status': 'success',
+		'track': {
+			'artists':result['track']['artists'],
+			'title':result['track']['title']
+		},
+		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}"
+	}
+	if extra_kwargs:
+		responsedict['warnings'] = [
+			{'type':'invalid_keyword_ignored','value':k,
+			'desc':"This key was not recognized by the server and has been discarded."}
+			for k in extra_kwargs
+		]
+	if artist and artists:
+		responsedict['warnings'] = [
+			{'type':'mixed_schema','value':['artist','artists'],
+			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
+		]
+	return responsedict
 
 
 
 
 @api.post("importrules")
 @authenticated_function(api=True)
+@catch_exceptions
 def import_rulemodule(**keys):
 	"""Internal Use Only"""
 	filename = keys.get("filename")
@@ -464,6 +525,7 @@ def import_rulemodule(**keys):
 
 @api.post("rebuild")
 @authenticated_function(api=True)
+@catch_exceptions
 def rebuild(**keys):
 	"""Internal Use Only"""
 	log("Database rebuild initiated!")
@@ -480,6 +542,7 @@ def rebuild(**keys):
 
 
 @api.get("search")
+@catch_exceptions
 def search(**keys):
 	"""Internal Use Only"""
 	query = keys.get("query")
@@ -501,17 +564,19 @@ def search(**keys):
 	artists_result = []
 	for a in artists:
 		result = {
-		    'name': a,
+			'artist': a,
 		    'link': "/artist?" + compose_querystring(internal_to_uri({"artist": a})),
+			'image': images.get_artist_image(a)
 		}
-		result["image"] = images.get_artist_image(a)
 		artists_result.append(result)
 
 	tracks_result = []
 	for t in tracks:
-		result = t
-		result["link"] = "/track?" + compose_querystring(internal_to_uri({"track":t}))
-		result["image"] = images.get_track_image(t)
+		result = {
+			'track': t,
+			'link': "/track?" + compose_querystring(internal_to_uri({"track":t})),
+			'image': images.get_track_image(t)
+		}
 		tracks_result.append(result)
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
@@ -519,6 +584,7 @@ def search(**keys):
 
 @api.post("addpicture")
 @authenticated_function(api=True)
+@catch_exceptions
 def add_picture(b64,artist:Multi=[],title=None):
 	"""Internal Use Only"""
 	keys = FormsDict()
@@ -532,6 +598,7 @@ def add_picture(b64,artist:Multi=[],title=None):
 
 @api.post("newrule")
 @authenticated_function(api=True)
+@catch_exceptions
 def newrule(**keys):
 	"""Internal Use Only"""
 	pass
@@ -542,18 +609,21 @@ def newrule(**keys):
 
 @api.post("settings")
 @authenticated_function(api=True)
+@catch_exceptions
 def set_settings(**keys):
 	"""Internal Use Only"""
 	malojaconfig.update(keys)
 
 @api.post("apikeys")
 @authenticated_function(api=True)
+@catch_exceptions
 def set_apikeys(**keys):
 	"""Internal Use Only"""
 	apikeystore.update(keys)
 
 @api.post("import")
 @authenticated_function(api=True)
+@catch_exceptions
 def import_scrobbles(identifier):
 	"""Internal Use Only"""
 	from ..thirdparty import import_scrobbles
@@ -561,6 +631,7 @@ def import_scrobbles(identifier):
 
 @api.get("backup")
 @authenticated_function(api=True)
+@catch_exceptions
 def get_backup(**keys):
 	"""Internal Use Only"""
 	from ..proccontrol.tasks.backup import backup
@@ -573,6 +644,7 @@ def get_backup(**keys):
 
 @api.get("export")
 @authenticated_function(api=True)
+@catch_exceptions
 def get_export(**keys):
 	"""Internal Use Only"""
 	from ..proccontrol.tasks.export import export
@@ -586,6 +658,71 @@ def get_export(**keys):
 
 @api.post("delete_scrobble")
 @authenticated_function(api=True)
+@catch_exceptions
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
-	database.remove_scrobble(timestamp)
+	result = database.remove_scrobble(timestamp)
+	return {
+		"status":"success",
+		"desc":f"Scrobble was deleted!"
+	}
+
+
+@api.post("edit_artist")
+@authenticated_function(api=True)
+@catch_exceptions
+def edit_artist(id,name):
+	"""Internal Use Only"""
+	result = database.edit_artist(id,name)
+	return {
+		"status":"success"
+	}
+
+@api.post("edit_track")
+@authenticated_function(api=True)
+@catch_exceptions
+def edit_track(id,title):
+	"""Internal Use Only"""
+	result = database.edit_track(id,{'title':title})
+	return {
+		"status":"success"
+	}
+
+
+@api.post("merge_tracks")
+@authenticated_function(api=True)
+@catch_exceptions
+def merge_tracks(target_id,source_ids):
+	"""Internal Use Only"""
+	result = database.merge_tracks(target_id,source_ids)
+	return {
+		"status":"success"
+	}
+
+@api.post("merge_artists")
+@authenticated_function(api=True)
+@catch_exceptions
+def merge_artists(target_id,source_ids):
+	"""Internal Use Only"""
+	result = database.merge_artists(target_id,source_ids)
+	return {
+		"status":"success"
+	}
+
+@api.post("reparse_scrobble")
+@authenticated_function(api=True)
+@catch_exceptions
+def reparse_scrobble(timestamp):
+	"""Internal Use Only"""
+	result = database.reparse_scrobble(timestamp)
+	if result:
+		return {
+			"status":"success",
+			"desc":f"Scrobble was reparsed!",
+			"scrobble":result
+		}
+	else:
+		return {
+			"status":"no_operation",
+			"desc":"The scrobble was not changed."
+		}

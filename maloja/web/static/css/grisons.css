@@ -2,6 +2,8 @@
 	COMMON STYLES FOR MALOJA, ALBULA AND POSSIBLY OTHERS
 **/
 
+@import url("/grisonsfont.css");
+
 :root {
 	--base-color: #232327;
 	--base-color-dark: #090909;
@@ -156,5 +158,5 @@ input:focus {
 
 
 .hide {
-	display:none;
+	display:none !important;
 }

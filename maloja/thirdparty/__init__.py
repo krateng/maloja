@@ -13,7 +13,7 @@ import base64
 from doreah.logging import log
 from threading import BoundedSemaphore
 
-from ..globalconf import malojaconfig
+from ..pkg_global.conf import malojaconfig
 from .. import database
 
 

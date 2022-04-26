@@ -1,5 +1,5 @@
 from . import filters
-from ..globalconf import malojaconfig
+from ..pkg_global.conf import malojaconfig
 
 from .. import database, malojatime, images, malojauri, thirdparty, __pkginfo__
 from ..database import jinjaview

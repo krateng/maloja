@@ -2,9 +2,7 @@
 import sys
 import os
 from threading import Thread
-import setproctitle
 from importlib import resources
-from css_html_js_minify import html_minify, css_minify
 import datauri
 import time
 
@@ -22,12 +20,12 @@ from . import database
 from .database.jinjaview import JinjaDBConnection
 from .images import resolve_track_image, resolve_artist_image
 from .malojauri import uri_to_internal, remove_identical
-from .globalconf import malojaconfig, data_dir
+from .pkg_global.conf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
 
 
-from .proccontrol.profiler import profile
+from .dev.profiler import profile
 
 
 ######
@@ -42,48 +40,6 @@ BaseRequest.MEMFILE_MAX = 15 * 1024 * 1024
 #STATICFOLDER = importlib.resources.path(__name__,"web/static")
 
 webserver = Bottle()
-
-#rename process, this is now required for the daemon manager to work
-setproctitle.setproctitle("Maloja")
-
-
-######
-### CSS
-#####
-
-
-def generate_css():
-	cssstr = ""
-	with resources.files('maloja') / 'web' / 'static' as staticfolder:
-
-		for file in os.listdir(os.path.join(staticfolder,"css")):
-			if file.endswith(".css"):
-				with open(os.path.join(staticfolder,"css",file),"r") as filed:
-					cssstr += filed.read()
-
-	for file in os.listdir(data_dir['css']()):
-		if file.endswith(".css"):
-			with open(os.path.join(data_dir['css'](file)),"r") as filed:
-				cssstr += filed.read()
-
-	cssstr = css_minify(cssstr)
-	return cssstr
-
-css = generate_css()
-
-
-
-######
-### MINIFY
-#####
-
-def clean_html(inp):
-	return inp
-
-	#if malojaconfig["DEV_MODE"]: return inp
-	#else: return html_minify(inp)
-
-
 
 
 
@@ -204,13 +160,6 @@ def static_image(pth):
 	return resp
 
 
-@webserver.route("/style.css")
-def get_css():
-	response.content_type = 'text/css'
-	if malojaconfig["DEV_MODE"]: return generate_css()
-	else: return css
-
-
 @webserver.route("/login")
 def login():
 	return auth.get_login_page()
@@ -219,7 +168,7 @@ def login():
 @webserver.route("/<name>.<ext>")
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
-	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf"]
+	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf","css"]
 	with resources.files('maloja') / 'web' / 'static' as staticfolder:
 		response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
@@ -263,7 +212,7 @@ def jinja_page(name):
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
-	return clean_html(res)
+	return res
 
 @webserver.route("/<name:re:admin.*>")
 @auth.authenticated
