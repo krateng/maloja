@@ -182,6 +182,15 @@ def static(path):
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
+# static files not supplied by the package
+@webserver.get("/static_custom/<category>/<path:path>")
+def static_custom(category,path):
+	rootpath = {
+		'css':data_dir['css']()
+	}
+	response = static_file(path,root=rootpath[category])
+	response.set_header("Cache-Control", "public, max-age=3600")
+	return response
 
 
 ### DYNAMIC
