@@ -162,11 +162,15 @@ def get_size_of(obj,counted=None):
 	return size
 
 def human_readable_size(obj):
-	units = ['','K','M','G','T','P']
-	idx = 0
-	bytes = get_size_of(obj)
-	while bytes > 1024 and len(units) > idx+1:
-		bytes = bytes / 1024
-		idx += 1
+	units = ['','Ki','Mi','Gi','Ti','Pi']
+	magnitude = 0
 
-	return f"{bytes:.2f} {units[idx]}B"
+	bytes = get_size_of(obj)
+	while bytes > 1024 and len(units) > magnitude+1:
+		bytes = bytes / 1024
+		magnitude += 1
+
+	if magnitude > 2:
+		return f"{bytes:.2f} {units[magnitude]}B"
+	else:
+		return f"{bytes:.0f} {units[magnitude]}B"
