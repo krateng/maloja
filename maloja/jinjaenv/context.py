@@ -1,5 +1,6 @@
 from . import filters
 from ..pkg_global.conf import malojaconfig
+from ..pkg_global import conf
 
 from .. import database, malojatime, images, malojauri, thirdparty, __pkginfo__
 from ..database import jinjaview
@@ -32,6 +33,7 @@ def update_jinja_environment():
 		"mlj_uri": malojauri,
 		"settings": malojaconfig,
 		"thirdparty": thirdparty,
+		"conf":conf,
 		"pkginfo": __pkginfo__,
 		# external
 		"urllib": urllib,

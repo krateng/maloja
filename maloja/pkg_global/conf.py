@@ -326,6 +326,9 @@ config(
 
 
 
+custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
+
+
 
 # what the fuck did i just write
 # this spaghetti file is proudly sponsored by the rice crackers i'm eating at the

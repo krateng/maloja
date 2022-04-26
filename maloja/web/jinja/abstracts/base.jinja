@@ -14,6 +14,9 @@
 
 		<link rel="stylesheet" href="/maloja.css" />
 		<link rel="stylesheet" href="/static/css/themes/{{ settings.theme }}.css" />
+		{% for cssf in conf.custom_css_files %}
+			<link rel="stylesheet" href="/static_custom/css/{{ cssf }}" />
+		{% endfor %}
 
 		<script src="/search.js"></script>
 		<script src="/neopolitan.js"></script>
