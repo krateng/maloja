@@ -10,3 +10,7 @@ minor_release_name: "Soyeon"
     - "[Performance] Adjusted cache sizes"
     - "[Logging] Added cache memory use information"
     - "[Technical] Bumped Python Version and various dependencies"
+3.1.1:
+    notes:
+    - "[Bugfix] Fixed inclusion of custom css files"
+    - "[Bugfix] Fixed list values in configuration"

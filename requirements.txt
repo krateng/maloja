@@ -1,6 +1,6 @@
 bottle>=0.12.16
 waitress>=2.1.0
-doreah>=1.9.1, <2
+doreah>=1.9.2, <2
 nimrodel>=0.8.0
 setproctitle>=1.1.10
 jinja2>=3.0.0
