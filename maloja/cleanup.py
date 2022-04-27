@@ -172,6 +172,18 @@ class CleanerAgent:
 				return (title,artists)
 
 		artists = []
+
+		if malojaconfig["PARSE_REMIX_ARTISTS"]:
+			for filter in malojaconfig["FILTERS_REMIX"]:
+				# match remix in brackets
+				if re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t):
+					artists += self.parseArtists(re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t)[1])
+					print("check")
+
+				# match remix split with "-"
+				elif re.match(r".*-(.*)" + filter, t):
+					artists += self.parseArtists(re.match(r".*-(.*)" + filter, t)[1])
+
 		for st in self.rules_artistintitle:
 			if st in t.lower(): artists += self.rules_artistintitle[st].split("␟")
 		return (t,artists)
