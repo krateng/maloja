@@ -178,7 +178,6 @@ class CleanerAgent:
 				# match remix in brackets
 				if re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t):
 					artists += self.parseArtists(re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t)[1])
-					print("check")
 
 				# match remix split with "-"
 				elif re.match(r".*-(.*)" + filter, t):
