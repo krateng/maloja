@@ -54,6 +54,7 @@
 			<div
 				class="changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
 				style="background-image:url('{{ images.get_artist_image(artist) }}');"
+				title="Drag & Drop to upload new image"
 			></div>
 			{% else %}
 			<div style="background-image:url('{{ images.get_artist_image(artist) }}');">
