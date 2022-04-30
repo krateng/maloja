@@ -55,7 +55,7 @@ class CleanerAgent:
 		artists = list(set(artists))
 		artists.sort()
 
-		return (artists,title)
+		return (artists,title.strip())
 
 	def removespecial(self,s):
 		if isinstance(s,list):
