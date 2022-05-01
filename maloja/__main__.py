@@ -14,7 +14,7 @@ from . import __pkginfo__ as pkginfo
 from .pkg_global import conf
 from .proccontrol import tasks
 from .setup import setup
-from .dev import generate
+from .dev import generate, apidebug
 
 
 
@@ -159,6 +159,7 @@ def main(*args,**kwargs):
 		"backup":tasks.backup,					# maloja backup --targetfolder /x/y --include_images
 		"generate":generate.generate_scrobbles,	# maloja generate 400
 		"export":tasks.export,					# maloja export
+		"apidebug":apidebug.run,				# maloja apidebug
 		# aux
 		"info":print_info
 	}
