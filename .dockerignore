@@ -1,7 +1,6 @@
 *
 !maloja
 !Containerfile
-!requirements_pre.txt
 !requirements.txt
 !pyproject.toml
 !README.md
