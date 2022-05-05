@@ -11,6 +11,13 @@ minor_release_name: "Soyeon"
     - "[Logging] Added cache memory use information"
     - "[Technical] Bumped Python Version and various dependencies"
 3.1.1:
+    commit: "20aae955b2263be07c56bafe4794f622117116ef"
     notes:
     - "[Bugfix] Fixed inclusion of custom css files"
     - "[Bugfix] Fixed list values in configuration"
+3.1.2:
+    notes:
+    - "[Feature] Added remix artist parsing"
+    - "[Feature] Added API debug mode"
+    - "[Bugfix] Fixed leftover whitespaces when parsing titles"
+    - "[Bugfix] Fixed handling of fallthrough values in config file"
