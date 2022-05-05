@@ -16,6 +16,7 @@ minor_release_name: "Soyeon"
     - "[Bugfix] Fixed inclusion of custom css files"
     - "[Bugfix] Fixed list values in configuration"
 3.1.2:
+    commit: "a0739306013cd9661f028fb5b2620cfa2d298aa4"
     notes:
     - "[Feature] Added remix artist parsing"
     - "[Feature] Added API debug mode"

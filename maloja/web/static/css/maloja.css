@@ -848,8 +848,11 @@ table.tiles_top td div {
 
 table.tiles_top td span {
 	background-color:rgba(0,0,0,0.7);
-	display: table-cell;
+	display: inline-block;
+	margin-top:2%;
 	padding: 3px;
+	max-width: 70%;
+	vertical-align: text-top;
 }
 table.tiles_top td a:hover {
 	text-decoration: none;
@@ -863,12 +866,12 @@ table.tiles_1x1 td {
 table.tiles_2x2 td {
 	height:50%;
 	width:50%;
-	font-size:90%
+	font-size:80%
 }
 table.tiles_3x3 td {
 	height:33.333%;
 	width:33.333%;
-	font-size:70%
+	font-size:60%
 }
 table.tiles_4x4 td {
 	font-size:50%
