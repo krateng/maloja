@@ -109,9 +109,9 @@ class CleanerAgent:
 
 
 		for d in self.delimiters_feat:
-			if re.match(r"(.*) [\(\[]" + d + " (.*)[\)\]]",a,re.IGNORECASE) is not None:
-				return self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\1",a,re.IGNORECASE)) + \
-						self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\2",a,re.IGNORECASE))
+			if re.match(r"(.*) [\(\[]" + d + " (.*)[\)\]]",a,flags=re.IGNORECASE) is not None:
+				return self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\1",a,flags=re.IGNORECASE)) + \
+						self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*)[\)\]]",r"\2",a,flags=re.IGNORECASE))
 
 
 
@@ -158,17 +158,17 @@ class CleanerAgent:
 
 	def parseTitleForArtists(self,t):
 		for d in self.delimiters_feat:
-			if re.match(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",t,re.IGNORECASE) is not None:
-				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",r"\1",t,re.IGNORECASE))
-				artists += self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]].*",r"\2",t,re.IGNORECASE))
+			if re.match(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",t,flags=re.IGNORECASE) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]]",r"\1",t,flags=re.IGNORECASE))
+				artists += self.parseArtists(re.sub(r"(.*) [\(\[]" + d + " (.*?)[\)\]].*",r"\2",t,flags=re.IGNORECASE))
 				return (title,artists)
-			if re.match(r"(.*) - " + d + " (.*)",t,re.IGNORECASE) is not None:
-				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) - " + d + " (.*)",r"\1",t,re.IGNORECASE))
-				artists += self.parseArtists(re.sub(r"(.*) - " + d + " (.*).*",r"\2",t,re.IGNORECASE))
+			if re.match(r"(.*) - " + d + " (.*)",t,flags=re.IGNORECASE) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) - " + d + " (.*)",r"\1",t,flags=re.IGNORECASE))
+				artists += self.parseArtists(re.sub(r"(.*) - " + d + " (.*).*",r"\2",t,flags=re.IGNORECASE))
 				return (title,artists)
-			if re.match(r"(.*) " + d + " (.*)",t,re.IGNORECASE) is not None:
-				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) " + d + " (.*)",r"\1",t,re.IGNORECASE))
-				artists += self.parseArtists(re.sub(r"(.*) " + d + " (.*).*",r"\2",t,re.IGNORECASE))
+			if re.match(r"(.*) " + d + " (.*)",t,flags=re.IGNORECASE) is not None:
+				(title,artists) = self.parseTitleForArtists(re.sub(r"(.*) " + d + " (.*)",r"\1",t,flags=re.IGNORECASE))
+				artists += self.parseArtists(re.sub(r"(.*) " + d + " (.*).*",r"\2",t,flags=re.IGNORECASE))
 				return (title,artists)
 
 		artists = []
@@ -176,12 +176,12 @@ class CleanerAgent:
 		if malojaconfig["PARSE_REMIX_ARTISTS"]:
 			for filter in malojaconfig["FILTERS_REMIX"]:
 				# match remix in brackets
-				m = re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t, re.IGNORECASE)
+				m = re.match(r".*[\(\[](.*)" + filter + "[\)\]]", t, flags=re.IGNORECASE)
 				if m:
 					artists += self.parseArtists(m.groups()[0])
 
 				# match remix split with "-"
-				m = re.match(r".*-(.*)" + filter, t, re.IGNORECASE)
+				m = re.match(r".*-(.*)" + filter, t, flags=re.IGNORECASE)
 				if m:
 					artists += self.parseArtists(m.groups()[0])
 
