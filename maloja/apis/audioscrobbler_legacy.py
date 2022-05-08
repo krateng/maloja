@@ -73,6 +73,8 @@ class AudioscrobblerLegacy(APIHandler):
 		client = self.mobile_sessions.get(key)
 		for count in range(50):
 			artist_key = f"a[{count}]"
+			album_key = f"b[{count}]"
+			length_key = f"l[{count}]"
 			track_key = f"t[{count}]"
 			time_key = f"i[{count}]"
 			if artist_key not in keys or track_key not in keys:
@@ -82,12 +84,19 @@ class AudioscrobblerLegacy(APIHandler):
 				timestamp = int(keys[time_key])
 			except Exception:
 				timestamp = None
-			#database.createScrobble(artists,title,timestamp)
-			self.scrobble({
+
+			scrobble = {
 				'track_artists':[artiststr],
 				'track_title':titlestr,
-				'scrobble_time':timestamp
-			},client=client)
+				'scrobble_time':timestamp,
+			}
+			if album_key in keys:
+				scrobble['album_name'] = keys[album_key]
+			if length_key in keys:
+				scrobble['track_length'] = keys[length_key]
+
+			#database.createScrobble(artists,title,timestamp)
+			self.scrobble(scrobble, client=client)
 		return 200,"OK\n"
 
 
