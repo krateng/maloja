@@ -20,17 +20,13 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 	* [Requirements](#requirements)
 	* [PyPI](#pypi)
 	* [From Source](#from-source)
-	* [Docker / Podman](#docker-podman)
+	* [Docker / Podman](#docker--podman)
 	* [Extras](#extras)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
 	* [Data](#data)
 	* [Customization](#customization)
 * [How to scrobble](#how-to-scrobble)
-	* [Native support](#native-support)
-	* [Native API](#native-api)
-	* [Standard-compliant API](#standard-compliant-api)
-	* [Manual](#manual)
 * [How to extend](#how-to-extend)
 
 ## Features
