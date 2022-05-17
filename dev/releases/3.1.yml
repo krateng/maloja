@@ -23,6 +23,10 @@ minor_release_name: "Soyeon"
     - "[Bugfix] Fixed leftover whitespaces when parsing titles"
     - "[Bugfix] Fixed handling of fallthrough values in config file"
 3.1.3:
+    commit: "f3a04c79b1c37597cdf3cafcd95e3c923cd6a53f"
     notes:
     - "[Bugfix] Fixed infinite recursion with capitalized featuring delimiters"
     - "[Bugfix] Fixed favicon display"
+3.1.4:
+    notes:
+    - "[Feature] Expanded information saved from Listenbrainz API"

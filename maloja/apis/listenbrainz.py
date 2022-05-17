@@ -55,6 +55,7 @@ class Listenbrainz(APIHandler):
 				try:
 					metadata = listen["track_metadata"]
 					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
+					additional = metadata.get("additional_info",{})
 					try:
 						timestamp = int(listen["listened_at"])
 					except Exception:
@@ -62,10 +63,19 @@ class Listenbrainz(APIHandler):
 				except Exception:
 					raise MalformedJSONException()
 
+				extrafields = {
+					# fields that will not be consumed by regular scrobbling
+					# will go into 'extra'
+					k:additional[k]
+					for k in ['release_mbid','artist_mbids','recording_mbid','tags']
+					if k in additional
+				}
+
 				self.scrobble({
 					'track_artists':[artiststr],
 					'track_title':titlestr,
-					'scrobble_time':timestamp
+					'scrobble_time':timestamp,
+					**extrafields
 				},client=client)
 
 			return 200,{"status":"ok"}
