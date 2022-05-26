@@ -47,9 +47,12 @@ def init_apis(server):
 			server.get(altpath_empty_cl)(alias_api)
 			server.post(altpath_empty_cl)(alias_api)
 
-	def invalid_api(pth):
+	def invalid_api(pth=''):
 		response.status = 404
 		return {"error":"Invalid API"}
 
 	server.get("/apis/<pth:path>")(invalid_api)
 	server.post("/apis/<pth:path>")(invalid_api)
+
+	server.get("/apis")(invalid_api)
+	server.post("/apis")(invalid_api)
