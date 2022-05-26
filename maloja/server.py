@@ -10,6 +10,7 @@ import time
 # server stuff
 from bottle import Bottle, static_file, request, response, FormsDict, redirect, BaseRequest, abort
 import waitress
+from jinja2.exceptions import TemplateNotFound
 
 # doreah toolkit
 from doreah.logging import log
@@ -212,10 +213,11 @@ def jinja_page(name):
 			"_urikeys":keys, #temporary!
 		}
 		loc_context["filterkeys"], loc_context["limitkeys"], loc_context["delimitkeys"], loc_context["amountkeys"], loc_context["specialkeys"] = uri_to_internal(keys)
-
-		template = jinja_environment.get_template(name + '.jinja')
 		try:
+			template = jinja_environment.get_template(name + '.jinja')
 			res = template.render(**loc_context)
+		except TemplateNotFound:
+			abort(404,f"Not found: '{name}'")
 		except (ValueError, IndexError):
 			abort(404,"This Artist or Track does not exist")
 
