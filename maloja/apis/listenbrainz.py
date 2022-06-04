@@ -54,7 +54,7 @@ class Listenbrainz(APIHandler):
 			for listen in payload:
 				try:
 					metadata = listen["track_metadata"]
-					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
+					artiststr, titlestr, albumstr = metadata["artist_name"], metadata["track_name"], metadata["release_name"]
 					additional = metadata.get("additional_info",{})
 					try:
 						timestamp = int(listen["listened_at"])
@@ -74,6 +74,7 @@ class Listenbrainz(APIHandler):
 				self.scrobble({
 					'track_artists':[artiststr],
 					'track_title':titlestr,
+					'album_name':albumstr,
 					'scrobble_time':timestamp,
 					**extrafields
 				},client=client)
