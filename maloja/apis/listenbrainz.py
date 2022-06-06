@@ -54,7 +54,8 @@ class Listenbrainz(APIHandler):
 			for listen in payload:
 				try:
 					metadata = listen["track_metadata"]
-					artiststr, titlestr, albumstr = metadata["artist_name"], metadata["track_name"], metadata["release_name"]
+					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
+					albumstr = metadata.get("release_name")
 					additional = metadata.get("additional_info",{})
 					try:
 						timestamp = int(listen["listened_at"])
