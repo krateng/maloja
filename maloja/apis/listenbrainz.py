@@ -68,7 +68,7 @@ class Listenbrainz(APIHandler):
 					# fields that will not be consumed by regular scrobbling
 					# will go into 'extra'
 					k:additional[k]
-					for k in ['release_mbid','artist_mbids','recording_mbid','tags']
+					for k in ['track_mbid', 'release_mbid','artist_mbids','recording_mbid','tags', 'spotify_id']
 					if k in additional
 				}
 
@@ -77,6 +77,7 @@ class Listenbrainz(APIHandler):
 					'track_title':titlestr,
 					'album_name':albumstr,
 					'scrobble_time':timestamp,
+					'track_length': additional.get("duration"),
 					**extrafields
 				},client=client)
 
