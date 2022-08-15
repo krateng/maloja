@@ -1,0 +1,17 @@
+# NAME: JPop
+# DESC: Fixes and romanizes various Japanese tracks and artists
+
+
+belongtogether	Myth & Roid
+
+
+# Sora-chan
+replaceartist	Amamiya Sora						Sora Amamiya
+replacetitle	エデンの旅人						Eden no Tabibito
+replacetitle	月灯り							Tsukiakari
+replacetitle	火花							Hibana
+replacetitle	ロンリーナイト・ディスコティック				Lonely Night Discotheque
+replacetitle	羽根輪舞							Hane Rinbu
+replacetitle	メリーゴーランド						Merry-go-round
+replacetitle	フリイジア						Fressia
+replacetitle	誓い							Chikai
