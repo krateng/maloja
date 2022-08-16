@@ -84,7 +84,7 @@ def import_scrobbles(inputf):
 				 	"track":{
 				 		"artists":scrobble['track_artists'],
 				 		"title":scrobble['track_title'],
-				 		"length":None
+				 		"length":scrobble['track_length'],
 				 	},
 				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,
@@ -154,6 +154,7 @@ def parse_spotify_lite(inputf):
 				yield ("CONFIDENT_IMPORT",{
 					'track_title':title,
 					'track_artists': artist,
+					'track_length': None,
 					'scrobble_time': timestamp,
 					'scrobble_duration':played,
 					'album_name': None
@@ -262,6 +263,7 @@ def parse_spotify_full(inputf):
 				yield (status,{
 					'track_title':title,
 					'track_artists': artist,
+					'track_length': None,
 					'album_name': album,
 					'scrobble_time': timestamp,
 					'scrobble_duration':played
@@ -294,6 +296,7 @@ def parse_lastfm(inputf):
 				yield ('CONFIDENT_IMPORT',{
 					'track_title': title,
 					'track_artists': artist,
+					'track_length': None,
 					'album_name': album,
 					'scrobble_time': int(datetime.datetime.strptime(
 						time + '+0000',
@@ -318,6 +321,7 @@ def parse_maloja(inputf):
 			yield ('CONFIDENT_IMPORT',{
 				'track_title': s['track']['title'],
 				'track_artists': s['track']['artists'],
+				'track_length': s['track']['length'],
 				'album_name': s['track'].get('album',{}).get('name',''),
 				'scrobble_time': s['time'],
 				'scrobble_duration': s['duration']
