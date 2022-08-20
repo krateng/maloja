@@ -49,6 +49,11 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "maloja","Maloja"
 		importfunc = parse_maloja
 
+	# username_lb-YYYY-MM-DD.json
+	elif re.match(".*_lb-[0-9-]+\.json",filename):
+		typeid,typedesc = "listenbrainz","ListenBrainz"
+		importfunc = parse_listenbrainz
+
 	else:
 		print("File",inputf,"could not be identified as a valid import source.")
 		return result
@@ -84,7 +89,7 @@ def import_scrobbles(inputf):
 				 	"track":{
 				 		"artists":scrobble['track_artists'],
 				 		"title":scrobble['track_title'],
-				 		"length":None
+				 		"length":scrobble['track_length'],
 				 	},
 				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,
@@ -154,6 +159,7 @@ def parse_spotify_lite(inputf):
 				yield ("CONFIDENT_IMPORT",{
 					'track_title':title,
 					'track_artists': artist,
+					'track_length': None,
 					'scrobble_time': timestamp,
 					'scrobble_duration':played,
 					'album_name': None
@@ -262,6 +268,7 @@ def parse_spotify_full(inputf):
 				yield (status,{
 					'track_title':title,
 					'track_artists': artist,
+					'track_length': None,
 					'album_name': album,
 					'scrobble_time': timestamp,
 					'scrobble_duration':played
@@ -294,6 +301,7 @@ def parse_lastfm(inputf):
 				yield ('CONFIDENT_IMPORT',{
 					'track_title': title,
 					'track_artists': artist,
+					'track_length': None,
 					'album_name': album,
 					'scrobble_time': int(datetime.datetime.strptime(
 						time + '+0000',
@@ -305,6 +313,28 @@ def parse_lastfm(inputf):
 				yield ('FAIL',None,f"{row} (Line {line}) could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
 
+def parse_listenbrainz(inputf):
+
+	with open(inputf,'r') as inputfd:
+		data = json.load(inputfd)
+
+	for entry in data:
+
+		try:
+			track_metadata = entry['track_metadata']
+			additional_info = track_metadata.get('additional_info', {})
+
+			yield ("CONFIDENT_IMPORT",{
+				'track_title': track_metadata['track_name'],
+				'track_artists': additional_info.get('artist_names') or track_metadata['artist_name'],
+				'track_length': int(additional_info.get('duration_ms', 0) / 1000) or additional_info.get('duration'),
+				'album_name': track_metadata.get('release_name'),
+				'scrobble_time': entry['listened_at'],
+				'scrobble_duration': None,
+			},'')
+		except Exception as e:
+			yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
+			continue
 
 def parse_maloja(inputf):
 
@@ -318,6 +348,7 @@ def parse_maloja(inputf):
 			yield ('CONFIDENT_IMPORT',{
 				'track_title': s['track']['title'],
 				'track_artists': s['track']['artists'],
+				'track_length': s['track']['length'],
 				'album_name': s['track'].get('album',{}).get('name',''),
 				'scrobble_time': s['time'],
 				'scrobble_duration': s['duration']
