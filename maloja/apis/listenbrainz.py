@@ -68,7 +68,7 @@ class Listenbrainz(APIHandler):
 					# fields that will not be consumed by regular scrobbling
 					# will go into 'extra'
 					k:additional[k]
-					for k in ['track_mbid', 'release_mbid', 'release_artist_name', 'artist_mbids','recording_mbid','tags', 'origin_url', 'spotify_id', 'music_service', 'music_service_name', 'submission_client']
+					for k in ['track_mbid', 'release_mbid', 'artist_mbids','recording_mbid','tags']
 					if k in additional
 				}
 
