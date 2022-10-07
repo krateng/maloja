@@ -30,3 +30,5 @@ minor_release_name: "Soyeon"
 3.1.4:
     notes:
     - "[Feature] Expanded information saved from Listenbrainz API"
+    - "[Feature] Added import for Listenbrainz exports"
+    - "[Bugfix] Sanitized artists and tracks with html-like structure"
