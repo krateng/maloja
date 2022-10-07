@@ -55,6 +55,7 @@ class Listenbrainz(APIHandler):
 				try:
 					metadata = listen["track_metadata"]
 					artiststr, titlestr = metadata["artist_name"], metadata["track_name"]
+					albumstr = metadata.get("release_name")
 					additional = metadata.get("additional_info",{})
 					try:
 						timestamp = int(listen["listened_at"])
@@ -67,14 +68,16 @@ class Listenbrainz(APIHandler):
 					# fields that will not be consumed by regular scrobbling
 					# will go into 'extra'
 					k:additional[k]
-					for k in ['release_mbid','artist_mbids','recording_mbid','tags']
+					for k in ['track_mbid', 'release_mbid', 'artist_mbids','recording_mbid','tags']
 					if k in additional
 				}
 
 				self.scrobble({
 					'track_artists':[artiststr],
 					'track_title':titlestr,
+					'album_name':albumstr,
 					'scrobble_time':timestamp,
+					'track_length': additional.get("duration"),
 					**extrafields
 				},client=client)
 
