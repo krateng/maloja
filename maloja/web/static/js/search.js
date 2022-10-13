@@ -68,7 +68,7 @@ function searchresult() {
 			var node = oneresult.cloneNode(true);
 			node.setAttribute("onclick","goto('" + link + "')");
 			node.children[0].style.backgroundImage = "url('" + image + "')";
-			node.children[1].children[0].innerHTML = name;
+			node.children[1].children[0].textContent = name;
 
 			results_artists.appendChild(node);
 		}
@@ -82,8 +82,8 @@ function searchresult() {
 			var node = oneresult.cloneNode(true);
 			node.setAttribute("onclick","goto('" + link + "')");
 			node.children[0].style.backgroundImage = "url('" + image + "')";
-			node.children[1].children[0].innerHTML = artists;
-			node.children[1].children[2].innerHTML = title;
+			node.children[1].children[0].textContent = artists;
+			node.children[1].children[2].textContent = title;
 
 			results_tracks.appendChild(node);
 		}
