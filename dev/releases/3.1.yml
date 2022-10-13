@@ -28,6 +28,7 @@ minor_release_name: "Soyeon"
     - "[Bugfix] Fixed infinite recursion with capitalized featuring delimiters"
     - "[Bugfix] Fixed favicon display"
 3.1.4:
+    commit: "ef06f2262205c903e7c3060e2d2d52397f8ffc9d"
     notes:
     - "[Feature] Expanded information saved from Listenbrainz API"
     - "[Feature] Added import for Listenbrainz exports"

@@ -21,7 +21,7 @@ addartists		HyunA					Change		Jun Hyung
 # BLACKPINK
 countas		Jennie					BLACKPINK
 countas		Rosé					BLACKPINK
-countas		Lisa					BLACKPINK
+countas		Lalisa					BLACKPINK
 countas		Jisoo					BLACKPINK
 replacetitle	AS IF IT'S YOUR LAST			As If It's Your Last
 replacetitle	BOOMBAYAH				Boombayah
@@ -200,10 +200,13 @@ countas				ACE					IZ*ONE
 countas				Chaewon			IZ*ONE
 countas				Minju			IZ*ONE
 
-
+# ITZY
 countas				Yeji			ITZY
+
+# IVE
 countas				Wonyoung		IVE
 countas				Yujin			IVE
+countas				Gaeul			IVE
 
 # Popular Remixes
 artistintitle	Areia Remix				Areia
