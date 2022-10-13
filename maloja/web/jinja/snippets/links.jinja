@@ -5,7 +5,7 @@
 		{% set name = entity %}
 	{% endif %}
 
-	<a href="{{ url(entity) }}">{{ name }}</a>
+	<a href="{{ url(entity) }}">{{ name | e }}</a>
 {%- endmacro %}
 
 {% macro links(entities) -%}
