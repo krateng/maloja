@@ -504,6 +504,32 @@ def post_scrobble(
 
 
 
+@api.post("addpicture")
+@authenticated_function(alternate=api_key_correct,api=True)
+@catch_exceptions
+def add_picture(b64,artist:Multi=[],title=None):
+	"""Uploads a new image for an artist or track.
+
+	param string b64: Base 64 representation of the image
+	param string artist: Artist name. Can be supplied multiple times for tracks with multiple artists.
+	param string title: Title of the track. Optional.
+
+	"""
+	keys = FormsDict()
+	for a in artist:
+		keys.append("artist",a)
+	if title is not None: keys.append("title",title)
+	k_filter, _, _, _, _ = uri_to_internal(keys)
+	if "track" in k_filter: k_filter = k_filter["track"]
+	url = images.set_image(b64,**k_filter)
+
+	return {
+		'status': 'success',
+		'url': url
+	}
+
+
+
 @api.post("importrules")
 @authenticated_function(api=True)
 @catch_exceptions
@@ -580,20 +606,6 @@ def search(**keys):
 		tracks_result.append(result)
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
-
-
-@api.post("addpicture")
-@authenticated_function(api=True)
-@catch_exceptions
-def add_picture(b64,artist:Multi=[],title=None):
-	"""Internal Use Only"""
-	keys = FormsDict()
-	for a in artist:
-		keys.append("artist",a)
-	if title is not None: keys.append("title",title)
-	k_filter, _, _, _, _ = uri_to_internal(keys)
-	if "track" in k_filter: k_filter = k_filter["track"]
-	images.set_image(b64,**k_filter)
 
 
 @api.post("newrule")

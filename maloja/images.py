@@ -298,3 +298,5 @@ def set_image(b64,**keys):
 	# set as current picture in rotation
 	if track: set_image_in_cache(id,'tracks',os.path.join("/images",folder,filename))
 	else: set_image_in_cache(id,'artists',os.path.join("/images",folder,filename))
+
+	return os.path.join("/images",folder,filename)
