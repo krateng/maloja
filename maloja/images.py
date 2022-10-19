@@ -267,6 +267,9 @@ def local_files(artist=None,artists=None,title=None):
 
 
 
+class MalformedB64(Exception):
+	pass
+
 def set_image(b64,**keys):
 	track = "title" in keys
 	if track:
@@ -279,7 +282,10 @@ def set_image(b64,**keys):
 	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
 
 	regex = r"data:image/(\w+);base64,(.+)"
-	type,b64 = re.fullmatch(regex,b64).groups()
+	match = re.fullmatch(regex,b64)
+	if not match: raise MalformedB64()
+
+	type,b64 = match.groups()
 	b64 = base64.b64decode(b64)
 	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
 	for folder in get_all_possible_filenames(**keys):
@@ -292,6 +298,7 @@ def set_image(b64,**keys):
 		os.makedirs(data_dir['images'](folder))
 		with open(data_dir['images'](folder,filename),"wb") as f:
 			f.write(b64)
+
 
 	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 

@@ -72,6 +72,14 @@ errors = {
 			'desc':"The database is being upgraded. Please try again later."
 		}
 	}),
+	images.MalformedB64: lambda e: (400,{
+		"status":"failure",
+		"error":{
+			'type':'malformed_b64',
+			'value':None,
+			'desc':"The provided base 64 string is not valid."
+		}
+	}),
 	# for http errors, use their status code
 	Exception: lambda e: ((e.status_code if hasattr(e,'statuscode') else 500),{
 		"status":"failure",
