@@ -1,9 +1,8 @@
 from ._base import APIHandler
 from ._exceptions import *
 from .. import database
-import datetime
+import datetime, json
 from ._apikeys import apikeystore
-
 from ..pkg_global.conf import malojaconfig
 
 
@@ -42,6 +41,7 @@ class Listenbrainz(APIHandler):
 		if not client:
 			raise InvalidAuthException()
 
+		keys = json.loads(list(keys)[0])
 		try:
 			listentype = keys["listen_type"]
 			payload = keys["payload"]
