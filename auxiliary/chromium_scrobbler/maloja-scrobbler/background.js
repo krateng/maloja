@@ -11,7 +11,8 @@ const ALWAYS_SCROBBLE_SECONDS = 60*3;
 // Longer songs are always scrobbled when playing at least 2 minutes
 
 pages = {
-	"Plex Web":{
+	"plex":{
+		"name":"Plex",
 		"patterns":[
 			"https://app.plex.tv",
 			"http://app.plex.tv",
@@ -20,31 +21,36 @@ pages = {
 		],
 		"script":"plex.js"
 	},
-	"YouTube Music":{
+	"ytmusic":{
+		"name":"YouTube Music",
 		"patterns":[
 			"https://music.youtube.com"
 		],
 		"script":"ytmusic.js"
 	},
-	"Spotify Web":{
+	"spotify":{
+		"name":"Spotify",
 		"patterns":[
 			"https://open.spotify.com"
 		],
 		"script":"spotify.js"
 	},
-	"Bandcamp":{
+	"bandcamp":{
+		"name":"Bandcamp",
 		"patterns":[
 			"bandcamp.com"
 		],
 		"script":"bandcamp.js"
 	},
-	"Soundcloud":{
+	"soundcloud":{
+		"name":"Soundcloud",
 		"patterns":[
 			"https://soundcloud.com"
 		],
 		"script":"soundcloud.js"
 	},
-	"Navidrome":{
+	"navidrome":{
+		"name":"Navidrome",
 		"patterns":[
 			"https://navidrome.",
 			"http://navidrome."
@@ -90,13 +96,21 @@ function onTabUpdated(tabId, changeInfo, tab) {
 			patterns = pages[key]["patterns"];
 			for (var i=0;i<patterns.length;i++) {
 				if (tab.url.includes(patterns[i])) {
-					console.log("New page on tab " + tabId + " will be handled by new " + key + " manager!");
-					tabManagers[tabId] = new Controller(tabId,key);
-					updateTabNum();
-					return
-					//chrome.tabs.executeScript(tab.id,{"file":"sitescripts/" + pages[key]["script"]})
 
+					// check if we even like that page
+					chrome.storage.local.get(["service_active_" + key],function(result){
+						if (result["service_active_" + key]) {
+							console.log("New page on tab " + tabId + " will be handled by new " + key + " manager!");
+							tabManagers[tabId] = new Controller(tabId,key);
+							updateTabNum();
+							//chrome.tabs.executeScript(tab.id,{"file":"sitescripts/" + pages[key]["script"]})
+						}
+						else {
+							console.log("New page on tab " + tabId + " is " + key + ", not enabled!");
+						}
+					});
 
+					return;
 				}
 			}
 		}
@@ -127,10 +141,10 @@ function onInternalMessage(request,sender) {
 		for (tabId in tabManagers) {
 			manager = tabManagers[tabId]
 			if (manager.currentlyPlaying) {
-				answer.push([manager.page,manager.currentArtist,manager.currentTitle]);
+				answer.push([pages[manager.page]['name'],manager.currentArtist,manager.currentTitle]);
 			}
 			else {
-				answer.push([manager.page,null]);
+				answer.push([pages[manager.page]['name'],null]);
 			}
 
 		}
