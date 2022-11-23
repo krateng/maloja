@@ -1,10 +1,44 @@
+// duplicate this info for now, don't know if there is a better way than sending messages
+var pages = {
+	"plex":"Plex",
+	"ytmusic":"YouTube Music",
+	"spotify":"Spotify",
+	"bandcamp":"Bandcamp",
+	"soundcloud":"Soundcloud",
+	"navidrome":"Navidrome"
+}
+
 var config_defaults = {
 	serverurl:"http://localhost:42010",
 	apikey:"BlackPinkInYourArea"
 }
 
+for (var key in pages) {
+	config_defaults["service_active_" + key] = true;
+}
+
 
 document.addEventListener("DOMContentLoaded",function() {
+
+	var sitelist = document.getElementById("sitelist");
+
+
+	for (var identifier in pages) {
+		sitelist.append(document.createElement('br'));
+		var checkbox = document.createElement('input');
+		checkbox.type = "checkbox";
+		checkbox.id = "service_active_" + identifier;
+		var label = document.createElement('label');
+		label.for = checkbox.id;
+		label.textContent = pages[identifier];
+		sitelist.appendChild(checkbox);
+		sitelist.appendChild(label);
+
+		checkbox.addEventListener("change",toggleSite);
+
+	}
+
+
 
 	document.getElementById("serverurl").addEventListener("change",checkServer);
 	document.getElementById("apikey").addEventListener("change",checkServer);
@@ -20,7 +54,13 @@ document.addEventListener("DOMContentLoaded",function() {
 
 	chrome.storage.local.get(config_defaults,function(result){
 		for (var key in result) {
-			document.getElementById(key).value = result[key];
+			if (result[key] == true || result[key] == false) {
+				document.getElementById(key).checked = result[key];
+			}
+			else{
+				document.getElementById(key).value = result[key];
+			}
+
 		}
 		checkServer();
 	})
@@ -30,6 +70,11 @@ document.addEventListener("DOMContentLoaded",function() {
 
 
 });
+
+function toggleSite(evt) {
+	var element = evt.target;
+	chrome.storage.local.set({ [element.id]: element.checked });
+}
 
 
 function onInternalMessage(request,sender) {
