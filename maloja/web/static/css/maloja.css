@@ -880,6 +880,24 @@ table.tiles_5x5 td {
 	font-size:40%
 }
 
+/* Safari fix */
+table.tiles_sub.tiles_3x3 td div {
+        min-height: 100px;
+        min-width: 100px;
+}
+table.tiles_sub.tiles_2x2 td div {
+        min-height: 150px;
+        min-width: 150px;
+}
+table.tiles_sub.tiles_1x1 td div {
+        min-height: 300px;
+        min-width: 300px;
+}
+table.tiles_sub a span {
+        overflow-wrap: anywhere;
+}
+
+
 
 .summary_rank {
 	background-size:cover;
