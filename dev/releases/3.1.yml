@@ -37,3 +37,4 @@ minor_release_name: "Soyeon"
     notes:
     - "[Feature] Made image upload part of regular API"
     - "[Bugfix] Additional entity name sanitization"
+    - "[Bugfix] Fixed image display on Safari"
