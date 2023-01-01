@@ -10,8 +10,7 @@
 	{% if pages > 1 %}
 		{% if page > 1 %}
 			<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,amountkeys,{'page':0}) }}'>
-				<span class='stat_selector'>1</span>
-			</a> |
+				<span class='stat_selector'>1</span></a> |
 		{% endif %}
 
 		{% if page > 2 %}
@@ -20,8 +19,7 @@
 
 		{% if page > 0 %}
 			<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,amountkeys,{'page':page-1}) }}'>
-				<span class='stat_selector'>{{ page }}</span>
-			</a> «
+				<span class='stat_selector'>{{ page }}</span></a> «
 		{% endif %}
 
 		<span style='opacity:0.5;' class='stat_selector'>
@@ -30,8 +28,7 @@
 
 		{% if page < pages-1 %}
 			 » <a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,amountkeys,{'page':page+1}) }}'>
-				 <span class='stat_selector'>{{ page+2 }}</span>
-			 </a>
+				 <span class='stat_selector'>{{ page+2 }}</span></a>
 		{% endif %}
 
 		{% if page < pages-3 %}
@@ -40,8 +37,7 @@
 
 		{% if page < pages-2 %}
 			 | <a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,amountkeys,{'page':pages-1}) }}'>
-				 <span class='stat_selector'>{{ pages }}</span>
-			 </a>
+				 <span class='stat_selector'>{{ pages }}</span></a>
 		{% endif %}
 	{% endif %}
 
