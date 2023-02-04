@@ -337,6 +337,12 @@ def get_top_tracks(dbconn=None,**keys):
 	return results
 
 @waitfordb
+def get_rediscover(dbconn=None,**keys):
+	(since,to) = keys.get('timerange').timestamps()
+	result = sqldb.get_scrobbles_rediscover(since=since,to=to,dbconn=dbconn)
+	return result
+
+@waitfordb
 def artist_info(dbconn=None,**keys):
 
 	artist = keys.get('artist')

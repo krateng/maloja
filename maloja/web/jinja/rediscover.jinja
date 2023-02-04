@@ -1,0 +1,54 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - Rediscover{% endblock %}
+
+{% import 'snippets/links.jinja' as links %}
+
+{% block scripts %}
+	<script src="/datechange.js" async></script>
+{% endblock %}
+
+{% set scrobbles = dbc.get_rediscover(filterkeys,limitkeys) %}
+{% set pages = math.ceil(scrobbles.__len__() / amountkeys.perpage) %}
+{% if scrobbles[0] is defined %}
+	{% set toptrack = scrobbles[0].track %}
+	{% set img = images.get_track_image(toptrack) %}
+{% else %}
+	{% set img = "/favicon.png" %}
+{% endif %}
+
+
+{% block content %}
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			<div style="background-image:url('{{ img }}')"></div>
+		</td>
+		<td class="text">
+			<h1>Rediscover</h1>
+			{% if filterkeys.get('artist') is not none %}by {{ links.link(filterkeys.get('artist')) }}{% endif %}
+			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+			<br/>
+			<p class="stats">{{ scrobbles.__len__() }} Scrobbles</p>
+			<br/>
+			{% with delimitkeys = {} %}
+			{% include 'snippets/timeselection.jinja' %}
+			{% endwith %}
+
+		</td>
+	</tr>
+</table>
+
+{% if settings['CHARTS_DISPLAY_TILES'] %}
+	{% include 'partials/charts_tracks_tiles.jinja' %}
+	<br/><br/>
+{% endif %}
+
+{% with compare=true %}
+{% include 'partials/rediscover_scrobbles.jinja' %}
+{% endwith %}
+
+{% import 'snippets/pagination.jinja' as pagination %}
+{{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
+
+{% endblock %}

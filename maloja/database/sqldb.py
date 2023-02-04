@@ -579,6 +579,34 @@ def get_scrobbles_num(since=None,to=None,dbconn=None):
 
 	return result[0][0]
 
+
+@cached_wrapper
+@connection_provider
+def get_scrobbles_rediscover(since,to,resolve_ids=True,dbconn=None):
+	op = sql.select(
+		sql.func.count(DB['scrobbles'].c.track_id).label('count'),
+		DB['scrobbles'].c.track_id,
+		sql.func.max(DB['scrobbles'].c.timestamp).label('timestamp')
+	).select_from(DB['scrobbles']).where(
+		#DB['scrobbles'].c.timestamp<=to,
+		#DB['scrobbles'].c.timestamp>=since
+	).group_by(DB['scrobbles'].c.track_id).having(
+		DB['scrobbles'].c.timestamp<=to
+	).having(
+		sql.text('count >= 3')
+	).order_by(sql.desc('timestamp'), sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id],'time':row.timestamp} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id,'time':row.timestamp} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+
 @cached_wrapper
 @connection_provider
 def get_artists_of_track(track_id,resolve_references=True,dbconn=None):
