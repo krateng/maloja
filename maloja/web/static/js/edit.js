@@ -104,7 +104,13 @@ function createTrackCell(trackinfo) {
 function editEntity() {
 
 	var namefield = document.getElementById('main_entity_name');
-	namefield.contentEditable = "plaintext-only";
+	try {
+		namefield.contentEditable = "plaintext-only"; // not supported by Firefox
+	}
+	catch (e) {
+		namefield.contentEditable = true;
+	}
+
 
 	namefield.addEventListener('keydown',function(e){
 		// dont allow new lines, done on enter
