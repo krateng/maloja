@@ -716,7 +716,7 @@ table.list td.amount {
 	text-align:right;
 }
 table.list td.bar {
-	width:500px;
+	width:400px;
 	/* background-color: var(--base-color); */
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
@@ -734,7 +734,7 @@ table.list tr:hover td.bar div {
 }
 
 table.list td.chart {
-	width:500px;
+	width:400px;
 	/* background-color: var(--base-color); */
 	/* Remove 5er separators for bars */
 	/*border-color:rgba(0,0,0,0)!important;*/
