@@ -1,4 +1,5 @@
 import os
+import locale
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
@@ -194,7 +195,7 @@ malojaconfig = Configuration(
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
 			"timezone":(tp.Integer(),											"UTC Offset",					0),
-			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p"),
+			"time_format":(tp.String(),											"Time Format",			locale.nl_langinfo(locale.D_T_FMT)),
 			"theme":(tp.String(),												"Theme",						"maloja")
 		}
 	},
