@@ -9,7 +9,7 @@
 
 Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
 
-![screenshot](screenshot.png?raw=true)
+![screenshot](https://raw.githubusercontent.com/krateng/maloja/master/screenshot.png)
 
 You can check [my own Maloja page](https://maloja.krateng.ch) as an example instance.
 

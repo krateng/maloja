@@ -34,6 +34,7 @@ minor_release_name: "Soyeon"
     - "[Feature] Added import for Listenbrainz exports"
     - "[Bugfix] Sanitized artists and tracks with html-like structure"
 3.1.5:
+    commit: "4330b0294bc0a01cdb841e2e3db370108da901db"
     notes:
     - "[Feature] Made image upload part of regular API"
     - "[Bugfix] Additional entity name sanitization"
