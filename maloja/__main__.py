@@ -140,6 +140,12 @@ def print_info():
 	print(col['lightblue']("Network:                "),f"Dual Stack, Port {conf.malojaconfig['port']}" if conf.malojaconfig['host'] == "*" else f"IPv{ip_address(conf.malojaconfig['host']).version}, Port {conf.malojaconfig['port']}")
 	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
 	print()
+	try:
+		import pkg_resources
+		for pkg in ("sqlalchemy","waitress","bottle","doreah","jinja2"):
+			print(col['cyan']     (f"{pkg}:".ljust(13)),pkg_resources.get_distribution(pkg).version)
+	except ImportError:
+		print("Could not determine dependency versions.")
 	print()
 
 @mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)
