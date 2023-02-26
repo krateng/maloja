@@ -298,7 +298,7 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 
 
 	op = DB['tracks'].select(
-		DB['tracks'].c.id
+#		DB['tracks'].c.id
 	).where(
 		DB['tracks'].c.title_normalized==ntitle
 	)
@@ -308,7 +308,7 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		foundtrackartists = []
 
 		op = DB['trackartists'].select(
-			DB['trackartists'].c.artist_id
+#			DB['trackartists'].c.artist_id
 		).where(
 			DB['trackartists'].c.track_id==row[0]
 		)
@@ -344,7 +344,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	#print("looking for",nname)
 
 	op = DB['artists'].select(
-		DB['artists'].c.id
+#		DB['artists'].c.id
 	).where(
 		DB['artists'].c.name_normalized==nname
 	)
