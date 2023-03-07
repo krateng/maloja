@@ -126,14 +126,14 @@ function searchresult_manualscrobbling() {
 		console.log(tracks);
 		for (let t of tracks) {
 			track = document.createElement("span");
-			trackstr = t["artists"].join(", ") + " - " + t["title"];
+			trackstr = t.track["artists"].join(", ") + " - " + t.track["title"];
 			tracklink = t["link"];
 			track.innerHTML = "<a href='" + tracklink + "'>" +  trackstr + "</a>";
 			row = document.createElement("tr")
 			col1 = document.createElement("td")
 			button = document.createElement("button")
 			button.innerHTML = "Scrobble!"
-			button.onclick = function(){ scrobble(t["artists"],t["title"])};
+			button.onclick = function(){ scrobble(t.track["artists"],t.track["title"])};
 			col2 = document.createElement("td")
 			row.appendChild(col1)
 			col1.appendChild(button)
