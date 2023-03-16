@@ -27,7 +27,7 @@
 						{% set rank = entry.rank %}
 						<td>
 							<a href="{{ links.url(artist) }}">
-							<div style='background-image:url("{{ images.get_artist_image(artist) }}")'>
+							<div class="lazy" data-bg="{{ images.get_artist_image(artist) }}"'>
 								<span class='stats'>#{{ rank }}</span> <span>{{ artist }}</span>
 							</div>
 							</a>
