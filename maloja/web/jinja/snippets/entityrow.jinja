@@ -8,7 +8,11 @@
 	{% set img = images.get_artist_image(entity) %}
 {% endif %}
 
-<td class='icon'><div class="lazy" data-bg="{{ img }}"></div></td>
+<td class='icon'>
+{% if settings['DISPLAY_ART_ICONS'] %}
+    <div class="lazy" data-bg="{{ img }}"></div>
+{% endif %}
+</td>
 {% if entity is mapping and 'artists' in entity %}
 	{% if settings['TRACK_SEARCH_PROVIDER'] %}
 		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
