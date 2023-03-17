@@ -51,6 +51,7 @@ Settings File			| Environment Variable			| Type			| Description
 `default_range_charts_tracks`	| `MALOJA_DEFAULT_RANGE_CHARTS_TRACKS`  | Choice | Default Range Track Charts
 `default_step_pulse`	| `MALOJA_DEFAULT_STEP_PULSE`  | Choice | Default Pulse Step
 `charts_display_tiles`	| `MALOJA_CHARTS_DISPLAY_TILES`  | Boolean | Display Chart Tiles
+`display_art_icons`	| `MALOJA_DISPLAY_ART_ICONS`  | Boolean | Display Album/Artist Icons
 `discourage_cpu_heavy_stats`	| `MALOJA_DISCOURAGE_CPU_HEAVY_STATS`  | Boolean | Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!
 `use_local_images`	| `MALOJA_USE_LOCAL_IMAGES`  | Boolean | Use Local Images
 `local_image_rotate`	| `MALOJA_LOCAL_IMAGE_ROTATE`  | Integer | Local Image Rotate
