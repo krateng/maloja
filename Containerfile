@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM lsiobase/alpine:3.17 as base
 # Python image includes two Python versions, so use base Alpine
 
 # Based on the work of Jonathan Boeckel <jonathanboeckel1996@gmail.com>
@@ -23,10 +23,12 @@ RUN \
 	pip install --no-cache-dir -r requirements.txt && \
 	apk del .build-deps
 
+COPY container/root/ /
+
 
 # no chance for caching below here
 
-COPY . .
+COPY --chown=abc:abc . .
 
 RUN pip install /usr/src/app
 
@@ -36,5 +38,3 @@ ENV MALOJA_SKIP_SETUP=yes
 ENV PYTHONUNBUFFERED=1
 
 EXPOSE 42010
-# use exec form for better signal handling https://docs.docker.com/engine/reference/builder/#entrypoint
-ENTRYPOINT ["maloja", "run"]

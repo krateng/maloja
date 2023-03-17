@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bash
+
+# used https://github.com/linuxserver/docker-wikijs/blob/master/root/etc/s6-overlay/s6-rc.d/svc-wikijs/run as a template
+
+echo -e "\nMaloja is starting!"
+exec \
+	  s6-setuidgid abc python -m maloja run
