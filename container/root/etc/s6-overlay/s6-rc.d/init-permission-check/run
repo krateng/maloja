@@ -1,0 +1,10 @@
+#!/usr/bin/with-contenv bash
+
+if [ "$(s6-setuidgid abc id -u)" = "0" ]; then
+   echo "-------------------------------------"
+   echo "WARN: Running as root! If you meant to do this than this message can be ignored."
+   echo "If you are running this container on a *linux* host and are not using podman rootless you SHOULD"
+   echo "change the ENVs PUID and PGID for this container to ensure correct permissions on your config folder."
+   echo -e "See: https://github.com/krateng/maloja#linux-host\n"
+   echo -e "-------------------------------------\n"
+fi

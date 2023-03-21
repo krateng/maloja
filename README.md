@@ -96,6 +96,23 @@ An example of a minimum run configuration to access maloja via `localhost:42010`
 	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
 ```
 
+#### Linux Host
+
+**NOTE:** If you are using [rootless containers with Podman](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#why_podman_) this DOES NOT apply to you.
+
+If you are running Docker on a **Linux Host** you should specify `user:group` ids of the user who owns the folder on the host machine bound to `MALOJA_DATA_DIRECTORY` in order to avoid [docker file permission problems.](https://ikriv.com/blog/?p=4698) These can be specified using the [environmental variables **PUID** and **PGID**.](https://docs.linuxserver.io/general/understanding-puid-and-pgid)
+
+To get the UID and GID for the current user run these commands from a terminal:
+
+* `id -u` -- prints UID (EX `1000`)
+* `id -g` -- prints GID (EX `1001`)
+
+The modified run command with these variables would look like:
+
+```console
+	docker run -e PUID=1000 -e PGID=1001 -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
+```
+
 ### Extras
 
 * If you'd like to display images, you will need API keys for [Last.fm](https://www.last.fm/api/account/create) and [Spotify](https://developer.spotify.com/dashboard/applications). These are free of charge!

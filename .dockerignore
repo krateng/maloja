@@ -1,5 +1,6 @@
 *
 !maloja
+!container
 !Containerfile
 !requirements.txt
 !pyproject.toml
