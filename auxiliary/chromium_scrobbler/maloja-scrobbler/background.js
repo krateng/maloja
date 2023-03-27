@@ -83,6 +83,13 @@ function onTabUpdated(tabId, changeInfo, tab) {
 				//console.log("Still on same page!")
 				tabManagers[tabId].update();
 
+				// check if the setting for this page is still active
+				chrome.storage.local.get(["service_active_" + page],function(result){
+					if (!result["service_active_" + page]) {
+						delete tabManagers[tabId];
+					}
+				});
+
 				return
 			}
 		}

@@ -46,17 +46,22 @@ document.addEventListener("DOMContentLoaded",function() {
 	document.getElementById("serverurl").addEventListener("focusout",checkServer);
 	document.getElementById("apikey").addEventListener("focusout",checkServer);
 
-	document.getElementById("serverurl").addEventListener("input",saveConfig);
-	document.getElementById("apikey").addEventListener("input",saveConfig);
+	document.getElementById("serverurl").addEventListener("input",saveServer);
+	document.getElementById("apikey").addEventListener("input",saveServer);
 
 
 	chrome.runtime.onMessage.addListener(onInternalMessage);
 
 	chrome.storage.local.get(config_defaults,function(result){
+		console.log(result);
 		for (var key in result) {
+
+			// booleans
 			if (result[key] == true || result[key] == false) {
 				document.getElementById(key).checked = result[key];
 			}
+
+			// text
 			else{
 				document.getElementById(key).value = result[key];
 			}
@@ -95,8 +100,8 @@ function onInternalMessage(request,sender) {
 
 
 
-function saveConfig() {
-	for (var key in config_defaults) {
+function saveServer() {
+	for (var key of ["serverurl","apikey"]) {
 		var value = document.getElementById(key).value;
 		chrome.storage.local.set({ [key]: value });
 	}
