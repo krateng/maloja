@@ -18,7 +18,7 @@ class MusicBrainz(MetadataInterface):
 
 	metadata = {
 		"response_type":"json",
-		"response_parse_tree_track": ["images",0,"image"],
+		"response_parse_tree_track": ["images",0,"thumbnails","500"],
 		"required_settings": [],
 	}
 
