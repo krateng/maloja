@@ -1,0 +1,7 @@
+minor_release_name: "Momo"
+3.2.0:
+    notes:
+    - "[Architecture] Switched to linuxserver.io container base image"
+    - "[Performance] Improved image rendering"
+    - "[Bugfix] Fixed configuration of time format"
+    - "[Bugfix] Fixed search on manual scrobble page"
