@@ -139,7 +139,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 			"artists":scrobbleinfo.get('track_artists'),
 			"title":scrobbleinfo.get('track_title'),
 			"album":{
-				"name":scrobbleinfo.get('album_name'),
+				"title":scrobbleinfo.get('album_title') or scrobbleinfo.get('album_name'),
 				"artists":scrobbleinfo.get('album_artists')
 			},
 			"length":scrobbleinfo.get('track_length')
@@ -148,7 +148,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"origin":f"client:{client}" if client else "generic",
 		"extra":{
 			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
-			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_name','album_artists']
+			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_title','album_name','album_artists']
 		},
 		"rawscrobble":rawscrobble
 	}

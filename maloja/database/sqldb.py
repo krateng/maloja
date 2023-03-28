@@ -35,7 +35,8 @@ DBTABLES = {
 			("id",                  sql.Integer,                                  {'primary_key':True}),
 			("title",               sql.String,                                   {}),
 			("title_normalized",    sql.String,                                   {}),
-			("length",              sql.Integer,                                  {})
+			("length",              sql.Integer,                                  {}),
+			("album_id",           sql.Integer, sql.ForeignKey('albums.id'),      {})
 		],
 		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
 	},
@@ -73,15 +74,15 @@ DBTABLES = {
 		],
 		'extraargs':(sql.UniqueConstraint('artist_id', 'album_id'),),'extrakwargs':{}
 	},
-	'albumtracks':{
-		# tracks can be in multiple albums
-		'columns':[
-			("id",                  sql.Integer,                                  {'primary_key':True}),
-			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {}),
-			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
-		],
-		'extraargs':(sql.UniqueConstraint('album_id', 'track_id'),),'extrakwargs':{}
-	},
+#	'albumtracks':{
+#		# tracks can be in multiple albums
+#		'columns':[
+#			("id",                  sql.Integer,                                  {'primary_key':True}),
+#			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {}),
+#			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
+#		],
+#		'extraargs':(sql.UniqueConstraint('album_id', 'track_id'),),'extrakwargs':{}
+#	},
 	'associated_artists':{
 		'columns':[
 			("source_artist",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
@@ -331,11 +332,27 @@ def delete_scrobble(scrobble_id,dbconn=None):
 	return True
 
 
+@connection_provider
+def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
+
+	op = DB['tracks'].update().where(
+		DB['tracks'].c.id == track_id,
+		(DB['tracks'].c.album_id == None) or replace
+		# update if we want replacement or if there is no album yet
+	).values(
+		DB['tracks'].c.album_id = album_id
+	)
+
+	result = dbconn.execute(op)
+	return True
+
+
+
 ### these will 'get' the ID of an entity, creating it if necessary
 
 @cached_wrapper
 @connection_provider
-def get_track_id(trackdict,create_new=True,dbconn=None):
+def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
@@ -363,10 +380,10 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
+			add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album)
 			return row.id
 
 	if not create_new: return None
-
 
 	op = DB['tracks'].insert().values(
 		**track_dict_to_db(trackdict,dbconn=dbconn)
@@ -381,6 +398,8 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		)
 		result = dbconn.execute(op)
 	#print("Created",trackdict['title'],track_id)
+
+	add_track_to_album(track_id,get_album_id(trackdict['album']))
 	return track_id
 
 @cached_wrapper
@@ -458,7 +477,7 @@ def get_album_id(albumdict,create_new=True,dbconn=None):
 		)
 		result = dbconn.execute(op)
 	#print("Created",trackdict['title'],track_id)
-	return track_id
+	return album_id
 
 
 
