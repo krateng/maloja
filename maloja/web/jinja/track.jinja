@@ -64,6 +64,9 @@
 				{{ awards.certs(track) }}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>
+				{% if info.track.album %}
+				from {{ links.link(info.track.album) }}<br/>
+				{% endif %}
 
 			<p class="stats">
 				{% if adminmode %}<button type="button" onclick="scrobble('{{ encodedtrack }}')">Scrobble now</button>{% endif %}

@@ -76,6 +76,15 @@
 	</tr>
 </table>
 
+<h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
+
+
+{% with amountkeys={"perpage":15,"page":0} %}
+{% include 'partials/charts_tracks.jinja' %}
+{% endwith %}
+
+<br/>
+
 
 <table class="twopart">
 
