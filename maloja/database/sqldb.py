@@ -21,44 +21,71 @@ DBTABLES = {
 	# name - type - foreign key - kwargs
 	'scrobbles':{
 		'columns':[
-			("timestamp",       sql.Integer,                                  {'primary_key':True}),
-			("rawscrobble",     sql.String,                                   {}),
-			("origin",          sql.String,                                   {}),
-			("duration",        sql.Integer,                                  {}),
-			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {}),
-			("extra",           sql.String,                                   {})
+			("timestamp",           sql.Integer,                                  {'primary_key':True}),
+			("rawscrobble",         sql.String,                                   {}),
+			("origin",              sql.String,                                   {}),
+			("duration",            sql.Integer,                                  {}),
+			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {}),
+			("extra",               sql.String,                                   {})
 		],
 		'extraargs':(),'extrakwargs':{}
 	},
 	'tracks':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("title",           sql.String,                                   {}),
-			("title_normalized",sql.String,                                   {}),
-			("length",          sql.Integer,                                  {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("title",               sql.String,                                   {}),
+			("title_normalized",    sql.String,                                   {}),
+			("length",              sql.Integer,                                  {})
 		],
 		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
 	},
 	'artists':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("name",            sql.String,                                   {}),
-			("name_normalized", sql.String,                                   {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("name",                sql.String,                                   {}),
+			("name_normalized",     sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
+	},
+	'albums':{
+		'columns':[
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("albtitle",            sql.String,                                   {}),
+			("albtitle_normalized", sql.String,                                   {})
+			#("albumartist",     sql.String,                                   {})
+			# when an album has no artists, always use 'Various Artists'
 		],
 		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
 	},
 	'trackartists':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("artist_id",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
-			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("artist_id",           sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
 		],
 		'extraargs':(sql.UniqueConstraint('artist_id', 'track_id'),),'extrakwargs':{}
 	},
+	'albumartists':{
+		'columns':[
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("artist_id",           sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {})
+		],
+		'extraargs':(sql.UniqueConstraint('artist_id', 'album_id'),),'extrakwargs':{}
+	},
+	'albumtracks':{
+		# tracks can be in multiple albums
+		'columns':[
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {}),
+			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
+		],
+		'extraargs':(sql.UniqueConstraint('album_id', 'track_id'),),'extrakwargs':{}
+	},
 	'associated_artists':{
 		'columns':[
-			("source_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {}),
-			("target_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {})
+			("source_artist",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("target_artist",       sql.Integer, sql.ForeignKey('artists.id'),    {})
 		],
 		'extraargs':(sql.UniqueConstraint('source_artist', 'target_artist'),),'extrakwargs':{}
 	}
@@ -138,7 +165,7 @@ def connection_provider(func):
 # 		"artists":list,
 # 		"title":string,
 # 		"album":{
-# 			"name":string,
+# 			"title":string,
 # 			"artists":list
 # 		},
 # 		"length":None
@@ -207,6 +234,19 @@ def artists_db_to_dict(rows,dbconn=None):
 def artist_db_to_dict(row,dbconn=None):
 	return artists_db_to_dict([row],dbconn=dbconn)[0]
 
+def albums_db_to_dict(rows,dbconn=None):
+	artists = get_artists_of_albums(set(row.id for row in rows),dbconn=dbconn)
+	return [
+		{
+			"artists":artists[row.id],
+			"title":row.albtitle,
+		}
+		for row in rows
+	]
+
+def album_db_to_dict(row,dbconn=None):
+	return albums_db_to_dict([row],dbconn=dbconn)
+
 
 
 
@@ -234,6 +274,12 @@ def artist_dict_to_db(info,dbconn=None):
 	return {
 		"name": info,
 		"name_normalized":normalize_name(info)
+	}
+
+def album_dict_to_db(info,dbconn=None):
+	return {
+		"albtitle":info.get('title'),
+		"albtitle_normalized":normalize_name(info.get('title'))
 	}
 
 
@@ -310,7 +356,7 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		op = DB['trackartists'].select(
 #			DB['trackartists'].c.artist_id
 		).where(
-			DB['trackartists'].c.track_id==row[0]
+			DB['trackartists'].c.track_id==row.id
 		)
 		result = dbconn.execute(op).all()
 		match_artist_ids = [r.artist_id for r in result]
@@ -362,6 +408,59 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	result = dbconn.execute(op)
 	#print("Created",artistname,result.inserted_primary_key)
 	return result.inserted_primary_key[0]
+
+
+@cached_wrapper
+@connection_provider
+def get_album_id(albumdict,create_new=True,dbconn=None):
+	ntitle = normalize_name(albumdict['title'])
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict['artists']]
+	artist_ids = list(set(artist_ids))
+
+
+
+
+	op = DB['albums'].select(
+#		DB['albums'].c.id
+	).where(
+		DB['albums'].c.title_normalized==ntitle
+	)
+	result = dbconn.execute(op).all()
+	for row in result:
+		# check if the artists are the same
+		foundtrackartists = []
+
+		op = DB['albumartists'].select(
+#			DB['albumartists'].c.artist_id
+		).where(
+			DB['albumartists'].c.track_id==row.id
+		)
+		result = dbconn.execute(op).all()
+		match_artist_ids = [r.artist_id for r in result]
+		#print("required artists",artist_ids,"this match",match_artist_ids)
+		if set(artist_ids) == set(match_artist_ids):
+			#print("ID for",albumdict['title'],"was",row[0])
+			return row.id
+
+	if not create_new: return None
+
+
+	op = DB['albums'].insert().values(
+		**album_dict_to_db(albumdict,dbconn=dbconn)
+	)
+	result = dbconn.execute(op)
+	album_id = result.inserted_primary_key[0]
+
+	for artist_id in artist_ids:
+		op = DB['albumartists'].insert().values(
+			album_id=album_id,
+			artist_id=artist_id
+		)
+		result = dbconn.execute(op)
+	#print("Created",trackdict['title'],track_id)
+	return track_id
+
+
 
 
 ### Edit existing
@@ -732,6 +831,19 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 	artists = {}
 	for row in result:
 		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
+	return artists
+
+@cached_wrapper_individual
+@connection_provider
+def get_artists_of_albums(album_ids,dbconn=None):
+	op = sql.join(DB['albumartists'],DB['artists']).select().where(
+		DB['albumartists'].c.album_id.in_(album_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	artists = {}
+	for row in result:
+		artists.setdefault(row.album_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
 	return artists
 
 
