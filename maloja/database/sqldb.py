@@ -869,6 +869,83 @@ def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
+# this ranks the albums of that artist, not albums the artist appears on - even scrobbles
+# of tracks the artist is not part of!
+def count_scrobbles_by_album_of_artist(since,to,artist,resolve_ids=True,dbconn=None):
+
+	artist_id = get_artist_id(artist,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+	jointable2 = sql.join(
+		jointable,
+		DB['albumartists'],
+		DB['tracks'].c.album_id == DB['albumartists'].c.album_id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable2).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['albumartists'].c.artist_id == artist_id
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+@cached_wrapper
+@connection_provider
+# this ranks the tracks of that artist by the album they appear on - even when the album
+# is not the artist's
+def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=None):
+
+	artist_id = get_artist_id(artist,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['trackartists'],
+		DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id
+	)
+	jointable2 = sql.join(
+		jointable,
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable2).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['trackartists'].c.artist_id == artist_id
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+
+@cached_wrapper
+@connection_provider
 def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 	artist_id = get_artist_id(artist,dbconn=dbconn)
