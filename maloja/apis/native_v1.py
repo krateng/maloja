@@ -714,6 +714,16 @@ def edit_track(id,title):
 		"status":"success"
 	}
 
+@api.post("edit_album")
+@authenticated_function(api=True)
+@catch_exceptions
+def edit_album(id,albumtitle):
+	"""Internal Use Only"""
+	result = database.edit_album(id,{'albumtitle':albumtitle})
+	return {
+		"status":"success"
+	}
+
 
 @api.post("merge_tracks")
 @authenticated_function(api=True)

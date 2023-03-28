@@ -190,6 +190,16 @@ def edit_track(id,trackinfo):
 	return result
 
 @waitfordb
+def edit_album(id,albuminfo):
+	album = sqldb.get_album(id)
+	log(f"Renaming {album['albumtitle']} to {albuminfo['albumtitle']}")
+	result = sqldb.edit_album(id,albuminfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
 def merge_artists(target_id,source_ids):
 	sources = [sqldb.get_artist(id) for id in source_ids]
 	target = sqldb.get_artist(target_id)

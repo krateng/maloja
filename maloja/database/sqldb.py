@@ -558,6 +558,28 @@ def edit_track(id,trackupdatedict,dbconn=None):
 
 	return True
 
+@connection_provider
+def edit_album(id,albumupdatedict,dbconn=None):
+
+	album = get_album(id,dbconn=dbconn)
+	changedalbum = {**album,**albumupdatedict}
+
+	dbentry = album_dict_to_db(albumupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	existing_album_id = get_album_id(changedalbum,create_new=False,dbconn=dbconn)
+	if existing_album_id not in (None,id):
+		raise exc.TrackExists(changedalbum)
+
+	op = DB['albums'].update().where(
+		DB['albums'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
+
+	return True
+
 
 ### Merge
 

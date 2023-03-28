@@ -161,6 +161,11 @@ function doneEditing() {
 		    searchParams.set("title", newname);
 			var payload = {'id':entity_id,'title':newname}
 		}
+		else if (entity_type == 'album') {
+			var endpoint = "/apis/mlj_1/edit_album";
+		    searchParams.set("albumtitle", newname);
+			var payload = {'id':entity_id,'albumtitle':newname}
+		}
 
 		callback_func = function(req){
 			if (req.status == 200) {
