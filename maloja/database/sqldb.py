@@ -254,12 +254,12 @@ def album_db_to_dict(row,dbconn=None):
 ### DICT -> DB
 # These should return None when no data is in the dict so they can be used for update statements
 
-def scrobble_dict_to_db(info,dbconn=None):
+def scrobble_dict_to_db(info,update_album=False,dbconn=None):
 	return {
 		"timestamp":info.get('time'),
 		"origin":info.get('origin'),
 		"duration":info.get('duration'),
-		"track_id":get_track_id(info.get('track'),dbconn=dbconn),
+		"track_id":get_track_id(info.get('track'),update_album=update_album,dbconn=dbconn),
 		"extra":json.dumps(info.get('extra')) if info.get('extra') else None,
 		"rawscrobble":json.dumps(info.get('rawscrobble')) if info.get('rawscrobble') else None
 	}
@@ -291,17 +291,17 @@ def album_dict_to_db(info,dbconn=None):
 
 
 @connection_provider
-def add_scrobble(scrobbledict,dbconn=None):
-	add_scrobbles([scrobbledict],dbconn=dbconn)
+def add_scrobble(scrobbledict,update_album=False,dbconn=None):
+	add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
 
 @connection_provider
-def add_scrobbles(scrobbleslist,dbconn=None):
+def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):
 
 	with SCROBBLE_LOCK:
 
 		ops = [
 			DB['scrobbles'].insert().values(
-				**scrobble_dict_to_db(s,dbconn=dbconn)
+				**scrobble_dict_to_db(s,update_album=update_album,dbconn=dbconn)
 			) for s in scrobbleslist
 		]
 
