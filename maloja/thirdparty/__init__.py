@@ -63,7 +63,18 @@ def get_image_artist_all(artist):
 					log("Could not get artist image for " + str(artist) + " from " + service.name)
 			except Exception as e:
 				log("Error getting artist image from " + service.name + ": " + repr(e))
-
+def get_image_album_all(album):
+	with thirdpartylock:
+		for service in services["metadata"]:
+			try:
+				res = service.get_image_album(album)
+				if res is not None:
+					log("Got album image for " + str(album) + " from " + service.name)
+					return res
+				else:
+					log("Could not get album image for " + str(album) + " from " + service.name)
+			except Exception as e:
+				log("Error getting album image from " + service.name + ": " + repr(e))
 
 
 class GenericInterface:
@@ -217,6 +228,23 @@ class MetadataInterface(GenericInterface,abstract=True):
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
 		return imgurl
 
+	def get_image_album(self,album):
+		artists, title = album
+		artiststring = urllib.parse.quote(", ".join(artists))
+		titlestring = urllib.parse.quote(title)
+		response = urllib.request.urlopen(
+			self.metadata["albumurl"].format(artist=artiststring,title=titlestring,**self.settings)
+		)
+
+		responsedata = response.read()
+		if self.metadata["response_type"] == "json":
+			data = json.loads(responsedata)
+			imgurl = self.metadata_parse_response_album(data)
+		else:
+			imgurl = None
+		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		return imgurl
+
 	# default function to parse response by descending down nodes
 	# override if more complicated
 	def metadata_parse_response_artist(self,data):
@@ -224,6 +252,9 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 	def metadata_parse_response_track(self,data):
 		return self._parse_response("response_parse_tree_track", data)
+
+	def metadata_parse_response_album(self,data):
+		return self._parse_response("response_parse_tree_album", data)
 
 	def _parse_response(self, resp, data):
 		res = data

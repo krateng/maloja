@@ -519,7 +519,7 @@ def post_scrobble(
 @api.post("addpicture")
 @authenticated_function(alternate=api_key_correct,api=True)
 @catch_exceptions
-def add_picture(b64,artist:Multi=[],title=None):
+def add_picture(b64,artist:Multi=[],title=None,albumtitle=None):
 	"""Uploads a new image for an artist or track.
 
 	param string b64: Base 64 representation of the image
@@ -531,8 +531,10 @@ def add_picture(b64,artist:Multi=[],title=None):
 	for a in artist:
 		keys.append("artist",a)
 	if title is not None: keys.append("title",title)
+	elif albumtitle is not None: keys.append("albumtitle",albumtitle)
 	k_filter, _, _, _, _ = uri_to_internal(keys)
 	if "track" in k_filter: k_filter = k_filter["track"]
+	elif "album" in k_filter: k_filter = k_filter["album"]
 	url = images.set_image(b64,**k_filter)
 
 	return {

@@ -22,15 +22,22 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		"activated_setting": "SCROBBLE_LASTFM"
 	}
 	metadata = {
+		#"artisturl": "https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist={artist}&api_key={apikey}&format=json"
 		"trackurl": "https://ws.audioscrobbler.com/2.0/?method=track.getinfo&track={title}&artist={artist}&api_key={apikey}&format=json",
+		"albumurl": "https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key={apikey}&artist={artist}&album={title}&format=json",
 		"response_type":"json",
 		"response_parse_tree_track": ["track","album","image",-1,"#text"],
+		# technically just the album artwork, but we use it for now
+		#"response_parse_tree_artist": ["artist","image",-1,"#text"],
+		"response_parse_tree_album": ["album","image",-1,"#text"],
 		"required_settings": ["apikey"],
 	}
 
 	def get_image_artist(self,artist):
 		return None
-		# lastfm doesn't provide artist images
+		# lastfm still provides that endpoint with data,
+		# but doesn't provide actual images
+
 
 	def proxyscrobble_parse_response(self,data):
 		return data.attrib.get("status") == "ok" and data.find("scrobbles").attrib.get("ignored") == "0"
