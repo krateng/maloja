@@ -267,6 +267,8 @@ def get_charts_tracks(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
 		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+	elif 'album' in keys:
+		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],dbconn=dbconn)
 	else:
 		result = sqldb.count_scrobbles_by_track(since=since,to=to,dbconn=dbconn)
 	return result

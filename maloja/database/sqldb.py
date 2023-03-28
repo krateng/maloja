@@ -213,11 +213,12 @@ def scrobble_db_to_dict(row,dbconn=None):
 
 def tracks_db_to_dict(rows,dbconn=None):
 	artists = get_artists_of_tracks(set(row.id for row in rows),dbconn=dbconn)
+	albums = get_albums_map(set(row.album_id for row in rows),dbconn=dbconn)
 	return [
 		{
 			"artists":artists[row.id],
 			"title":row.title,
-			#"album":
+			"album":albums.get(row.album_id),
 			"length":row.length
 		}
 		for row in rows
@@ -387,7 +388,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
-			if 'album' in trackdict:
+			if trackdict.get('album'):
 				add_track_to_album(row.id,get_album_id(trackdict['album'],dbconn=dbconn),replace=update_album,dbconn=dbconn)
 			return row.id
 
@@ -407,7 +408,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		result = dbconn.execute(op)
 	#print("Created",trackdict['title'],track_id)
 
-	if 'album' in trackdict:
+	if trackdict.get('album'):
 		add_track_to_album(track_id,get_album_id(trackdict['album'],dbconn=dbconn),dbconn=dbconn)
 	return track_id
 
@@ -895,6 +896,35 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 	result = rank(result,key='scrobbles')
 	return result
 
+
+@cached_wrapper
+@connection_provider
+def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
+
+	album_id = get_album_id(album,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['scrobbles'].c.track_id
+	).select_from(jointable).filter(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id==album_id
+	).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+
+	counts = [row.count for row in result]
+	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
 
 
 
