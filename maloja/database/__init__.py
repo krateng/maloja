@@ -93,7 +93,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
 	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client)
-	albumupdate = (malojaconf["ALBUM_INFORMATION_TRUST"] == 'last')
+	albumupdate = (malojaconfig["ALBUM_INFORMATION_TRUST"] == 'last')
 
 
 	sqldb.add_scrobble(scrobbledict,update_album=albumupdate,dbconn=dbconn)
@@ -268,6 +268,15 @@ def get_charts_tracks(dbconn=None,**keys):
 	return result
 
 @waitfordb
+def get_charts_albums(dbconn=None,**keys):
+	(since,to) = keys.get('timerange').timestamps()
+	if 'artist' in keys:
+		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+	else:
+		result = sqldb.count_scrobbles_by_album(since=since,to=to,dbconn=dbconn)
+	return result
+
+@waitfordb
 def get_pulse(dbconn=None,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
@@ -420,6 +429,36 @@ def track_info(dbconn=None,**keys):
 		"id":track_id
 	}
 
+
+@waitfordb
+def album_info(dbconn=None,**keys):
+
+	album = keys.get('album')
+	if album is None: raise exceptions.MissingEntityParameter()
+
+	album_id = sqldb.get_album_id(album,dbconn=dbconn)
+	album = sqldb.get_album(album_id,dbconn=dbconn)
+
+	alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
+
+	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
+
+	c = [e for e in alltimecharts if e["album"] == album][0]
+	scrobbles = c["scrobbles"]
+	position = c["rank"]
+
+	return {
+		"album":album,
+		"scrobbles":scrobbles,
+		"position":position,
+		"medals":{
+			"gold": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['gold']],
+			"silver": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['silver']],
+			"bronze": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['bronze']],
+		},
+		"topweeks":len([e for e in cached.weekly_topalbums if e == album_id]),
+		"id":album_id
+	}
 
 
 def get_predefined_rulesets(dbconn=None):

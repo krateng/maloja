@@ -246,7 +246,7 @@ def albums_db_to_dict(rows,dbconn=None):
 	]
 
 def album_db_to_dict(row,dbconn=None):
-	return albums_db_to_dict([row],dbconn=dbconn)
+	return albums_db_to_dict([row],dbconn=dbconn)[0]
 
 
 
@@ -816,6 +816,35 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
+def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id != None
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+@cached_wrapper
+@connection_provider
 def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 	artist_id = get_artist_id(artist,dbconn=dbconn)
@@ -909,6 +938,22 @@ def get_artists_map(artist_ids,dbconn=None):
 	return artists
 
 
+@cached_wrapper_individual
+@connection_provider
+def get_albums_map(album_ids,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.id.in_(album_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	result = list(result)
+	# this will get a list of albumdicts in the correct order of our rows
+	albumdicts = albums_db_to_dict(result,dbconn=dbconn)
+	for row,albumdict in zip(result,albumdicts):
+		albums[row.id] = albumdict
+	return albums
+
 ### associations
 
 @cached_wrapper
@@ -975,6 +1020,16 @@ def get_artist(id,dbconn=None):
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo,dbconn=dbconn)
 
+@cached_wrapper
+@connection_provider
+def get_album(id,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.id==id
+	)
+	result = dbconn.execute(op).all()
+
+	albuminfo = result[0]
+	return album_db_to_dict(albuminfo,dbconn=dbconn)
 
 @cached_wrapper
 @connection_provider
