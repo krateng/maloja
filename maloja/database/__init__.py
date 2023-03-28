@@ -220,6 +220,8 @@ def get_scrobbles(dbconn=None,**keys):
 		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,dbconn=dbconn)
 	elif 'track' in keys:
 		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,dbconn=dbconn)
+	elif 'album' in keys:
+		result = sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,dbconn=dbconn)
 	else:
 		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
@@ -310,6 +312,14 @@ def get_performance(dbconn=None,**keys):
 			rank = None
 			for c in charts:
 				if c["artist"] == artist:
+					rank = c["rank"]
+					break
+		elif "album" in keys:
+			album = sqldb.get_album(sqldb.get_album_id(keys['album'],dbconn=dbconn),dbconn=dbconn)
+			charts = get_charts_albums(timerange=rng,dbconn=dbconn)
+			rank = None
+			for c in charts:
+				if c["album"] == album:
 					rank = c["rank"]
 					break
 		else:

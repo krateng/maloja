@@ -388,7 +388,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
 			if 'album' in trackdict:
-				add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album)
+				add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album,dbconn=dbconn)
 			return row.id
 
 	if not create_new: return None
@@ -408,7 +408,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 	#print("Created",trackdict['title'],track_id)
 
 	if 'album' in trackdict:
-		add_track_to_album(track_id,get_album_id(trackdict['album']))
+		add_track_to_album(track_id,get_album_id(trackdict['album']),dbconn=dbconn)
 	return track_id
 
 @cached_wrapper
@@ -663,6 +663,29 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbco
 		DB['scrobbles'].c.timestamp<=to,
 		DB['scrobbles'].c.timestamp>=since,
 		DB['scrobbles'].c.track_id==track_id
+	).order_by(sql.asc('timestamp'))
+	result = dbconn.execute(op).all()
+
+	if resolve_references:
+		result = scrobbles_db_to_dict(result)
+	#result = [scrobble_db_to_dict(row) for row in result]
+	return result
+
+@cached_wrapper
+@connection_provider
+def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,dbconn=None):
+
+	if since is None: since=0
+	if to is None: to=now()
+
+	album_id = get_album_id(album,dbconn=dbconn)
+
+	jointable = sql.join(DB['scrobbles'],DB['tracks'],DB['scrobbles'].c.track_id == DB['tracks'].c.id)
+
+	op = jointable.select().where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id==album_id
 	).order_by(sql.asc('timestamp'))
 	result = dbconn.execute(op).all()
 

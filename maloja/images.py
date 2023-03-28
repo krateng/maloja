@@ -115,6 +115,11 @@ def get_artist_image(artist=None,artist_id=None):
 
 	return f"/image?type=artist&id={artist_id}"
 
+def get_album_image(album=None,album_id=None):
+	if album_id is None:
+		album_id = database.sqldb.get_album_id(album)
+
+	return f"/image?type=album&id={album_id}"
 
 
 resolve_semaphore = BoundedSemaphore(8)
