@@ -7,6 +7,9 @@
 	{% elif filterkeys.get('track') is not none %}
 		of {{ links.link(filterkeys.get('track')) }}
 		by {{ links.links(filterkeys["track"]["artists"]) }}
+	{% elif filterkeys.get('album') is not none %}
+		of {{ links.link(filterkeys.get('album')) }}
+		by {{ links.links(filterkeys["album"]["artists"]) }}
 	{% endif %}
 	{{ limitkeys.timerange.desc(prefix=True) }}
 
