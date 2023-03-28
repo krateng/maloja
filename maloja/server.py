@@ -19,7 +19,7 @@ from doreah import auth
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
-from .images import resolve_track_image, resolve_artist_image
+from .images import resolve_track_image, resolve_artist_image, resolve_album_image
 from .malojauri import uri_to_internal, remove_identical
 from .pkg_global.conf import malojaconfig, data_dir
 from .jinjaenv.context import jinja_environment
@@ -124,6 +124,8 @@ def dynamic_image():
 		result = resolve_track_image(keys['id'])
 	elif keys['type'] == 'artist':
 		result = resolve_artist_image(keys['id'])
+	elif keys['type'] == 'album':
+		result = resolve_album_image(keys['id'])
 
 	if result is None or result['value'] in [None,'']:
 		return ""

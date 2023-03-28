@@ -4,7 +4,7 @@ import urllib
 import math
 
 # this also sets defaults!
-def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
+def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api=False):
 
 	# output:
 	# 1	keys that define the filtered object like artist or track
@@ -12,12 +12,23 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
 	# 3	keys that define interal time ranges
 	# 4	keys that define amount limits
 
+	type = None
+	if forceTrack: type = "track"
+	if forceArtist: type = "artist"
+	if forceAlbum: type = "album"
+
+	if not type and "title" in keys: type = "track"
+	if not type and "albumtitle" in keys: type = "album"
+	if not type and "artist" in keys: type = "artist"
+
 	# 1
-	if "title" in keys and not forceArtist:
+	if type == "track":
 		filterkeys = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
-	elif "artist" in keys and not forceTrack:
+	elif type == "artist":
 		filterkeys = {"artist":keys.get("artist")}
 		if "associated" in keys: filterkeys["associated"] = True
+	elif type == "album":
+		filterkeys = {"album":{"artists":keys.getall("artist"),"albumtitle":keys.get("albumtitle") or keys.get("title")}}
 	else:
 		filterkeys = {}
 
@@ -84,6 +95,10 @@ def internal_to_uri(keys):
 		for a in keys["track"]["artists"]:
 			urikeys.append("artist",a)
 		urikeys.append("title",keys["track"]["title"])
+	elif "album" in keys:
+		for a in keys["album"].get("artists") or []:
+			urikeys.append("artist",a)
+		urikeys.append("albumtitle",keys["album"]["albumtitle"])
 
 	#time
 	if "timerange" in keys:

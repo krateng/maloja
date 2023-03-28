@@ -39,6 +39,13 @@ DB['tracks'] = sql.Table(
 	sql.Column('expire',sql.Integer),
 	sql.Column('raw',sql.String)
 )
+DB['albums'] = sql.Table(
+	'albums', meta,
+	sql.Column('id',sql.Integer,primary_key=True),
+	sql.Column('url',sql.String),
+	sql.Column('expire',sql.Integer),
+	sql.Column('raw',sql.String)
+)
 
 meta.create_all(engine)
 
@@ -115,6 +122,11 @@ def get_artist_image(artist=None,artist_id=None):
 
 	return f"/image?type=artist&id={artist_id}"
 
+def get_album_image(album=None,album_id=None):
+	if album_id is None:
+		album_id = database.sqldb.get_album_id(album)
+
+	return f"/image?type=album&id={album_id}"
 
 
 resolve_semaphore = BoundedSemaphore(8)
@@ -132,7 +144,7 @@ def resolve_track_image(track_id):
 
 		# local image
 		if malojaconfig["USE_LOCAL_IMAGES"]:
-			images = local_files(artists=track['artists'],title=track['title'])
+			images = local_files(track=track)
 			if len(images) != 0:
 				result = random.choice(images)
 				result = urllib.parse.quote(result)
@@ -176,31 +188,56 @@ def resolve_artist_image(artist_id):
 		return result
 
 
+def resolve_album_image(album_id):
+
+	with resolve_semaphore:
+		# check cache
+		result = get_image_from_cache(album_id,'albums')
+		if result is not None:
+			return result
+
+		album = database.sqldb.get_album(album_id)
+
+		# local image
+		if malojaconfig["USE_LOCAL_IMAGES"]:
+			images = local_files(album=album)
+			if len(images) != 0:
+				result = random.choice(images)
+				result = urllib.parse.quote(result)
+				result = {'type':'url','value':result}
+				set_image_in_cache(album_id,'tracks',result['value'])
+				return result
+
+		# third party
+		result = thirdparty.get_image_album_all((album['artists'],album['albumtitle']))
+		result = {'type':'url','value':result}
+		set_image_in_cache(album_id,'albums',result['value'])
+
+		return result
+
+
 # removes emojis and weird shit from names
 def clean(name):
 	return "".join(c for c in name if c.isalnum() or c in []).strip()
 
-def get_all_possible_filenames(artist=None,artists=None,title=None):
-	# check if we're dealing with a track or artist, then clean up names
-	# (only remove non-alphanumeric, allow korean and stuff)
-
-	if title is not None and artists is not None:
-		track = True
-		title, artists = clean(title), [clean(a) for a in artists]
-	elif artist is not None:
-		track = False
+# new and improved
+def get_all_possible_filenames(artist=None,track=None,album=None):
+	if track:
+		title, artists = clean(track['title']), [clean(a) for a in track['artists']]
+		superfolder = "tracks/"
+	elif album:
+		title, artists = clean(album['albumtitle']), [clean(a) for a in album.get('artists') or []]
+		superfolder = "albums/"
+	elif artist:
 		artist = clean(artist)
-	else: return []
-
-
-	superfolder = "tracks/" if track else "artists/"
+		superfolder = "artists/"
+	else:
+		return []
 
 	filenames = []
 
-	if track:
-		#unsafeartists = [artist.translate(None,"-_./\\") for artist in artists]
+	if track or album:
 		safeartists = [re.sub("[^a-zA-Z0-9]","",artist) for artist in artists]
-		#unsafetitle = title.translate(None,"-_./\\")
 		safetitle = re.sub("[^a-zA-Z0-9]","",title)
 
 		if len(artists) < 4:
@@ -209,7 +246,6 @@ def get_all_possible_filenames(artist=None,artists=None,title=None):
 		else:
 			unsafeperms = [sorted(artists)]
 			safeperms = [sorted(safeartists)]
-
 
 		for unsafeartistlist in unsafeperms:
 			filename = "-".join(unsafeartistlist) + "_" + title
@@ -241,10 +277,11 @@ def get_all_possible_filenames(artist=None,artists=None,title=None):
 
 	return [superfolder + name for name in filenames]
 
-def local_files(artist=None,artists=None,title=None):
+
+def local_files(artist=None,album=None,track=None):
 
 
-	filenames = get_all_possible_filenames(artist,artists,title)
+	filenames = get_all_possible_filenames(artist=artist,album=album,track=track)
 
 	images = []
 
@@ -271,13 +308,18 @@ class MalformedB64(Exception):
 	pass
 
 def set_image(b64,**keys):
-	track = "title" in keys
-	if track:
-		entity = {'artists':keys['artists'],'title':keys['title']}
-		id = database.sqldb.get_track_id(entity)
-	else:
-		entity = keys['artist']
-		id = database.sqldb.get_artist_id(entity)
+	if "title" in keys:
+		entity = {"track":keys}
+		id = database.sqldb.get_track_id(entity['track'])
+		dbtable = "tracks"
+	elif "albumtitle" in keys:
+		entity = {"album":keys}
+		id = database.sqldb.get_album_id(entity['album'])
+		dbtable = "albums"
+	elif "artist" in keys:
+		entity = keys
+		id = database.sqldb.get_artist_id(entity['artist'])
+		dbtable = "artists"
 
 	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
 
@@ -288,13 +330,13 @@ def set_image(b64,**keys):
 	type,b64 = match.groups()
 	b64 = base64.b64decode(b64)
 	filename = "webupload" + str(int(datetime.datetime.now().timestamp())) + "." + type
-	for folder in get_all_possible_filenames(**keys):
+	for folder in get_all_possible_filenames(**entity):
 		if os.path.exists(data_dir['images'](folder)):
 			with open(data_dir['images'](folder,filename),"wb") as f:
 				f.write(b64)
 			break
 	else:
-		folder = get_all_possible_filenames(**keys)[0]
+		folder = get_all_possible_filenames(**entity)[0]
 		os.makedirs(data_dir['images'](folder))
 		with open(data_dir['images'](folder,filename),"wb") as f:
 			f.write(b64)
@@ -303,7 +345,6 @@ def set_image(b64,**keys):
 	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 
 	# set as current picture in rotation
-	if track: set_image_in_cache(id,'tracks',os.path.join("/images",folder,filename))
-	else: set_image_in_cache(id,'artists',os.path.join("/images",folder,filename))
+	set_image_in_cache(id,dbtable,os.path.join("/images",folder,filename))
 
 	return os.path.join("/images",folder,filename)

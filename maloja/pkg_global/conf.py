@@ -177,6 +177,7 @@ malojaconfig = Configuration(
 
 		},
 		"Database":{
+			"album_information_trust":(tp.Choice({'first':"First",'last':"Last",'majority':"Majority"}),	"Album Information Authority","first",															"Whether to trust the first album information that is sent with a track or update every time a different album is sent"),
 			"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"],											"Artists that should be discarded immediately"),
 			"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"],	"Phrases that should be removed from song titles"),
 			"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring"],													"Delimiters used for extra artists, even when in the title field"),
@@ -191,6 +192,7 @@ malojaconfig = Configuration(
 			"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
+			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),

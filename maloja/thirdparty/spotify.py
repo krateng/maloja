@@ -15,9 +15,11 @@ class Spotify(MetadataInterface):
 
 	metadata = {
 		"trackurl": "https://api.spotify.com/v1/search?q=artist:{artist}%20track:{title}&type=track&access_token={token}",
+		"albumurl": "https://api.spotify.com/v1/search?q=artist:{artist}%album:{title}&type=album&access_token={token}",
 		"artisturl": "https://api.spotify.com/v1/search?q=artist:{artist}&type=artist&access_token={token}",
 		"response_type":"json",
-		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"],
+		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"], # use album art
+		"response_parse_tree_album": ["albums","items",0,"images",0,"url"],
 		"response_parse_tree_artist": ["artists","items",0,"images",0,"url"],
 		"required_settings": ["apiid","secret"],
 	}

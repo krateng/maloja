@@ -1,0 +1,42 @@
+{% macro medals(info) %}
+
+<!-- MEDALS -->
+{% for year in info.medals.gold -%}
+<a title="Best Album in {{ year }}" class="hidelink medal shiny gold" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.silver -%}
+<a title="Second best Album in {{ year }}" class="hidelink medal shiny silver" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.bronze -%}
+<a title="Third best Album in {{ year }}" class="hidelink medal shiny bronze" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+{% macro topweeks(info) %}
+
+{% set encodedtrack = mlj_uri.uriencode({'album':info.album}) %}
+
+<!-- TOPWEEKS -->
+<span>
+	{% if info.topweeks > 0 %}
+	<a title="{{ info.topweeks }} weeks on #1" href="/performance?{{ encodedalbum }}&step=week">
+		<img class="star" src="/media/star.png" />{{ info.topweeks }}
+	</a>
+	{% endif %}
+</span>
+
+{%- endmacro %}

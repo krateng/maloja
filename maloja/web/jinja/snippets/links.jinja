@@ -1,6 +1,6 @@
 {% macro link(entity) -%}
-	{% if entity is mapping and 'artists' in entity %}
-		{% set name = entity.title %}
+	{% if entity is mapping and 'title' in entity or 'albumtitle' in entity %}
+		{% set name = entity.title or entity.albumtitle %}
 	{% else %}
 		{% set name = entity %}
 	{% endif %}
@@ -9,15 +9,21 @@
 {%- endmacro %}
 
 {% macro links(entities) -%}
-	{% for entity in entities -%}
-		{{ link(entity) }}{{ ", " if not loop.last }}
-	{%- endfor %}
+	{% if entities is none or entities == [] %}
+		{{ settings["DEFAULT_ALBUM_ARTIST"] }}
+	{% else %}
+		{% for entity in entities -%}
+			{{ link(entity) }}{{ ", " if not loop.last }}
+		{%- endfor %}
+	{% endif %}
 {%- endmacro %}
 
 
 
 {% macro url(entity) %}
-	{% if entity is mapping and 'artists' in entity -%}
+  {% if entity is mapping and 'albumtitle' in entity -%}
+	  {{ mlj_uri.create_uri("/album",{'album':entity}) }}
+	{% elif entity is mapping and 'artists' in entity -%}
 		{{ mlj_uri.create_uri("/track",{'track':entity}) }}
 	{%- else -%}
 		{{ mlj_uri.create_uri("/artist",{'artist':entity}) }}
@@ -43,6 +49,8 @@
 
 	{% if 'track' in filterkeys %}
 		{% set url = mlj_uri.create_uri("/charts_tracks",{'timerange':timerange}) %}
+	{% elif 'album' in filterkeys %}
+		{% set url = mlj_uri.create_uri("/charts_albums",{'timerange':timerange}) %}
 	{% elif 'artist' in filterkeys %}
 		{% set url = mlj_uri.create_uri("/charts_artists",{'timerange':timerange}) %}
 	{% endif %}

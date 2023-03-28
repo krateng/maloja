@@ -470,7 +470,7 @@ def post_scrobble(
 	rawscrobble = {
 		'track_artists':(artist or []) + artists,
 		'track_title':title,
-		'album_name':album,
+		'album_title':album,
 		'album_artists':albumartists,
 		'scrobble_duration':duration,
 		'track_length':length,
@@ -494,19 +494,23 @@ def post_scrobble(
 			'artists':result['track']['artists'],
 			'title':result['track']['title']
 		},
-		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}"
+		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}",
+		'warnings':[]
 	}
 	if extra_kwargs:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'invalid_keyword_ignored','value':k,
 			'desc':"This key was not recognized by the server and has been discarded."}
 			for k in extra_kwargs
 		]
 	if artist and artists:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'mixed_schema','value':['artist','artists'],
 			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
 		]
+
+	if len(responsedict['warnings']) == 0: del responsedict['warnings']
+
 	return responsedict
 
 
@@ -515,7 +519,7 @@ def post_scrobble(
 @api.post("addpicture")
 @authenticated_function(alternate=api_key_correct,api=True)
 @catch_exceptions
-def add_picture(b64,artist:Multi=[],title=None):
+def add_picture(b64,artist:Multi=[],title=None,albumtitle=None):
 	"""Uploads a new image for an artist or track.
 
 	param string b64: Base 64 representation of the image
@@ -527,8 +531,10 @@ def add_picture(b64,artist:Multi=[],title=None):
 	for a in artist:
 		keys.append("artist",a)
 	if title is not None: keys.append("title",title)
+	elif albumtitle is not None: keys.append("albumtitle",albumtitle)
 	k_filter, _, _, _, _ = uri_to_internal(keys)
 	if "track" in k_filter: k_filter = k_filter["track"]
+	elif "album" in k_filter: k_filter = k_filter["album"]
 	url = images.set_image(b64,**k_filter)
 
 	return {

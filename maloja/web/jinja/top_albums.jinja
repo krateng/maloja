@@ -1,13 +1,13 @@
 {% extends "abstracts/base.jinja" %}
-{% block title %}Maloja - #1 Tracks{% endblock %}
+{% block title %}Maloja - #1 Albums{% endblock %}
 
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
 
 <!-- find representative -->
 
-{% set entries = dbc.get_top_tracks(filterkeys,limitkeys,delimitkeys) %}
-{% set repr = entries | find_representative('track','scrobbles') %}
-{% set img = "/favicon.png" if repr is none else images.get_track_image(repr.track) %}
+{% set entries = dbc.get_top_albums(filterkeys,limitkeys,delimitkeys) %}
+{% set repr = entries | find_representative('album','scrobbles') %}
+{% set img = "/favicon.png" if repr is none else images.get_album_image(repr.album) %}
 
 
 {% block content %}
@@ -17,7 +17,7 @@
 					<div style="background-image:url('{{ img }}')"></div>
 				</td>
 				<td class="text">
-					<h1>#1 Tracks</h1><br/>
+					<h1>#1 Albums</h1><br/>
 					{{ filterdesc.desc(filterkeys,limitkeys) }}
 
 					<br/><br/>
@@ -26,6 +26,6 @@
 			</tr>
 		</table>
 
-		{% include 'partials/top_tracks.jinja' %}
+		{% include 'partials/top_albums.jinja' %}
 
 {% endblock %}

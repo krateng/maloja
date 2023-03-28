@@ -21,44 +21,72 @@ DBTABLES = {
 	# name - type - foreign key - kwargs
 	'scrobbles':{
 		'columns':[
-			("timestamp",       sql.Integer,                                  {'primary_key':True}),
-			("rawscrobble",     sql.String,                                   {}),
-			("origin",          sql.String,                                   {}),
-			("duration",        sql.Integer,                                  {}),
-			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {}),
-			("extra",           sql.String,                                   {})
+			("timestamp",           sql.Integer,                                  {'primary_key':True}),
+			("rawscrobble",         sql.String,                                   {}),
+			("origin",              sql.String,                                   {}),
+			("duration",            sql.Integer,                                  {}),
+			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {}),
+			("extra",               sql.String,                                   {})
 		],
 		'extraargs':(),'extrakwargs':{}
 	},
 	'tracks':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("title",           sql.String,                                   {}),
-			("title_normalized",sql.String,                                   {}),
-			("length",          sql.Integer,                                  {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("title",               sql.String,                                   {}),
+			("title_normalized",    sql.String,                                   {}),
+			("length",              sql.Integer,                                  {}),
+			("album_id",           sql.Integer, sql.ForeignKey('albums.id'),      {})
 		],
 		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
 	},
 	'artists':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("name",            sql.String,                                   {}),
-			("name_normalized", sql.String,                                   {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("name",                sql.String,                                   {}),
+			("name_normalized",     sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
+	},
+	'albums':{
+		'columns':[
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("albtitle",            sql.String,                                   {}),
+			("albtitle_normalized", sql.String,                                   {})
+			#("albumartist",     sql.String,                                   {})
+			# when an album has no artists, always use 'Various Artists'
 		],
 		'extraargs':(),'extrakwargs':{'sqlite_autoincrement':True}
 	},
 	'trackartists':{
 		'columns':[
-			("id",              sql.Integer,                                  {'primary_key':True}),
-			("artist_id",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
-			("track_id",        sql.Integer, sql.ForeignKey('tracks.id'),     {})
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("artist_id",           sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
 		],
 		'extraargs':(sql.UniqueConstraint('artist_id', 'track_id'),),'extrakwargs':{}
 	},
+	'albumartists':{
+		'columns':[
+			("id",                  sql.Integer,                                  {'primary_key':True}),
+			("artist_id",           sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {})
+		],
+		'extraargs':(sql.UniqueConstraint('artist_id', 'album_id'),),'extrakwargs':{}
+	},
+#	'albumtracks':{
+#		# tracks can be in multiple albums
+#		'columns':[
+#			("id",                  sql.Integer,                                  {'primary_key':True}),
+#			("album_id",            sql.Integer, sql.ForeignKey('albums.id'),     {}),
+#			("track_id",            sql.Integer, sql.ForeignKey('tracks.id'),     {})
+#		],
+#		'extraargs':(sql.UniqueConstraint('album_id', 'track_id'),),'extrakwargs':{}
+#	},
 	'associated_artists':{
 		'columns':[
-			("source_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {}),
-			("target_artist",   sql.Integer, sql.ForeignKey('artists.id'),    {})
+			("source_artist",       sql.Integer, sql.ForeignKey('artists.id'),    {}),
+			("target_artist",       sql.Integer, sql.ForeignKey('artists.id'),    {})
 		],
 		'extraargs':(sql.UniqueConstraint('source_artist', 'target_artist'),),'extrakwargs':{}
 	}
@@ -138,7 +166,7 @@ def connection_provider(func):
 # 		"artists":list,
 # 		"title":string,
 # 		"album":{
-# 			"name":string,
+# 			"albumtitle":string,
 # 			"artists":list
 # 		},
 # 		"length":None
@@ -185,11 +213,12 @@ def scrobble_db_to_dict(row,dbconn=None):
 
 def tracks_db_to_dict(rows,dbconn=None):
 	artists = get_artists_of_tracks(set(row.id for row in rows),dbconn=dbconn)
+	albums = get_albums_map(set(row.album_id for row in rows),dbconn=dbconn)
 	return [
 		{
 			"artists":artists[row.id],
 			"title":row.title,
-			#"album":
+			"album":albums.get(row.album_id),
 			"length":row.length
 		}
 		for row in rows
@@ -207,18 +236,31 @@ def artists_db_to_dict(rows,dbconn=None):
 def artist_db_to_dict(row,dbconn=None):
 	return artists_db_to_dict([row],dbconn=dbconn)[0]
 
+def albums_db_to_dict(rows,dbconn=None):
+	artists = get_artists_of_albums(set(row.id for row in rows),dbconn=dbconn)
+	return [
+		{
+			"artists":artists.get(row.id),
+			"albumtitle":row.albtitle,
+		}
+		for row in rows
+	]
+
+def album_db_to_dict(row,dbconn=None):
+	return albums_db_to_dict([row],dbconn=dbconn)[0]
+
 
 
 
 ### DICT -> DB
 # These should return None when no data is in the dict so they can be used for update statements
 
-def scrobble_dict_to_db(info,dbconn=None):
+def scrobble_dict_to_db(info,update_album=False,dbconn=None):
 	return {
 		"timestamp":info.get('time'),
 		"origin":info.get('origin'),
 		"duration":info.get('duration'),
-		"track_id":get_track_id(info.get('track'),dbconn=dbconn),
+		"track_id":get_track_id(info.get('track'),update_album=update_album,dbconn=dbconn),
 		"extra":json.dumps(info.get('extra')) if info.get('extra') else None,
 		"rawscrobble":json.dumps(info.get('rawscrobble')) if info.get('rawscrobble') else None
 	}
@@ -236,6 +278,12 @@ def artist_dict_to_db(info,dbconn=None):
 		"name_normalized":normalize_name(info)
 	}
 
+def album_dict_to_db(info,dbconn=None):
+	return {
+		"albtitle":info.get('albumtitle'),
+		"albtitle_normalized":normalize_name(info.get('albumtitle'))
+	}
+
 
 
 
@@ -244,17 +292,17 @@ def artist_dict_to_db(info,dbconn=None):
 
 
 @connection_provider
-def add_scrobble(scrobbledict,dbconn=None):
-	add_scrobbles([scrobbledict],dbconn=dbconn)
+def add_scrobble(scrobbledict,update_album=False,dbconn=None):
+	add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
 
 @connection_provider
-def add_scrobbles(scrobbleslist,dbconn=None):
+def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):
 
 	with SCROBBLE_LOCK:
 
 		ops = [
 			DB['scrobbles'].insert().values(
-				**scrobble_dict_to_db(s,dbconn=dbconn)
+				**scrobble_dict_to_db(s,update_album=update_album,dbconn=dbconn)
 			) for s in scrobbleslist
 		]
 
@@ -285,11 +333,34 @@ def delete_scrobble(scrobble_id,dbconn=None):
 	return True
 
 
+@connection_provider
+def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
+
+	conditions = [
+		DB['tracks'].c.id == track_id
+	]
+	if not replace:
+		# if we dont want replacement, just update if there is no album yet
+		conditions.append(
+			DB['tracks'].c.album_id == None
+		)
+
+	op = DB['tracks'].update().where(
+		*conditions
+	).values(
+		album_id=album_id
+	)
+
+	result = dbconn.execute(op)
+	return True
+
+
+
 ### these will 'get' the ID of an entity, creating it if necessary
 
 @cached_wrapper
 @connection_provider
-def get_track_id(trackdict,create_new=True,dbconn=None):
+def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
@@ -310,17 +381,18 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		op = DB['trackartists'].select(
 #			DB['trackartists'].c.artist_id
 		).where(
-			DB['trackartists'].c.track_id==row[0]
+			DB['trackartists'].c.track_id==row.id
 		)
 		result = dbconn.execute(op).all()
 		match_artist_ids = [r.artist_id for r in result]
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
+			if trackdict.get('album'):
+				add_track_to_album(row.id,get_album_id(trackdict['album'],dbconn=dbconn),replace=update_album,dbconn=dbconn)
 			return row.id
 
 	if not create_new: return None
-
 
 	op = DB['tracks'].insert().values(
 		**track_dict_to_db(trackdict,dbconn=dbconn)
@@ -335,6 +407,9 @@ def get_track_id(trackdict,create_new=True,dbconn=None):
 		)
 		result = dbconn.execute(op)
 	#print("Created",trackdict['title'],track_id)
+
+	if trackdict.get('album'):
+		add_track_to_album(track_id,get_album_id(trackdict['album'],dbconn=dbconn),dbconn=dbconn)
 	return track_id
 
 @cached_wrapper
@@ -362,6 +437,59 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	result = dbconn.execute(op)
 	#print("Created",artistname,result.inserted_primary_key)
 	return result.inserted_primary_key[0]
+
+
+@cached_wrapper
+@connection_provider
+def get_album_id(albumdict,create_new=True,dbconn=None):
+	ntitle = normalize_name(albumdict['albumtitle'])
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict.get('artists') or []]
+	artist_ids = list(set(artist_ids))
+
+
+
+
+	op = DB['albums'].select(
+#		DB['albums'].c.id
+	).where(
+		DB['albums'].c.albtitle_normalized==ntitle
+	)
+	result = dbconn.execute(op).all()
+	for row in result:
+		# check if the artists are the same
+		foundtrackartists = []
+
+		op = DB['albumartists'].select(
+#			DB['albumartists'].c.artist_id
+		).where(
+			DB['albumartists'].c.album_id==row.id
+		)
+		result = dbconn.execute(op).all()
+		match_artist_ids = [r.artist_id for r in result]
+		#print("required artists",artist_ids,"this match",match_artist_ids)
+		if set(artist_ids) == set(match_artist_ids):
+			#print("ID for",albumdict['title'],"was",row[0])
+			return row.id
+
+	if not create_new: return None
+
+
+	op = DB['albums'].insert().values(
+		**album_dict_to_db(albumdict,dbconn=dbconn)
+	)
+	result = dbconn.execute(op)
+	album_id = result.inserted_primary_key[0]
+
+	for artist_id in artist_ids:
+		op = DB['albumartists'].insert().values(
+			album_id=album_id,
+			artist_id=artist_id
+		)
+		result = dbconn.execute(op)
+	#print("Created",trackdict['title'],track_id)
+	return album_id
+
+
 
 
 ### Edit existing
@@ -546,6 +674,29 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbco
 
 @cached_wrapper
 @connection_provider
+def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,dbconn=None):
+
+	if since is None: since=0
+	if to is None: to=now()
+
+	album_id = get_album_id(album,dbconn=dbconn)
+
+	jointable = sql.join(DB['scrobbles'],DB['tracks'],DB['scrobbles'].c.track_id == DB['tracks'].c.id)
+
+	op = jointable.select().where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id==album_id
+	).order_by(sql.asc('timestamp'))
+	result = dbconn.execute(op).all()
+
+	if resolve_references:
+		result = scrobbles_db_to_dict(result)
+	#result = [scrobble_db_to_dict(row) for row in result]
+	return result
+
+@cached_wrapper
+@connection_provider
 def get_scrobbles(since=None,to=None,resolve_references=True,dbconn=None):
 
 	if since is None: since=0
@@ -689,6 +840,112 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
+def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id != None
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+@cached_wrapper
+@connection_provider
+# this ranks the albums of that artist, not albums the artist appears on - even scrobbles
+# of tracks the artist is not part of!
+def count_scrobbles_by_album_of_artist(since,to,artist,resolve_ids=True,dbconn=None):
+
+	artist_id = get_artist_id(artist,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+	jointable2 = sql.join(
+		jointable,
+		DB['albumartists'],
+		DB['tracks'].c.album_id == DB['albumartists'].c.album_id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable2).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['albumartists'].c.artist_id == artist_id
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+@cached_wrapper
+@connection_provider
+# this ranks the tracks of that artist by the album they appear on - even when the album
+# is not the artist's
+def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=None):
+
+	artist_id = get_artist_id(artist,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['trackartists'],
+		DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id
+	)
+	jointable2 = sql.join(
+		jointable,
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(jointable2).where(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['trackartists'].c.artist_id == artist_id
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+	if resolve_ids:
+		counts = [row.count for row in result]
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
+
+@cached_wrapper
+@connection_provider
 def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 
 	artist_id = get_artist_id(artist,dbconn=dbconn)
@@ -717,6 +974,35 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 	return result
 
 
+@cached_wrapper
+@connection_provider
+def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
+
+	album_id = get_album_id(album,dbconn=dbconn)
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks'],
+		DB['scrobbles'].c.track_id == DB['tracks'].c.id
+	)
+
+	op = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['scrobbles'].c.track_id
+	).select_from(jointable).filter(
+		DB['scrobbles'].c.timestamp<=to,
+		DB['scrobbles'].c.timestamp>=since,
+		DB['tracks'].c.album_id==album_id
+	).group_by(DB['scrobbles'].c.track_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op).all()
+
+
+	counts = [row.count for row in result]
+	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	result = rank(result,key='scrobbles')
+	return result
+
 
 
 ### functions that get mappings for several entities -> rows
@@ -732,6 +1018,19 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 	artists = {}
 	for row in result:
 		artists.setdefault(row.track_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
+	return artists
+
+@cached_wrapper_individual
+@connection_provider
+def get_artists_of_albums(album_ids,dbconn=None):
+	op = sql.join(DB['albumartists'],DB['artists']).select().where(
+		DB['albumartists'].c.album_id.in_(album_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	artists = {}
+	for row in result:
+		artists.setdefault(row.album_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
 	return artists
 
 
@@ -768,6 +1067,22 @@ def get_artists_map(artist_ids,dbconn=None):
 		artists[row.id] = artistdict
 	return artists
 
+
+@cached_wrapper_individual
+@connection_provider
+def get_albums_map(album_ids,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.id.in_(album_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	result = list(result)
+	# this will get a list of albumdicts in the correct order of our rows
+	albumdicts = albums_db_to_dict(result,dbconn=dbconn)
+	for row,albumdict in zip(result,albumdicts):
+		albums[row.id] = albumdict
+	return albums
 
 ### associations
 
@@ -835,6 +1150,16 @@ def get_artist(id,dbconn=None):
 	artistinfo = result[0]
 	return artist_db_to_dict(artistinfo,dbconn=dbconn)
 
+@cached_wrapper
+@connection_provider
+def get_album(id,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.id==id
+	)
+	result = dbconn.execute(op).all()
+
+	albuminfo = result[0]
+	return album_db_to_dict(albuminfo,dbconn=dbconn)
 
 @cached_wrapper
 @connection_provider

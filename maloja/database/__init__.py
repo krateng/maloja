@@ -93,8 +93,10 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	log(f"Incoming scrobble [Client: {client} | API: {api}]: {rawscrobble}")
 
 	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client)
+	albumupdate = (malojaconfig["ALBUM_INFORMATION_TRUST"] == 'last')
 
-	sqldb.add_scrobble(scrobbledict,dbconn=dbconn)
+
+	sqldb.add_scrobble(scrobbledict,update_album=albumupdate,dbconn=dbconn)
 	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
 	dbcache.invalidate_caches(scrobbledict['time'])
@@ -130,7 +132,10 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 	scrobbleinfo = {**rawscrobble}
 	if fix:
 		scrobbleinfo['track_artists'],scrobbleinfo['track_title'] = cla.fullclean(scrobbleinfo['track_artists'],scrobbleinfo['track_title'])
+		if scrobbleinfo.get('album_artists'):
+			scrobbleinfo['album_artists'] = cla.parseArtists(scrobbleinfo['album_artists'])
 	scrobbleinfo['scrobble_time'] = scrobbleinfo.get('scrobble_time') or int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+
 
 	# processed info to internal scrobble dict
 	scrobbledict = {
@@ -139,7 +144,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 			"artists":scrobbleinfo.get('track_artists'),
 			"title":scrobbleinfo.get('track_title'),
 			"album":{
-				"name":scrobbleinfo.get('album_name'),
+				"albumtitle":scrobbleinfo.get('album_title'),
 				"artists":scrobbleinfo.get('album_artists')
 			},
 			"length":scrobbleinfo.get('track_length')
@@ -148,7 +153,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"origin":f"client:{client}" if client else "generic",
 		"extra":{
 			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
-			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_name','album_artists']
+			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_title','album_artists']
 		},
 		"rawscrobble":rawscrobble
 	}
@@ -216,6 +221,8 @@ def get_scrobbles(dbconn=None,**keys):
 		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,dbconn=dbconn)
 	elif 'track' in keys:
 		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,dbconn=dbconn)
+	elif 'album' in keys:
+		result = sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,dbconn=dbconn)
 	else:
 		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
@@ -229,6 +236,8 @@ def get_scrobbles_num(dbconn=None,**keys):
 		result = len(sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,resolve_references=False,dbconn=dbconn))
 	elif 'track' in keys:
 		result = len(sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,resolve_references=False,dbconn=dbconn))
+	elif 'album' in keys:
+		result = len(sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,resolve_references=False,dbconn=dbconn))
 	else:
 		result = sqldb.get_scrobbles_num(since=since,to=to,dbconn=dbconn)
 	return result
@@ -259,8 +268,19 @@ def get_charts_tracks(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
 		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+	elif 'album' in keys:
+		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],dbconn=dbconn)
 	else:
 		result = sqldb.count_scrobbles_by_track(since=since,to=to,dbconn=dbconn)
+	return result
+
+@waitfordb
+def get_charts_albums(dbconn=None,**keys):
+	(since,to) = keys.get('timerange').timestamps()
+	if 'artist' in keys:
+		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+	else:
+		result = sqldb.count_scrobbles_by_album(since=since,to=to,dbconn=dbconn)
 	return result
 
 @waitfordb
@@ -299,6 +319,14 @@ def get_performance(dbconn=None,**keys):
 				if c["artist"] == artist:
 					rank = c["rank"]
 					break
+		elif "album" in keys:
+			album = sqldb.get_album(sqldb.get_album_id(keys['album'],dbconn=dbconn),dbconn=dbconn)
+			charts = get_charts_albums(timerange=rng,dbconn=dbconn)
+			rank = None
+			for c in charts:
+				if c["album"] == album:
+					rank = c["rank"]
+					break
 		else:
 			raise exceptions.MissingEntityParameter()
 		results.append({"range":rng,"rank":rank})
@@ -333,6 +361,21 @@ def get_top_tracks(dbconn=None,**keys):
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except Exception:
 			results.append({"range":rng,"track":None,"scrobbles":0})
+
+	return results
+
+@waitfordb
+def get_top_albums(dbconn=None,**keys):
+
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
+	results = []
+
+	for rng in rngs:
+		try:
+			res = get_charts_albums(timerange=rng,dbconn=dbconn)[0]
+			results.append({"range":rng,"album":res["album"],"scrobbles":res["scrobbles"]})
+		except Exception:
+			results.append({"range":rng,"album":None,"scrobbles":0})
 
 	return results
 
@@ -416,6 +459,36 @@ def track_info(dbconn=None,**keys):
 		"id":track_id
 	}
 
+
+@waitfordb
+def album_info(dbconn=None,**keys):
+
+	album = keys.get('album')
+	if album is None: raise exceptions.MissingEntityParameter()
+
+	album_id = sqldb.get_album_id(album,dbconn=dbconn)
+	album = sqldb.get_album(album_id,dbconn=dbconn)
+
+	alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
+
+	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
+
+	c = [e for e in alltimecharts if e["album"] == album][0]
+	scrobbles = c["scrobbles"]
+	position = c["rank"]
+
+	return {
+		"album":album,
+		"scrobbles":scrobbles,
+		"position":position,
+		"medals":{
+			"gold": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['gold']],
+			"silver": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['silver']],
+			"bronze": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['bronze']],
+		},
+		"topweeks":len([e for e in cached.weekly_topalbums if e == album_id]),
+		"id":album_id
+	}
 
 
 def get_predefined_rulesets(dbconn=None):

@@ -2,8 +2,10 @@
 
 {% import 'snippets/links.jinja' as links %}
 
-{% if entity is mapping and 'artists' in entity %}
+{% if entity is mapping and 'title' in entity %}
 	{% set img = images.get_track_image(entity) %}
+{% elif entity is mapping and 'albumtitle' in entity %}
+	{% set img = images.get_album_image(entity) %}
 {% else %}
 	{% set img = images.get_artist_image(entity) %}
 {% endif %}
@@ -18,6 +20,10 @@
 		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
 	{% endif %}
 	<td class='track'>
+		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
+	</td>
+{% elif entity is mapping and 'albumtitle' in entity %}
+	<td class='album'>
 		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
 	</td>
 {% else %}

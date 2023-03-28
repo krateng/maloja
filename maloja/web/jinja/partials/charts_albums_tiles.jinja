@@ -1,0 +1,45 @@
+{% import 'snippets/links.jinja' as links %}
+
+
+{% if charts is undefined %}
+	{% set charts = dbc.get_charts_albums(limitkeys) %}
+{% endif %}
+
+{% set charts_14 = charts | fixlength(14) %}
+{% set charts_cycler = cycler(*charts_14) %}
+
+
+
+<table class="tiles_top"><tr>
+{% for segment in range(3) %}
+	{% if charts_14[0] is none and loop.first %}
+	{% include 'icons/nodata.jinja' %}
+	{% else %}
+	<td>
+	{% set segmentsize = segment+1 %}
+	<table class="tiles_{{ segmentsize }}x{{ segmentsize }} tiles_sub">
+		{% for row in range(segmentsize) -%}
+			<tr>
+				{% for col in range(segmentsize) %}
+					{% set entry = charts_cycler.next() %}
+					{% if entry is not none %}
+						{% set album = entry.album %}
+						{% set rank = entry.rank %}
+						<td>
+							<a href="{{ links.url(album) }}">
+							<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'>
+								<span class='stats'>#{{ rank }}</span> <span>{{ album.title }}</span>
+							</div>
+							</a>
+						</td>
+					{% else -%}
+						<td></td>
+					{%- endif -%}
+				{%- endfor -%}
+			</tr>
+		{%- endfor -%}
+	</table>
+	</td>
+	{% endif %}
+{% endfor %}
+</tr></table>
