@@ -166,7 +166,7 @@ def connection_provider(func):
 # 		"artists":list,
 # 		"title":string,
 # 		"album":{
-# 			"title":string,
+# 			"albumtitle":string,
 # 			"artists":list
 # 		},
 # 		"length":None
@@ -240,7 +240,7 @@ def albums_db_to_dict(rows,dbconn=None):
 	return [
 		{
 			"artists":artists[row.id],
-			"title":row.albtitle,
+			"albumtitle":row.albtitle,
 		}
 		for row in rows
 	]
@@ -279,8 +279,8 @@ def artist_dict_to_db(info,dbconn=None):
 
 def album_dict_to_db(info,dbconn=None):
 	return {
-		"albtitle":info.get('title'),
-		"albtitle_normalized":normalize_name(info.get('title'))
+		"albtitle":info.get('albumtitle'),
+		"albtitle_normalized":normalize_name(info.get('albumtitle'))
 	}
 
 
@@ -441,7 +441,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 @cached_wrapper
 @connection_provider
 def get_album_id(albumdict,create_new=True,dbconn=None):
-	ntitle = normalize_name(albumdict['title'])
+	ntitle = normalize_name(albumdict['albumtitle'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict['artists']]
 	artist_ids = list(set(artist_ids))
 

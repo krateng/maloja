@@ -235,6 +235,8 @@ def get_scrobbles_num(dbconn=None,**keys):
 		result = len(sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,resolve_references=False,dbconn=dbconn))
 	elif 'track' in keys:
 		result = len(sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,resolve_references=False,dbconn=dbconn))
+	elif 'album' in keys:
+		result = len(sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,resolve_references=False,dbconn=dbconn))
 	else:
 		result = sqldb.get_scrobbles_num(since=since,to=to,dbconn=dbconn)
 	return result
@@ -356,6 +358,21 @@ def get_top_tracks(dbconn=None,**keys):
 			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
 		except Exception:
 			results.append({"range":rng,"track":None,"scrobbles":0})
+
+	return results
+
+@waitfordb
+def get_top_albums(dbconn=None,**keys):
+
+	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
+	results = []
+
+	for rng in rngs:
+		try:
+			res = get_charts_albums(timerange=rng,dbconn=dbconn)[0]
+			results.append({"range":rng,"album":res["album"],"scrobbles":res["scrobbles"]})
+		except Exception:
+			results.append({"range":rng,"album":None,"scrobbles":0})
 
 	return results
 
