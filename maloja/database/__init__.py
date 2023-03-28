@@ -132,7 +132,8 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 	scrobbleinfo = {**rawscrobble}
 	if fix:
 		scrobbleinfo['track_artists'],scrobbleinfo['track_title'] = cla.fullclean(scrobbleinfo['track_artists'],scrobbleinfo['track_title'])
-		scrobbleinfo['album_artists'] = cla.parseArtists(scrobbleinfo['album_artists'])
+		if scrobbleinfo.get('album_artists'):
+			scrobbleinfo['album_artists'] = cla.parseArtists(scrobbleinfo['album_artists'])
 	scrobbleinfo['scrobble_time'] = scrobbleinfo.get('scrobble_time') or int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
 

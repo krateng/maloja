@@ -28,7 +28,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 		filterkeys = {"artist":keys.get("artist")}
 		if "associated" in keys: filterkeys["associated"] = True
 	elif type == "album":
-		filterkeys = {"album":{"artists":keys.getall("artist"),"albumtitle":keys.get("title") or keys.get("albumtitle")}}
+		filterkeys = {"album":{"artists":keys.getall("artist"),"albumtitle":keys.get("albumtitle") or keys.get("title")}}
 	else:
 		filterkeys = {}
 
@@ -96,7 +96,7 @@ def internal_to_uri(keys):
 			urikeys.append("artist",a)
 		urikeys.append("title",keys["track"]["title"])
 	elif "album" in keys:
-		for a in keys["album"]["artists"]:
+		for a in keys["album"].get("artists") or []:
 			urikeys.append("artist",a)
 		urikeys.append("albumtitle",keys["album"]["albumtitle"])
 

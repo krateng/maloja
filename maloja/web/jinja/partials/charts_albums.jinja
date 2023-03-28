@@ -14,12 +14,12 @@
 
 		{% set lastranks = {} %}
 		{% for t in prevalbums %}
-			{% if lastranks.update({"|".join(t.album.artists)+"||"+t.album.albumtitle:t.rank}) %}{% endif %}
+			{% if lastranks.update({"|".join(t.album.artists or [])+"||"+t.album.albumtitle:t.rank}) %}{% endif %}
 		{% endfor %}
 
 		{% for t in charts %}
-			{% if "|".join(t.album.artists)+"||"+t.album.albumtitle in lastranks %}
-				{% if t.update({'last_rank':lastranks["|".join(t.album.artists)+"||"+t.album.albumtitle]}) %}{% endif %}
+			{% if "|".join(t.album.artists or [])+"||"+t.album.albumtitle in lastranks %}
+				{% if t.update({'last_rank':lastranks["|".join(t.album.artists or [])+"||"+t.album.albumtitle]}) %}{% endif %}
 			{% endif %}
 		{% endfor %}
 	{% endif %}

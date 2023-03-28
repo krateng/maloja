@@ -9,9 +9,13 @@
 {%- endmacro %}
 
 {% macro links(entities) -%}
-	{% for entity in entities -%}
-		{{ link(entity) }}{{ ", " if not loop.last }}
-	{%- endfor %}
+	{% if entities is none or entities == [] %}
+		{{ settings["DEFAULT_ALBUM_ARTIST"] }}
+	{% else %}
+		{% for entity in entities -%}
+			{{ link(entity) }}{{ ", " if not loop.last }}
+		{%- endfor %}
+	{% endif %}
 {%- endmacro %}
 
 

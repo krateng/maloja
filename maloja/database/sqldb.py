@@ -240,7 +240,7 @@ def albums_db_to_dict(rows,dbconn=None):
 	artists = get_artists_of_albums(set(row.id for row in rows),dbconn=dbconn)
 	return [
 		{
-			"artists":artists[row.id],
+			"artists":artists.get(row.id),
 			"albumtitle":row.albtitle,
 		}
 		for row in rows
@@ -443,7 +443,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 @connection_provider
 def get_album_id(albumdict,create_new=True,dbconn=None):
 	ntitle = normalize_name(albumdict['albumtitle'])
-	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict['artists']]
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict.get('artists') or []]
 	artist_ids = list(set(artist_ids))
 
 

@@ -226,7 +226,7 @@ def get_all_possible_filenames(artist=None,track=None,album=None):
 		title, artists = clean(track['title']), [clean(a) for a in track['artists']]
 		superfolder = "tracks/"
 	elif album:
-		title, artists = clean(album['albumtitle']), [clean(a) for a in album['artists']]
+		title, artists = clean(album['albumtitle']), [clean(a) for a in album.get('artists') or []]
 		superfolder = "albums/"
 	elif artist:
 		artist = clean(artist)
