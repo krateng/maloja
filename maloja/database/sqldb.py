@@ -388,7 +388,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
 			if 'album' in trackdict:
-				add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album,dbconn=dbconn)
+				add_track_to_album(row.id,get_album_id(trackdict['album'],dbconn=dbconn),replace=update_album,dbconn=dbconn)
 			return row.id
 
 	if not create_new: return None
@@ -408,7 +408,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 	#print("Created",trackdict['title'],track_id)
 
 	if 'album' in trackdict:
-		add_track_to_album(track_id,get_album_id(trackdict['album']),dbconn=dbconn)
+		add_track_to_album(track_id,get_album_id(trackdict['album'],dbconn=dbconn),dbconn=dbconn)
 	return track_id
 
 @cached_wrapper
