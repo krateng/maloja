@@ -1,6 +1,8 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - Artist Charts{% endblock %}
 
+{% import 'snippets/filterdescription.jinja' as filterdesc %}
+
 {% block scripts %}
 	<script src="/datechange.js" async></script>
 {% endblock %}
@@ -25,7 +27,7 @@
 		</td>
 		<td class="text">
 			<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
-			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+			{{ filterdesc.desc(filterkeys,limitkeys) }}
 			<br/><br/>
 			{% with delimitkeys = {} %}
 			{% include 'snippets/timeselection.jinja' %}
