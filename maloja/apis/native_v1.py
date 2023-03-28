@@ -470,7 +470,7 @@ def post_scrobble(
 	rawscrobble = {
 		'track_artists':(artist or []) + artists,
 		'track_title':title,
-		'album_name':album,
+		'album_title':album,
 		'album_artists':albumartists,
 		'scrobble_duration':duration,
 		'track_length':length,

@@ -335,12 +335,19 @@ def delete_scrobble(scrobble_id,dbconn=None):
 @connection_provider
 def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 
+	conditions = [
+		DB['tracks'].c.id == track_id
+	]
+	if not replace:
+		# if we dont want replacement, just update if there is no album yet
+		conditions.append(
+			DB['tracks'].c.album_id == None
+		)
+
 	op = DB['tracks'].update().where(
-		DB['tracks'].c.id == track_id,
-		(DB['tracks'].c.album_id == None) or replace
-		# update if we want replacement or if there is no album yet
+		*conditions
 	).values(
-		DB['tracks'].c.album_id = album_id
+		album_id=album_id
 	)
 
 	result = dbconn.execute(op)
@@ -380,7 +387,8 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
-			add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album)
+			if 'album' in trackdict:
+				add_track_to_album(row.id,get_album_id(trackdict['album']),replace=update_album)
 			return row.id
 
 	if not create_new: return None
@@ -399,7 +407,8 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		result = dbconn.execute(op)
 	#print("Created",trackdict['title'],track_id)
 
-	add_track_to_album(track_id,get_album_id(trackdict['album']))
+	if 'album' in trackdict:
+		add_track_to_album(track_id,get_album_id(trackdict['album']))
 	return track_id
 
 @cached_wrapper
@@ -442,7 +451,7 @@ def get_album_id(albumdict,create_new=True,dbconn=None):
 	op = DB['albums'].select(
 #		DB['albums'].c.id
 	).where(
-		DB['albums'].c.title_normalized==ntitle
+		DB['albums'].c.albtitle_normalized==ntitle
 	)
 	result = dbconn.execute(op).all()
 	for row in result:
@@ -452,7 +461,7 @@ def get_album_id(albumdict,create_new=True,dbconn=None):
 		op = DB['albumartists'].select(
 #			DB['albumartists'].c.artist_id
 		).where(
-			DB['albumartists'].c.track_id==row.id
+			DB['albumartists'].c.album_id==row.id
 		)
 		result = dbconn.execute(op).all()
 		match_artist_ids = [r.artist_id for r in result]
