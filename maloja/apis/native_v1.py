@@ -494,19 +494,23 @@ def post_scrobble(
 			'artists':result['track']['artists'],
 			'title':result['track']['title']
 		},
-		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}"
+		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}",
+		'warnings':[]
 	}
 	if extra_kwargs:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'invalid_keyword_ignored','value':k,
 			'desc':"This key was not recognized by the server and has been discarded."}
 			for k in extra_kwargs
 		]
 	if artist and artists:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'mixed_schema','value':['artist','artists'],
 			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
 		]
+
+	if len(responsedict['warnings']) == 0: del responsedict['warnings']
+
 	return responsedict
 
 
