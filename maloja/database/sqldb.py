@@ -1236,11 +1236,16 @@ def clean_db(dbconn=None):
 		# tracks with no scrobbles (trackartist entries first)
 		"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
 		"from tracks where id not in (select track_id from scrobbles)",
-		# artists with no tracks
-		"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
+		# artists with no tracks AND no albums
+		"from artists where id not in (select artist_id from trackartists) \
+			and id not in (select target_artist from associated_artists) \
+			and id not in (select artist_id from albumartists)",
 		# tracks with no artists (scrobbles first)
 		"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-		"from tracks where id not in (select track_id from trackartists)"
+		"from tracks where id not in (select track_id from trackartists)",
+		# albums with no tracks (albumartist entries first)
+		"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks))",
+		"from albums where id not in (select album_id from tracks)"
 	]
 
 	for d in to_delete:
