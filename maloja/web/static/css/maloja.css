@@ -898,37 +898,54 @@ table.tiles_sub a span {
 }
 
 
-div#showcase_scroll_container {
-		overflow-x: scroll;
-		overflow-y: show;
+div#showcase_container {
+		display: flex;
 		margin-top: -15px;
+		padding-bottom: 20px;
+		align-items: flex-start;
+		flex-wrap: wrap;
 }
 
-table.album_showcase {
-	text-align: center;
-
+div#showcase_container table.album {
+	width: 180px;
 }
-table.album_showcase tr:nth-child(1) {
+
+div#showcase_container table.album tr td {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+div#showcase_container table.album tr:nth-child(1) td {
+	height:8px;
 	opacity: 0.3;
+	text-align: center;
 }
-table.album_showcase td {
-	padding: 20px;
-	padding-bottom:3px;
-	padding-top:0px;
-	width: 150px;
+div#showcase_container table.album tr:nth-child(2) td {
+	height:150px;
+	padding-top:2px;
+	padding-bottom:2px;
 }
-table.album_showcase td.album_separator_column {
-	width: 40px;
+div#showcase_container table.album tr:nth-child(3) td {
+	height:15px;
 }
-
-table.album_showcase td div {
+div#showcase_container div {
 	height: 150px;
 	width: 150px;
 
 	background-size: cover;
 	background-position: top;
 
-	box-shadow: 0px 0px 10px 10px rgba(3,3,3,0.5);
+	box-shadow: 0px 0px 10px 10px rgba(0,0,0,0.5);
+}
+
+div#showcase_container table:hover div {
+	box-shadow: 0px 0px 10px 10px var(--ctrl-element-color-main);
+}
+
+div#showcase_container span.album_artists {
+	font-size: 80%;
+}
+div#showcase_container span.album_title {
+	font-weight: bold;
 }
 
 
