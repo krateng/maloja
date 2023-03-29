@@ -400,13 +400,21 @@ def artist_info(dbconn=None,**keys):
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
-	try:
-		c = [e for e in alltimecharts if e["artist"] == artist][0]
+
+	# base info for everyone
+	result = {
+		"artist":artist,
+		"scrobbles":scrobbles,
+		"id":artist_id
+	}
+
+	# check if credited to someone else
+	parent_artists = sqldb.get_credited_artists(artist)
+	if len(parent_artists) == 0:
+		c = [e for e in alltimecharts if e["artist"] == artist]
+		position = c[0]["rank"] if len(c) > 0 else None
 		others = sqldb.get_associated_artists(artist,dbconn=dbconn)
-		position = c["rank"]
-		return {
-			"artist":artist,
-			"scrobbles":scrobbles,
+		result.update({
 			"position":position,
 			"associated":others,
 			"medals":{
@@ -414,23 +422,19 @@ def artist_info(dbconn=None,**keys):
 				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
 				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id]),
-			"id":artist_id
-		}
-	except Exception:
-		# if the artist isnt in the charts, they are not being credited and we
-		# need to show information about the credited one
-		replaceartist = sqldb.get_credited_artists(artist)[0]
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id])
+		})
+
+	else:
+		replaceartist = parent_artists[0]
 		c = [e for e in alltimecharts if e["artist"] == replaceartist][0]
 		position = c["rank"]
-		return {
-			"artist":artist,
+		result.update({
 			"replace":replaceartist,
-			"scrobbles":scrobbles,
-			"position":position,
-			"id":artist_id
-		}
+			"position":position
+		})
 
+	return result
 
 
 

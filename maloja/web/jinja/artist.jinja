@@ -63,7 +63,7 @@
 		</td>
 		<td class="text">
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.artist | e }}</h1>
-				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
+				{% if competes and info['scrobbles']>0 %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
 				{% if competes and included %}
 					<span>associated: {{ links.links(included) }}</span>
