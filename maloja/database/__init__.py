@@ -221,6 +221,17 @@ def merge_tracks(target_id,source_ids):
 
 	return result
 
+@waitfordb
+def merge_albums(target_id,source_ids):
+	sources = [sqldb.get_album(id) for id in source_ids]
+	target = sqldb.get_album(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_albums(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
 
 
 

@@ -757,6 +757,16 @@ def merge_artists(target_id,source_ids):
 		"status":"success"
 	}
 
+@api.post("merge_albums")
+@authenticated_function(api=True)
+@catch_exceptions
+def merge_artists(target_id,source_ids):
+	"""Internal Use Only"""
+	result = database.merge_albums(target_id,source_ids)
+	return {
+		"status":"success"
+	}
+
 @api.post("reparse_scrobble")
 @authenticated_function(api=True)
 @catch_exceptions

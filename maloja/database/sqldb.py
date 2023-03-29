@@ -647,6 +647,19 @@ def merge_artists(target_id,source_ids,dbconn=None):
 	return True
 
 
+@connection_provider
+def merge_albums(target_id,source_ids,dbconn=None):
+
+	op = DB['tracks'].update().where(
+		DB['tracks'].c.album_id.in_(source_ids)
+	).values(
+		album_id=target_id
+	)
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
+
 
 ### Functions that get rows according to parameters
 
@@ -1257,8 +1270,14 @@ def clean_db(dbconn=None):
 		"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
 		"from tracks where id not in (select track_id from trackartists)",
 		# albums with no tracks (albumartist entries first)
-		"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks))",
-		"from albums where id not in (select album_id from tracks)"
+		"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
+		"from albums where id not in (select album_id from tracks where album_id is not null)",
+		# albumartist entries that are missing a reference
+		"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
+		"from albumartists where artist_id not in (select id from artists)",
+		# trackartist entries that mare missing a reference
+		"from trackartists where track_id not in (select id from tracks)",
+		"from trackartists where artist_id not in (select id from artists)"
 	]
 
 	for d in to_delete:
