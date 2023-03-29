@@ -368,9 +368,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 
 
 
-	op = DB['tracks'].select(
-#		DB['tracks'].c.id
-	).where(
+	op = DB['tracks'].select().where(
 		DB['tracks'].c.title_normalized==ntitle
 	)
 	result = dbconn.execute(op).all()
@@ -418,9 +416,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	nname = normalize_name(artistname)
 	#print("looking for",nname)
 
-	op = DB['artists'].select(
-#		DB['artists'].c.id
-	).where(
+	op = DB['artists'].select().where(
 		DB['artists'].c.name_normalized==nname
 	)
 	result = dbconn.execute(op).all()
@@ -1112,6 +1108,41 @@ def get_albums_of_artists(artist_ids,dbconn=None):
 	albums = {}
 	for row in result:
 		albums.setdefault(row.artist_id,[]).append(album_db_to_dict(row,dbconn=dbconn))
+	return albums
+
+@cached_wrapper_individual
+@connection_provider
+# this includes the artists' own albums!
+def get_albums_artists_appear_on(artist_ids,dbconn=None):
+
+	jointable1 = sql.join(
+		DB["trackartists"],
+		DB["tracks"]
+	)
+	jointable2 = sql.join(
+		jointable1,
+		DB["albums"]
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB["albums"],
+		DB["trackartists"].c.artist_id
+	).select_from(jointable2).where(
+		DB['trackartists'].c.artist_id.in_(artist_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	# avoid duplicates from multiple tracks in album by same artist
+	already_done = {}
+	for row in result:
+		if row.id in already_done.setdefault(row.artist_id,[]):
+			pass
+		else:
+			albums.setdefault(row.artist_id,[]).append(album_db_to_dict(row,dbconn=dbconn))
+			already_done[row.artist_id].append(row.id)
 	return albums
 
 

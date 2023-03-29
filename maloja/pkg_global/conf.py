@@ -191,6 +191,7 @@ malojaconfig = Configuration(
 			"default_range_charts_tracks":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Track Charts",	"year"),
 			"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
+			"album_showcase":(tp.Boolean(),										"Display Album Showcase",		True,		"Display a graphical album showcase for artist overview pages instead of a chart list"),
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
 			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),

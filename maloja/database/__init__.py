@@ -278,6 +278,21 @@ def get_artists(dbconn=None):
 	return sqldb.get_artists(dbconn=dbconn)
 
 
+def get_albums_artist_appears_on(dbconn=None,**keys):
+
+	artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)
+
+	albums = sqldb.get_albums_artists_appear_on([artist_id],dbconn=dbconn).get(artist_id) or []
+	ownalbums = sqldb.get_albums_of_artists([artist_id],dbconn=dbconn).get(artist_id) or []
+
+	result = {
+		"own_albums":ownalbums,
+		"appears_on":[a for a in albums if a not in ownalbums]
+	}
+
+	return result
+
+
 @waitfordb
 def get_charts_artists(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()

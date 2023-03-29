@@ -91,11 +91,18 @@
 
 
 {% if info["isalbumartist"] %}
-<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Top Albums</a></h2>
 
-{% with amountkeys={"perpage":15,"page":0} %}
-{% include 'partials/charts_albums.jinja' %}
-{% endwith %}
+{% if settings['ALBUM_SHOWCASE'] %}
+	<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Albums</a></h2>
+	{% include 'partials/album_showcase.jinja' %}
+{% else %}
+	<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Top Albums</a></h2>
+
+	{% with amountkeys={"perpage":15,"page":0} %}
+	{% include 'partials/charts_albums.jinja' %}
+	{% endwith %}
+{% endif %}
+
 {% endif %}
 
 {% if info['scrobbles']>0 %}
