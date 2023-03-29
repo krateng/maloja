@@ -1214,6 +1214,15 @@ def search_track(searchterm,dbconn=None):
 
 	return [get_track(row.id,dbconn=dbconn) for row in result]
 
+@cached_wrapper
+@connection_provider
+def search_album(searchterm,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.albtitle_normalized.ilike(normalize_name(f"%{searchterm}%"))
+	)
+	result = dbconn.execute(op).all()
+
+	return [get_album(row.id,dbconn=dbconn) for row in result]
 
 ##### MAINTENANCE
 

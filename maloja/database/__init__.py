@@ -580,4 +580,7 @@ def db_search(query,type=None):
 		results = sqldb.search_artist(query)
 	if type=="TRACK":
 		results = sqldb.search_track(query)
+	if type=="ALBUM":
+		results = sqldb.search_album(query)
+
 	return results

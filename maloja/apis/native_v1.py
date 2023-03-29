@@ -592,6 +592,7 @@ def search(**keys):
 
 	artists = database.db_search(query,type="ARTIST")
 	tracks = database.db_search(query,type="TRACK")
+	albums = database.db_search(query,type="ALBUM")
 
 
 
@@ -599,6 +600,7 @@ def search(**keys):
 	# also, shorter is better (because longer titles would be easier to further specify)
 	artists.sort(key=lambda x: ((0 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 2),len(x)))
 	tracks.sort(key=lambda x: ((0 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 2),len(x["title"])))
+	albums.sort(key=lambda x: ((0 if x["albumtitle"].lower().startswith(query) else 1 if " " + query in x["albumtitle"].lower() else 2),len(x["albumtitle"])))
 
 	# add links
 	artists_result = []
@@ -619,7 +621,17 @@ def search(**keys):
 		}
 		tracks_result.append(result)
 
-	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
+	albums_result = []
+	for al in albums:
+		result = {
+			'album': al,
+			'link': "/album?" + compose_querystring(internal_to_uri({"album":al})),
+			'image': images.get_album_image(al)
+		}
+		if not result['album']['artists']: result['album']['displayArtist'] = malojaconfig["DEFAULT_ALBUM_ARTIST"]
+		albums_result.append(result)
+
+	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_],"albums":albums_result[:max_]}
 
 
 @api.post("newrule")
