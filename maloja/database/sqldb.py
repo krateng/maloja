@@ -1045,7 +1045,18 @@ def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
 @cached_wrapper_individual
 @connection_provider
 def get_artists_of_tracks(track_ids,dbconn=None):
-	op = sql.join(DB['trackartists'],DB['artists']).select().where(
+
+	jointable = sql.join(
+		DB['trackartists'],
+		DB['artists']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists'],
+		DB['trackartists'].c.track_id
+	).select_from(jointable).where(
 		DB['trackartists'].c.track_id.in_(track_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1058,7 +1069,18 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 @cached_wrapper_individual
 @connection_provider
 def get_artists_of_albums(album_ids,dbconn=None):
-	op = sql.join(DB['albumartists'],DB['artists']).select().where(
+
+	jointable = sql.join(
+		DB['albumartists'],
+		DB['artists']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists'],
+		DB['albumartists'].c.album_id
+	).select_from(jointable).where(
 		DB['albumartists'].c.album_id.in_(album_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1071,7 +1093,18 @@ def get_artists_of_albums(album_ids,dbconn=None):
 @cached_wrapper_individual
 @connection_provider
 def get_albums_of_artists(artist_ids,dbconn=None):
-	op = sql.join(DB['albumartists'],DB['albums']).select().where(
+
+	jointable = sql.join(
+		DB['albumartists'],
+		DB['albums']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB["albums"],
+		DB['albumartists'].c.artist_id
+	).select_from(jointable).where(
 		DB['albumartists'].c.artist_id.in_(artist_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1145,7 +1178,11 @@ def get_associated_artists(*artists,dbconn=None):
 		DB['associated_artists'].c.source_artist == DB['artists'].c.id
 	)
 
-	op = jointable.select().where(
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists']
+	).select_from(jointable).where(
 		DB['associated_artists'].c.target_artist.in_(artist_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1164,8 +1201,11 @@ def get_credited_artists(*artists,dbconn=None):
 		DB['associated_artists'].c.target_artist == DB['artists'].c.id
 	)
 
-
-	op = jointable.select().where(
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists']
+	).select_from(jointable).where(
 		DB['associated_artists'].c.source_artist.in_(artist_ids)
 	)
 	result = dbconn.execute(op).all()
