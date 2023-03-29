@@ -398,14 +398,18 @@ def artist_info(dbconn=None,**keys):
 	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
 	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
-	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
+	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
+	albums = sqldb.get_albums_of_artists(set([artist_id]),dbconn=dbconn)
+	isalbumartist = len(albums.get(artist_id,[]))>0
+
 
 	# base info for everyone
 	result = {
 		"artist":artist,
 		"scrobbles":scrobbles,
-		"id":artist_id
+		"id":artist_id,
+		"isalbumartist":isalbumartist
 	}
 
 	# check if credited to someone else

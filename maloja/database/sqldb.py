@@ -1055,6 +1055,19 @@ def get_artists_of_albums(album_ids,dbconn=None):
 		artists.setdefault(row.album_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
 	return artists
 
+@cached_wrapper_individual
+@connection_provider
+def get_albums_of_artists(artist_ids,dbconn=None):
+	op = sql.join(DB['albumartists'],DB['albums']).select().where(
+		DB['albumartists'].c.artist_id.in_(artist_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	for row in result:
+		albums.setdefault(row.artist_id,[]).append(album_db_to_dict(row,dbconn=dbconn))
+	return albums
+
 
 @cached_wrapper_individual
 @connection_provider

@@ -90,18 +90,21 @@
 </table>
 
 
+{% if info["isalbumartist"] %}
 <h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Top Albums</a></h2>
 
 {% with amountkeys={"perpage":15,"page":0} %}
 {% include 'partials/charts_albums.jinja' %}
 {% endwith %}
+{% endif %}
 
-
+{% if info['scrobbles']>0 %}
 <h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 
 {% with amountkeys={"perpage":15,"page":0} %}
 {% include 'partials/charts_tracks.jinja' %}
 {% endwith %}
+
 
 <br/>
 
@@ -180,5 +183,6 @@
 {% with amountkeys = {"perpage":15,"page":0} %}
 {% include 'partials/scrobbles.jinja' %}
 {% endwith %}
+{% endif %}
 
 {% endblock %}
