@@ -220,8 +220,8 @@ def jinja_page(name):
 			res = template.render(**loc_context)
 		except TemplateNotFound:
 			abort(404,f"Not found: '{name}'")
-		except (ValueError, IndexError):
-			abort(404,"This Artist or Track does not exist")
+		#except (ValueError, IndexError):
+		#	abort(404,"This Artist or Track does not exist")
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
