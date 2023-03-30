@@ -354,6 +354,11 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 	result = dbconn.execute(op)
 	return True
 
+@connection_provider
+def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
+
+	for track_id in track_to_album_id_dict:
+		add_track_to_album(track_id,track_to_album_id_dict[track_id],dbconn=dbconn)
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
@@ -1356,7 +1361,6 @@ def clean_db(dbconn=None):
 			]
 
 			for d in to_delete:
-				print(d)
 				selection = dbconn.execute(sql.text(f"select * {d}"))
 				for row in selection.all():
 					log(f"Deleting {row}")
@@ -1427,9 +1431,98 @@ def merge_duplicate_tracks(artist_id,dbconn=None):
 
 
 
+@connection_provider
+def guess_albums(track_ids=None,replace=False,dbconn=None):
+
+	MIN_NUM_TO_ASSIGN = 1
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks']
+	)
+
+	# get all scrobbles of the respective tracks that have some info
+	conditions = [
+		DB['scrobbles'].c.extra.isnot(None)
+	]
+	if track_ids is not None:
+		# only do these tracks
+		conditions.append(
+			DB['scrobbles'].c.track_id.in_(track_ids)
+		)
+	if not replace:
+		# only tracks that have no album yet
+		conditions.append(
+			DB['tracks'].c.album_id.is_(None)
+		)
+
+	op = sql.select(
+		DB['scrobbles']
+	).select_from(jointable).where(
+		*conditions
+	)
+
+	result = dbconn.execute(op).all()
+
+	# for each track, count what album info appears how often
+	possible_albums = {}
+	for row in result:
+		extrainfo = json.loads(row.extra)
+		albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+		albumartists = extrainfo.get("album_artists",[])
+		if albumtitle:
+			hashable_albuminfo = tuple([*albumartists,albumtitle])
+			possible_albums.setdefault(row.track_id,{}).setdefault(hashable_albuminfo,0)
+			possible_albums[row.track_id][hashable_albuminfo] += 1
+
+	res = {}
+	for track_id in possible_albums:
+		options = possible_albums[track_id]
+		if len(options)>0:
+			# pick the one with most occurences
+			mostnum = max(options[albuminfo] for albuminfo in options)
+			if mostnum >= MIN_NUM_TO_ASSIGN:
+				bestpick = [albuminfo for albuminfo in options if options[albuminfo] == mostnum][0]
+				#print("best pick",track_id,bestpick)
+				*artists,title = bestpick
+				res[track_id] = {"assigned":{
+					"artists":artists,
+					"albumtitle": title
+				}}
+				if len(artists) == 0:
+					# for albums without artist, assume track artist
+					res[track_id]["guess_artists"] = True
+			else:
+				res[track_id] = {"assigned":False,"reason":"Not enough data"}
+
+		else:
+			res[track_id] = {"assigned":False,"reason":"No scrobbles with album information found"}
 
 
 
+	missing_artists = [track_id for track_id in res if res[track_id].get("guess_artists")]
+
+	#we're pointlessly getting the albumartist names here even though the IDs would be enough
+	#but it's better for function separation I guess
+	jointable = sql.join(
+		DB['trackartists'],
+		DB['artists']
+	)
+	op = sql.select(
+		DB['trackartists'].c.track_id,
+		DB['artists']
+	).select_from(jointable).where(
+		DB['trackartists'].c.track_id.in_(missing_artists)
+	)
+	result = dbconn.execute(op).all()
+
+	for row in result:
+		res[row.track_id]["assigned"]["artists"].append(row.name)
+	for track_id in res:
+		if res[track_id].get("guess_artists"):
+			del res[track_id]["guess_artists"]
+
+	return res
 
 
 

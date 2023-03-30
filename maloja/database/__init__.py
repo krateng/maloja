@@ -163,7 +163,8 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"origin":f"client:{client}" if client else "generic",
 		"extra":{
 			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
-			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_title','album_artists']
+			['scrobble_time','track_artists','track_title','track_length','scrobble_duration']#,'album_title','album_artists']
+			# we still save album info in extra because the user might select majority album authority
 		},
 		"rawscrobble":rawscrobble
 	}
