@@ -309,6 +309,8 @@ def parse_lastfm(inputf):
 					'scrobble_time': int(datetime.datetime.strptime(
 						time + '+0000',
 						"%d %b %Y %H:%M%z"
+						# lastfm exports have time in UTC
+						# some old imports might have the wrong time here!
 					).timestamp()),
 					'scrobble_duration':None
 				},'')
