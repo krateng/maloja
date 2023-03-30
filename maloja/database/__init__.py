@@ -148,6 +148,10 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 			scrobbleinfo['album_title'] = cla.parseAlbumtitle(scrobbleinfo['album_title'])
 	scrobbleinfo['scrobble_time'] = scrobbleinfo.get('scrobble_time') or int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
+	# if we send [] as albumartists, it means various
+	# if we send nothing, the scrobbler just doesnt support it and we assume track artists
+	if 'album_artists' not in scrobbleinfo:
+		scrobbleinfo['album_artists'] = scrobbleinfo.get('track_artists')
 
 	# processed info to internal scrobble dict
 	scrobbledict = {
