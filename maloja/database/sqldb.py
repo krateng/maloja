@@ -626,6 +626,28 @@ def merge_artists(target_id,source_ids,dbconn=None):
 
 	result = dbconn.execute(op)
 
+
+	# same for albums
+	op = DB['albumartists'].select().where(
+		DB['albumartists'].c.artist_id.in_(source_ids + [target_id])
+	)
+	result = dbconn.execute(op)
+
+	album_ids = set(row.album_id for row in result)
+
+	op = DB['albumartists'].delete().where(
+		DB['albumartists'].c.artist_id.in_(source_ids + [target_id]),
+	)
+	result = dbconn.execute(op)
+
+	op = DB['albumartists'].insert().values([
+		{'album_id':album_id,'artist_id':target_id}
+		for album_id in album_ids
+	])
+
+	result = dbconn.execute(op)
+
+
 #	tracks_artists = {}
 #	for row in result:
 #		tracks_artists.setdefault(row.track_id,[]).append(row.artist_id)
@@ -641,8 +663,9 @@ def merge_artists(target_id,source_ids,dbconn=None):
 #	)
 #	result = dbconn.execute(op)
 
-	# this could have created duplicate tracks
+	# this could have created duplicate tracks and albums
 	merge_duplicate_tracks(artist_id=target_id,dbconn=dbconn)
+	merge_duplicate_albums(artist_id=target_id,dbconn=dbconn)
 	clean_db(dbconn=dbconn)
 
 	return True
@@ -1428,6 +1451,45 @@ def merge_duplicate_tracks(artist_id,dbconn=None):
 				if len(track_identifiers[track]) > 1:
 					target,*src = track_identifiers[track]
 					merge_tracks(target,src,dbconn=dbconn)
+
+
+
+@connection_provider
+def merge_duplicate_albums(artist_id,dbconn=None):
+	rows = dbconn.execute(
+		DB['albumartists'].select().where(
+			DB['albumartists'].c.artist_id == artist_id
+		)
+	)
+	affected_albums = [r.album_id for r in rows]
+
+	album_artists = {}
+	rows = dbconn.execute(
+		DB['albumartists'].select().where(
+			DB['albumartists'].c.album_id.in_(affected_albums)
+		)
+	)
+
+
+	for row in rows:
+		album_artists.setdefault(row.album_id,[]).append(row.artist_id)
+
+	artist_combos = {}
+	for album_id in album_artists:
+		artist_combos.setdefault(tuple(sorted(album_artists[album_id])),[]).append(album_id)
+
+	for c in artist_combos:
+		if len(artist_combos[c]) > 1:
+			album_identifiers = {}
+			for album_id in artist_combos[c]:
+				album_identifiers.setdefault(normalize_name(get_album(album_id)['albumtitle']),[]).append(album_id)
+			for album in album_identifiers:
+				if len(album_identifiers[album]) > 1:
+					target,*src = album_identifiers[album]
+					merge_albums(target,src,dbconn=dbconn)
+
+
+
 
 
 
