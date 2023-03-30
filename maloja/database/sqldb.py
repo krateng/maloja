@@ -354,6 +354,11 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 	result = dbconn.execute(op)
 	return True
 
+@connection_provider
+def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
+
+	for track_id in track_to_album_id_dict:
+		add_track_to_album(track_id,track_to_album_id_dict[track_id],dbconn=dbconn)
 
 
 ### these will 'get' the ID of an entity, creating it if necessary
@@ -368,9 +373,7 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 
 
 
-	op = DB['tracks'].select(
-#		DB['tracks'].c.id
-	).where(
+	op = DB['tracks'].select().where(
 		DB['tracks'].c.title_normalized==ntitle
 	)
 	result = dbconn.execute(op).all()
@@ -418,9 +421,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 	nname = normalize_name(artistname)
 	#print("looking for",nname)
 
-	op = DB['artists'].select(
-#		DB['artists'].c.id
-	).where(
+	op = DB['artists'].select().where(
 		DB['artists'].c.name_normalized==nname
 	)
 	result = dbconn.execute(op).all()
@@ -558,6 +559,28 @@ def edit_track(id,trackupdatedict,dbconn=None):
 
 	return True
 
+@connection_provider
+def edit_album(id,albumupdatedict,dbconn=None):
+
+	album = get_album(id,dbconn=dbconn)
+	changedalbum = {**album,**albumupdatedict}
+
+	dbentry = album_dict_to_db(albumupdatedict,dbconn=dbconn)
+	dbentry = {k:v for k,v in dbentry.items() if v}
+
+	existing_album_id = get_album_id(changedalbum,create_new=False,dbconn=dbconn)
+	if existing_album_id not in (None,id):
+		raise exc.TrackExists(changedalbum)
+
+	op = DB['albums'].update().where(
+		DB['albums'].c.id==id
+	).values(
+		**dbentry
+	)
+	result = dbconn.execute(op)
+
+	return True
+
 
 ### Merge
 
@@ -603,6 +626,28 @@ def merge_artists(target_id,source_ids,dbconn=None):
 
 	result = dbconn.execute(op)
 
+
+	# same for albums
+	op = DB['albumartists'].select().where(
+		DB['albumartists'].c.artist_id.in_(source_ids + [target_id])
+	)
+	result = dbconn.execute(op)
+
+	album_ids = set(row.album_id for row in result)
+
+	op = DB['albumartists'].delete().where(
+		DB['albumartists'].c.artist_id.in_(source_ids + [target_id]),
+	)
+	result = dbconn.execute(op)
+
+	op = DB['albumartists'].insert().values([
+		{'album_id':album_id,'artist_id':target_id}
+		for album_id in album_ids
+	])
+
+	result = dbconn.execute(op)
+
+
 #	tracks_artists = {}
 #	for row in result:
 #		tracks_artists.setdefault(row.track_id,[]).append(row.artist_id)
@@ -618,12 +663,26 @@ def merge_artists(target_id,source_ids,dbconn=None):
 #	)
 #	result = dbconn.execute(op)
 
-	# this could have created duplicate tracks
+	# this could have created duplicate tracks and albums
 	merge_duplicate_tracks(artist_id=target_id,dbconn=dbconn)
+	merge_duplicate_albums(artist_id=target_id,dbconn=dbconn)
 	clean_db(dbconn=dbconn)
 
 	return True
 
+
+@connection_provider
+def merge_albums(target_id,source_ids,dbconn=None):
+
+	op = DB['tracks'].update().where(
+		DB['tracks'].c.album_id.in_(source_ids)
+	).values(
+		album_id=target_id
+	)
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
 
 
 ### Functions that get rows according to parameters
@@ -1010,7 +1069,18 @@ def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
 @cached_wrapper_individual
 @connection_provider
 def get_artists_of_tracks(track_ids,dbconn=None):
-	op = sql.join(DB['trackartists'],DB['artists']).select().where(
+
+	jointable = sql.join(
+		DB['trackartists'],
+		DB['artists']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists'],
+		DB['trackartists'].c.track_id
+	).select_from(jointable).where(
 		DB['trackartists'].c.track_id.in_(track_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1023,7 +1093,18 @@ def get_artists_of_tracks(track_ids,dbconn=None):
 @cached_wrapper_individual
 @connection_provider
 def get_artists_of_albums(album_ids,dbconn=None):
-	op = sql.join(DB['albumartists'],DB['artists']).select().where(
+
+	jointable = sql.join(
+		DB['albumartists'],
+		DB['artists']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists'],
+		DB['albumartists'].c.album_id
+	).select_from(jointable).where(
 		DB['albumartists'].c.album_id.in_(album_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1032,6 +1113,65 @@ def get_artists_of_albums(album_ids,dbconn=None):
 	for row in result:
 		artists.setdefault(row.album_id,[]).append(artist_db_to_dict(row,dbconn=dbconn))
 	return artists
+
+@cached_wrapper_individual
+@connection_provider
+def get_albums_of_artists(artist_ids,dbconn=None):
+
+	jointable = sql.join(
+		DB['albumartists'],
+		DB['albums']
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB["albums"],
+		DB['albumartists'].c.artist_id
+	).select_from(jointable).where(
+		DB['albumartists'].c.artist_id.in_(artist_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	for row in result:
+		albums.setdefault(row.artist_id,[]).append(album_db_to_dict(row,dbconn=dbconn))
+	return albums
+
+@cached_wrapper_individual
+@connection_provider
+# this includes the artists' own albums!
+def get_albums_artists_appear_on(artist_ids,dbconn=None):
+
+	jointable1 = sql.join(
+		DB["trackartists"],
+		DB["tracks"]
+	)
+	jointable2 = sql.join(
+		jointable1,
+		DB["albums"]
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB["albums"],
+		DB["trackartists"].c.artist_id
+	).select_from(jointable2).where(
+		DB['trackartists'].c.artist_id.in_(artist_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	albums = {}
+	# avoid duplicates from multiple tracks in album by same artist
+	already_done = {}
+	for row in result:
+		if row.id in already_done.setdefault(row.artist_id,[]):
+			pass
+		else:
+			albums.setdefault(row.artist_id,[]).append(album_db_to_dict(row,dbconn=dbconn))
+			already_done[row.artist_id].append(row.id)
+	return albums
 
 
 @cached_wrapper_individual
@@ -1097,7 +1237,11 @@ def get_associated_artists(*artists,dbconn=None):
 		DB['associated_artists'].c.source_artist == DB['artists'].c.id
 	)
 
-	op = jointable.select().where(
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists']
+	).select_from(jointable).where(
 		DB['associated_artists'].c.target_artist.in_(artist_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1116,8 +1260,11 @@ def get_credited_artists(*artists,dbconn=None):
 		DB['associated_artists'].c.target_artist == DB['artists'].c.id
 	)
 
-
-	op = jointable.select().where(
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists']
+	).select_from(jointable).where(
 		DB['associated_artists'].c.source_artist.in_(artist_ids)
 	)
 	result = dbconn.execute(op).all()
@@ -1192,6 +1339,15 @@ def search_track(searchterm,dbconn=None):
 
 	return [get_track(row.id,dbconn=dbconn) for row in result]
 
+@cached_wrapper
+@connection_provider
+def search_album(searchterm,dbconn=None):
+	op = DB['albums'].select().where(
+		DB['albums'].c.albtitle_normalized.ilike(normalize_name(f"%{searchterm}%"))
+	)
+	result = dbconn.execute(op).all()
+
+	return [get_album(row.id,dbconn=dbconn) for row in result]
 
 ##### MAINTENANCE
 
@@ -1199,26 +1355,41 @@ def search_track(searchterm,dbconn=None):
 @connection_provider
 def clean_db(dbconn=None):
 
-	log(f"Database Cleanup...")
+	from . import AUX_MODE
 
-	to_delete = [
-		# tracks with no scrobbles (trackartist entries first)
-		"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
-		"from tracks where id not in (select track_id from scrobbles)",
-		# artists with no tracks
-		"from artists where id not in (select artist_id from trackartists) and id not in (select target_artist from associated_artists)",
-		# tracks with no artists (scrobbles first)
-		"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-		"from tracks where id not in (select track_id from trackartists)"
-	]
+	if not AUX_MODE:
+		with SCROBBLE_LOCK:
+			log(f"Database Cleanup...")
 
-	for d in to_delete:
-		selection = dbconn.execute(sql.text(f"select * {d}"))
-		for row in selection.all():
-			log(f"Deleting {row}")
-		deletion = dbconn.execute(sql.text(f"delete {d}"))
+			to_delete = [
+				# tracks with no scrobbles (trackartist entries first)
+				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+				"from tracks where id not in (select track_id from scrobbles)",
+				# artists with no tracks AND no albums
+				"from artists where id not in (select artist_id from trackartists) \
+					and id not in (select target_artist from associated_artists) \
+					and id not in (select artist_id from albumartists)",
+				# tracks with no artists (scrobbles first)
+				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+				"from tracks where id not in (select track_id from trackartists)",
+				# albums with no tracks (albumartist entries first)
+				"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
+				"from albums where id not in (select album_id from tracks where album_id is not null)",
+				# albumartist entries that are missing a reference
+				"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
+				"from albumartists where artist_id not in (select id from artists)",
+				# trackartist entries that mare missing a reference
+				"from trackartists where track_id not in (select id from tracks)",
+				"from trackartists where artist_id not in (select id from artists)"
+			]
 
-	log("Database Cleanup complete!")
+			for d in to_delete:
+				selection = dbconn.execute(sql.text(f"select * {d}"))
+				for row in selection.all():
+					log(f"Deleting {row}")
+				deletion = dbconn.execute(sql.text(f"delete {d}"))
+
+			log("Database Cleanup complete!")
 
 
 
@@ -1283,9 +1454,142 @@ def merge_duplicate_tracks(artist_id,dbconn=None):
 
 
 
+@connection_provider
+def merge_duplicate_albums(artist_id,dbconn=None):
+	rows = dbconn.execute(
+		DB['albumartists'].select().where(
+			DB['albumartists'].c.artist_id == artist_id
+		)
+	)
+	affected_albums = [r.album_id for r in rows]
+
+	album_artists = {}
+	rows = dbconn.execute(
+		DB['albumartists'].select().where(
+			DB['albumartists'].c.album_id.in_(affected_albums)
+		)
+	)
+
+
+	for row in rows:
+		album_artists.setdefault(row.album_id,[]).append(row.artist_id)
+
+	artist_combos = {}
+	for album_id in album_artists:
+		artist_combos.setdefault(tuple(sorted(album_artists[album_id])),[]).append(album_id)
+
+	for c in artist_combos:
+		if len(artist_combos[c]) > 1:
+			album_identifiers = {}
+			for album_id in artist_combos[c]:
+				album_identifiers.setdefault(normalize_name(get_album(album_id)['albumtitle']),[]).append(album_id)
+			for album in album_identifiers:
+				if len(album_identifiers[album]) > 1:
+					target,*src = album_identifiers[album]
+					merge_albums(target,src,dbconn=dbconn)
 
 
 
+
+
+
+@connection_provider
+def guess_albums(track_ids=None,replace=False,dbconn=None):
+
+	MIN_NUM_TO_ASSIGN = 1
+
+	jointable = sql.join(
+		DB['scrobbles'],
+		DB['tracks']
+	)
+
+	# get all scrobbles of the respective tracks that have some info
+	conditions = [
+		DB['scrobbles'].c.extra.isnot(None)
+	]
+	if track_ids is not None:
+		# only do these tracks
+		conditions.append(
+			DB['scrobbles'].c.track_id.in_(track_ids)
+		)
+	if not replace:
+		# only tracks that have no album yet
+		conditions.append(
+			DB['tracks'].c.album_id.is_(None)
+		)
+
+	op = sql.select(
+		DB['scrobbles']
+	).select_from(jointable).where(
+		*conditions
+	)
+
+	result = dbconn.execute(op).all()
+
+	# for each track, count what album info appears how often
+	possible_albums = {}
+	for row in result:
+		extrainfo = json.loads(row.extra)
+		albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+		albumartists = extrainfo.get("album_artists",[])
+		if not albumtitle:
+			# try the raw scrobble
+			extrainfo = json.loads(row.rawscrobble)
+			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+			albumartists = albumartists or extrainfo.get("album_artists",[])
+		if albumtitle:
+			hashable_albuminfo = tuple([*albumartists,albumtitle])
+			possible_albums.setdefault(row.track_id,{}).setdefault(hashable_albuminfo,0)
+			possible_albums[row.track_id][hashable_albuminfo] += 1
+
+	res = {}
+	for track_id in possible_albums:
+		options = possible_albums[track_id]
+		if len(options)>0:
+			# pick the one with most occurences
+			mostnum = max(options[albuminfo] for albuminfo in options)
+			if mostnum >= MIN_NUM_TO_ASSIGN:
+				bestpick = [albuminfo for albuminfo in options if options[albuminfo] == mostnum][0]
+				#print("best pick",track_id,bestpick)
+				*artists,title = bestpick
+				res[track_id] = {"assigned":{
+					"artists":artists,
+					"albumtitle": title
+				}}
+				if len(artists) == 0:
+					# for albums without artist, assume track artist
+					res[track_id]["guess_artists"] = True
+			else:
+				res[track_id] = {"assigned":False,"reason":"Not enough data"}
+
+		else:
+			res[track_id] = {"assigned":False,"reason":"No scrobbles with album information found"}
+
+
+
+	missing_artists = [track_id for track_id in res if res[track_id].get("guess_artists")]
+
+	#we're pointlessly getting the albumartist names here even though the IDs would be enough
+	#but it's better for function separation I guess
+	jointable = sql.join(
+		DB['trackartists'],
+		DB['artists']
+	)
+	op = sql.select(
+		DB['trackartists'].c.track_id,
+		DB['artists']
+	).select_from(jointable).where(
+		DB['trackartists'].c.track_id.in_(missing_artists)
+	)
+	result = dbconn.execute(op).all()
+
+	for row in result:
+		res[row.track_id]["assigned"]["artists"].append(row.name)
+	for track_id in res:
+		if res[track_id].get("guess_artists"):
+			del res[track_id]["guess_artists"]
+
+	return res
 
 
 

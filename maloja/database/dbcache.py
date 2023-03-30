@@ -22,8 +22,10 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 
 	@runhourly
 	def maintenance():
-		print_stats()
-		trim_cache()
+		from . import AUX_MODE
+		if not AUX_MODE:
+			print_stats()
+			trim_cache()
 
 	def print_stats():
 		for name,c in (('Cache',cache),('Entity Cache',entitycache)):

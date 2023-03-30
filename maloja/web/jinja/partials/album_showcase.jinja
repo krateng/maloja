@@ -1,0 +1,78 @@
+{% import 'snippets/links.jinja' as links %}
+
+{% set info = dbc.get_albums_artist_appears_on(filterkeys,limitkeys) %}
+{% set ownalbums = info.own_albums %}
+{% set otheralbums = info.appears_on %}
+
+<div id="showcase_container">
+
+{% for album in ownalbums %}
+<table class="album">
+	<tr><td>&nbsp</td></tr>
+	<tr><td>
+		<a href="{{ links.url(album) }}">
+			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		</a>
+	</td></tr>
+	<tr><td>
+		<span class="album_artists">{{ links.links(album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(album) }}</span>
+	</td></tr>
+
+</table>
+{% endfor %}
+
+{% for album in otheralbums %}
+<table class="album">
+	<tr><td>Appears on</td></tr>
+	<tr><td>
+		<a href="{{ links.url(album) }}">
+			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		</a>
+	</td></tr>
+	<tr><td>
+		<span class="album_artists">{{ links.links(album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(album) }}</span>
+	</td></tr>
+
+</table>
+{% endfor %}
+
+<!--
+<table class="album_showcase">
+<tr>
+{% for album in ownalbums %}<td></td>{% endfor %}
+{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
+{% for album in otheralbums %}<td>Appears on</td>{% endfor %}
+</tr>
+
+<tr>
+{% for album in ownalbums %}
+	<td>
+		<a href="{{ links.url(album) }}">
+			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		</a>
+	</td>
+{% endfor %}
+{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
+{% for album in otheralbums %}
+	<td class="album_appearon">
+		<a href="{{ links.url(album) }}">
+			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		</a>
+	</td>
+{% endfor %}
+</tr>
+
+<tr>
+{% for album in ownalbums %}
+	<td>{{ album.albumtitle }}</td>
+{% endfor %}
+{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
+{% for album in otheralbums %}
+	<td>{{ album.albumtitle }}</td>
+{% endfor %}
+</tr>
+</table>
+-->
+</div>

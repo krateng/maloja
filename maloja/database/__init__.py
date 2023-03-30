@@ -45,6 +45,16 @@ dbstatus = {
 }
 
 
+# we're running an auxiliary task that doesn't require all the random background
+# nonsense to be fired up
+# this is temporary
+# FIX YO DAMN ARCHITECTURE ALREADY
+AUX_MODE = False
+def set_aux_mode():
+	global AUX_MODE
+	AUX_MODE = True
+
+
 
 def waitfordb(func):
 	def newfunc(*args,**kwargs):
@@ -153,7 +163,8 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"origin":f"client:{client}" if client else "generic",
 		"extra":{
 			k:scrobbleinfo[k] for k in scrobbleinfo if k not in
-			['scrobble_time','track_artists','track_title','track_length','scrobble_duration','album_title','album_artists']
+			['scrobble_time','track_artists','track_title','track_length','scrobble_duration']#,'album_title','album_artists']
+			# we still save album info in extra because the user might select majority album authority
 		},
 		"rawscrobble":rawscrobble
 	}
@@ -190,6 +201,16 @@ def edit_track(id,trackinfo):
 	return result
 
 @waitfordb
+def edit_album(id,albuminfo):
+	album = sqldb.get_album(id)
+	log(f"Renaming {album['albumtitle']} to {albuminfo['albumtitle']}")
+	result = sqldb.edit_album(id,albuminfo)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
 def merge_artists(target_id,source_ids):
 	sources = [sqldb.get_artist(id) for id in source_ids]
 	target = sqldb.get_artist(target_id)
@@ -206,6 +227,17 @@ def merge_tracks(target_id,source_ids):
 	target = sqldb.get_track(target_id)
 	log(f"Merging {sources} into {target}")
 	result = sqldb.merge_tracks(target_id,source_ids)
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def merge_albums(target_id,source_ids):
+	sources = [sqldb.get_album(id) for id in source_ids]
+	target = sqldb.get_album(target_id)
+	log(f"Merging {sources} into {target}")
+	result = sqldb.merge_albums(target_id,source_ids)
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 
@@ -255,6 +287,21 @@ def get_tracks(dbconn=None,**keys):
 @waitfordb
 def get_artists(dbconn=None):
 	return sqldb.get_artists(dbconn=dbconn)
+
+
+def get_albums_artist_appears_on(dbconn=None,**keys):
+
+	artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)
+
+	albums = sqldb.get_albums_artists_appear_on([artist_id],dbconn=dbconn).get(artist_id) or []
+	ownalbums = sqldb.get_albums_of_artists([artist_id],dbconn=dbconn).get(artist_id) or []
+
+	result = {
+		"own_albums":ownalbums,
+		"appears_on":[a for a in albums if a not in ownalbums]
+	}
+
+	return result
 
 
 @waitfordb
@@ -388,15 +435,27 @@ def artist_info(dbconn=None,**keys):
 	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
 	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
-	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
-	try:
-		c = [e for e in alltimecharts if e["artist"] == artist][0]
+	scrobbles = get_scrobbles_num(artist=artist,timerange=alltime(),dbconn=dbconn)
+	albums = sqldb.get_albums_of_artists(set([artist_id]),dbconn=dbconn)
+	isalbumartist = len(albums.get(artist_id,[]))>0
+
+
+	# base info for everyone
+	result = {
+		"artist":artist,
+		"scrobbles":scrobbles,
+		"id":artist_id,
+		"isalbumartist":isalbumartist
+	}
+
+	# check if credited to someone else
+	parent_artists = sqldb.get_credited_artists(artist)
+	if len(parent_artists) == 0:
+		c = [e for e in alltimecharts if e["artist"] == artist]
+		position = c[0]["rank"] if len(c) > 0 else None
 		others = sqldb.get_associated_artists(artist,dbconn=dbconn)
-		position = c["rank"]
-		return {
-			"artist":artist,
-			"scrobbles":scrobbles,
+		result.update({
 			"position":position,
 			"associated":others,
 			"medals":{
@@ -404,23 +463,19 @@ def artist_info(dbconn=None,**keys):
 				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
 				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id]),
-			"id":artist_id
-		}
-	except Exception:
-		# if the artist isnt in the charts, they are not being credited and we
-		# need to show information about the credited one
-		replaceartist = sqldb.get_credited_artists(artist)[0]
+			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id])
+		})
+
+	else:
+		replaceartist = parent_artists[0]
 		c = [e for e in alltimecharts if e["artist"] == replaceartist][0]
 		position = c["rank"]
-		return {
-			"artist":artist,
+		result.update({
 			"replace":replaceartist,
-			"scrobbles":scrobbles,
-			"position":position,
-			"id":artist_id
-		}
+			"position":position
+		})
 
+	return result
 
 
 
@@ -570,4 +625,7 @@ def db_search(query,type=None):
 		results = sqldb.search_artist(query)
 	if type=="TRACK":
 		results = sqldb.search_track(query)
+	if type=="ALBUM":
+		results = sqldb.search_album(query)
+
 	return results

@@ -166,6 +166,7 @@ def main(*args,**kwargs):
 		"generate":generate.generate_scrobbles,	# maloja generate 400
 		"export":tasks.export,					# maloja export
 		"apidebug":apidebug.run,				# maloja apidebug
+		"parsealbums":tasks.parse_albums,		# maloja parsealbums
 		# aux
 		"info":print_info
 	}

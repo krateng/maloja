@@ -21,6 +21,9 @@ outputs = {
 
 def import_scrobbles(inputf):
 
+	from ...database import set_aux_mode
+	set_aux_mode()
+
 	from ...database.sqldb import add_scrobbles
 
 	result = {
@@ -180,7 +183,7 @@ def parse_spotify_full(inputf):
 	if len(inputfiles) == 0:
 		print("No files found!")
 		return
-		
+
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
 		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):

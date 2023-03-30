@@ -189,7 +189,7 @@ div.searchresults tr td:nth-child(2) {
 	padding-left:10px;
 }
 
-div.searchresults table.searchresults_tracks td span:nth-child(1) {
+div.searchresults table.searchresults_extrainfo td span:nth-child(1) {
 	font-size:12px;
 	color:grey;
 
@@ -897,6 +897,56 @@ table.tiles_sub a span {
         overflow-wrap: anywhere;
 }
 
+
+div#showcase_container {
+		display: flex;
+		margin-top: -15px;
+		padding-bottom: 20px;
+		align-items: flex-start;
+		flex-wrap: wrap;
+}
+
+div#showcase_container table.album {
+	width: 180px;
+}
+
+div#showcase_container table.album tr td {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+div#showcase_container table.album tr:nth-child(1) td {
+	height:8px;
+	opacity: 0.3;
+	text-align: center;
+}
+div#showcase_container table.album tr:nth-child(2) td {
+	height:150px;
+	padding-top:2px;
+	padding-bottom:2px;
+}
+div#showcase_container table.album tr:nth-child(3) td {
+	height:15px;
+}
+div#showcase_container div {
+	height: 150px;
+	width: 150px;
+
+	background-size: cover;
+	background-position: top;
+
+	box-shadow: 0px 0px 10px 10px rgba(0,0,0,0.5);
+}
+
+div#showcase_container table:hover div {
+	box-shadow: 0px 0px 10px 10px var(--ctrl-element-color-main);
+}
+
+div#showcase_container span.album_artists {
+	font-size: 80%;
+}
+div#showcase_container span.album_title {
+	font-weight: bold;
+}
 
 
 .summary_rank {
