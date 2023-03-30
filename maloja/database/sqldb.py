@@ -1532,6 +1532,11 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 		extrainfo = json.loads(row.extra)
 		albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
 		albumartists = extrainfo.get("album_artists",[])
+		if not albumtitle:
+			# try the raw scrobble
+			extrainfo = json.loads(row.rawscrobble)
+			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+			albumartists = albumartists or extrainfo.get("album_artists",[])
 		if albumtitle:
 			hashable_albuminfo = tuple([*albumartists,albumtitle])
 			possible_albums.setdefault(row.track_id,{}).setdefault(hashable_albuminfo,0)
