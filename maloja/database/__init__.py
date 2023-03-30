@@ -45,6 +45,16 @@ dbstatus = {
 }
 
 
+# we're running an auxiliary task that doesn't require all the random background
+# nonsense to be fired up
+# this is temporary
+# FIX YO DAMN ARCHITECTURE ALREADY
+AUX_MODE = False
+def set_aux_mode():
+	global AUX_MODE
+	AUX_MODE = True
+
+
 
 def waitfordb(func):
 	def newfunc(*args,**kwargs):
