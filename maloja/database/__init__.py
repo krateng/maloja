@@ -110,6 +110,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
 	dbcache.invalidate_caches(scrobbledict['time'])
+	dbcache.invalidate_entity_cache() # because album info might have changed
 
 	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
