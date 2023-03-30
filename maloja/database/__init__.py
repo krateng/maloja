@@ -153,6 +153,11 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 	if 'album_artists' not in scrobbleinfo:
 		scrobbleinfo['album_artists'] = scrobbleinfo.get('track_artists')
 
+	# New plan, do this further down
+	# NONE always means there is simply no info, so make a guess or whatever the options say
+	# various artists always needs to be specified via []
+	# TODO
+
 	# processed info to internal scrobble dict
 	scrobbledict = {
 		"time":scrobbleinfo.get('scrobble_time'),
