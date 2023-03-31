@@ -1513,7 +1513,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 
 	# get all scrobbles of the respective tracks that have some info
 	conditions = [
-		DB['scrobbles'].c.extra.isnot(None)
+		DB['scrobbles'].c.extra.isnot(None) | DB['scrobbles'].c.rawscrobble.isnot(None)
 	]
 	if track_ids is not None:
 		# only do these tracks
@@ -1537,10 +1537,13 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 	# for each track, count what album info appears how often
 	possible_albums = {}
 	for row in result:
-		extrainfo = json.loads(row.extra)
-		albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
-		albumartists = extrainfo.get("album_artists",[])
+		albumtitle, albumartists = None, None
+		if row.extra:
+			extrainfo = json.loads(row.extra)
+			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+			albumartists = extrainfo.get("album_artists",[])
 		if not albumtitle:
+			# either we didn't have info in the exta col, or there was no albumtitle
 			# try the raw scrobble
 			extrainfo = json.loads(row.rawscrobble)
 			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
