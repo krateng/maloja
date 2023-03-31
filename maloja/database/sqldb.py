@@ -1,4 +1,5 @@
 import sqlalchemy as sql
+from sqlalchemy.dialects.sqlite import insert as sqliteinsert
 import json
 import unicodedata
 import math
@@ -20,6 +21,13 @@ from doreah.regular import runhourly, runmonthly
 
 DBTABLES = {
 	# name - type - foreign key - kwargs
+	'_maloja':{
+		'columns':[
+			("key",                 sql.String,                                   {'primary_key':True}),
+			("value",               sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{}
+	},
 	'scrobbles':{
 		'columns':[
 			("timestamp",           sql.Integer,                                  {'primary_key':True}),
@@ -150,6 +158,29 @@ def connection_provider(func):
 
 	wrapper.__innerfunc__ = func
 	return wrapper
+
+@connection_provider
+def get_maloja_info(keys,dbconn=None):
+	op = DB['_maloja'].select().where(
+		DB['_maloja'].c.key.in_(keys)
+	)
+	result = dbconn.execute(op).all()
+
+	info = {}
+	for row in result:
+		info[row.key] = row.value
+	return info
+
+@connection_provider
+def set_maloja_info(info,dbconn=None):
+	for k in info:
+		op = sqliteinsert(DB['_maloja']).values(
+			key=k, value=info[k]
+		).on_conflict_do_update(
+			index_elements=['key'],
+			set_={'value':info[k]}
+		)
+		dbconn.execute(op)
 
 ##### DB <-> Dict translations
 

@@ -302,15 +302,6 @@ data_dir = {
 
 
 
-### write down the last ran version
-with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
-	filed.write(VERSION)
-	filed.write("\n")
-
-
-
-
-
 ### DOREAH CONFIGURATION
 
 from doreah import config
@@ -336,7 +327,8 @@ config(
 
 custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
 
-
+from ..database.sqldb import set_maloja_info
+set_maloja_info({'last_run_version':VERSION})
 
 # what the fuck did i just write
 # this spaghetti file is proudly sponsored by the rice crackers i'm eating at the
