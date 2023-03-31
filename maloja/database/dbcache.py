@@ -98,7 +98,6 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 	def invalidate_entity_cache():
 		entitycache.clear()
 
-	@no_aux_mode
 	def trim_cache():
 		ramprct = psutil.virtual_memory().percent
 		if ramprct > malojaconfig["DB_MAX_MEMORY"]:

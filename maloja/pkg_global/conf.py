@@ -6,6 +6,8 @@ from doreah.configuration import types as tp
 from ..__pkginfo__ import VERSION
 
 
+# this mode specifies whether we run some auxiliary task instead of the main server
+AUX_MODE = True
 
 
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what

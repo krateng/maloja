@@ -1,10 +1,6 @@
-
-
+from doreah.io import col
 
 def parse_albums(replace=False):
-
-	from ...database import set_aux_mode
-	set_aux_mode()
 
 	from ...database.sqldb import guess_albums, get_album_id, add_track_to_album
 
