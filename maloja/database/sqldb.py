@@ -866,7 +866,6 @@ def count_scrobbles_by_artist(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
 	else:
@@ -889,7 +888,6 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	else:
@@ -918,7 +916,6 @@ def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -956,7 +953,6 @@ def count_scrobbles_by_album_of_artist(since,to,artist,resolve_ids=True,dbconn=N
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -994,7 +990,6 @@ def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=N
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -1005,7 +1000,7 @@ def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=N
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
+def count_scrobbles_by_track_of_artist(since,to,artist,resolve_ids=True,dbconn=None):
 
 	artist_id = get_artist_id(artist,dbconn=dbconn)
 
@@ -1026,16 +1021,18 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 	result = dbconn.execute(op).all()
 
 
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
+def count_scrobbles_by_track_of_album(since,to,album,resolve_ids=True,dbconn=None):
 
 	album_id = get_album_id(album,dbconn=dbconn)
 
@@ -1056,9 +1053,11 @@ def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
 	result = dbconn.execute(op).all()
 
 
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 

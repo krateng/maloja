@@ -181,7 +181,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"rawscrobble":rawscrobble
 	}
 
-	if scrobbledict["track"]["album"]["albumtitle"] is None and scrobbledict["track"]["album"]["artists"] is None:
+	if scrobbledict["track"]["album"]["albumtitle"] is None:
 		del scrobbledict["track"]["album"]
 
 	return scrobbledict
@@ -320,29 +320,29 @@ def get_albums_artist_appears_on(dbconn=None,**keys):
 
 
 @waitfordb
-def get_charts_artists(dbconn=None,**keys):
+def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	result = sqldb.count_scrobbles_by_artist(since=since,to=to,dbconn=dbconn)
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_charts_tracks(dbconn=None,**keys):
+def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
 	elif 'album' in keys:
-		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
-		result = sqldb.count_scrobbles_by_track(since=since,to=to,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_charts_albums(dbconn=None,**keys):
+def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
-		result = sqldb.count_scrobbles_by_album(since=since,to=to,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
@@ -364,29 +364,32 @@ def get_performance(dbconn=None,**keys):
 
 	for rng in rngs:
 		if "track" in keys:
-			track = sqldb.get_track(sqldb.get_track_id(keys['track'],dbconn=dbconn),dbconn=dbconn)
-			charts = get_charts_tracks(timerange=rng,dbconn=dbconn)
+			track_id = sqldb.get_track_id(keys['track'],dbconn=dbconn)
+			#track = sqldb.get_track(track_id,dbconn=dbconn)
+			charts = get_charts_tracks(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["track"] == track:
+				if c["track_id"] == track_id:
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
-			artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist'],dbconn=dbconn),dbconn=dbconn)
+			artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)
+			#artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 			# ^this is the most useless line in programming history
 			# but I like consistency
-			charts = get_charts_artists(timerange=rng,dbconn=dbconn)
+			charts = get_charts_artists(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["artist"] == artist:
+				if c["artist_id"] == artist_id:
 					rank = c["rank"]
 					break
 		elif "album" in keys:
-			album = sqldb.get_album(sqldb.get_album_id(keys['album'],dbconn=dbconn),dbconn=dbconn)
-			charts = get_charts_albums(timerange=rng,dbconn=dbconn)
+			album_id = sqldb.get_album_id(keys['album'],dbconn=dbconn)
+			#album = sqldb.get_album(album_id,dbconn=dbconn)
+			charts = get_charts_albums(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["album"] == album:
+				if c["album_id"] == album_id:
 					rank = c["rank"]
 					break
 		else:
@@ -502,10 +505,10 @@ def track_info(dbconn=None,**keys):
 
 	track_id = sqldb.get_track_id(track,dbconn=dbconn)
 	track = sqldb.get_track(track_id,dbconn=dbconn)
-	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
+	alltimecharts = get_charts_tracks(timerange=alltime(),resolve_ids=False,dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
-	c = [e for e in alltimecharts if e["track"] == track][0]
+	c = [e for e in alltimecharts if e["track_id"] == track_id][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
 	cert = None
