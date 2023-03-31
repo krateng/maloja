@@ -110,7 +110,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
 	dbcache.invalidate_caches(scrobbledict['time'])
-	dbcache.invalidate_entity_cache() # because album info might have changed
+
 
 	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
@@ -450,7 +450,9 @@ def artist_info(dbconn=None,**keys):
 	artist = keys.get('artist')
 	if artist is None: raise exceptions.MissingEntityParameter()
 
-	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
+	artist_id = sqldb.get_artist_id(artist,create_new=False,dbconn=dbconn)
+	if not artist_id: raise exceptions.ArtistDoesNotExist(artist)
+
 	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -503,7 +505,9 @@ def track_info(dbconn=None,**keys):
 	track = keys.get('track')
 	if track is None: raise exceptions.MissingEntityParameter()
 
-	track_id = sqldb.get_track_id(track,dbconn=dbconn)
+	track_id = sqldb.get_track_id(track,create_new=False,dbconn=dbconn)
+	if not track_id: raise exceptions.TrackDoesNotExist(track['title'])
+
 	track = sqldb.get_track(track_id,dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),resolve_ids=False,dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
@@ -539,9 +543,10 @@ def album_info(dbconn=None,**keys):
 	album = keys.get('album')
 	if album is None: raise exceptions.MissingEntityParameter()
 
-	album_id = sqldb.get_album_id(album,dbconn=dbconn)
-	album = sqldb.get_album(album_id,dbconn=dbconn)
+	album_id = sqldb.get_album_id(album,create_new=False,dbconn=dbconn)
+	if not album_id: raise exceptions.AlbumDoesNotExist(album['albumtitle'])
 
+	album = sqldb.get_album(album_id,dbconn=dbconn)
 	alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
 
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
