@@ -151,7 +151,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 
 	# if we send [] as albumartists, it means various
 	# if we send nothing, the scrobbler just doesnt support it and we assume track artists
-	if 'album_artists' not in scrobbleinfo:
+	if ('album_title' in scrobbleinfo) and ('album_artists' not in scrobbleinfo):
 		scrobbleinfo['album_artists'] = scrobbleinfo.get('track_artists')
 
 	# New plan, do this further down
@@ -180,6 +180,9 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		},
 		"rawscrobble":rawscrobble
 	}
+
+	if scrobbledict["track"]["album"]["albumtitle"] is None and scrobbledict["track"]["album"]["artists"] is None:
+		del scrobbledict["track"]["album"]
 
 	return scrobbledict
 
