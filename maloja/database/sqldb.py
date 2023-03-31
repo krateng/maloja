@@ -6,7 +6,7 @@ from datetime import datetime
 from threading import Lock
 
 from ..pkg_global.conf import data_dir
-from .dbcache import cached_wrapper, cached_wrapper_individual
+from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_caches, invalidate_entity_cache
 from . import exceptions as exc
 
 from doreah.logging import log
@@ -352,6 +352,11 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 	)
 
 	result = dbconn.execute(op)
+
+	invalidate_entity_cache() # because album info has changed
+	invalidate_caches() # changing album info of tracks will change album charts
+
+
 	return True
 
 @connection_provider
