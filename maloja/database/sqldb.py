@@ -396,17 +396,21 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
-			if trackdict.get('album'):
+			if trackdict.get('album') and create_new:
+				# if we don't supply create_new, it means we just want to get info about a track
+				# which means no need to write album info, even if it was new
 				add_track_to_album(row.id,get_album_id(trackdict['album'],dbconn=dbconn),replace=update_album,dbconn=dbconn)
 			return row.id
 
 	if not create_new: return None
 
+	print("Creating new track")
 	op = DB['tracks'].insert().values(
 		**track_dict_to_db(trackdict,dbconn=dbconn)
 	)
 	result = dbconn.execute(op)
 	track_id = result.inserted_primary_key[0]
+	print(track_id)
 
 	for artist_id in artist_ids:
 		op = DB['trackartists'].insert().values(
