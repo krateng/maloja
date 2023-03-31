@@ -1,6 +1,17 @@
 # server
 from bottle import request, response, FormsDict
 
+
+# we're running an auxiliary task that doesn't require all the random background
+# nonsense to be fired up
+# this is temporary
+# FIX YO DAMN ARCHITECTURE ALREADY
+AUX_MODE = False
+def set_aux_mode():
+	global AUX_MODE
+	AUX_MODE = True
+
+	
 # rest of the project
 from ..cleanup import CleanerAgent
 from .. import images
@@ -45,14 +56,7 @@ dbstatus = {
 }
 
 
-# we're running an auxiliary task that doesn't require all the random background
-# nonsense to be fired up
-# this is temporary
-# FIX YO DAMN ARCHITECTURE ALREADY
-AUX_MODE = False
-def set_aux_mode():
-	global AUX_MODE
-	AUX_MODE = True
+
 
 
 
@@ -110,7 +114,7 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
 	dbcache.invalidate_caches(scrobbledict['time'])
-	dbcache.invalidate_entity_cache() # because album info might have changed
+
 
 	#return {"status":"success","scrobble":scrobbledict}
 	return scrobbledict
@@ -151,7 +155,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 
 	# if we send [] as albumartists, it means various
 	# if we send nothing, the scrobbler just doesnt support it and we assume track artists
-	if 'album_artists' not in scrobbleinfo:
+	if ('album_title' in scrobbleinfo) and ('album_artists' not in scrobbleinfo):
 		scrobbleinfo['album_artists'] = scrobbleinfo.get('track_artists')
 
 	# New plan, do this further down
@@ -180,6 +184,9 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		},
 		"rawscrobble":rawscrobble
 	}
+
+	if scrobbledict["track"]["album"]["albumtitle"] is None:
+		del scrobbledict["track"]["album"]
 
 	return scrobbledict
 
@@ -317,29 +324,29 @@ def get_albums_artist_appears_on(dbconn=None,**keys):
 
 
 @waitfordb
-def get_charts_artists(dbconn=None,**keys):
+def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	result = sqldb.count_scrobbles_by_artist(since=since,to=to,dbconn=dbconn)
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_charts_tracks(dbconn=None,**keys):
+def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
 	elif 'album' in keys:
-		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
-		result = sqldb.count_scrobbles_by_track(since=since,to=to,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
-def get_charts_albums(dbconn=None,**keys):
+def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
-		result = sqldb.count_scrobbles_by_album(since=since,to=to,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
 
 @waitfordb
@@ -361,29 +368,32 @@ def get_performance(dbconn=None,**keys):
 
 	for rng in rngs:
 		if "track" in keys:
-			track = sqldb.get_track(sqldb.get_track_id(keys['track'],dbconn=dbconn),dbconn=dbconn)
-			charts = get_charts_tracks(timerange=rng,dbconn=dbconn)
+			track_id = sqldb.get_track_id(keys['track'],dbconn=dbconn)
+			#track = sqldb.get_track(track_id,dbconn=dbconn)
+			charts = get_charts_tracks(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["track"] == track:
+				if c["track_id"] == track_id:
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
-			artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist'],dbconn=dbconn),dbconn=dbconn)
+			artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)
+			#artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 			# ^this is the most useless line in programming history
 			# but I like consistency
-			charts = get_charts_artists(timerange=rng,dbconn=dbconn)
+			charts = get_charts_artists(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["artist"] == artist:
+				if c["artist_id"] == artist_id:
 					rank = c["rank"]
 					break
 		elif "album" in keys:
-			album = sqldb.get_album(sqldb.get_album_id(keys['album'],dbconn=dbconn),dbconn=dbconn)
-			charts = get_charts_albums(timerange=rng,dbconn=dbconn)
+			album_id = sqldb.get_album_id(keys['album'],dbconn=dbconn)
+			#album = sqldb.get_album(album_id,dbconn=dbconn)
+			charts = get_charts_albums(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
 			for c in charts:
-				if c["album"] == album:
+				if c["album_id"] == album_id:
 					rank = c["rank"]
 					break
 		else:
@@ -444,7 +454,9 @@ def artist_info(dbconn=None,**keys):
 	artist = keys.get('artist')
 	if artist is None: raise exceptions.MissingEntityParameter()
 
-	artist_id = sqldb.get_artist_id(artist,dbconn=dbconn)
+	artist_id = sqldb.get_artist_id(artist,create_new=False,dbconn=dbconn)
+	if not artist_id: raise exceptions.ArtistDoesNotExist(artist)
+
 	artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 	alltimecharts = get_charts_artists(timerange=alltime(),dbconn=dbconn)
 	#we cant take the scrobble number from the charts because that includes all countas scrobbles
@@ -497,12 +509,14 @@ def track_info(dbconn=None,**keys):
 	track = keys.get('track')
 	if track is None: raise exceptions.MissingEntityParameter()
 
-	track_id = sqldb.get_track_id(track,dbconn=dbconn)
+	track_id = sqldb.get_track_id(track,create_new=False,dbconn=dbconn)
+	if not track_id: raise exceptions.TrackDoesNotExist(track['title'])
+
 	track = sqldb.get_track(track_id,dbconn=dbconn)
-	alltimecharts = get_charts_tracks(timerange=alltime(),dbconn=dbconn)
+	alltimecharts = get_charts_tracks(timerange=alltime(),resolve_ids=False,dbconn=dbconn)
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
-	c = [e for e in alltimecharts if e["track"] == track][0]
+	c = [e for e in alltimecharts if e["track_id"] == track_id][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
 	cert = None
@@ -533,9 +547,10 @@ def album_info(dbconn=None,**keys):
 	album = keys.get('album')
 	if album is None: raise exceptions.MissingEntityParameter()
 
-	album_id = sqldb.get_album_id(album,dbconn=dbconn)
-	album = sqldb.get_album(album_id,dbconn=dbconn)
+	album_id = sqldb.get_album_id(album,create_new=False,dbconn=dbconn)
+	if not album_id: raise exceptions.AlbumDoesNotExist(album['albumtitle'])
 
+	album = sqldb.get_album(album_id,dbconn=dbconn)
 	alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
 
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())

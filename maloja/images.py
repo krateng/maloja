@@ -111,20 +111,20 @@ def dl_image(url):
 ### even if we have already cached it, we will handle that on request
 def get_track_image(track=None,track_id=None):
 	if track_id is None:
-		track_id = database.sqldb.get_track_id(track)
+		track_id = database.sqldb.get_track_id(track,create_new=False)
 
 	return f"/image?type=track&id={track_id}"
 
 
 def get_artist_image(artist=None,artist_id=None):
 	if artist_id is None:
-		artist_id = database.sqldb.get_artist_id(artist)
+		artist_id = database.sqldb.get_artist_id(artist,create_new=False)
 
 	return f"/image?type=artist&id={artist_id}"
 
 def get_album_image(album=None,album_id=None):
 	if album_id is None:
-		album_id = database.sqldb.get_album_id(album)
+		album_id = database.sqldb.get_album_id(album,create_new=False)
 
 	return f"/image?type=album&id={album_id}"
 

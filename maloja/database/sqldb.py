@@ -6,7 +6,7 @@ from datetime import datetime
 from threading import Lock
 
 from ..pkg_global.conf import data_dir
-from .dbcache import cached_wrapper, cached_wrapper_individual
+from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_caches, invalidate_entity_cache
 from . import exceptions as exc
 
 from doreah.logging import log
@@ -352,6 +352,11 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 	)
 
 	result = dbconn.execute(op)
+
+	invalidate_entity_cache() # because album info has changed
+	invalidate_caches() # changing album info of tracks will change album charts
+
+
 	return True
 
 @connection_provider
@@ -391,17 +396,21 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 		#print("required artists",artist_ids,"this match",match_artist_ids)
 		if set(artist_ids) == set(match_artist_ids):
 			#print("ID for",trackdict['title'],"was",row[0])
-			if trackdict.get('album'):
+			if trackdict.get('album') and create_new:
+				# if we don't supply create_new, it means we just want to get info about a track
+				# which means no need to write album info, even if it was new
 				add_track_to_album(row.id,get_album_id(trackdict['album'],dbconn=dbconn),replace=update_album,dbconn=dbconn)
 			return row.id
 
 	if not create_new: return None
 
+	print("Creating new track")
 	op = DB['tracks'].insert().values(
 		**track_dict_to_db(trackdict,dbconn=dbconn)
 	)
 	result = dbconn.execute(op)
 	track_id = result.inserted_primary_key[0]
+	print(track_id)
 
 	for artist_id in artist_ids:
 		op = DB['trackartists'].insert().values(
@@ -866,7 +875,6 @@ def count_scrobbles_by_artist(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'artist':artists[row.artist_id]} for row in result]
 	else:
@@ -889,7 +897,6 @@ def count_scrobbles_by_track(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
 	else:
@@ -918,7 +925,6 @@ def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -956,7 +962,6 @@ def count_scrobbles_by_album_of_artist(since,to,artist,resolve_ids=True,dbconn=N
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -994,7 +999,6 @@ def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=N
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
-		counts = [row.count for row in result]
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
 		result = [{'scrobbles':row.count,'album':albums[row.album_id]} for row in result]
 	else:
@@ -1005,7 +1009,7 @@ def count_scrobbles_of_artist_by_album(since,to,artist,resolve_ids=True,dbconn=N
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
+def count_scrobbles_by_track_of_artist(since,to,artist,resolve_ids=True,dbconn=None):
 
 	artist_id = get_artist_id(artist,dbconn=dbconn)
 
@@ -1026,16 +1030,18 @@ def count_scrobbles_by_track_of_artist(since,to,artist,dbconn=None):
 	result = dbconn.execute(op).all()
 
 
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
 
 @cached_wrapper
 @connection_provider
-def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
+def count_scrobbles_by_track_of_album(since,to,album,resolve_ids=True,dbconn=None):
 
 	album_id = get_album_id(album,dbconn=dbconn)
 
@@ -1056,9 +1062,11 @@ def count_scrobbles_by_track_of_album(since,to,album,dbconn=None):
 	result = dbconn.execute(op).all()
 
 
-	counts = [row.count for row in result]
-	tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
-	result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	if resolve_ids:
+		tracks = get_tracks_map([row.track_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'track':tracks[row.track_id]} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'track_id':row.track_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 
@@ -1356,40 +1364,40 @@ def search_album(searchterm,dbconn=None):
 def clean_db(dbconn=None):
 
 	from . import AUX_MODE
+	if AUX_MODE: return
 
-	if not AUX_MODE:
-		with SCROBBLE_LOCK:
-			log(f"Database Cleanup...")
+	with SCROBBLE_LOCK:
+		log(f"Database Cleanup...")
 
-			to_delete = [
-				# tracks with no scrobbles (trackartist entries first)
-				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
-				"from tracks where id not in (select track_id from scrobbles)",
-				# artists with no tracks AND no albums
-				"from artists where id not in (select artist_id from trackartists) \
-					and id not in (select target_artist from associated_artists) \
-					and id not in (select artist_id from albumartists)",
-				# tracks with no artists (scrobbles first)
-				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-				"from tracks where id not in (select track_id from trackartists)",
-				# albums with no tracks (albumartist entries first)
-				"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
-				"from albums where id not in (select album_id from tracks where album_id is not null)",
-				# albumartist entries that are missing a reference
-				"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
-				"from albumartists where artist_id not in (select id from artists)",
-				# trackartist entries that mare missing a reference
-				"from trackartists where track_id not in (select id from tracks)",
-				"from trackartists where artist_id not in (select id from artists)"
-			]
+		to_delete = [
+			# tracks with no scrobbles (trackartist entries first)
+			"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+			"from tracks where id not in (select track_id from scrobbles)",
+			# artists with no tracks AND no albums
+			"from artists where id not in (select artist_id from trackartists) \
+				and id not in (select target_artist from associated_artists) \
+				and id not in (select artist_id from albumartists)",
+			# tracks with no artists (scrobbles first)
+			"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+			"from tracks where id not in (select track_id from trackartists)",
+			# albums with no tracks (albumartist entries first)
+			"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
+			"from albums where id not in (select album_id from tracks where album_id is not null)",
+			# albumartist entries that are missing a reference
+			"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
+			"from albumartists where artist_id not in (select id from artists)",
+			# trackartist entries that mare missing a reference
+			"from trackartists where track_id not in (select id from tracks)",
+			"from trackartists where artist_id not in (select id from artists)"
+		]
 
-			for d in to_delete:
-				selection = dbconn.execute(sql.text(f"select * {d}"))
-				for row in selection.all():
-					log(f"Deleting {row}")
-				deletion = dbconn.execute(sql.text(f"delete {d}"))
+		for d in to_delete:
+			selection = dbconn.execute(sql.text(f"select * {d}"))
+			for row in selection.all():
+				log(f"Deleting {row}")
+			deletion = dbconn.execute(sql.text(f"delete {d}"))
 
-			log("Database Cleanup complete!")
+		log("Database Cleanup complete!")
 
 
 
@@ -1403,6 +1411,10 @@ def clean_db(dbconn=None):
 
 @runmonthly
 def renormalize_names():
+
+	from . import AUX_MODE
+	if AUX_MODE: return
+
 	with SCROBBLE_LOCK:
 		with engine.begin() as conn:
 			rows = conn.execute(DB['artists'].select()).all()
@@ -1505,7 +1517,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 
 	# get all scrobbles of the respective tracks that have some info
 	conditions = [
-		DB['scrobbles'].c.extra.isnot(None)
+		DB['scrobbles'].c.extra.isnot(None) | DB['scrobbles'].c.rawscrobble.isnot(None)
 	]
 	if track_ids is not None:
 		# only do these tracks
@@ -1529,10 +1541,13 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 	# for each track, count what album info appears how often
 	possible_albums = {}
 	for row in result:
-		extrainfo = json.loads(row.extra)
-		albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
-		albumartists = extrainfo.get("album_artists",[])
+		albumtitle, albumartists = None, None
+		if row.extra:
+			extrainfo = json.loads(row.extra)
+			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")
+			albumartists = extrainfo.get("album_artists",[])
 		if not albumtitle:
+			# either we didn't have info in the exta col, or there was no albumtitle
 			# try the raw scrobble
 			extrainfo = json.loads(row.rawscrobble)
 			albumtitle = extrainfo.get("album_name") or extrainfo.get("album_title")

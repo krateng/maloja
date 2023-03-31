@@ -27,3 +27,19 @@ class MissingScrobbleParameters(Exception):
 
 class MissingEntityParameter(Exception):
 	pass
+
+class EntityDoesNotExist(HTTPError):
+	entitytype = 'Entity'
+	def __init__(self,name):
+		self.entityname = name
+		super().__init__(
+			status=404,
+			body=f"The {self.entitytype} '{self.entityname}' does not exist in the database."
+		)
+
+class ArtistDoesNotExist(EntityDoesNotExist):
+	entitytype = 'Artist'
+class AlbumDoesNotExist(EntityDoesNotExist):
+	entitytype = 'Album'
+class TrackDoesNotExist(EntityDoesNotExist):
+	entitytype = 'Track'
