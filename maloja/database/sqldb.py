@@ -1360,40 +1360,40 @@ def search_album(searchterm,dbconn=None):
 def clean_db(dbconn=None):
 
 	from . import AUX_MODE
+	if AUX_MODE: return
 
-	if not AUX_MODE:
-		with SCROBBLE_LOCK:
-			log(f"Database Cleanup...")
+	with SCROBBLE_LOCK:
+		log(f"Database Cleanup...")
 
-			to_delete = [
-				# tracks with no scrobbles (trackartist entries first)
-				"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
-				"from tracks where id not in (select track_id from scrobbles)",
-				# artists with no tracks AND no albums
-				"from artists where id not in (select artist_id from trackartists) \
-					and id not in (select target_artist from associated_artists) \
-					and id not in (select artist_id from albumartists)",
-				# tracks with no artists (scrobbles first)
-				"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
-				"from tracks where id not in (select track_id from trackartists)",
-				# albums with no tracks (albumartist entries first)
-				"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
-				"from albums where id not in (select album_id from tracks where album_id is not null)",
-				# albumartist entries that are missing a reference
-				"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
-				"from albumartists where artist_id not in (select id from artists)",
-				# trackartist entries that mare missing a reference
-				"from trackartists where track_id not in (select id from tracks)",
-				"from trackartists where artist_id not in (select id from artists)"
-			]
+		to_delete = [
+			# tracks with no scrobbles (trackartist entries first)
+			"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
+			"from tracks where id not in (select track_id from scrobbles)",
+			# artists with no tracks AND no albums
+			"from artists where id not in (select artist_id from trackartists) \
+				and id not in (select target_artist from associated_artists) \
+				and id not in (select artist_id from albumartists)",
+			# tracks with no artists (scrobbles first)
+			"from scrobbles where track_id in (select id from tracks where id not in (select track_id from trackartists))",
+			"from tracks where id not in (select track_id from trackartists)",
+			# albums with no tracks (albumartist entries first)
+			"from albumartists where album_id in (select id from albums where id not in (select album_id from tracks where album_id is not null))",
+			"from albums where id not in (select album_id from tracks where album_id is not null)",
+			# albumartist entries that are missing a reference
+			"from albumartists where album_id not in (select album_id from tracks where album_id is not null)",
+			"from albumartists where artist_id not in (select id from artists)",
+			# trackartist entries that mare missing a reference
+			"from trackartists where track_id not in (select id from tracks)",
+			"from trackartists where artist_id not in (select id from artists)"
+		]
 
-			for d in to_delete:
-				selection = dbconn.execute(sql.text(f"select * {d}"))
-				for row in selection.all():
-					log(f"Deleting {row}")
-				deletion = dbconn.execute(sql.text(f"delete {d}"))
+		for d in to_delete:
+			selection = dbconn.execute(sql.text(f"select * {d}"))
+			for row in selection.all():
+				log(f"Deleting {row}")
+			deletion = dbconn.execute(sql.text(f"delete {d}"))
 
-			log("Database Cleanup complete!")
+		log("Database Cleanup complete!")
 
 
 
@@ -1407,6 +1407,10 @@ def clean_db(dbconn=None):
 
 @runmonthly
 def renormalize_names():
+
+	from . import AUX_MODE
+	if AUX_MODE: return
+
 	with SCROBBLE_LOCK:
 		with engine.begin() as conn:
 			rows = conn.execute(DB['artists'].select()).all()
