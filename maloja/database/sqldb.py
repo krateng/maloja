@@ -483,13 +483,10 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_album_id(albumdict,create_new=True,dbconn=None):
+def get_album_id(albumdict,create_new=True,ignore_albumartists=False,dbconn=None):
 	ntitle = normalize_name(albumdict['albumtitle'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict.get('artists') or []]
 	artist_ids = list(set(artist_ids))
-
-
-
 
 	op = DB['albums'].select(
 #		DB['albums'].c.id
@@ -498,20 +495,23 @@ def get_album_id(albumdict,create_new=True,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 	for row in result:
-		# check if the artists are the same
-		foundtrackartists = []
-
-		op = DB['albumartists'].select(
-#			DB['albumartists'].c.artist_id
-		).where(
-			DB['albumartists'].c.album_id==row.id
-		)
-		result = dbconn.execute(op).all()
-		match_artist_ids = [r.artist_id for r in result]
-		#print("required artists",artist_ids,"this match",match_artist_ids)
-		if set(artist_ids) == set(match_artist_ids):
-			#print("ID for",albumdict['title'],"was",row[0])
+		if ignore_albumartists:
 			return row.id
+		else:
+			# check if the artists are the same
+			foundtrackartists = []
+
+			op = DB['albumartists'].select(
+	#			DB['albumartists'].c.artist_id
+			).where(
+				DB['albumartists'].c.album_id==row.id
+			)
+			result = dbconn.execute(op).all()
+			match_artist_ids = [r.artist_id for r in result]
+			#print("required artists",artist_ids,"this match",match_artist_ids)
+			if set(artist_ids) == set(match_artist_ids):
+				#print("ID for",albumdict['title'],"was",row[0])
+				return row.id
 
 	if not create_new: return None
 
@@ -1601,7 +1601,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 				}}
 				if len(artists) == 0:
 					# for albums without artist, assume track artist
-					res[track_id]["guess_artists"] = True
+					res[track_id]["guess_artists"] = []
 			else:
 				res[track_id] = {"assigned":False,"reason":"Not enough data"}
 
@@ -1610,7 +1610,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 
 
 
-	missing_artists = [track_id for track_id in res if res[track_id].get("guess_artists")]
+	missing_artists = [track_id for track_id in res if "guess_artists" in res[track_id]]
 
 	#we're pointlessly getting the albumartist names here even though the IDs would be enough
 	#but it's better for function separation I guess
@@ -1627,10 +1627,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	for row in result:
-		res[row.track_id]["assigned"]["artists"].append(row.name)
-	for track_id in res:
-		if res[track_id].get("guess_artists"):
-			del res[track_id]["guess_artists"]
+		res[row.track_id]["guess_artists"].append(row.name)
 
 	return res
 

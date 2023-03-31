@@ -90,7 +90,11 @@
 </table>
 
 
-{% if info["isalbumartist"] %}
+{% set albums_info = dbc.get_albums_artist_appears_on(filterkeys,limitkeys) %}
+{% set ownalbums = albums_info.own_albums %}
+{% set otheralbums = albums_info.appears_on %}
+
+{% if ownalbums or otheralbums %}
 
 {% if settings['ALBUM_SHOWCASE'] %}
 	<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Albums</a></h2>
