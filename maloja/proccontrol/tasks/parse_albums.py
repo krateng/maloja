@@ -81,16 +81,18 @@ Please specify your album parsing strategy:
 			continue
 
 		if strategy in ['all','majority','most']:
-			albums.setdefault(albuminfo['albumtitle'],{'track_ids':[],'artists':{}})
-			albums[albuminfo['albumtitle']]['track_ids'].append(track_id)
+			cleantitle = albuminfo['albumtitle'].lower()
+			albums.setdefault(cleantitle,{'track_ids':[],'artists':{},'title':albuminfo['albumtitle']})
+			albums[cleantitle]['track_ids'].append(track_id)
 			for a in result[track_id]['guess_artists']:
-				albums[albuminfo['albumtitle']]['artists'].setdefault(a,0)
-				albums[albuminfo['albumtitle']]['artists'][a] += 1
+				albums[cleantitle]['artists'].setdefault(a,0)
+				albums[cleantitle]['artists'][a] += 1
 
 
-	for title in albums:
-		artistoptions = albums[title]['artists']
-		track_ids = albums[title]['track_ids']
+	for cleantitle in albums:
+		artistoptions = albums[cleantitle]['artists']
+		track_ids = albums[cleantitle]['track_ids']
+		realtitle = albums[cleantitle]['title']
 		if strategy == 'all':
 			artists = [a for a in artistoptions]
 		elif strategy == 'majority':
@@ -99,7 +101,7 @@ Please specify your album parsing strategy:
 			artists = [max(artistoptions,key=artistoptions.get)]
 
 		for track_id in track_ids:
-			album_id = get_album_id({'albumtitle':title,'artists':artists})
+			album_id = get_album_id({'albumtitle':realtitle,'artists':artists})
 			add_track_to_album(track_id,album_id)
 			i=countup(i)
 
