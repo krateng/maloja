@@ -619,6 +619,7 @@ def start_db():
 	# Upgrade database
 	from .. import upgrade
 	upgrade.upgrade_db(sqldb.add_scrobbles)
+	upgrade.parse_old_albums()
 
 	# Load temporary tables
 	from . import associated
