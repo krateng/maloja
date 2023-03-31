@@ -8,6 +8,7 @@ from threading import Lock
 from ..pkg_global.conf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_caches, invalidate_entity_cache
 from . import exceptions as exc
+from . import no_aux_mode
 
 from doreah.logging import log
 from doreah.regular import runhourly, runmonthly
@@ -1361,10 +1362,8 @@ def search_album(searchterm,dbconn=None):
 
 @runhourly
 @connection_provider
+@no_aux_mode
 def clean_db(dbconn=None):
-
-	from . import AUX_MODE
-	if AUX_MODE: return
 
 	with SCROBBLE_LOCK:
 		log(f"Database Cleanup...")
@@ -1410,10 +1409,8 @@ def clean_db(dbconn=None):
 
 
 @runmonthly
+@no_aux_mode
 def renormalize_names():
-
-	from . import AUX_MODE
-	if AUX_MODE: return
 
 	with SCROBBLE_LOCK:
 		with engine.begin() as conn:

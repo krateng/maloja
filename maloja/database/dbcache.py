@@ -10,7 +10,7 @@ from doreah.regular import runhourly
 from doreah.logging import log
 
 from ..pkg_global.conf import malojaconfig
-
+from . import no_aux_mode
 
 
 if malojaconfig['USE_GLOBAL_CACHE']:
@@ -21,15 +21,12 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 
 
 	@runhourly
+	@no_aux_mode
 	def maintenance():
-		from . import AUX_MODE
-		if AUX_MODE: return
 		print_stats()
 		trim_cache()
 
 	def print_stats():
-		from . import AUX_MODE
-		if AUX_MODE: return
 		for name,c in (('Cache',cache),('Entity Cache',entitycache)):
 			hits, misses = c.get_stats()
 			log(f"{name}: Size: {len(c)} | Hits: {hits}/{hits+misses} | Estimated Memory: {human_readable_size(c)}")
@@ -37,8 +34,6 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 
 
 	def cached_wrapper(inner_func):
-		from . import AUX_MODE
-		if AUX_MODE: return inner_func
 
 		def outer_func(*args,**kwargs):
 
@@ -63,8 +58,6 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 	# we don't want a new cache entry for every single combination, but keep a common
 	# cache that's aware of what we're calling
 	def cached_wrapper_individual(inner_func):
-		from . import AUX_MODE
-		if AUX_MODE: return
 
 		def outer_func(set_arg,**kwargs):
 			if 'dbconn' in kwargs:
@@ -88,9 +81,8 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 
 		return outer_func
 
+	@no_aux_mode
 	def invalidate_caches(scrobbletime=None):
-		from . import AUX_MODE
-		if AUX_MODE: return
 
 		cleared, kept = 0, 0
 		for k in cache.keys():
@@ -102,16 +94,12 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 				kept += 1
 		log(f"Invalidated {cleared} of {cleared+kept} DB cache entries")
 
-
+	@no_aux_mode
 	def invalidate_entity_cache():
-		from . import AUX_MODE
-		if AUX_MODE: return
 		entitycache.clear()
 
-
+	@no_aux_mode
 	def trim_cache():
-		from . import AUX_MODE
-		if AUX_MODE: return
 		ramprct = psutil.virtual_memory().percent
 		if ramprct > malojaconfig["DB_MAX_MEMORY"]:
 			log(f"{ramprct}% RAM usage, clearing cache!")
