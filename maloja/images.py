@@ -16,12 +16,14 @@ from threading import Lock
 from concurrent.futures import ThreadPoolExecutor
 import re
 import datetime
+import time
 
 import sqlalchemy as sql
 
 
 
-MAX_RESOLVE_THREADS = 10
+MAX_RESOLVE_THREADS = 5
+MAX_SECONDS_TO_RESOLVE_REQUEST = 5
 
 
 # remove old db file (columns missing)
@@ -126,10 +128,19 @@ def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
 		with engine.begin() as conn:
 			op = DB[table].delete().where(
 				DB[table].c.id==entity_id,
+			).returning(
+				DB[table].c.id,
+				DB[table].c.localproxyurl
 			)
-			result = conn.execute(op)
+			result = conn.execute(op).all()
 
-	# TODO delete proxy
+		for row in result:
+			targetpath = data_dir['cache']('images',row.localproxyurl.split('/')[-1])
+			try:
+				os.remove(targetpath)
+			except:
+				pass
+
 
 def dl_image(url):
 	try:
@@ -254,23 +265,39 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 
 # the actual http request for the full image
 def image_request(artist_id=None,track_id=None,album_id=None):
-	# check cache
-	result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
-	if result is not None:
-		# we got an entry, even if it's that there is no image (value None)
-		if result['value'] is None:
-			# use placeholder
-			placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
-			if artist_id:
-				result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
-			if track_id:
-				result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
-			if album_id:
-				result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
-		return result
-	else:
-		# no entry, which means we're still working on it
-		return {'type':'noimage','value':'wait'}
+
+	# because we use lazyload, we can allow our http requests to take a little while at least
+	# not the full backend request, but a few seconds to give us time to fetch some images
+	# because 503 retry-after doesn't seem to be honored
+	attempt = 0
+	while attempt < MAX_SECONDS_TO_RESOLVE_REQUEST:
+		attempt += 1
+		# check cache
+		result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
+		if result is not None:
+			# we got an entry, even if it's that there is no image (value None)
+			if result['value'] is None:
+				# use placeholder
+				if malojaconfig["FANCY_PLACEHOLDER_ART"]:
+					placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
+					if artist_id:
+						result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
+					if track_id:
+						result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
+					if album_id:
+						result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
+				else:
+					if artist_id:
+						result['value'] = "/static/svg/placeholder_artist.svg"
+					if track_id:
+						result['value'] = "/static/svg/placeholder_track.svg"
+					if album_id:
+						result['value'] = "/static/svg/placeholder_album.svg"
+			return result
+		time.sleep(1)
+
+	# no entry, which means we're still working on it
+	return {'type':'noimage','value':'wait'}
 
 
 
