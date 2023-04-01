@@ -278,13 +278,21 @@ def image_request(artist_id=None,track_id=None,album_id=None):
 			# we got an entry, even if it's that there is no image (value None)
 			if result['value'] is None:
 				# use placeholder
-				placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
-				if artist_id:
-					result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
-				if track_id:
-					result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
-				if album_id:
-					result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
+				if malojaconfig["FANCY_PLACEHOLDER_ART"]:
+					placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
+					if artist_id:
+						result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
+					if track_id:
+						result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
+					if album_id:
+						result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
+				else:
+					if artist_id:
+						result['value'] = "/static/svg/placeholder_artist.svg"
+					if track_id:
+						result['value'] = "/static/svg/placeholder_track.svg"
+					if album_id:
+						result['value'] = "/static/svg/placeholder_album.svg"
 			return result
 		time.sleep(1)
 
