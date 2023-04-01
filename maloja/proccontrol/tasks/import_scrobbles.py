@@ -21,9 +21,6 @@ outputs = {
 
 def import_scrobbles(inputf):
 
-	from ...database import set_aux_mode
-	set_aux_mode()
-
 	from ...database.sqldb import add_scrobbles
 
 	result = {

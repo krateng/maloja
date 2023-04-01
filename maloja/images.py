@@ -134,6 +134,14 @@ resolve_semaphore = BoundedSemaphore(8)
 
 def resolve_track_image(track_id):
 
+	if malojaconfig["USE_ALBUM_ARTWORK_FOR_TRACKS"]:
+		track = database.sqldb.get_track(track_id)
+		if "album" in track:
+			album_id = database.sqldb.get_album_id(track["album"])
+			albumart = resolve_album_image(album_id)
+			if albumart:
+				return albumart
+
 	with resolve_semaphore:
 		# check cache
 		result = get_image_from_cache(track_id,'tracks')

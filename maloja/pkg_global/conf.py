@@ -6,6 +6,8 @@ from doreah.configuration import types as tp
 from ..__pkginfo__ import VERSION
 
 
+# this mode specifies whether we run some auxiliary task instead of the main server
+AUX_MODE = True
 
 
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
@@ -194,6 +196,7 @@ malojaconfig = Configuration(
 			"album_showcase":(tp.Boolean(),										"Display Album Showcase",		True,		"Display a graphical album showcase for artist overview pages instead of a chart list"),
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
 			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
+			"use_album_artwork_for_tracks":(tp.Boolean(),						"Use Album Artwork for tracks",	True),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
@@ -300,15 +303,6 @@ data_dir = {
 
 
 
-### write down the last ran version
-with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
-	filed.write(VERSION)
-	filed.write("\n")
-
-
-
-
-
 ### DOREAH CONFIGURATION
 
 from doreah import config
@@ -334,7 +328,8 @@ config(
 
 custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
 
-
+from ..database.sqldb import set_maloja_info
+set_maloja_info({'last_run_version':VERSION})
 
 # what the fuck did i just write
 # this spaghetti file is proudly sponsored by the rice crackers i'm eating at the

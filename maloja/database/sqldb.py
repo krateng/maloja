@@ -1,4 +1,5 @@
 import sqlalchemy as sql
+from sqlalchemy.dialects.sqlite import insert as sqliteinsert
 import json
 import unicodedata
 import math
@@ -8,6 +9,7 @@ from threading import Lock
 from ..pkg_global.conf import data_dir
 from .dbcache import cached_wrapper, cached_wrapper_individual, invalidate_caches, invalidate_entity_cache
 from . import exceptions as exc
+from . import no_aux_mode
 
 from doreah.logging import log
 from doreah.regular import runhourly, runmonthly
@@ -19,6 +21,13 @@ from doreah.regular import runhourly, runmonthly
 
 DBTABLES = {
 	# name - type - foreign key - kwargs
+	'_maloja':{
+		'columns':[
+			("key",                 sql.String,                                   {'primary_key':True}),
+			("value",               sql.String,                                   {})
+		],
+		'extraargs':(),'extrakwargs':{}
+	},
 	'scrobbles':{
 		'columns':[
 			("timestamp",           sql.Integer,                                  {'primary_key':True}),
@@ -149,6 +158,29 @@ def connection_provider(func):
 
 	wrapper.__innerfunc__ = func
 	return wrapper
+
+@connection_provider
+def get_maloja_info(keys,dbconn=None):
+	op = DB['_maloja'].select().where(
+		DB['_maloja'].c.key.in_(keys)
+	)
+	result = dbconn.execute(op).all()
+
+	info = {}
+	for row in result:
+		info[row.key] = row.value
+	return info
+
+@connection_provider
+def set_maloja_info(info,dbconn=None):
+	for k in info:
+		op = sqliteinsert(DB['_maloja']).values(
+			key=k, value=info[k]
+		).on_conflict_do_update(
+			index_elements=['key'],
+			set_={'value':info[k]}
+		)
+		dbconn.execute(op)
 
 ##### DB <-> Dict translations
 
@@ -451,13 +483,10 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_album_id(albumdict,create_new=True,dbconn=None):
+def get_album_id(albumdict,create_new=True,ignore_albumartists=False,dbconn=None):
 	ntitle = normalize_name(albumdict['albumtitle'])
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict.get('artists') or []]
 	artist_ids = list(set(artist_ids))
-
-
-
 
 	op = DB['albums'].select(
 #		DB['albums'].c.id
@@ -466,20 +495,23 @@ def get_album_id(albumdict,create_new=True,dbconn=None):
 	)
 	result = dbconn.execute(op).all()
 	for row in result:
-		# check if the artists are the same
-		foundtrackartists = []
-
-		op = DB['albumartists'].select(
-#			DB['albumartists'].c.artist_id
-		).where(
-			DB['albumartists'].c.album_id==row.id
-		)
-		result = dbconn.execute(op).all()
-		match_artist_ids = [r.artist_id for r in result]
-		#print("required artists",artist_ids,"this match",match_artist_ids)
-		if set(artist_ids) == set(match_artist_ids):
-			#print("ID for",albumdict['title'],"was",row[0])
+		if ignore_albumartists:
 			return row.id
+		else:
+			# check if the artists are the same
+			foundtrackartists = []
+
+			op = DB['albumartists'].select(
+	#			DB['albumartists'].c.artist_id
+			).where(
+				DB['albumartists'].c.album_id==row.id
+			)
+			result = dbconn.execute(op).all()
+			match_artist_ids = [r.artist_id for r in result]
+			#print("required artists",artist_ids,"this match",match_artist_ids)
+			if set(artist_ids) == set(match_artist_ids):
+				#print("ID for",albumdict['title'],"was",row[0])
+				return row.id
 
 	if not create_new: return None
 
@@ -1361,10 +1393,8 @@ def search_album(searchterm,dbconn=None):
 
 @runhourly
 @connection_provider
+@no_aux_mode
 def clean_db(dbconn=None):
-
-	from . import AUX_MODE
-	if AUX_MODE: return
 
 	with SCROBBLE_LOCK:
 		log(f"Database Cleanup...")
@@ -1410,10 +1440,8 @@ def clean_db(dbconn=None):
 
 
 @runmonthly
+@no_aux_mode
 def renormalize_names():
-
-	from . import AUX_MODE
-	if AUX_MODE: return
 
 	with SCROBBLE_LOCK:
 		with engine.begin() as conn:
@@ -1573,7 +1601,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 				}}
 				if len(artists) == 0:
 					# for albums without artist, assume track artist
-					res[track_id]["guess_artists"] = True
+					res[track_id]["guess_artists"] = []
 			else:
 				res[track_id] = {"assigned":False,"reason":"Not enough data"}
 
@@ -1582,7 +1610,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 
 
 
-	missing_artists = [track_id for track_id in res if res[track_id].get("guess_artists")]
+	missing_artists = [track_id for track_id in res if "guess_artists" in res[track_id]]
 
 	#we're pointlessly getting the albumartist names here even though the IDs would be enough
 	#but it's better for function separation I guess
@@ -1599,10 +1627,7 @@ def guess_albums(track_ids=None,replace=False,dbconn=None):
 	result = dbconn.execute(op).all()
 
 	for row in result:
-		res[row.track_id]["assigned"]["artists"].append(row.name)
-	for track_id in res:
-		if res[track_id].get("guess_artists"):
-			del res[track_id]["guess_artists"]
+		res[row.track_id]["guess_artists"].append(row.name)
 
 	return res
 

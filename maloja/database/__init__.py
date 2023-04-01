@@ -2,16 +2,16 @@
 from bottle import request, response, FormsDict
 
 
-# we're running an auxiliary task that doesn't require all the random background
-# nonsense to be fired up
-# this is temporary
-# FIX YO DAMN ARCHITECTURE ALREADY
-AUX_MODE = False
-def set_aux_mode():
-	global AUX_MODE
-	AUX_MODE = True
+# decorator that makes sure this function is only run in normal operation,
+# not when we run a task that needs to access the database
+def no_aux_mode(func):
+	def wrapper(*args,**kwargs):
+		from ..pkg_global import conf
+		if conf.AUX_MODE: return
+		return func(*args,**kwargs)
+	return wrapper
 
-	
+
 # rest of the project
 from ..cleanup import CleanerAgent
 from .. import images
@@ -619,6 +619,7 @@ def start_db():
 	# Upgrade database
 	from .. import upgrade
 	upgrade.upgrade_db(sqldb.add_scrobbles)
+	upgrade.parse_old_albums()
 
 	# Load temporary tables
 	from . import associated

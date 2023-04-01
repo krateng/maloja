@@ -148,7 +148,7 @@ def print_info():
 		print("Could not determine dependency versions.")
 	print()
 
-@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)
+@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images','prefer_existing'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
@@ -166,7 +166,7 @@ def main(*args,**kwargs):
 		"generate":generate.generate_scrobbles,	# maloja generate 400
 		"export":tasks.export,					# maloja export
 		"apidebug":apidebug.run,				# maloja apidebug
-		"parsealbums":tasks.parse_albums,		# maloja parsealbums
+		"parsealbums":tasks.parse_albums,		# maloja parsealbums --strategy majority
 		# aux
 		"info":print_info
 	}
