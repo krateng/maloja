@@ -21,6 +21,9 @@ import sqlalchemy as sql
 
 
 
+MAX_RESOLVE_THREADS = 10
+
+
 # remove old db file (columns missing)
 try:
 	os.remove(data_dir['cache']('images.sqlite'))
@@ -63,19 +66,17 @@ DB['albums'] = sql.Table(
 
 meta.create_all(engine)
 
-
+def get_id_and_table(track_id=None,artist_id=None,album_id=None):
+	if track_id:
+		return track_id,'tracks'
+	elif album_id:
+		return album_id,'albums'
+	elif artist_id:
+		return artist_id,'artists'
 
 def get_image_from_cache(track_id=None,artist_id=None,album_id=None):
 	now = int(datetime.datetime.now().timestamp())
-	if track_id:
-		table = 'tracks'
-		entity_id = track_id
-	elif album_id:
-		table = 'albums'
-		entity_id = album_id
-	elif artist_id:
-		table = 'artists'
-		entity_id = artist_id
+	entity_id, table = get_id_and_table(track_id=track_id,artist_id=artist_id,album_id=album_id)
 
 	with engine.begin() as conn:
 		op = DB[table].select().where(
@@ -92,8 +93,10 @@ def get_image_from_cache(track_id=None,artist_id=None,album_id=None):
 			return {'type':'url','value':row.url} # returns None as value if nonexistence cached
 	return None # no cache entry
 
-def set_image_in_cache(id,table,url,local=False):
-	remove_image_from_cache(id,table)
+def set_image_in_cache(url,track_id=None,artist_id=None,album_id=None,local=False):
+	remove_image_from_cache(track_id=track_id,artist_id=artist_id,album_id=album_id)
+	entity_id, table = get_id_and_table(track_id=track_id,artist_id=artist_id,album_id=album_id)
+
 	with dblock:
 		now = int(datetime.datetime.now().timestamp())
 		if url is None:
@@ -108,7 +111,7 @@ def set_image_in_cache(id,table,url,local=False):
 
 		with engine.begin() as conn:
 			op = DB[table].insert().values(
-				id=id,
+				id=entity_id,
 				url=url,
 				expire=expire,
 				local=local,
@@ -116,11 +119,13 @@ def set_image_in_cache(id,table,url,local=False):
 			)
 			result = conn.execute(op)
 
-def remove_image_from_cache(id,table):
+def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
+	entity_id, table = get_id_and_table(track_id=track_id,artist_id=artist_id,album_id=album_id)
+
 	with dblock:
 		with engine.begin() as conn:
 			op = DB[table].delete().where(
-				DB[table].c.id==id,
+				DB[table].c.id==entity_id,
 			)
 			result = conn.execute(op)
 
@@ -136,7 +141,7 @@ def dl_image(url):
 		targetpath = data_dir['cache']('images',targetname)
 		with open(targetpath,'wb') as fd:
 			fd.write(data)
-		return os.path.join("cacheimages",targetname)
+		return os.path.join("/cacheimages",targetname)
 	except Exception:
 		log(f"Image {url} could not be downloaded for local caching")
 		return None
@@ -144,7 +149,7 @@ def dl_image(url):
 
 
 
-resolver = ThreadPoolExecutor(max_workers=5)
+resolver = ThreadPoolExecutor(max_workers=MAX_RESOLVE_THREADS)
 
 ### getting images for any website embedding now ALWAYS returns just the generic link
 ### even if we have already cached it, we will handle that on request
@@ -228,7 +233,7 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 				result = random.choice(images)
 				result = urllib.parse.quote(result)
 				result = {'type':'localurl','value':result}
-				set_image_in_cache(artist_id or track_id or album_id,table,result['value'],local=True)
+				set_image_in_cache(artist_id=artist_id,track_id=track_id,album_id=album_id,url=result['value'],local=True)
 				return result
 
 		# third party
@@ -240,7 +245,7 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 			result = thirdparty.get_image_album_all((entity['artists'],entity['albumtitle']))
 
 		result = {'type':'url','value':result}
-		set_image_in_cache(artist_id or track_id or album_id,table,result['value'])
+		set_image_in_cache(artist_id=artist_id,track_id=track_id,album_id=album_id,url=result['value'])
 	finally:
 		with image_resolve_controller_lock:
 			image_resolve_controller[table].remove(entity_id)
@@ -364,14 +369,17 @@ def set_image(b64,**keys):
 	if "title" in keys:
 		entity = {"track":keys}
 		id = database.sqldb.get_track_id(entity['track'])
+		idkeys = {'track_id':id}
 		dbtable = "tracks"
 	elif "albumtitle" in keys:
 		entity = {"album":keys}
 		id = database.sqldb.get_album_id(entity['album'])
+		idkeys = {'album_id':id}
 		dbtable = "albums"
 	elif "artist" in keys:
 		entity = keys
 		id = database.sqldb.get_artist_id(entity['artist'])
+		idkeys = {'artist_id':id}
 		dbtable = "artists"
 
 	log("Trying to set image, b64 string: " + str(b64[:30] + "..."),module="debug")
@@ -398,6 +406,6 @@ def set_image(b64,**keys):
 	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 
 	# set as current picture in rotation
-	set_image_in_cache(id,dbtable,os.path.join("/images",folder,filename),local=True)
+	set_image_in_cache(**idkeys,url=os.path.join("/images",folder,filename),local=True)
 
 	return os.path.join("/images",folder,filename)
