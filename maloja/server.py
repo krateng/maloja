@@ -128,13 +128,7 @@ def dynamic_image():
 		response.status = 503
 		response.set_header('Retry-After',5)
 		return
-	if result['type'] == 'raw':
-		# data uris are directly served as image because a redirect to a data uri
-		# doesnt work
-		duri = datauri.DataURI(result['value'])
-		response.content_type = duri.mimetype
-		return duri.data
-	if result['type'] == 'url':
+	if result['type'] in ('url','localurl'):
 		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
@@ -161,6 +155,9 @@ def static_image(pth):
 	resp.set_header("Content-Type", "image/" + ext)
 	return resp
 
+@webserver.route("/cacheimages/<uuid>")
+def static_proxied_image(uuid):
+	return static_file(uuid,root=data_dir['cache']('images'))
 
 @webserver.route("/login")
 def login():

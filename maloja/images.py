@@ -21,9 +21,14 @@ import sqlalchemy as sql
 
 
 
+# remove old db file (columns missing)
+try:
+	os.remove(data_dir['cache']('images.sqlite'))
+except:
+	pass
 
 DB = {}
-engine = sql.create_engine(f"sqlite:///{data_dir['cache']('images.sqlite')}", echo = False)
+engine = sql.create_engine(f"sqlite:///{data_dir['cache']('imagecache.sqlite')}", echo = False)
 meta = sql.MetaData()
 
 dblock = Lock()
@@ -33,51 +38,61 @@ DB['artists'] = sql.Table(
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('url',sql.String),
 	sql.Column('expire',sql.Integer),
-	sql.Column('raw',sql.String)
+#	sql.Column('raw',sql.String)
+	sql.Column('local',sql.Boolean),
+	sql.Column('localproxyurl',sql.String)
 )
 DB['tracks'] = sql.Table(
 	'tracks', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('url',sql.String),
 	sql.Column('expire',sql.Integer),
-	sql.Column('raw',sql.String)
+#	sql.Column('raw',sql.String)
+	sql.Column('local',sql.Boolean),
+	sql.Column('localproxyurl',sql.String)
 )
 DB['albums'] = sql.Table(
 	'albums', meta,
 	sql.Column('id',sql.Integer,primary_key=True),
 	sql.Column('url',sql.String),
 	sql.Column('expire',sql.Integer),
-	sql.Column('raw',sql.String)
+#	sql.Column('raw',sql.String)
+	sql.Column('local',sql.Boolean),
+	sql.Column('localproxyurl',sql.String)
 )
 
 meta.create_all(engine)
+
+
 
 def get_image_from_cache(track_id=None,artist_id=None,album_id=None):
 	now = int(datetime.datetime.now().timestamp())
 	if track_id:
 		table = 'tracks'
-		id = track_id
+		entity_id = track_id
 	elif album_id:
 		table = 'albums'
-		id = album_id
+		entity_id = album_id
 	elif artist_id:
 		table = 'artists'
-		id = artist_id
+		entity_id = artist_id
 
 	with engine.begin() as conn:
 		op = DB[table].select().where(
-			DB[table].c.id==id,
+			DB[table].c.id==entity_id,
 			DB[table].c.expire>now
 		)
 		result = conn.execute(op).all()
 	for row in result:
-		if row.raw is not None:
-			return {'type':'raw','value':row.raw}
+		if row.local:
+			return {'type':'localurl','value':row.url}
+		elif row.localproxyurl:
+			return {'type':'localurl','value':row.localproxyurl}
 		else:
 			return {'type':'url','value':row.url} # returns None as value if nonexistence cached
 	return None # no cache entry
 
-def set_image_in_cache(id,table,url):
+def set_image_in_cache(id,table,url,local=False):
 	remove_image_from_cache(id,table)
 	with dblock:
 		now = int(datetime.datetime.now().timestamp())
@@ -86,14 +101,18 @@ def set_image_in_cache(id,table,url):
 		else:
 			expire = now + (malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600)
 
-		raw = dl_image(url)
+		if not local and malojaconfig["PROXY_IMAGES"] and url is not None:
+			localproxyurl = dl_image(url)
+		else:
+			localproxyurl = None
 
 		with engine.begin() as conn:
 			op = DB[table].insert().values(
 				id=id,
 				url=url,
 				expire=expire,
-				raw=raw
+				local=local,
+				localproxyurl=localproxyurl
 			)
 			result = conn.execute(op)
 
@@ -105,17 +124,19 @@ def remove_image_from_cache(id,table):
 			)
 			result = conn.execute(op)
 
+	# TODO delete proxy
+
 def dl_image(url):
-	if not malojaconfig["PROXY_IMAGES"]: return None
-	if url is None: return None
-	if url.startswith("/"): return None #local image
 	try:
 		r = requests.get(url)
 		mime = r.headers.get('content-type') or 'image/jpg'
 		data = io.BytesIO(r.content).read()
-		uri = datauri.DataURI.make(mime,charset='ascii',base64=True,data=data)
-		log(f"Downloaded {url} for local caching")
-		return uri
+		#uri = datauri.DataURI.make(mime,charset='ascii',base64=True,data=data)
+		targetname = '%030x' % random.getrandbits(128)
+		targetpath = data_dir['cache']('images',targetname)
+		with open(targetpath,'wb') as fd:
+			fd.write(data)
+		return os.path.join("cacheimages",targetname)
 	except Exception:
 		log(f"Image {url} could not be downloaded for local caching")
 		return None
@@ -206,8 +227,8 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 			if len(images) != 0:
 				result = random.choice(images)
 				result = urllib.parse.quote(result)
-				result = {'type':'url','value':result}
-				set_image_in_cache(artist_id or track_id or album_id,table,result['value'])
+				result = {'type':'localurl','value':result}
+				set_image_in_cache(artist_id or track_id or album_id,table,result['value'],local=True)
 				return result
 
 		# third party
@@ -236,7 +257,7 @@ def image_request(artist_id=None,track_id=None,album_id=None):
 			# use placeholder
 			placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
 			if artist_id:
-				result['value'] = placeholder_url + f"123&colors={artist_id % 100}"
+				result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
 			if track_id:
 				result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
 			if album_id:
@@ -377,6 +398,6 @@ def set_image(b64,**keys):
 	log("Saved image as " + data_dir['images'](folder,filename),module="debug")
 
 	# set as current picture in rotation
-	set_image_in_cache(id,dbtable,os.path.join("/images",folder,filename))
+	set_image_in_cache(id,dbtable,os.path.join("/images",folder,filename),local=True)
 
 	return os.path.join("/images",folder,filename)
