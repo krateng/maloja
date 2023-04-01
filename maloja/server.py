@@ -19,7 +19,7 @@ from doreah import auth
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
-from .images import resolve_track_image, resolve_artist_image, resolve_album_image
+from .images import image_request
 from .malojauri import uri_to_internal, remove_identical
 from .pkg_global.conf import malojaconfig, data_dir
 from .pkg_global import conf
@@ -121,22 +121,14 @@ def deprecated_api(pth):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	if keys['type'] == 'track':
-		result = resolve_track_image(keys['id'])
-	elif keys['type'] == 'artist':
-		result = resolve_artist_image(keys['id'])
-	elif keys['type'] == 'album':
-		result = resolve_album_image(keys['id'])
+	result = image_request(**{k:int(keys[k]) for k in keys})
 
-	if result is None or result['value'] in [None,'']:
-		return ""
-	if result['type'] == 'raw':
-		# data uris are directly served as image because a redirect to a data uri
-		# doesnt work
-		duri = datauri.DataURI(result['value'])
-		response.content_type = duri.mimetype
-		return duri.data
-	if result['type'] == 'url':
+	if result['type'] == 'noimage' and result['value'] == 'wait':
+		# still being worked on
+		response.status = 503
+		response.set_header('Retry-After',5)
+		return
+	if result['type'] in ('url','localurl'):
 		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
@@ -163,6 +155,9 @@ def static_image(pth):
 	resp.set_header("Content-Type", "image/" + ext)
 	return resp
 
+@webserver.route("/cacheimages/<uuid>")
+def static_proxied_image(uuid):
+	return static_file(uuid,root=data_dir['cache']('images'))
 
 @webserver.route("/login")
 def login():

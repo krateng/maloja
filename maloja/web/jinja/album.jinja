@@ -45,11 +45,11 @@
 			{% if adminmode %}
 			<div
 				class="changeable-image" data-uploader="b64=>upload('{{ encodedalbum }}',b64)"
-				style="background-image:url('{{ images.get_album_image(album) }}');"
+				style="background-image:url('{{ images.get_album_image(info.album) }}');"
 				title="Drag & Drop to upload new image"
 			></div>
 			{% else %}
-			<div style="background-image:url('{{ images.get_album_image(album) }}');">
+			<div style="background-image:url('{{ images.get_album_image(info.album) }}');">
 			</div>
 			{% endif %}
 		</td>
