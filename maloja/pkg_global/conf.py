@@ -196,6 +196,7 @@ malojaconfig = Configuration(
 			"album_showcase":(tp.Boolean(),										"Display Album Showcase",		True,		"Display a graphical album showcase for artist overview pages instead of a chart list"),
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
 			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
+			"use_album_artwork_for_tracks":(tp.Boolean(),						"Use Album Artwork for tracks",	True),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
