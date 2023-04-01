@@ -21,7 +21,7 @@ import sqlalchemy as sql
 
 
 
-MAX_RESOLVE_THREADS = 10
+MAX_RESOLVE_THREADS = 5
 
 
 # remove old db file (columns missing)
@@ -126,10 +126,19 @@ def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
 		with engine.begin() as conn:
 			op = DB[table].delete().where(
 				DB[table].c.id==entity_id,
+			).returning(
+				DB[table].c.id,
+				DB[table].c.localproxyurl
 			)
-			result = conn.execute(op)
+			result = conn.execute(op).all()
 
-	# TODO delete proxy
+		for row in result:
+			targetpath = data_dir['cache']('images',row.localproxyurl.split('/')[-1])
+			try:
+				os.remove(targetpath)
+			except:
+				pass
+
 
 def dl_image(url):
 	try:
