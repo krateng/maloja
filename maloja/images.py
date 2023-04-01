@@ -16,12 +16,14 @@ from threading import Lock
 from concurrent.futures import ThreadPoolExecutor
 import re
 import datetime
+import time
 
 import sqlalchemy as sql
 
 
 
 MAX_RESOLVE_THREADS = 5
+MAX_SECONDS_TO_RESOLVE_REQUEST = 5
 
 
 # remove old db file (columns missing)
@@ -263,23 +265,31 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 
 # the actual http request for the full image
 def image_request(artist_id=None,track_id=None,album_id=None):
-	# check cache
-	result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
-	if result is not None:
-		# we got an entry, even if it's that there is no image (value None)
-		if result['value'] is None:
-			# use placeholder
-			placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
-			if artist_id:
-				result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
-			if track_id:
-				result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
-			if album_id:
-				result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
-		return result
-	else:
-		# no entry, which means we're still working on it
-		return {'type':'noimage','value':'wait'}
+
+	# because we use lazyload, we can allow our http requests to take a little while at least
+	# not the full backend request, but a few seconds to give us time to fetch some images
+	# because 503 retry-after doesn't seem to be honored
+	attempt = 0
+	while attempt < MAX_SECONDS_TO_RESOLVE_REQUEST:
+		attempt += 1
+		# check cache
+		result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
+		if result is not None:
+			# we got an entry, even if it's that there is no image (value None)
+			if result['value'] is None:
+				# use placeholder
+				placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
+				if artist_id:
+					result['value'] = placeholder_url + f"tiles&colors={artist_id % 100}"
+				if track_id:
+					result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
+				if album_id:
+					result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
+			return result
+		time.sleep(1)
+
+	# no entry, which means we're still working on it
+	return {'type':'noimage','value':'wait'}
 
 
 
