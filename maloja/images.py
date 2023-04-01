@@ -12,7 +12,8 @@ import base64
 import requests
 import datauri
 import io
-from threading import Thread, Timer, BoundedSemaphore
+from threading import Lock
+from concurrent.futures import ThreadPoolExecutor
 import re
 import datetime
 
@@ -24,6 +25,8 @@ import sqlalchemy as sql
 DB = {}
 engine = sql.create_engine(f"sqlite:///{data_dir['cache']('images.sqlite')}", echo = False)
 meta = sql.MetaData()
+
+dblock = Lock()
 
 DB['artists'] = sql.Table(
 	'artists', meta,
@@ -49,8 +52,18 @@ DB['albums'] = sql.Table(
 
 meta.create_all(engine)
 
-def get_image_from_cache(id,table):
+def get_image_from_cache(track_id=None,artist_id=None,album_id=None):
 	now = int(datetime.datetime.now().timestamp())
+	if track_id:
+		table = 'tracks'
+		id = track_id
+	elif album_id:
+		table = 'albums'
+		id = album_id
+	elif artist_id:
+		table = 'artists'
+		id = artist_id
+
 	with engine.begin() as conn:
 		op = DB[table].select().where(
 			DB[table].c.id==id,
@@ -66,29 +79,31 @@ def get_image_from_cache(id,table):
 
 def set_image_in_cache(id,table,url):
 	remove_image_from_cache(id,table)
-	now = int(datetime.datetime.now().timestamp())
-	if url is None:
-		expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
-	else:
-		expire = now + (malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600)
+	with dblock:
+		now = int(datetime.datetime.now().timestamp())
+		if url is None:
+			expire = now + (malojaconfig["CACHE_EXPIRE_NEGATIVE"] * 24 * 3600)
+		else:
+			expire = now + (malojaconfig["CACHE_EXPIRE_POSITIVE"] * 24 * 3600)
 
-	raw = dl_image(url)
+		raw = dl_image(url)
 
-	with engine.begin() as conn:
-		op = DB[table].insert().values(
-			id=id,
-			url=url,
-			expire=expire,
-			raw=raw
-		)
-		result = conn.execute(op)
+		with engine.begin() as conn:
+			op = DB[table].insert().values(
+				id=id,
+				url=url,
+				expire=expire,
+				raw=raw
+			)
+			result = conn.execute(op)
 
 def remove_image_from_cache(id,table):
-	with engine.begin() as conn:
-		op = DB[table].delete().where(
-			DB[table].c.id==id,
-		)
-		result = conn.execute(op)
+	with dblock:
+		with engine.begin() as conn:
+			op = DB[table].delete().where(
+				DB[table].c.id==id,
+			)
+			result = conn.execute(op)
 
 def dl_image(url):
 	if not malojaconfig["PROXY_IMAGES"]: return None
@@ -107,121 +122,130 @@ def dl_image(url):
 
 
 
+
+resolver = ThreadPoolExecutor(max_workers=5)
+
 ### getting images for any website embedding now ALWAYS returns just the generic link
 ### even if we have already cached it, we will handle that on request
 def get_track_image(track=None,track_id=None):
 	if track_id is None:
 		track_id = database.sqldb.get_track_id(track,create_new=False)
 
-	return f"/image?type=track&id={track_id}"
+	if malojaconfig["USE_ALBUM_ARTWORK_FOR_TRACKS"]:
+		if track is None:
+			track = database.sqldb.get_track(track_id)
+		if track.get("album"):
+			album_id = database.sqldb.get_album_id(track["album"])
+			return get_album_image(album_id=album_id)
 
+	resolver.submit(resolve_image,track_id=track_id)
+
+	return f"/image?track_id={track_id}"
 
 def get_artist_image(artist=None,artist_id=None):
 	if artist_id is None:
 		artist_id = database.sqldb.get_artist_id(artist,create_new=False)
 
-	return f"/image?type=artist&id={artist_id}"
+	resolver.submit(resolve_image,artist_id=artist_id)
+
+	return f"/image?artist_id={artist_id}"
 
 def get_album_image(album=None,album_id=None):
 	if album_id is None:
 		album_id = database.sqldb.get_album_id(album,create_new=False)
 
-	return f"/image?type=album&id={album_id}"
+	resolver.submit(resolve_image,album_id=album_id)
+
+	return f"/image?album_id={album_id}"
 
 
-resolve_semaphore = BoundedSemaphore(8)
+# this is to keep track of what is currently being resolved
+# so new requests know that they don't need to queue another resolve
+image_resolve_controller_lock = Lock()
+image_resolve_controller = {
+	'artists':set(),
+	'albums':set(),
+	'tracks':set()
+}
 
+# this function doesn't need to return any info
+# it runs async to do all the work that takes time and only needs to write the result
+# to the cache so the synchronous functions (http requests) can access it
+def resolve_image(artist_id=None,track_id=None,album_id=None):
+	result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
+	if result is not None:
+		# No need to do anything
+		return
 
-def resolve_track_image(track_id):
+	if artist_id:
+		entitytype = 'artist'
+		table = 'artists'
+		getfunc, entity_id = database.sqldb.get_artist, artist_id
+	elif track_id:
+		entitytype = 'track'
+		table = 'tracks'
+		getfunc, entity_id = database.sqldb.get_track, track_id
+	elif album_id:
+		entitytype = 'album'
+		table = 'albums'
+		getfunc, entity_id = database.sqldb.get_album, album_id
 
-	if malojaconfig["USE_ALBUM_ARTWORK_FOR_TRACKS"]:
-		track = database.sqldb.get_track(track_id)
-		if "album" in track:
-			album_id = database.sqldb.get_album_id(track["album"])
-			albumart = resolve_album_image(album_id)
-			if albumart:
-				return albumart
+	# is another thread already working on this?
+	with image_resolve_controller_lock:
+		if entity_id in image_resolve_controller[table]:
+			return
+		else:
+			image_resolve_controller[table].add(entity_id)
 
-	with resolve_semaphore:
-		# check cache
-		result = get_image_from_cache(track_id,'tracks')
-		if result is not None:
-			return result
-
-		track = database.sqldb.get_track(track_id)
+	try:
+		entity = getfunc(entity_id)
 
 		# local image
 		if malojaconfig["USE_LOCAL_IMAGES"]:
-			images = local_files(track=track)
+			images = local_files(**{entitytype: entity})
 			if len(images) != 0:
 				result = random.choice(images)
 				result = urllib.parse.quote(result)
 				result = {'type':'url','value':result}
-				set_image_in_cache(track_id,'tracks',result['value'])
+				set_image_in_cache(artist_id or track_id or album_id,table,result['value'])
 				return result
 
 		# third party
-		result = thirdparty.get_image_track_all((track['artists'],track['title']))
+		if artist_id:
+			result = thirdparty.get_image_artist_all(entity)
+		elif track_id:
+			result = thirdparty.get_image_track_all((entity['artists'],entity['title']))
+		elif album_id:
+			result = thirdparty.get_image_album_all((entity['artists'],entity['albumtitle']))
+
 		result = {'type':'url','value':result}
-		set_image_in_cache(track_id,'tracks',result['value'])
+		set_image_in_cache(artist_id or track_id or album_id,table,result['value'])
+	finally:
+		with image_resolve_controller_lock:
+			image_resolve_controller[table].remove(entity_id)
 
+
+
+# the actual http request for the full image
+def image_request(artist_id=None,track_id=None,album_id=None):
+	# check cache
+	result = get_image_from_cache(artist_id=artist_id,track_id=track_id,album_id=album_id)
+	if result is not None:
+		# we got an entry, even if it's that there is no image (value None)
+		if result['value'] is None:
+			# use placeholder
+			placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
+			if artist_id:
+				result['value'] = placeholder_url + f"123&colors={artist_id % 100}"
+			if track_id:
+				result['value'] = placeholder_url + f"triangles&colors={track_id % 100}"
+			if album_id:
+				result['value'] = placeholder_url + f"joy-division&colors={album_id % 100}"
 		return result
+	else:
+		# no entry, which means we're still working on it
+		return {'type':'noimage','value':'wait'}
 
-
-def resolve_artist_image(artist_id):
-
-	with resolve_semaphore:
-		# check cache
-		result = get_image_from_cache(artist_id,'artists')
-		if result is not None:
-			return result
-
-		artist = database.sqldb.get_artist(artist_id)
-
-		# local image
-		if malojaconfig["USE_LOCAL_IMAGES"]:
-			images = local_files(artist=artist)
-			if len(images) != 0:
-				result = random.choice(images)
-				result = urllib.parse.quote(result)
-				result = {'type':'url','value':result}
-				set_image_in_cache(artist_id,'artists',result['value'])
-				return result
-
-		# third party
-		result = thirdparty.get_image_artist_all(artist)
-		result = {'type':'url','value':result}
-		set_image_in_cache(artist_id,'artists',result['value'])
-
-		return result
-
-
-def resolve_album_image(album_id):
-
-	with resolve_semaphore:
-		# check cache
-		result = get_image_from_cache(album_id,'albums')
-		if result is not None:
-			return result
-
-		album = database.sqldb.get_album(album_id)
-
-		# local image
-		if malojaconfig["USE_LOCAL_IMAGES"]:
-			images = local_files(album=album)
-			if len(images) != 0:
-				result = random.choice(images)
-				result = urllib.parse.quote(result)
-				result = {'type':'url','value':result}
-				set_image_in_cache(album_id,'tracks',result['value'])
-				return result
-
-		# third party
-		result = thirdparty.get_image_album_all((album['artists'],album['albumtitle']))
-		result = {'type':'url','value':result}
-		set_image_in_cache(album_id,'albums',result['value'])
-
-		return result
 
 
 # removes emojis and weird shit from names
