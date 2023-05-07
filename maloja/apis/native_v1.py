@@ -444,7 +444,7 @@ def post_scrobble(
 		artists:list=[],
 		title:str="",
 		album:str=None,
-		albumartists:list=[],
+		albumartists:list=None,
 		duration:int=None,
 		length:int=None,
 		time:int=None,
@@ -478,7 +478,7 @@ def post_scrobble(
 	}
 
 	# for logging purposes, don't pass values that we didn't actually supply
-	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
+	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k] is not None} # [] should be passed
 
 
 	result = database.incoming_scrobble(

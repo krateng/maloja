@@ -4,6 +4,14 @@
 
 {% block scripts %}
 	<script src="/manualscrobble.js"></script>
+	<style>
+	.tooltip {
+		cursor: help;
+	}
+	.tooltip:hover {
+		text-decoration: underline dotted;
+	}
+	</style>
 {% endblock %}
 
 
@@ -45,10 +53,15 @@
 
 	<br/>
 
+	<input type="checkbox" id="use_track_artists_for_album" checked='true' />
+	<span class="tooltip" title="If this is unchecked, specifying no album artists will result in a compilation album ('Various Artists')">Use track artists as album artists fallback</span>
+
+	<br/><br/>
+
 	<button type="button" onclick="scrobbleNew(event)">Scrobble!</button>
 	<button type="button" onclick="repeatLast()">↻</button>
 
-	<br/>
+
 
 
 
