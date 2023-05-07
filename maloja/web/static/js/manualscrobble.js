@@ -1,5 +1,7 @@
-var lastArtists = []
-var lastTrack = ""
+var lastArtists = [];
+var lastTrack = "";
+var lastAlbumartists = [];
+var lastAlbum = "";
 
 
 function addArtist(artist) {
@@ -96,8 +98,17 @@ function scrobbleNew() {
 		albumartists.push(node.textContent);
 	}
 
+	if (albumartists.length == 0) {
+		var use_track_artists = document.getElementById('use_track_artists_for_album').checked;
+		if (use_track_artists) {
+			albumartists = null;
+		}
+	}
+
 	var title = document.getElementById("title").value;
 	var album = document.getElementById("album").value;
+
+
 	scrobble(artists,title,albumartists,album);
 }
 
@@ -111,9 +122,13 @@ function scrobble(artists,title,albumartists,album) {
 	var payload = {
 		"artists":artists,
 		"title":title,
-		"albumartists": albumartists,
 		"album": album
 	}
+	if (albumartists != null) {
+		payload['albumartists'] = albumartists
+	}
+
+	console.log(payload);
 
 
 	if (title != "" && artists.length > 0) {
