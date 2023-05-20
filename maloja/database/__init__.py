@@ -160,6 +160,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 
 	# New plan, do this further down
 	# NONE always means there is simply no info, so make a guess or whatever the options say
+	# could use the track artists, but probably check if any album with the same name exists first
 	# various artists always needs to be specified via []
 	# TODO
 
@@ -185,7 +186,7 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 		"rawscrobble":rawscrobble
 	}
 
-	if scrobbledict["track"]["album"]["albumtitle"] is None:
+	if not scrobbledict["track"]["album"]["albumtitle"]:
 		del scrobbledict["track"]["album"]
 
 	return scrobbledict
