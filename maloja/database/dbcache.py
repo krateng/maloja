@@ -87,7 +87,7 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 		cleared, kept = 0, 0
 		for k in cache.keys():
 			# VERY BIG TODO: differentiate between None as in 'unlimited timerange' and None as in 'time doesnt matter here'!
-			if scrobbletime is None or (k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4]):
+			if scrobbletime is None or ((k[3] is None or scrobbletime >= k[3]) and (k[4] is None or scrobbletime <= k[4])):
 				cleared += 1
 				del cache[k]
 			else:

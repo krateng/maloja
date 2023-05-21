@@ -436,13 +436,13 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 
 	if not create_new: return None
 
-	print("Creating new track")
+	#print("Creating new track")
 	op = DB['tracks'].insert().values(
 		**track_dict_to_db(trackdict,dbconn=dbconn)
 	)
 	result = dbconn.execute(op)
 	track_id = result.inserted_primary_key[0]
-	print(track_id)
+	#print(track_id)
 
 	for artist_id in artist_ids:
 		op = DB['trackartists'].insert().values(
