@@ -802,9 +802,11 @@ table.misc td {
 
 div.tiles {
 	display: grid;
-	grid-template-columns: repeat(18, 50px);
-	grid-template-rows: repeat(6, 50px);
+	grid-template-columns: repeat(18, calc(100% / 18));
+	grid-template-rows: repeat(6, calc(100% / 6));
 	grid-auto-flow: row dense;
+
+	aspect-ratio: 3 / 1;
 
 }
 
@@ -981,36 +983,4 @@ div#showcase_container span.album_title {
 span.stat_module_pulse, span.stat_module_topartists, span.stat_module_toptracks {
 	display: inline-block;
 	vertical-align: top;
-}
-
-/*
-**
-**
-** SIDE LIST ON START PAGE
-**
-**
-*/
-
-
-@media (min-width: 1600px) {
-div.sidelist {
-	position:absolute;
-	right:0px;
-	top:0px;
-	width:40%;
-	height:100%;
-	--current-bg-color: var(--base-color-light); /* drag this information through inheritances */
-	background-color: var(--current-bg-color);
-	padding-left:30px;
-	padding-right:30px;
-}
-}
-
-div.sidelist table {
-	width:100%;
-	table-layout:fixed;
-}
-
-div.sidelist table.list td.time {
-	width:17%;
 }

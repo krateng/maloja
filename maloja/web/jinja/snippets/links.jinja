@@ -1,5 +1,5 @@
 {% macro link(entity) -%}
-	{% if entity is mapping and 'title' in entity or 'albumtitle' in entity %}
+	{% if entity is mapping and ('title' in entity or 'albumtitle' in entity) %}
 		{% set name = entity.title or entity.albumtitle %}
 	{% else %}
 		{% set name = entity %}

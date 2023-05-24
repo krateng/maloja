@@ -189,8 +189,7 @@ malojaconfig = Configuration(
 			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False)
 		},
 		"Web Interface":{
-			"default_range_charts_artists":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Artist Charts",	"year"),
-			"default_range_charts_tracks":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Track Charts",	"year"),
+			"default_range_startpage":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range for Startpage Stats",	"year"),
 			"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
 			"album_showcase":(tp.Boolean(),										"Display Album Showcase",		True,		"Display a graphical album showcase for artist overview pages instead of a chart list"),
