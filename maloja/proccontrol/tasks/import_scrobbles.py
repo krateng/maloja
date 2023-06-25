@@ -37,13 +37,17 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "lastfm","Last.fm"
 		importfunc = parse_lastfm
 
+	elif re.match("Streaming_History_Audio.+\.json",filename):
+		typeid,typedesc = "spotify","Spotify"
+		importfunc = parse_spotify_lite
+
 	elif re.match("endsong_[0-9]+\.json",filename):
 		typeid,typedesc = "spotify","Spotify"
-		importfunc = parse_spotify_full
+		importfunc = parse_spotify
 
 	elif re.match("StreamingHistory[0-9]+\.json",filename):
 		typeid,typedesc = "spotify","Spotify"
-		importfunc = parse_spotify_lite
+		importfunc = parse_spotify_lite_legacy
 
 	elif re.match("maloja_export_[0-9]+\.json",filename):
 		typeid,typedesc = "maloja","Maloja"
@@ -81,6 +85,7 @@ def import_scrobbles(inputf):
 			# extra info
 			extrainfo = {}
 			if scrobble.get('album_name'): extrainfo['album_name'] = scrobble['album_name']
+			if scrobble.get('album_artist'): extrainfo['album_artist'] = scrobble['album_artist']
 			# saving this in the scrobble instead of the track because for now it's not meant
 			# to be authorative information, just payload of the scrobble
 
@@ -121,7 +126,7 @@ def import_scrobbles(inputf):
 
 	return result
 
-def parse_spotify_lite(inputf):
+def parse_spotify_lite_legacy(inputf):
 	pth = os.path
 	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
 	filenames = re.compile(r'StreamingHistory[0-9]+\.json')
@@ -171,7 +176,59 @@ def parse_spotify_lite(inputf):
 		print()
 
 
-def parse_spotify_full(inputf):
+def parse_spotify_lite(inputf):
+	pth = os.path
+	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
+	filenames = re.compile(r'Streaming_History_Audio.+\.json')
+	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
+
+	if len(inputfiles) == 0:
+		print("No files found!")
+		return
+
+	if inputfiles != [inputf]:
+		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
+		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
+			inputfiles = [inputf]
+
+	for inputf in inputfiles:
+
+		print("Importing",col['yellow'](inputf),"...")
+		with open(inputf,'r') as inputfd:
+			data = json.load(inputfd)
+
+		for entry in data:
+
+			try:
+				played = int(entry['ms_played'] / 1000)
+				timestamp = int(
+					datetime.datetime.strptime(entry['ts'],"%Y-%m-%dT%H:%M:%SZ").timestamp()
+				)
+				artist = entry['master_metadata_album_artist_name'] # hmmm
+				title = entry['master_metadata_track_name']
+				album = entry['master_metadata_album_album_name']
+				albumartist = entry['master_metadata_album_artist_name']
+
+				if played < 30:
+					yield ('CONFIDENT_SKIP',None,f"{entry} is shorter than 30 seconds, skipping...")
+					continue
+
+				yield ("CONFIDENT_IMPORT",{
+					'track_title':title,
+					'track_artists': artist,
+					'track_length': None,
+					'scrobble_time': timestamp,
+					'scrobble_duration':played,
+					'album_name': album,
+					'album_artist': albumartist
+				},'')
+			except Exception as e:
+				yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
+				continue
+
+		print()
+
+def parse_spotify(inputf):
 	pth = os.path
 	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
 	filenames = re.compile(r'endsong_[0-9]+\.json')
@@ -180,7 +237,7 @@ def parse_spotify_full(inputf):
 	if len(inputfiles) == 0:
 		print("No files found!")
 		return
-		
+
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
 		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
