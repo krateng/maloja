@@ -767,6 +767,40 @@ def merge_artists(target_id,source_ids):
 		"status":"success"
 	}
 
+@api.post("associate_albums_to_artist")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_albums_to_artist(target_id,source_ids):
+	result = database.associate_albums_to_artist(target_id,source_ids)
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{result['target']} was added as album artist of {', '.join(src['albumtitle'] for src in result['sources'])}"
+		}
+
+@api.post("associate_tracks_to_artist")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_tracks_to_artist(target_id,source_ids):
+	result = database.associate_tracks_to_artist(target_id,source_ids)
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{result['target']} was added as artist for {', '.join(src['title'] for src in result['sources'])}"
+		}
+
+@api.post("associate_tracks_to_album")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_tracks_to_album(target_id,source_ids):
+	result = database.associate_tracks_to_album(target_id,source_ids)
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{', '.join(src['title'] for src in result['sources'])} were added to {result['target']['albumtitle']}"
+		}
+
+
 @api.post("reparse_scrobble")
 @authenticated_function(api=True)
 @catch_exceptions

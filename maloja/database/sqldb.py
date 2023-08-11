@@ -555,7 +555,7 @@ def edit_scrobble(scrobble_id,scrobbleupdatedict,dbconn=None):
 
 		dbconn.execute(op)
 
-
+# edit function only for primary db information (not linked fields)
 @connection_provider
 def edit_artist(id,artistupdatedict,dbconn=None):
 
@@ -578,6 +578,7 @@ def edit_artist(id,artistupdatedict,dbconn=None):
 
 	return True
 
+# edit function only for primary db information (not linked fields)
 @connection_provider
 def edit_track(id,trackupdatedict,dbconn=None):
 
@@ -600,6 +601,7 @@ def edit_track(id,trackupdatedict,dbconn=None):
 
 	return True
 
+# edit function only for primary db information (not linked fields)
 @connection_provider
 def edit_album(id,albumupdatedict,dbconn=None):
 
@@ -621,6 +623,37 @@ def edit_album(id,albumupdatedict,dbconn=None):
 	result = dbconn.execute(op)
 
 	return True
+
+
+### Edit associations
+
+@connection_provider
+def add_artists_to_tracks(track_ids,artist_ids,dbconn=None):
+
+	op = DB['trackartists'].insert().values([
+		{'track_id':track_id,'artist_id':artist_id}
+		for track_id in track_ids for artist_id in artist_ids
+	])
+
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
+
+
+@connection_provider
+def add_artists_to_albums(album_ids,artist_ids,dbconn=None):
+
+	op = DB['albumartists'].insert().values([
+		{'album_id':album_id,'artist_id':artist_id}
+		for album_id in album_ids for artist_id in artist_ids
+	])
+
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
+
 
 
 ### Merge

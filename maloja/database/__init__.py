@@ -265,6 +265,43 @@ def merge_albums(target_id,source_ids):
 
 
 
+@waitfordb
+def associate_albums_to_artist(target_id,source_ids):
+	sources = [sqldb.get_album(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_artists_to_albums(artist_ids=[target_id],album_ids=source_ids)
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def associate_tracks_to_artist(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_artists_to_tracks(artist_ids=[target_id],track_ids=source_ids)
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def associate_tracks_to_album(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_album(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+
 
 @waitfordb
 def get_scrobbles(dbconn=None,**keys):

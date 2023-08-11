@@ -247,6 +247,13 @@ function showValidMergeIcons() {
 				associationmarkicon.classList.remove('hide');
 			}
 		}
+
+		if (entity_type == 'track') {
+			associationmarkicon.title = "Mark this track to add to album or add artist";
+		}
+		else {
+			associationmarkicon.title = "Mark this album to add artist";
+		}
 	}
 
 
@@ -356,29 +363,32 @@ function associate() {
 		var current_stored = (lcst.getItem(key) || '').split(",");
 		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
 
-		callback_func = function(req){
-			if (req.status == 200) {
-				//window.location.reload();
-				showValidMergeIcons();
-				notifyCallback(req);
-			}
-			else {
-				notifyCallback(req);
-			}
-		};
+		if (current_stored.length != 0) {
+			callback_func = function(req){
+				if (req.status == 200) {
+					//window.location.reload();
+					showValidMergeIcons();
+					notifyCallback(req);
+				}
+				else {
+					notifyCallback(req);
+				}
+			};
 
-		neo.xhttpreq(
-			"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
-			data={
-				'source_ids':current_stored,
-				'target_id':entity_id
-			},
-			method="POST",
-			callback=callback_func,
-			json=true
-		);
+			neo.xhttpreq(
+				"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
+				data={
+					'source_ids':current_stored,
+					'target_id':entity_id
+				},
+				method="POST",
+				callback=callback_func,
+				json=true
+			);
 
-		lcst.removeItem(key);
+			lcst.removeItem(key);
+		}
+
 	}
 
 }
