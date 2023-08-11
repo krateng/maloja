@@ -574,6 +574,18 @@ def album_info(dbconn=None,**keys):
 	}
 
 
+
+### TODO: FIND COOL ALGORITHM TO SELECT FEATURED STUFF
+@waitfordb
+def get_featured(dbconn=None):
+	# temporary stand-in
+	result = {
+		"artist": get_charts_artists(timerange=alltime())[0]['artist'],
+		"album": get_charts_albums(timerange=alltime())[0]['album'],
+		"track": get_charts_tracks(timerange=alltime())[0]['track']
+	}
+	return result
+
 def get_predefined_rulesets(dbconn=None):
 	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 

@@ -1,10 +1,13 @@
+<!-- TODO: THIS IS PRELIMINARY. not sure if i want to keep this, but for now let's fill up that empty slot on the start page -->
+
 <h1>Featured</h1>
 
+{% set featured = dbc.get_featured() %}
 
 {% set entitytypes = [
-	{'identifier':'artist','localisation':"Artist", 'template':"info_artist.jinja", 'filterkeys':{"artist":"Blackpink"} },
-	{'identifier':'track','localisation':"Track", 'template':"info_track.jinja", 'filterkeys':{"track": {"artists": ["Red Velvet"], "title": "Russian Roulette"}} },
-	{'identifier':'album','localisation':"Album", 'template':"info_album.jinja", 'filterkeys':{"album": {"artists": ["TWICE"], "albumtitle": "The Story Begins"}} }
+	{'identifier':'artist','localisation':"Artist", 'template':"info_artist.jinja", 'filterkeys':{"artist": featured.artist } },
+	{'identifier':'track','localisation':"Track", 'template':"info_track.jinja", 'filterkeys':{"track": featured.track } },
+	{'identifier':'album','localisation':"Album", 'template':"info_album.jinja", 'filterkeys':{"album": featured.album } }
 ] %}
 
 
@@ -21,6 +24,7 @@
 {% for t in entitytypes -%}
 	<section class="stat_module_featured featured_{{ t.identifier }}" style="display:none;">
 		{%- with filterkeys = t.filterkeys -%}
+
 		{% include 'partials/' + t.template %}
 		{%- endwith -%}
 	</section>
