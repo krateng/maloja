@@ -1,0 +1,15 @@
+<h1><a href="/scrobbles">Last Scrobbles</a></h1>
+
+{% for range in xcurrent %}
+	<span class="stats">{{ range.localisation }}</span>
+	<a href='/scrobbles?in={{ range.identifier }}'>{{ dbc.get_scrobbles_num({'timerange':range.range}) }}</a>
+{% endfor %}
+<br/><br/>
+
+<span class="stat_module">
+
+
+	{%- with amountkeys = {"perpage":12,"page":0}, shortTimeDesc=True -%}
+	{% include 'partials/scrobbles.jinja' %}
+	{%- endwith -%}
+</span>

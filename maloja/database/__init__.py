@@ -265,6 +265,43 @@ def merge_albums(target_id,source_ids):
 
 
 
+@waitfordb
+def associate_albums_to_artist(target_id,source_ids):
+	sources = [sqldb.get_album(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_artists_to_albums(artist_ids=[target_id],album_ids=source_ids)
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def associate_tracks_to_artist(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_artist(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_artists_to_tracks(artist_ids=[target_id],track_ids=source_ids)
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+@waitfordb
+def associate_tracks_to_album(target_id,source_ids):
+	sources = [sqldb.get_track(id) for id in source_ids]
+	target = sqldb.get_album(target_id)
+	log(f"Adding {sources} into {target}")
+	sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+	result = {'sources':sources,'target':target}
+	dbcache.invalidate_entity_cache()
+	dbcache.invalidate_caches()
+
+	return result
+
+
 
 @waitfordb
 def get_scrobbles(dbconn=None,**keys):
@@ -573,6 +610,18 @@ def album_info(dbconn=None,**keys):
 		"id":album_id
 	}
 
+
+
+### TODO: FIND COOL ALGORITHM TO SELECT FEATURED STUFF
+@waitfordb
+def get_featured(dbconn=None):
+	# temporary stand-in
+	result = {
+		"artist": get_charts_artists(timerange=alltime())[0]['artist'],
+		"album": get_charts_albums(timerange=alltime())[0]['album'],
+		"track": get_charts_tracks(timerange=alltime())[0]['track']
+	}
+	return result
 
 def get_predefined_rulesets(dbconn=None):
 	validchars = "-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

@@ -1,0 +1,49 @@
+div#startpage {
+	display: grid;
+	justify-content: center;
+
+	display: fixed;
+	grid-column-gap: 25px;
+	grid-row-gap: 25px;
+}
+
+
+@media (min-width: 2201px) {
+	div#startpage {
+		grid-template-columns: 30vw 30vw 30vw;
+		grid-template-rows: 45vh 45vh;
+
+		grid-template-areas:
+			"charts_artists charts_tracks charts_albums"
+			"lastscrobbles featured pulse";
+	}
+}
+
+@media (min-width: 1401px) and (max-width: 2200px) {
+	div#startpage {
+		grid-template-columns: 45vw 45vw;
+		grid-template-rows: 45vh 45vh 45vh;
+
+		grid-template-areas:
+			"charts_artists lastscrobbles"
+			"charts_tracks pulse"
+			"charts_albums featured";
+	}
+}
+
+@media (max-width: 1400px) {
+	div#startpage {
+		grid-template-columns: 90vw;
+
+		grid-template-areas:
+			"charts_artists"
+			"charts_tracks"
+			"charts_albums"
+			"lastscrobbles"
+			"pulse";
+	}
+
+	#start_page_module_featured {
+		display: none;
+	}
+}

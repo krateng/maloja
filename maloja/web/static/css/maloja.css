@@ -209,7 +209,7 @@ div#notification_area {
 div#notification_area div.notification {
 	background-color:white;
 	width:400px;
-	height:50px;
+	min-height:50px;
 	margin-bottom:7px;
 	padding:9px;
 	opacity:0.4;
@@ -800,53 +800,78 @@ table.misc td {
 
 
 
+div.tiles {
+	display: grid;
+	grid-template-columns: repeat(18, calc(100% / 18));
+	grid-template-rows: repeat(6, calc(100% / 6));
+	grid-auto-flow: row dense;
 
+	aspect-ratio: 3 / 1;
 
-
-
-table.tiles_top td {
-	padding:0px;
-	border:0px;
 }
 
-table.tiles_top:hover td td {
+div.tiles div {
+	height: 100%;
+	width: 100%;
+	background-size: cover;
+	background-position:top center;
+	overflow: hidden;
+}
+
+div.tiles:hover div {
 	opacity:0.5;
 	filter: grayscale(80%);
 }
-table.tiles_top:hover td td:hover {
+div.tiles:hover div:hover {
 	opacity:1;
 	filter: grayscale(0%);
 }
 
-table.tiles_top, table.tiles_sub {
-	border-collapse: collapse;
+div.tiles div.tile:nth-child(1) {
+	grid-column: span 6;
+	grid-row: span 6;
+
+	font-size:100%
+}
+
+div.tiles div.tile:nth-child(2),
+div.tiles div.tile:nth-child(3),
+div.tiles div.tile:nth-child(4),
+div.tiles div.tile:nth-child(5) {
+	grid-column: span 3;
+	grid-row: span 3;
+
+	font-size:80%
+}
+
+div.tiles div.tile:nth-child(2),
+div.tiles div.tile:nth-child(4) {
+	grid-column-start: 7;
+	grid-column-end: span 3;
+}
+div.tiles div.tile:nth-child(3),
+div.tiles div.tile:nth-child(5) {
+	grid-column-start: 10;
+	grid-column-end: span 3;
+}
+
+div.tiles div.tile:nth-child(6),
+div.tiles div.tile:nth-child(7),
+div.tiles div.tile:nth-child(8),
+div.tiles div.tile:nth-child(9),
+div.tiles div.tile:nth-child(10),
+div.tiles div.tile:nth-child(11),
+div.tiles div.tile:nth-child(12),
+div.tiles div.tile:nth-child(13),
+div.tiles div.tile:nth-child(14) {
+	grid-column: span 2;
+	grid-row: span 2;
+
+	font-size:60%
 }
 
 
-
-table.tiles_top>tbody>tr>td {
-	height:300px;
-	width:300px;
-}
-
-
-table.tiles_sub {
-	height:100%;
-	width:100%;
-}
-
-table.tiles_sub div {
-	height:100%;
-	width:100%;
-}
-
-table.tiles_top td div {
-	background-size:cover;
-	background-position:top center;
-	vertical-align:bottom;
-}
-
-table.tiles_top td span {
+div.tiles span {
 	background-color:rgba(0,0,0,0.7);
 	display: inline-block;
 	margin-top:2%;
@@ -854,48 +879,21 @@ table.tiles_top td span {
 	max-width: 67%;
 	vertical-align: text-top;
 }
-table.tiles_top td a:hover {
+div.tiles span {
+        overflow-wrap: anywhere;
+}
+
+div.tiles a:hover {
 	text-decoration: none;
 }
 
-table.tiles_1x1 td {
-	height:100%;
-	width:100%;
-	font-size:100%
-}
-table.tiles_2x2 td {
-	height:50%;
-	width:50%;
-	font-size:80%
-}
-table.tiles_3x3 td {
-	height:33.333%;
-	width:33.333%;
-	font-size:60%
-}
-table.tiles_4x4 td {
-	font-size:50%
-}
-table.tiles_5x5 td {
-	font-size:40%
-}
 
-/* Safari fix */
-table.tiles_sub.tiles_3x3 td div {
-        min-height: 100px;
-        min-width: 100px;
-}
-table.tiles_sub.tiles_2x2 td div {
-        min-height: 150px;
-        min-width: 150px;
-}
-table.tiles_sub.tiles_1x1 td div {
-        min-height: 300px;
-        min-width: 300px;
-}
-table.tiles_sub a span {
-        overflow-wrap: anywhere;
-}
+
+
+
+
+
+
 
 
 div#showcase_container {
@@ -985,36 +983,4 @@ div#showcase_container span.album_title {
 span.stat_module_pulse, span.stat_module_topartists, span.stat_module_toptracks {
 	display: inline-block;
 	vertical-align: top;
-}
-
-/*
-**
-**
-** SIDE LIST ON START PAGE
-**
-**
-*/
-
-
-@media (min-width: 1600px) {
-div.sidelist {
-	position:absolute;
-	right:0px;
-	top:0px;
-	width:40%;
-	height:100%;
-	--current-bg-color: var(--base-color-light); /* drag this information through inheritances */
-	background-color: var(--current-bg-color);
-	padding-left:30px;
-	padding-right:30px;
-}
-}
-
-div.sidelist table {
-	width:100%;
-	table-layout:fixed;
-}
-
-div.sidelist table.list td.time {
-	width:17%;
 }

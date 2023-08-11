@@ -227,12 +227,22 @@ def resolve_image(artist_id=None,track_id=None,album_id=None):
 		table = 'albums'
 		getfunc, entity_id = database.sqldb.get_album, album_id
 
+	if (entitytype == 'track') and malojaconfig["USE_ALBUM_ARTWORK_FOR_TRACKS"]:
+		track = database.sqldb.get_track(entity_id)
+		if track.get("album"):
+			entity_id = database.sqldb.get_album_id(track["album"])
+			entitytype = 'album'
+			getfunc = database.sqldb.get_album
+
 	# is another thread already working on this?
 	with image_resolve_controller_lock:
 		if entity_id in image_resolve_controller[table]:
 			return
 		else:
 			image_resolve_controller[table].add(entity_id)
+
+
+
 
 	try:
 		entity = getfunc(entity_id)
