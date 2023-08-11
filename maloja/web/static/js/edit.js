@@ -190,6 +190,8 @@ function doneEditing() {
 // MERGING
 
 function showValidMergeIcons() {
+
+	// merge
 	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
 	var current_stored = (lcst.getItem(key) || '').split(",");
@@ -218,6 +220,74 @@ function showValidMergeIcons() {
 		}
 	}
 
+	// mark for association
+	if ((entity_type == 'track') || (entity_type == 'album')) {
+		const lcst = window.sessionStorage;
+		var key = "marked_for_associate_" + entity_type;
+		var current_stored = (lcst.getItem(key) || '').split(",");
+		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+
+		var associationmarkicon = document.getElementById('associationmarkicon');
+		var associationcancelicon = document.getElementById('associationcancelicon');
+
+		associationmarkicon.classList.add('hide');
+		associationcancelicon.classList.add('hide');
+
+
+		if (current_stored.length == 0) {
+			associationmarkicon.classList.remove('hide');
+		}
+		else {
+			associationcancelicon.classList.remove('hide');
+
+			if (current_stored.includes(entity_id)) {
+
+			}
+			else {
+				associationmarkicon.classList.remove('hide');
+			}
+		}
+	}
+
+
+
+	// association confirm
+	if ((entity_type == 'artist') || (entity_type == 'album')) {
+		var target_entity_types = {artist:['album','track'], album:['track']};
+		var to_associate = {};
+		var to_associate_all = [];
+		for (var target_entity_type of target_entity_types[entity_type]) {
+			const lcst = window.sessionStorage;
+			var key = "marked_for_associate_" + target_entity_type;
+			var current_stored = (lcst.getItem(key) || '').split(",");
+			to_associate[target_entity_type] = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+			to_associate_all = to_associate_all.concat(to_associate[target_entity_type]);
+		}
+
+		var associateicon = document.getElementById('associate' + entity_type + 'icon');
+
+		associateicon.classList.add('hide');
+
+
+		if (to_associate_all.length == 0) {
+
+		}
+		else {
+			associateicon.classList.remove('hide');
+			if (entity_type == 'artist') {
+				associateicon.title = "Add this artist to " + to_associate['album'].length + " albums and " + to_associate['track'].length + " tracks";
+			}
+			else {
+				associateicon.title = "Add " + to_associate['track'].length + " tracks to this album";
+			}
+
+		}
+	}
+
+
+
+
+
 }
 
 
@@ -230,6 +300,19 @@ function markForMerge() {
 	current_stored = [...new Set(current_stored)];
 	lcst.setItem(key,current_stored); //this already formats it correctly
 	notify("Marked " + entity_name + " for merge","Currently " + current_stored.length + " marked!")
+	showValidMergeIcons();
+}
+
+function markForAssociate() {
+	const lcst = window.sessionStorage;
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = (lcst.getItem(key) || '').split(",");
+	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	current_stored.push(entity_id);
+	current_stored = [...new Set(current_stored)];
+	lcst.setItem(key,current_stored); //this already formats it correctly
+	var whattoadd = ((entity_type == 'track') ? "Artists or Album" : "Artists")
+	notify("Marked " + entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
 	showValidMergeIcons();
 }
 
@@ -262,10 +345,55 @@ function merge() {
 	lcst.removeItem(key);
 }
 
+
+
+function associate() {
+	const lcst = window.sessionStorage;
+	var target_entity_types = {artist:['album','track'], album:['track']};
+	for (var target_entity_type of target_entity_types[entity_type]) {
+		var key = "marked_for_associate_" + target_entity_type;
+		console.log('get',key);
+		var current_stored = (lcst.getItem(key) || '').split(",");
+		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+
+		callback_func = function(req){
+			if (req.status == 200) {
+				//window.location.reload();
+				showValidMergeIcons();
+				notifyCallback(req);
+			}
+			else {
+				notifyCallback(req);
+			}
+		};
+
+		neo.xhttpreq(
+			"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
+			data={
+				'source_ids':current_stored,
+				'target_id':entity_id
+			},
+			method="POST",
+			callback=callback_func,
+			json=true
+		);
+
+		lcst.removeItem(key);
+	}
+
+}
+
 function cancelMerge() {
 	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
 	lcst.setItem(key,[]);
 	showValidMergeIcons();
 	notify("Cancelled merge!","")
+}
+function cancelAssociate() {
+	const lcst = window.sessionStorage;
+	var key = "marked_for_associate_" + entity_type;
+	lcst.setItem(key,[]);
+	showValidMergeIcons();
+	notify("Cancelled association!","")
 }
