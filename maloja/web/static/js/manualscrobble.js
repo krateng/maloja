@@ -108,11 +108,20 @@ function scrobbleNew() {
 	var title = document.getElementById("title").value;
 	var album = document.getElementById("album").value;
 
+	if (document.getElementById("use_custom_time").checked) {
+		var date = new Date(document.getElementById("scrobble_datetime").value + ':00Z');
+		var timestamp = (date.getTime() + (date.getTimezoneOffset() * 60000)) / 1000;
+	}
+	else {
+		var timestamp = null;
+	}
 
-	scrobble(artists,title,albumartists,album);
+
+
+	scrobble(artists,title,albumartists,album,timestamp);
 }
 
-function scrobble(artists,title,albumartists,album) {
+function scrobble(artists,title,albumartists,album,timestamp) {
 
 	lastArtists = artists;
 	lastTrack = title;
@@ -125,7 +134,10 @@ function scrobble(artists,title,albumartists,album) {
 		"album": album
 	}
 	if (albumartists != null) {
-		payload['albumartists'] = albumartists
+		payload['albumartists'] = albumartists;
+	}
+	if (timestamp != null) {
+		payload['time'] = timestamp;
 	}
 
 	console.log(payload);

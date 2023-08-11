@@ -48,8 +48,23 @@
 				<input placeholder='Enter to scrobble' class='simpleinput' id='album' onKeydown='scrobbleIfEnter(event)' />
 			</td>
 		</tr>
+		<tr>
+			<td>
+				<input type="checkbox" id="use_custom_time" />
+				Custom Time:
+			</td>
+			<td>
+				<input id="scrobble_datetime" type="datetime-local">
+			</td>
+		</tr>
 
 	</table>
+
+	<script>
+		const now = new Date();
+		const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+		document.getElementById("scrobble_datetime").value = localDateTime;
+	</script>
 
 	<br/>
 
