@@ -404,7 +404,7 @@ def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
 @connection_provider
 def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 	ntitle = normalize_name(trackdict['title'])
-	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in trackdict['artists']]
+	artist_ids = [get_artist_id(a,create_new=create_new,dbconn=dbconn) for a in trackdict['artists']]
 	artist_ids = list(set(artist_ids))
 
 
