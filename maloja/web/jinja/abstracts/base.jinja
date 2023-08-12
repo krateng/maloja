@@ -23,6 +23,16 @@
 		<script src="/neopolitan.js"></script>
 		<script src="/upload.js"></script>
 		<script src="/notifications.js"></script>
+		<script>
+		const defaultpicks = {
+			topartists: '{{ settings["DEFAULT_RANGE_STARTPAGE"] }}',
+			toptracks: '{{ settings["DEFAULT_RANGE_STARTPAGE"] }}',
+			topalbums: '{{ settings["DEFAULT_RANGE_STARTPAGE"] }}',
+			pulse: '{{ settings["DEFAULT_RANGE_STARTPAGE"] }}',
+			pulseperformancecombined: '{{ settings["DEFAULT_RANGE_STARTPAGE"] }}',
+			featured: 'artist'
+		}
+		</script>
 
 		<link rel="preload" href="/static/ttf/Ubuntu-Regular.ttf" as="font" type="font/woff2" crossorigin />
 

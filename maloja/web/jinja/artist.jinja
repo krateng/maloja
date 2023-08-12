@@ -5,7 +5,7 @@
 {% import 'partials/awards_artist.jinja' as awards %}
 
 {% block scripts %}
-	<script src="/rangeselect.js"></script>
+	<script src="/statselect.js"></script>
 	<script src="/edit.js"></script>
 {% endblock %}
 
@@ -128,8 +128,8 @@
 			<br/>
 			{% for r in xranges %}
 			<span
-				onclick="showRangeManual('pulse','{{ r.identifier }}')"
-				class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+				onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+				class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
 				{{ r.localisation }}
 			</span>
@@ -141,7 +141,7 @@
 			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ r.identifier }}"
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 
@@ -161,8 +161,8 @@
 
 			{% for r in xranges %}
 				<span
-					onclick="showRangeManual('pulse','{{ r.identifier }}')"
-					class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+					onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+					class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
 					style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
 					{{ r.localisation }}
 				</span>
@@ -174,7 +174,7 @@
 			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ r.identifier }}"
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 

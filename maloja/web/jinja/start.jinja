@@ -3,24 +3,8 @@
 
 {% block scripts %}
 
-<script src="/rangeselect.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded',function() {
-	for (let type of ["topartists","toptracks","topalbums","pulse"]) {
-		var val = localStorage.getItem("rangeselect_" + type);
-		if (val != null) {
-			showRange(type,val);
-		}
-		else {
-			showRange(type,'{{ settings["DEFAULT_RANGE_STARTPAGE"] }}');
-		}
+<script src="/statselect.js"></script>
 
-
-	}
-})
-</script>
-
-	<script src="/cookies.js"></script>
 	<link rel="stylesheet" href="/static/css/startpage.css" />
 {% endblock %}
 

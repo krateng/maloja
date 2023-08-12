@@ -12,7 +12,7 @@
 
 
 {% for t in entitytypes -%}
-	<span onclick="showFeatured('{{ t.identifier }}')" class="stat_selector_featured stat_selector_featured_{{ t.identifier }}">
+	<span onclick="showStatsManual('featured','{{ t.identifier }}')" class="stat_selector_featured selector_featured_{{ t.identifier }}">
 		{{ t.localisation }}
 	</span>
 	{{ "|" if not loop.last }}

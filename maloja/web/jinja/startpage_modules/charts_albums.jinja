@@ -1,7 +1,7 @@
 <h1><a class="stat_link_topalbums" href="/charts_albums?in=alltime">Top Albums</a></h1>
 
 {% for r in xcurrent -%}
-	<span onclick="showRangeManual('topalbums','{{ r.identifier }}')" class="stat_selector_topalbums selector_topalbums_{{ r.identifier }}">
+	<span onclick="showStatsManual('topalbums','{{ r.identifier }}')" class="stat_selector_topalbums selector_topalbums_{{ r.identifier }}">
 		{{ r.localisation }}
 	</span>
 	{{ "|" if not loop.last }}

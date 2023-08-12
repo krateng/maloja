@@ -1,6 +1,6 @@
 localStorage = window.localStorage;
 
-function showRange(identifier,unit) {
+function showStats(identifier,unit) {
 	// Make all modules disappear
 	var modules = document.getElementsByClassName("stat_module_" + identifier);
 	for (var i=0;i<modules.length;i++) {
@@ -38,8 +38,25 @@ function showRange(identifier,unit) {
 
 }
 
-function showRangeManual(identifier,unit) {
-	showRange(identifier,unit);
+
+function showStatsManual(identifier,unit) {
+	showStats(identifier,unit);
 	//neo.setCookie("rangeselect_" + identifier,unit);
-	localStorage.setItem("rangeselect_" + identifier,unit);
+	localStorage.setItem("statselect_" + identifier,unit);
 }
+
+
+
+document.addEventListener('DOMContentLoaded',function() {
+	for (var key of Object.keys(defaultpicks)) {
+		var val = localStorage.getItem("statselect_" + key);
+		if (val != null) {
+			showStats(key,val);
+		}
+		else {
+			showStats(key,defaultpicks[key]);
+		}
+
+
+	}
+})
