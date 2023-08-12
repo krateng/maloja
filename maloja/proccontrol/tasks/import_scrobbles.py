@@ -33,30 +33,34 @@ def import_scrobbles(inputf):
 
 	filename = os.path.basename(inputf)
 
-	if re.match(".*\.csv",filename):
+	if re.match(r".*\.csv",filename):
 		typeid,typedesc = "lastfm","Last.fm"
 		importfunc = parse_lastfm
 
-	elif re.match("Streaming_History_Audio.+\.json",filename):
+	elif re.match(r"Streaming_History_Audio.+\.json",filename):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite
 
-	elif re.match("endsong_[0-9]+\.json",filename):
+	elif re.match(r"endsong_[0-9]+\.json",filename):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify
 
-	elif re.match("StreamingHistory[0-9]+\.json",filename):
+	elif re.match(r"StreamingHistory[0-9]+\.json",filename):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite_legacy
 
-	elif re.match("maloja_export_[0-9]+\.json",filename):
+	elif re.match(r"maloja_export_[0-9]+\.json",filename):
 		typeid,typedesc = "maloja","Maloja"
 		importfunc = parse_maloja
 
 	# username_lb-YYYY-MM-DD.json
-	elif re.match(".*_lb-[0-9-]+\.json",filename):
+	elif re.match(r".*_lb-[0-9-]+\.json",filename):
 		typeid,typedesc = "listenbrainz","ListenBrainz"
 		importfunc = parse_listenbrainz
+
+	elif re.match(r"\.scrobbler\.log",filename):
+		typeid,typedesc = "rockbox","Rockbox"
+		importfunc = parse_rockbox
 
 	else:
 		print("File",inputf,"could not be identified as a valid import source.")
@@ -392,6 +396,33 @@ def parse_listenbrainz(inputf):
 		except Exception as e:
 			yield ('FAIL',None,f"{entry} could not be parsed. Scrobble not imported. ({repr(e)})")
 			continue
+
+def parse_rockbox(inputf):
+	with open(inputf,'r') as inputfd:
+		for line in inputfd.readlines():
+			if line == "#TZ/UNKNOWN":
+				use_local_time = True
+			elif line == "#TZ/UTC":
+				use_local_time = False
+			line = line.split("#")[0].split("\n")[0]
+			if line:
+				try:
+					artist,album,track,pos,duration,rate,timestamp,track_id, *_ = line.split("\t") + [None]
+					if rate == 'L':
+						yield ("CONFIDENT_IMPORT",{
+							'track_title':track,
+							'track_artists':artist,
+							'track_length':duration,
+							'album_name':album,
+							'scrobble_time':timestamp,
+							'scrobble_duration': None
+						},'')
+					else:
+						yield ('CONFIDENT_SKIP',None,f"{track} at {timestamp} is marked as skipped.")
+				except Exception as e:
+					yield ('FAIL',None,f"{line} could not be parsed. Scrobble not imported. ({repr(e)})")
+					continue
+
 
 def parse_maloja(inputf):
 
