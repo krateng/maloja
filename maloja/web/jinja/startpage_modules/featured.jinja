@@ -24,8 +24,10 @@
 {% for t in entitytypes -%}
 	<section class="stat_module_featured featured_{{ t.identifier }}" style="display:none;">
 		{%- with filterkeys = t.filterkeys -%}
+		{%- with condensed = true -%}
 
 		{% include 'partials/' + t.template %}
+		{%- endwith -%}
 		{%- endwith -%}
 	</section>
 {%- endfor %}

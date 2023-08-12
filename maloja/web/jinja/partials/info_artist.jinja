@@ -4,6 +4,7 @@
 
 {% set artist = filterkeys.artist %}
 {% set info = db.artist_info(artist=artist) %}
+{% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
 {% set credited = info.get('replace') %}
 {% set included = info.get('associated') %}
@@ -31,10 +32,12 @@
 			{% endif %}
 		</td>
 		<td class="text">
+			{% if condensed %}<a href="/artist?{{ encodedartist }}">{% endif %}
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.artist | e }}</h1>
+			{%- if condensed -%}</a>{% endif %}
 				{% if competes and info['scrobbles']>0 %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
 				<br/>
-				{% if competes and included %}
+				{% if competes and included and (not condensed) %}
 					<span>associated: {{ links.links(included) }}</span>
 				{% elif not competes %}
 					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>

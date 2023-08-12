@@ -2,6 +2,7 @@
 
 {% set track = filterkeys.track %}
 {% set info = dbc.track_info({'track':track}) %}
+{% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
 
 {% import 'partials/awards_track.jinja' as awards %}
 
@@ -22,8 +23,10 @@
 		</td>
 		<td class="text">
 			<span>{{ links.links(track.artists) }}</span><br/>
+			{% if condensed %}<a href="/track?{{ encodedtrack }}">{% endif %}
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title | e }}</h1>
-				{{ awards.certs(track) }}
+			{%- if condensed -%}</a>{% endif %}
+				{%- if not condensed -%}{{ awards.certs(track) }}{% endif %}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>
 				{% if info.track.album %}
