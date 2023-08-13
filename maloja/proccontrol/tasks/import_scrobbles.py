@@ -80,9 +80,6 @@ def import_scrobbles(inputf):
 
 			# extra info
 			extrainfo = {}
-			if scrobble.get('album_name'): extrainfo['album_name'] = scrobble['album_name']
-			# saving this in the scrobble instead of the track because for now it's not meant
-			# to be authorative information, just payload of the scrobble
 
 			scrobblebuffer.append({
 				"time":scrobble['scrobble_time'],
@@ -90,6 +87,11 @@ def import_scrobbles(inputf):
 				 		"artists":scrobble['track_artists'],
 				 		"title":scrobble['track_title'],
 				 		"length":scrobble['track_length'],
+						"album":{
+							"albumtitle":scrobble.get('album_name') or None,
+							"artists":scrobble.get('album_artists') or scrobble['track_artists'] or None
+							# TODO: use same heuristics as with parsing to determine album?
+						}
 				 	},
 				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,

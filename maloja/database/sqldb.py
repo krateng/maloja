@@ -485,7 +485,7 @@ def get_artist_id(artistname,create_new=True,dbconn=None):
 @connection_provider
 def get_album_id(albumdict,create_new=True,ignore_albumartists=False,dbconn=None):
 	ntitle = normalize_name(albumdict['albumtitle'])
-	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in albumdict.get('artists') or []]
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in (albumdict.get('artists') or [])]
 	artist_ids = list(set(artist_ids))
 
 	op = DB['albums'].select(
