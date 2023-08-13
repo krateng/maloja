@@ -213,6 +213,10 @@ def parse_spotify_lite(inputf):
 				album = entry['master_metadata_album_album_name']
 				albumartist = entry['master_metadata_album_artist_name']
 
+				if None in [title,artist]:
+					yield ('CONFIDENT_SKIP',None,f"{entry} has relevant fields set to null, skipping...")
+					continue
+
 				if played < 30:
 					yield ('CONFIDENT_SKIP',None,f"{entry} is shorter than 30 seconds, skipping...")
 					continue
