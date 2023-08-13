@@ -235,7 +235,8 @@ def merge_artists(target_id,source_ids):
 	sources = [sqldb.get_artist(id) for id in source_ids]
 	target = sqldb.get_artist(target_id)
 	log(f"Merging {sources} into {target}")
-	result = sqldb.merge_artists(target_id,source_ids)
+	sqldb.merge_artists(target_id,source_ids)
+	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 
@@ -246,7 +247,8 @@ def merge_tracks(target_id,source_ids):
 	sources = [sqldb.get_track(id) for id in source_ids]
 	target = sqldb.get_track(target_id)
 	log(f"Merging {sources} into {target}")
-	result = sqldb.merge_tracks(target_id,source_ids)
+	sqldb.merge_tracks(target_id,source_ids)
+	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 
@@ -257,7 +259,8 @@ def merge_albums(target_id,source_ids):
 	sources = [sqldb.get_album(id) for id in source_ids]
 	target = sqldb.get_album(target_id)
 	log(f"Merging {sources} into {target}")
-	result = sqldb.merge_albums(target_id,source_ids)
+	sqldb.merge_albums(target_id,source_ids)
+	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
 

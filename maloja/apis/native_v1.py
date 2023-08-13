@@ -744,7 +744,8 @@ def merge_tracks(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_tracks(target_id,source_ids)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"{', '.join(src['title'] for src in result['sources'])} were merged into {result['target']['title']}"
 	}
 
 @api.post("merge_artists")
@@ -754,7 +755,8 @@ def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_artists(target_id,source_ids)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"{', '.join(src for src in result['sources'])} were merged into {result['target']}"
 	}
 
 @api.post("merge_albums")
@@ -764,7 +766,8 @@ def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_albums(target_id,source_ids)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"{', '.join(src['albumtitle'] for src in result['sources'])} were merged into {result['target']['albumtitle']}"
 	}
 
 @api.post("associate_albums_to_artist")

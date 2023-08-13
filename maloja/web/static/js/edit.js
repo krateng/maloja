@@ -331,7 +331,8 @@ function merge() {
 
 	callback_func = function(req){
 		if (req.status == 200) {
-			window.location.reload();
+			notifyCallback(req);
+			setTimeout(window.location.reload.bind(window.location),1000);
 		}
 		else {
 			notifyCallback(req);
@@ -357,18 +358,24 @@ function merge() {
 function associate() {
 	const lcst = window.sessionStorage;
 	var target_entity_types = {artist:['album','track'], album:['track']};
+	var requests_todo = 0;
 	for (var target_entity_type of target_entity_types[entity_type]) {
 		var key = "marked_for_associate_" + target_entity_type;
-		console.log('get',key);
 		var current_stored = (lcst.getItem(key) || '').split(",");
 		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
 
 		if (current_stored.length != 0) {
+			requests_todo += 1;
 			callback_func = function(req){
 				if (req.status == 200) {
-					//window.location.reload();
+
 					showValidMergeIcons();
 					notifyCallback(req);
+					requests_todo -= 1;
+					if (requests_todo == 0) {
+						setTimeout(window.location.reload.bind(window.location),1000);
+					}
+
 				}
 				else {
 					notifyCallback(req);
