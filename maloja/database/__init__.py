@@ -15,7 +15,7 @@ def no_aux_mode(func):
 # rest of the project
 from ..cleanup import CleanerAgent
 from .. import images
-from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime
+from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime, today, thisweek, MTRangeComposite
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
 from ..pkg_global.conf import data_dir, malojaconfig
@@ -619,11 +619,25 @@ def album_info(dbconn=None,**keys):
 @waitfordb
 def get_featured(dbconn=None):
 	# temporary stand-in
-	result = {
-		"artist": get_charts_artists(timerange=alltime())[0]['artist'],
-		"album": get_charts_albums(timerange=alltime())[0]['album'],
-		"track": get_charts_tracks(timerange=alltime())[0]['track']
+	ranges = [
+		MTRangeComposite(since=today().next(-14),to=today()),
+		MTRangeComposite(since=thisweek().next(-12),to=thisweek()),
+		MTRangeComposite(since=thisweek().next(-52),to=thisweek()),
+		alltime()
+	]
+	funcs = {
+		"artist": get_charts_artists,
+		"album": get_charts_albums,
+		"track": get_charts_tracks
 	}
+	result = {t:None for t in funcs}
+
+	for entity_type in funcs:
+		for r in ranges:
+			chart = funcs[entity_type](timerange=r)
+			if chart:
+				result[entity_type] = chart[0][entity_type]
+				break
 	return result
 
 def get_predefined_rulesets(dbconn=None):

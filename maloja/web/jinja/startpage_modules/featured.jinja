@@ -25,8 +25,9 @@
 	<section class="stat_module_featured featured_{{ t.identifier }}" style="display:none;">
 		{%- with filterkeys = t.filterkeys -%}
 		{%- with condensed = true -%}
-
-		{% include 'partials/' + t.template %}
+		{% if filterkeys[t.identifier] %}
+			{% include 'partials/' + t.template %}
+		{% endif %}
 		{%- endwith -%}
 		{%- endwith -%}
 	</section>
