@@ -515,9 +515,17 @@ table.twopart>tbody>tr>td {
 
 
 
+/* only on startpage for now, implement this for all tables??? */
+section table.list {
+	max-width: 100%;
+	width: 100%;
+	table-layout: fixed;
+}
+
 
 table.list {
 	border-collapse:collapse;
+
 }
 
 table.list tr {
@@ -560,13 +568,18 @@ table.list tr:hover {
 }
 
 table.list td.time {
-	width:11%;
+	width:9em;
 	color: var(--text-color-tertiary);
+}
+
+table.list td.timerange {
+	width:9em;
 }
 
 
 table.list tr td.rank {
 	padding-right: 4px;
+	width: 5em;
 
 }
 
@@ -601,8 +614,8 @@ table.list td.icon div {
 }
 
 table.list td.artists,td.artist,td.title,td.track {
-	min-width:100px;
-
+	min-width:500px;
+	max-width: 40em;
 
 }
 

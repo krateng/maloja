@@ -10,7 +10,7 @@
 
 	{% set thisrange = t.range %}
 	<tr>
-		<td>{{ thisrange.desc() }}</td>
+		<td class="timerange">{{ thisrange.desc() }}</td>
 		<td class="amount">
 			{{ links.link_scrobbles([filterkeys,{'timerange':thisrange}],amount=t.scrobbles) }}
 		</td>
