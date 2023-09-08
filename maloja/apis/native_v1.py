@@ -314,7 +314,23 @@ def get_charts_tracks_external(**keys):
 		"list":result
 	}
 
+@api.get("charts/albums")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True)
+def get_charts_albums_external(**keys):
+	"""Returns album charts
 
+	:return: list (List)
+	:rtype: Dictionary"""
+	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	ckeys = {**k_filter, **k_time}
+
+	result = database.get_charts_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":result
+	}
 
 
 @api.get("pulse")
