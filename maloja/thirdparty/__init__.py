@@ -44,7 +44,7 @@ def get_image_track_all(track):
 		for service in services["metadata"]:
 			try:
 				res = service.get_image_track(track)
-				if res is not None:
+				if res:
 					log("Got track image for " + str(track) + " from " + service.name)
 					return res
 				else:
@@ -56,7 +56,7 @@ def get_image_artist_all(artist):
 		for service in services["metadata"]:
 			try:
 				res = service.get_image_artist(artist)
-				if res is not None:
+				if res:
 					log("Got artist image for " + str(artist) + " from " + service.name)
 					return res
 				else:
@@ -68,7 +68,7 @@ def get_image_album_all(album):
 		for service in services["metadata"]:
 			try:
 				res = service.get_image_album(album)
-				if res is not None:
+				if res:
 					log("Got album image for " + str(album) + " from " + service.name)
 					return res
 				else:
