@@ -183,6 +183,9 @@ countas			Akali				K/DA
 # (G)I-DLE
 countas				Soyeon			(G)I-DLE
 countas				Miyeon			(G)I-DLE
+countas				Yuqi				(G)I-DLE
+countas				Minnie			(G)I-DLE
+countas				Shuhua			(G)I-DLE
 replaceartist				Jeon Soyeon		Soyeon
 
 
@@ -211,6 +214,9 @@ countas				Gaeul			IVE
 
 # Pristin
 countas			Pristin V		Pristin
+
+# CLC
+countas			Sorn				CLC
 
 # Popular Remixes
 artistintitle	Areia Remix				Areia
