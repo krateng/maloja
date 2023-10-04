@@ -322,7 +322,7 @@ def get_charts_albums_external(**keys):
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	k_filter, k_time, _, _, _ = uri_to_internal(keys)
 	ckeys = {**k_filter, **k_time}
 
 	result = database.get_charts_albums(**ckeys)
