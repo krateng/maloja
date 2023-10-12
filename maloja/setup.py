@@ -1,7 +1,7 @@
 import os
 
 from importlib import resources
-from distutils import dir_util
+from setuptools import distutils
 
 from doreah.io import col, ask, prompt
 from doreah import auth
@@ -23,7 +23,7 @@ ext_apikeys = [
 def copy_initial_local_files():
 	with resources.files("maloja") / 'data_files' as folder:
 		for cat in dir_settings:
-			dir_util.copy_tree(os.path.join(folder,cat),dir_settings[cat],update=False)
+			distutils.dir_util.copy_tree(os.path.join(folder,cat),dir_settings[cat],update=False)
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):
