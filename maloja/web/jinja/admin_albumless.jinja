@@ -1,0 +1,12 @@
+{% set page ='admin_albumless' %}
+{% extends "abstracts/admin.jinja" %}
+{% block title %}Maloja - Albumless Tracks{% endblock %}
+
+{% block maincontent %}
+Here you can find tracks that currently have no album.<br/><br/>
+
+{% with list = dbc.get_tracks_without_album() %}
+{% include 'partials/list_tracks.jinja' %}
+{% endwith %}
+
+{% endblock %}

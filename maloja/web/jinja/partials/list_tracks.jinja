@@ -1,0 +1,21 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
+
+
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
+
+<table class='list'>
+	{% for e in list %}
+		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
+		<tr>
+
+			<!-- artist -->
+			{{ entityrow.row(e['track']) }}
+
+		</tr>
+		{% endif %}
+	{% endfor %}
+</table>

@@ -363,6 +363,9 @@ def get_albums_artist_appears_on(dbconn=None,**keys):
 
 	return result
 
+@waitfordb
+def get_tracks_without_album(dbconn=None,resolve_ids=True):
+	return get_charts_tracks(album=None,timerange=alltime(),resolve_ids=resolve_ids,dbconn=dbconn)
 
 @waitfordb
 def get_charts_artists(dbconn=None,resolve_ids=True,**keys):

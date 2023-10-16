@@ -2,6 +2,7 @@ minor_release_name: "Nicole"
 3.2.0:
     notes:
     - "[Architecture] Switched to linuxserver.io container base image"
+    - "[Architecture] Reworked image handling"
     - "[Feature] Added basic support for albums"
     - "[Feature] New start page"
     - "[Feature] Added UI for track-artist, track-album and album-artist association"
@@ -10,3 +11,4 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed search on manual scrobble page"
     - "[Bugfix] Disabled DB maintenance while not running main server"
     - "[Bugfix] Removed some nonsensical ephemereal database entry creations"
+    - "[Bugfix] Fixed API endpoint for track charts with no artist provided"

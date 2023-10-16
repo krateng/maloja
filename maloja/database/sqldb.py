@@ -1108,7 +1108,7 @@ def count_scrobbles_by_track_of_artist(since,to,artist,resolve_ids=True,dbconn=N
 @connection_provider
 def count_scrobbles_by_track_of_album(since,to,album,resolve_ids=True,dbconn=None):
 
-	album_id = get_album_id(album,dbconn=dbconn)
+	album_id = get_album_id(album,dbconn=dbconn) if album else None
 
 	jointable = sql.join(
 		DB['scrobbles'],

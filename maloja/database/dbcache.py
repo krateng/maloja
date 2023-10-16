@@ -134,7 +134,7 @@ else:
 def serialize(obj):
 	try:
 		return serialize(obj.hashable())
-	except Exception:
+	except AttributeError:
 		try:
 			return json.dumps(obj)
 		except Exception:
