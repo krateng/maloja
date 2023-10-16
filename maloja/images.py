@@ -137,8 +137,8 @@ def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
 			result = conn.execute(op).all()
 
 		for row in result:
-			targetpath = data_dir['cache']('images',row.localproxyurl.split('/')[-1])
 			try:
+				targetpath = data_dir['cache']('images',row.localproxyurl.split('/')[-1])
 				os.remove(targetpath)
 			except:
 				pass
