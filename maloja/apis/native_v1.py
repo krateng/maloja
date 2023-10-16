@@ -305,6 +305,7 @@ def get_charts_tracks_external(**keys):
 	:return: list (List)
 	:rtype: Dictionary"""
 	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
+	# force artist because track charts can never be of a track or album, only of an artist or global
 	ckeys = {**k_filter, **k_time}
 
 	result = database.get_charts_tracks(**ckeys)

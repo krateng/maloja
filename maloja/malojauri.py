@@ -12,14 +12,18 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 	# 3	keys that define interal time ranges
 	# 4	keys that define amount limits
 
-	type = None
-	if forceTrack: type = "track"
-	if forceArtist: type = "artist"
-	if forceAlbum: type = "album"
+	# if we force a type, that only means that the other types are not allowed
+	# it could still have no type at all (any call that isn't filtering by entity)
 
-	if not type and "title" in keys: type = "track"
-	if not type and "albumtitle" in keys: type = "album"
-	if not type and "artist" in keys: type = "artist"
+	type = None
+	if forceTrack and "title" in keys: type = "track"
+	if forceArtist and "artist" in keys: type = "artist"
+	if forceAlbum and "albumtitle" in keys: type = "album"
+
+	if (not forceTrack) and (not forceAlbum) and (not forceArtist) and (not type):
+		if "title" in keys: type = "track"
+		if "albumtitle" in keys: type = "album"
+		if "artist" in keys: type = "artist"
 
 	# 1
 	if type == "track":
