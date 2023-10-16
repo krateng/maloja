@@ -22,8 +22,9 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 
 	if (not forceTrack) and (not forceAlbum) and (not forceArtist) and (not type):
 		if "title" in keys: type = "track"
-		if "albumtitle" in keys: type = "album"
-		if "artist" in keys: type = "artist"
+		elif "albumtitle" in keys: type = "album"
+		elif "artist" in keys: type = "artist"
+
 
 	# 1
 	if type == "track":
