@@ -1,8 +1,10 @@
 import os
 
 from importlib import resources
-from setuptools import distutils
-
+try:
+	from setuptools import distutils
+except ImportError:
+	import distutils
 from doreah.io import col, ask, prompt
 from doreah import auth
 

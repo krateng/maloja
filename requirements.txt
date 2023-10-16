@@ -9,3 +9,4 @@ psutil>=5.8.0
 sqlalchemy>=1.4
 python-datauri>=1.1.0
 requests>=2.27.1
+setuptools>68.0.0
