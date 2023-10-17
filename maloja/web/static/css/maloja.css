@@ -83,7 +83,26 @@ div.clickable_icon.danger:hover svg {
 	fill: red;
 }
 
+#icon_bar svg {
+	width:24px;
+	height:24px;
+}
+.list svg {
+	height:16px;
+}
+.list div.clickable_icon {
+	display: inline-block;
+}
 
+.list tr.marked {
+	background-color: rgba(50,20,0,0.5);
+}
+.list tr.marked #associationmarkicon {
+	display:none;
+}
+.list tr:not(.marked) #associationcancelicon {
+	display:none;
+}
 
 /**
 Footer

@@ -310,17 +310,82 @@ function markForMerge() {
 	showValidMergeIcons();
 }
 
-function markForAssociate() {
+function markForAssociate(element) {
+	console.log(element);
+	const parentElement = element.closest('[data-entity_id]');
+	console.log(parentElement);
+	// use local element for entity data, otherwise use from global scope (on entity info page)
+	var l_entity_type = parentElement ? parentElement.dataset.entity_type : entity_type;
+	var l_entity_id = parentElement ? parentElement.dataset.entity_id : entity_id;
+	var l_entity_name = parentElement ? parentElement.dataset.entity_name : entity_name;
+	l_entity_id = parseInt(l_entity_id);
+
+
+	const lcst = window.sessionStorage;
+	var key = "marked_for_associate_" + l_entity_type;
+	var current_stored = (lcst.getItem(key) || '').split(",");
+	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	current_stored.push(l_entity_id);
+	current_stored = [...new Set(current_stored)];
+	lcst.setItem(key,current_stored); //this already formats it correctly
+	var whattoadd = ((l_entity_type == 'track') ? "Artists or Album" : "Artists")
+	notify("Marked " + l_entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
+	if (!parentElement) {
+		showValidMergeIcons();
+	}
+	else {
+		toggleAssociationIcons(parentElement);
+	}
+
+}
+
+function umarkForAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+	// use local element for entity data, otherwise use from global scope (on entity info page)
+	var l_entity_type = parentElement ? parentElement.dataset.entity_type : entity_type;
+	var l_entity_id = parentElement ? parentElement.dataset.entity_id : entity_id;
+	var l_entity_name = parentElement ? parentElement.dataset.entity_name : entity_name;
+	l_entity_id = parseInt(l_entity_id);
+
+	const lcst = window.sessionStorage;
+	var key = "marked_for_associate_" + l_entity_type;
+	var current_stored = (lcst.getItem(key) || '').split(",");
+	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+
+	if (current_stored.indexOf(l_entity_id) > -1) {
+		current_stored.splice(current_stored.indexOf(l_entity_id),1);
+		current_stored = [...new Set(current_stored)];
+		lcst.setItem(key,current_stored); //this already formats it correctly
+		var whattoadd = ((l_entity_type == 'track') ? "Artists or Album" : "Artists")
+		notify("Unmarked " + l_entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
+		if (!parentElement) {
+			showValidMergeIcons();
+		}
+		else {
+			toggleAssociationIcons(parentElement);
+		}
+	}
+	else {
+		notify(entity_name + " was not marked!","")
+	}
+
+}
+
+function toggleAssociationIcons(element) {
+	var entity_type = element.dataset.entity_type;
+	var entity_id = element.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
 	const lcst = window.sessionStorage;
 	var key = "marked_for_associate_" + entity_type;
 	var current_stored = (lcst.getItem(key) || '').split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-	current_stored.push(entity_id);
-	current_stored = [...new Set(current_stored)];
-	lcst.setItem(key,current_stored); //this already formats it correctly
-	var whattoadd = ((entity_type == 'track') ? "Artists or Album" : "Artists")
-	notify("Marked " + entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
-	showValidMergeIcons();
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		element.classList.add('marked');
+	} else {
+		element.classList.remove('marked');
+	}
 }
 
 function merge() {
