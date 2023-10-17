@@ -6,9 +6,6 @@
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
 
-<script src="/edit.js"></script>
-
-
 <table class='list'>
 	{% for s in scrobbles -%}
 		{%- if loop.index0 >= firstindex and loop.index0 < lastindex -%}

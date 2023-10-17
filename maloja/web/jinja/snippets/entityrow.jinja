@@ -1,4 +1,4 @@
-{% macro row(entity,counting=[]) %}
+{% macro row(entity,counting=[],adminmode=False) %}
 
 {% import 'snippets/links.jinja' as links %}
 
@@ -33,6 +33,13 @@
 	{% endif %}
 	</td>
 
+{% endif %}
+
+{% if adminmode and (entity is mapping)  %}
+<td>
+{% include 'icons/association_mark.jinja' %}
+{% include 'icons/association_unmark.jinja' %}
+</td>
 {% endif %}
 
 {% endmacro %}

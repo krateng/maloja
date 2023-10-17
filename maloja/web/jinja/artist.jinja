@@ -6,7 +6,6 @@
 
 {% block scripts %}
 	<script src="/statselect.js"></script>
-	<script src="/edit.js"></script>
 {% endblock %}
 
 {% set artist = filterkeys.artist %}
@@ -30,11 +29,19 @@
 {% block icon_bar %}
 	{% if adminmode %}
 		{% include 'icons/edit.jinja' %}
+
+		<div class="iconsubset mergeicons" data-entity_type="artist" data-entity_id="{{ info.id }}" data-entity_name="{{ info.artist }}">
 		{% include 'icons/merge.jinja' %}
 		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_unmark.jinja' %}
 		{% include 'icons/merge_cancel.jinja' %}
+		</div>
+
+		<div class="iconsubset associateicons" data-entity_type="artist" data-entity_id="{{ info.id }}" data-entity_name="{{ info.artist }}">
 		{% include 'icons/add_artist.jinja' %}
-		<script>showValidMergeIcons();</script>
+		{% include 'icons/association_cancel.jinja' %}
+		</div>
+
 	{% endif %}
 {% endblock %}
 

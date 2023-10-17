@@ -30,12 +30,13 @@
 {% set lastindex = firstindex + amountkeys.perpage %}
 
 
+
 {% set maxbar = charts[0]['scrobbles'] if charts != [] else 0 %}
 
 <table class='list'>
 	{% for e in charts %}
 		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
-		<tr>
+		<tr class="listrow associateicons" data-entity_id="{{ e['artist_id'] }}" data-entity_type="artist" data-entity_name="{{ e['artist'] }}">
 			<!-- Rank -->
 			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
 			<!-- Rank change -->
@@ -48,7 +49,7 @@
 			{% endif %}
 
 			<!-- artist -->
-			{{ entityrow.row(e['artist']) }}
+			{{ entityrow.row(e['artist'],adminmode=True) }}
 
 			<!-- scrobbles -->
 			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>

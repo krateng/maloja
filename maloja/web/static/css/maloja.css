@@ -67,6 +67,10 @@ div#icon_bar {
 	right:30px;
 	top:30px;
 }
+.iconsubset {
+	display: inline-block;
+	padding-left:20px;
+}
 
 div#icon_bar div.clickable_icon {
 	display: inline-block;
@@ -94,14 +98,75 @@ div.clickable_icon.danger:hover svg {
 	display: inline-block;
 }
 
-.list tr.marked {
-	background-color: rgba(50,20,0,0.5);
+.list {
+	--color_bg_merge: rgba(0,0,90,0.7);
+	--color_fg_merge: lightblue;
+	--color_bg_associate: rgba(50,20,0,0.7);
+	--color_fg_associate: orange;
 }
-.list tr.marked #associationmarkicon {
-	display:none;
+
+.list tr.marked_for_associate {
+	background-color: var(--color_bg_associate);
+	color: var(--color_fg_associate);
 }
-.list tr:not(.marked) #associationcancelicon {
-	display:none;
+.list tr.marked_for_merge {
+	background-color: var(--color_bg_merge);
+	color: var(--color_fg_merge);;
+}
+
+@keyframes slideBackground {
+  0% {
+    background-position: 100% 0;
+  }
+	50% {
+		background-position: 0 0;
+	}
+  100% {
+    background-position: 100% 0;
+  }
+}
+@keyframes colorChange {
+  0% {
+    color: var(--color_fg_associate);
+  }
+  50% {
+    color: var(--color_fg_merge);
+  }
+  100% {
+    color: var(--color_fg_associate);
+  }
+}
+
+.list tr.marked_for_associate.marked_for_merge {
+	background: linear-gradient(to left, var(--color_bg_associate), var(--color_bg_merge));
+  background-size: 100% 100%;
+  animation: colorChange 4s infinite ease-in-out;
+}
+
+
+/* this is just to 'factor out' that big selector down there.
+we want icons to not be displayed in list rows, but show them with reduced opacity in the top bar */
+.list {
+	--display_inactive_icons: none;
+}
+#icon_bar {
+	--display_inactive_icons: inline-block;
+}
+
+.associateicons.marked_for_associate .associationmarkicon, /* already marked, cant mark again */
+.associateicons:not(.marked_for_associate) .associationunmarkicon, /* not marked, cant unmark */
+.associateicons:not(.somethingmarked_for_associate) .associatecancelicon, /* cant cancel when nothing is marked */
+.mergeicons.marked_for_merge #mergemarkicon, /* already marked, cant mark again */
+.mergeicons:not(.marked_for_merge) #mergeunmarkicon, /* not marked, cant unmark */
+.mergeicons:not(.somethingmarked_for_merge) #mergecancelicon, /* cant cancel when nothing is marked */
+.mergeicons:not(.somethingmarked_for_merge) #mergeicon, /* can't merge when nothing is selected */
+.mergeicons.marked_for_merge #mergeicon, /* cant merge into one of the things we have selected */
+.associateicons:not(.sources_marked_for_associate) #associatealbumicon,
+.associateicons:not(.sources_marked_for_associate) #associateartisticon /* nothing marked yet, can't associate with this */
+ {
+	pointer-events: none;
+	opacity:0.5;
+	display: var(--display_inactive_icons);
 }
 
 /**

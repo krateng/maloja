@@ -5,7 +5,6 @@
 
 {% block scripts %}
 	<script src="/statselect.js"></script>
-	<script src="/edit.js"></script>
 	<script>
 		function scrobble(encodedtrack) {
 			neo.xhttprequest('/apis/mlj_1/newscrobble?nofix&' + encodedtrack,data={},method="POST").then(response=>{window.location.reload()});
@@ -25,12 +24,19 @@
 {% block icon_bar %}
 	{% if adminmode %}
 		{% include 'icons/edit.jinja' %}
+
+		<div class="iconsubset mergeicons" data-entity_type="track" data-entity_id="{{ info.id }}" data-entity_name="{{ info.track.title }}">
 		{% include 'icons/merge.jinja' %}
 		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_unmark.jinja' %}
 		{% include 'icons/merge_cancel.jinja' %}
+		</div>
+
+		<div class="iconsubset associateicons" data-entity_type="track" data-entity_id="{{ info.id }}" data-entity_name="{{ info.track.title }}">
 		{% include 'icons/association_mark.jinja' %}
+		{% include 'icons/association_unmark.jinja' %}
 		{% include 'icons/association_cancel.jinja' %}
-		<script>showValidMergeIcons();</script>
+		</div>
 	{% endif %}
 {% endblock %}
 

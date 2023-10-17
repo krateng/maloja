@@ -187,186 +187,117 @@ function doneEditing() {
 	}
 }
 
-// MERGING
+// MERGING AND ASSOCIATION
 
-function showValidMergeIcons() {
+const associate_targets = {
+	album: ['artist'],
+	track: ['album','artist'],
+	artist: []
+};
 
-	// merge
+const associate_sources = {
+	artist: ['album','track'],
+	album: ['track'],
+	track: []
+};
+
+
+function getStoredList(key) {
 	const lcst = window.sessionStorage;
-	var key = "marked_for_merge_" + entity_type;
 	var current_stored = (lcst.getItem(key) || '').split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-
-	var mergeicon = document.getElementById('mergeicon');
-	var mergemarkicon = document.getElementById('mergemarkicon');
-	var mergecancelicon = document.getElementById('mergecancelicon');
-
-	mergeicon.classList.add('hide');
-	mergemarkicon.classList.add('hide');
-	mergecancelicon.classList.add('hide');
-
-	if (current_stored.length == 0) {
-		mergemarkicon.classList.remove('hide');
-	}
-	else {
-		mergecancelicon.classList.remove('hide');
-
-		if (current_stored.includes(entity_id)) {
-
-		}
-		else {
-			mergemarkicon.classList.remove('hide');
-			mergeicon.classList.remove('hide');
-		}
-	}
-
-	// mark for association
-	if ((entity_type == 'track') || (entity_type == 'album')) {
-		const lcst = window.sessionStorage;
-		var key = "marked_for_associate_" + entity_type;
-		var current_stored = (lcst.getItem(key) || '').split(",");
-		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-
-		var associationmarkicon = document.getElementById('associationmarkicon');
-		var associationcancelicon = document.getElementById('associationcancelicon');
-
-		associationmarkicon.classList.add('hide');
-		associationcancelicon.classList.add('hide');
-
-
-		if (current_stored.length == 0) {
-			associationmarkicon.classList.remove('hide');
-		}
-		else {
-			associationcancelicon.classList.remove('hide');
-
-			if (current_stored.includes(entity_id)) {
-
-			}
-			else {
-				associationmarkicon.classList.remove('hide');
-			}
-		}
-
-		if (entity_type == 'track') {
-			associationmarkicon.title = "Mark this track to add to album or add artist";
-		}
-		else {
-			associationmarkicon.title = "Mark this album to add artist";
-		}
-	}
-
-
-
-	// association confirm
-	if ((entity_type == 'artist') || (entity_type == 'album')) {
-		var target_entity_types = {artist:['album','track'], album:['track']};
-		var to_associate = {};
-		var to_associate_all = [];
-		for (var target_entity_type of target_entity_types[entity_type]) {
-			const lcst = window.sessionStorage;
-			var key = "marked_for_associate_" + target_entity_type;
-			var current_stored = (lcst.getItem(key) || '').split(",");
-			to_associate[target_entity_type] = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-			to_associate_all = to_associate_all.concat(to_associate[target_entity_type]);
-		}
-
-		var associateicon = document.getElementById('associate' + entity_type + 'icon');
-
-		associateicon.classList.add('hide');
-
-
-		if (to_associate_all.length == 0) {
-
-		}
-		else {
-			associateicon.classList.remove('hide');
-			if (entity_type == 'artist') {
-				associateicon.title = "Add this artist to " + to_associate['album'].length + " albums and " + to_associate['track'].length + " tracks";
-			}
-			else {
-				associateicon.title = "Add " + to_associate['track'].length + " tracks to this album";
-			}
-
-		}
-	}
-
-
-
-
-
+	return current_stored;
+}
+function storeList(key,list) {
+	const lcst = window.sessionStorage;
+	list = [...new Set(list)];
+	lcst.setItem(key,list); //this already formats it correctly
 }
 
 
-function markForMerge() {
-	const lcst = window.sessionStorage;
-	var key = "marked_for_merge_" + entity_type;
-	var current_stored = (lcst.getItem(key) || '').split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+
+function markForMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+	key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
 	current_stored.push(entity_id);
-	current_stored = [...new Set(current_stored)];
-	lcst.setItem(key,current_stored); //this already formats it correctly
+	storeList(key,current_stored)
+
 	notify("Marked " + entity_name + " for merge","Currently " + current_stored.length + " marked!")
-	showValidMergeIcons();
+
+	toggleMergeIcons(parentElement);
+}
+
+function unmarkForMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+	var key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		current_stored.splice(current_stored.indexOf(entity_id),1);
+		storeList(key,current_stored);
+		notify("Unmarked " + entity_name + " from merge","Currently " + current_stored.length + " marked!")
+
+		toggleMergeIcons(parentElement);
+	}
+	else {
+		//notify(entity_name + " was not marked!","")
+	}
 }
 
 function markForAssociate(element) {
-	console.log(element);
 	const parentElement = element.closest('[data-entity_id]');
-	console.log(parentElement);
-	// use local element for entity data, otherwise use from global scope (on entity info page)
-	var l_entity_type = parentElement ? parentElement.dataset.entity_type : entity_type;
-	var l_entity_id = parentElement ? parentElement.dataset.entity_id : entity_id;
-	var l_entity_name = parentElement ? parentElement.dataset.entity_name : entity_name;
-	l_entity_id = parseInt(l_entity_id);
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
 
 
-	const lcst = window.sessionStorage;
-	var key = "marked_for_associate_" + l_entity_type;
-	var current_stored = (lcst.getItem(key) || '').split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-	current_stored.push(l_entity_id);
-	current_stored = [...new Set(current_stored)];
-	lcst.setItem(key,current_stored); //this already formats it correctly
-	var whattoadd = ((l_entity_type == 'track') ? "Artists or Album" : "Artists")
-	notify("Marked " + l_entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
-	if (!parentElement) {
-		showValidMergeIcons();
-	}
-	else {
-		toggleAssociationIcons(parentElement);
-	}
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = getStoredList(key);
+	current_stored.push(entity_id);
+	storeList(key,current_stored);
+
+	notify("Marked " + entity_name + " to add to " + associate_targets[entity_type].join(" or "),"Currently " + current_stored.length + " marked!")
+
+	toggleAssociationIcons(parentElement);
 
 }
 
 function umarkForAssociate(element) {
 	const parentElement = element.closest('[data-entity_id]');
-	// use local element for entity data, otherwise use from global scope (on entity info page)
-	var l_entity_type = parentElement ? parentElement.dataset.entity_type : entity_type;
-	var l_entity_id = parentElement ? parentElement.dataset.entity_id : entity_id;
-	var l_entity_name = parentElement ? parentElement.dataset.entity_name : entity_name;
-	l_entity_id = parseInt(l_entity_id);
 
-	const lcst = window.sessionStorage;
-	var key = "marked_for_associate_" + l_entity_type;
-	var current_stored = (lcst.getItem(key) || '').split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
 
-	if (current_stored.indexOf(l_entity_id) > -1) {
-		current_stored.splice(current_stored.indexOf(l_entity_id),1);
-		current_stored = [...new Set(current_stored)];
-		lcst.setItem(key,current_stored); //this already formats it correctly
-		var whattoadd = ((l_entity_type == 'track') ? "Artists or Album" : "Artists")
-		notify("Unmarked " + l_entity_name + " to add " + whattoadd,"Currently " + current_stored.length + " marked!")
-		if (!parentElement) {
-			showValidMergeIcons();
-		}
-		else {
-			toggleAssociationIcons(parentElement);
-		}
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		current_stored.splice(current_stored.indexOf(entity_id),1);
+		storeList(key,current_stored);
+
+		notify("Unmarked " + entity_name + " from association with " + associate_targets[entity_type].join(" or "),"Currently " + current_stored.length + " marked!")
+
+		toggleAssociationIcons(parentElement);
 	}
 	else {
-		notify(entity_name + " was not marked!","")
+		//notify(entity_name + " was not marked!","")
 	}
 
 }
@@ -376,23 +307,78 @@ function toggleAssociationIcons(element) {
 	var entity_id = element.dataset.entity_id;
 	entity_id = parseInt(entity_id);
 
-	const lcst = window.sessionStorage;
 	var key = "marked_for_associate_" + entity_type;
-	var current_stored = (lcst.getItem(key) || '').split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	var current_stored = getStoredList(key);
 
 	if (current_stored.indexOf(entity_id) > -1) {
-		element.classList.add('marked');
+		element.classList.add('marked_for_associate');
 	} else {
-		element.classList.remove('marked');
+		element.classList.remove('marked_for_associate');
+	}
+
+	if (current_stored.length > 0) {
+		element.classList.add('somethingmarked_for_associate');
+	}
+	else {
+		element.classList.remove('somethingmarked_for_associate');
+	}
+
+	var sourcetypes = associate_sources[entity_type];
+	var sourcelist = [];
+	for (var src of sourcetypes) {
+		var key = "marked_for_associate_" + src;
+		sourcelist = sourcelist.concat(getStoredList(key));
+	}
+	if (sourcelist.length > 0) {
+		element.classList.add('sources_marked_for_associate');
+	}
+	else {
+		element.classList.remove('sources_marked_for_associate');
+	}
+
+}
+
+function toggleMergeIcons(element) {
+	var entity_type = element.dataset.entity_type;
+	var entity_id = element.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
+	var key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		element.classList.add('marked_for_merge');
+	} else {
+		element.classList.remove('marked_for_merge');
+	}
+
+
+	if (current_stored.length > 0) {
+		element.classList.add('somethingmarked_for_merge');
+	}
+	else {
+		element.classList.remove('somethingmarked_for_merge');
 	}
 }
 
+document.addEventListener('DOMContentLoaded',function(){
+	var listrows = document.getElementsByClassName('listrow');
+	for (var row of listrows) {
+		toggleAssociationIcons(row);
+		toggleMergeIcons(row); //just for the coloring, no icons
+	}
+	var topbars = document.getElementsByClassName('iconsubset');
+	for (var bar of topbars) {
+		toggleAssociationIcons(bar);
+		toggleMergeIcons(bar);
+	}
+})
+
+
+
 function merge() {
-	const lcst = window.sessionStorage;
 	var key = "marked_for_merge_" + entity_type;
-	var current_stored = lcst.getItem(key).split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	var current_stored = getStoredList(key);
 
 	callback_func = function(req){
 		if (req.status == 200) {
@@ -415,26 +401,28 @@ function merge() {
 		json=true
 	);
 
-	lcst.removeItem(key);
+	storeList(key,[]);
 }
 
 
 
-function associate() {
-	const lcst = window.sessionStorage;
-	var target_entity_types = {artist:['album','track'], album:['track']};
+function associate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
 	var requests_todo = 0;
-	for (var target_entity_type of target_entity_types[entity_type]) {
+	for (var target_entity_type of associate_sources[entity_type]) {
 		var key = "marked_for_associate_" + target_entity_type;
-		var current_stored = (lcst.getItem(key) || '').split(",");
-		current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+		var current_stored = getStoredList(key);
 
 		if (current_stored.length != 0) {
 			requests_todo += 1;
 			callback_func = function(req){
 				if (req.status == 200) {
 
-					showValidMergeIcons();
+					toggleAssociationIcons(parentElement);
 					notifyCallback(req);
 					requests_todo -= 1;
 					if (requests_todo == 0) {
@@ -458,24 +446,30 @@ function associate() {
 				json=true
 			);
 
-			lcst.removeItem(key);
+			storeList(key,[]);
 		}
 
 	}
 
 }
 
-function cancelMerge() {
-	const lcst = window.sessionStorage;
+function cancelMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+
 	var key = "marked_for_merge_" + entity_type;
-	lcst.setItem(key,[]);
-	showValidMergeIcons();
-	notify("Cancelled merge!","")
+	storeList(key,[])
+	toggleMergeIcons(parentElement);
+	notify("Cancelled " + entity_type + " merge!","")
 }
-function cancelAssociate() {
-	const lcst = window.sessionStorage;
+function cancelAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+
 	var key = "marked_for_associate_" + entity_type;
-	lcst.setItem(key,[]);
-	showValidMergeIcons();
-	notify("Cancelled association!","")
+	storeList(key,[])
+	toggleAssociationIcons(parentElement);
+	notify("Cancelled " + entity_type + " association!","")
 }
