@@ -49,7 +49,7 @@
 			{% endif %}
 
 			<!-- artist -->
-			{{ entityrow.row(e['artist'],adminmode=True) }}
+			{{ entityrow.row(e['artist'],adminmode=adminmode) }}
 
 			<!-- scrobbles -->
 			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
