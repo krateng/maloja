@@ -30,13 +30,13 @@ def print_header_info():
 
 def get_instance():
 	try:
-		return int(subprocess.check_output(["pidof","maloja"]))
+		return int(subprocess.check_output(["pgrep","-x","maloja"]))
 	except Exception:
 		return None
 
 def get_instance_supervisor():
 	try:
-		return int(subprocess.check_output(["pidof","maloja_supervisor"]))
+		return int(subprocess.check_output(["pgrep","-x","maloja_supervisor"]))
 	except Exception:
 		return None
 
