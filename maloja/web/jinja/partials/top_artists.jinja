@@ -20,9 +20,9 @@
 			<td class='amount'>0</td>
 			<td class='bar'></td>
 		{% else %}
-		{{ entityrow.row(artist) }}
-		<td class='amount'>{{ links.link_scrobbles([{'artist':artist,'timerange':thisrange}],amount=e.scrobbles) }}</td>
-		<td class='bar'> {{ links.link_scrobbles([{'artist':artist,'timerange':thisrange}],percent=e.scrobbles*100/maxbar) }}</td>
+		{{ entityrow.row(artist,counting=e.associated_artists) }}
+		<td class='amount'>{{ links.link_scrobbles([{'artist':artist,'timerange':thisrange,'associated':True}],amount=e.scrobbles) }}</td>
+		<td class='bar'> {{ links.link_scrobbles([{'artist':artist,'timerange':thisrange,'associated':True}],percent=e.scrobbles*100/maxbar) }}</td>
 		{% endif %}
 
 	</tr>

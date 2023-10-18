@@ -374,6 +374,9 @@ def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	associated = keys.get('associated',True)
 	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=associated,dbconn=dbconn)
+	for entry in result:
+		if "artist" in entry:
+			entry['associated_artists'] = sqldb.get_associated_artists(entry['artist'])
 	return result
 
 @waitfordb
@@ -458,7 +461,7 @@ def get_top_artists(dbconn=None,**keys):
 	for rng in rngs:
 		try:
 			res = get_charts_artists(timerange=rng,dbconn=dbconn)[0]
-			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"]})
+			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"],"associated_artists":sqldb.get_associated_artists(res["artist"])})
 		except Exception:
 			results.append({"range":rng,"artist":None,"scrobbles":0})
 
