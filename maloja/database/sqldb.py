@@ -783,6 +783,17 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,as
 	).order_by(sql.asc('timestamp'))
 	result = dbconn.execute(op).all()
 
+	# remove duplicates (multiple associated artists in the song, e.g. Irene & Seulgi being both counted as Red Velvet)
+	# distinct on doesn't seem to exist in sqlite
+	seen = set()
+	filtered_result = []
+	for row in result:
+	    if row.timestamp not in seen:
+	        filtered_result.append(row)
+	        seen.add(row.timestamp)
+	result = filtered_result
+
+
 	if resolve_references:
 		result = scrobbles_db_to_dict(result,dbconn=dbconn)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for row in result]
