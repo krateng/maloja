@@ -35,12 +35,15 @@
 
 {% endif %}
 
-{% if adminmode and (entity is mapping)  %}
+
+{% if adminmode %}
 <td>
 {% include 'icons/merge_mark.jinja' %}
 {% include 'icons/merge_unmark.jinja' %}
+{% if (entity is mapping)  %}
 {% include 'icons/association_mark.jinja' %}
 {% include 'icons/association_unmark.jinja' %}
+{% endif %}
 </td>
 {% endif %}
 
