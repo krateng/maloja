@@ -309,8 +309,9 @@ def associate_tracks_to_album(target_id,source_ids):
 @waitfordb
 def get_scrobbles(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
+	associated = keys.get('associated',False)
 	if 'artist' in keys:
-		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,dbconn=dbconn)
+		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,associated=associated,dbconn=dbconn)
 	elif 'track' in keys:
 		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,dbconn=dbconn)
 	elif 'album' in keys:
@@ -324,8 +325,9 @@ def get_scrobbles(dbconn=None,**keys):
 @waitfordb
 def get_scrobbles_num(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
+	associated = keys.get('associated',False)
 	if 'artist' in keys:
-		result = len(sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,resolve_references=False,dbconn=dbconn))
+		result = len(sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,associated=associated,resolve_references=False,dbconn=dbconn))
 	elif 'track' in keys:
 		result = len(sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,resolve_references=False,dbconn=dbconn))
 	elif 'album' in keys:
@@ -370,14 +372,15 @@ def get_tracks_without_album(dbconn=None,resolve_ids=True):
 @waitfordb
 def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
+	associated = keys.get('associated',True)
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=associated,dbconn=dbconn)
 	return result
 
 @waitfordb
 def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_track_of_artist(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
 	elif 'album' in keys:
 		result = sqldb.count_scrobbles_by_track_of_album(since=since,to=to,album=keys['album'],resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
@@ -388,7 +391,7 @@ def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],resolve_ids=resolve_ids,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
 		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
@@ -629,15 +632,16 @@ def get_featured(dbconn=None):
 		alltime()
 	]
 	funcs = {
-		"artist": get_charts_artists,
-		"album": get_charts_albums,
-		"track": get_charts_tracks
+		"artist": (get_charts_artists,{'associated':False}),
+		"album": (get_charts_albums,{}),
+		"track": (get_charts_tracks,{})
 	}
 	result = {t:None for t in funcs}
 
 	for entity_type in funcs:
 		for r in ranges:
-			chart = funcs[entity_type](timerange=r)
+			func,kwargs = funcs[entity_type]
+			chart = func(timerange=r,**kwargs)
 			if chart:
 				result[entity_type] = chart[0][entity_type]
 				break

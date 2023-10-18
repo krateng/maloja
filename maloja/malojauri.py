@@ -31,11 +31,17 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 		filterkeys = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
 	elif type == "artist":
 		filterkeys = {"artist":keys.get("artist")}
-		if "associated" in keys: filterkeys["associated"] = True
+		filterkeys["associated"] = (keys.get('associated','no').lower() == 'yes')
+		# associated is only used for filtering by artist, to indicate that we include associated artists
+		# for actual artist charts, to show that we want to count them, use 'unified'
 	elif type == "album":
 		filterkeys = {"album":{"artists":keys.getall("artist"),"albumtitle":keys.get("albumtitle") or keys.get("title")}}
 	else:
 		filterkeys = {}
+
+	# this can be the case regardless of actual entity filter
+	# e.g if i get scrobbles of an artist associated tells me i want all scrobbles by associated artists
+	# but seeing the artist charts (wich have no filterkeys) also is affected by this
 
 	# 2
 	limitkeys = {}
@@ -104,6 +110,7 @@ def internal_to_uri(keys):
 		for a in keys["album"].get("artists") or []:
 			urikeys.append("artist",a)
 		urikeys.append("albumtitle",keys["album"]["albumtitle"])
+
 
 	#time
 	if "timerange" in keys:

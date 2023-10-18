@@ -61,3 +61,17 @@
 		</div>
 
 	{% endif %}
+
+	{% if 'artist' in filterkeys %}
+	<div>
+		{% for o in xassociated %}
+			{% if o.replacekeys | map('compare_key_in_dicts',o.replacekeys,allkeys) | alltrue %}
+			<span style='opacity:0.5;'>{{ o.localisation }}</span>
+			{% else %}
+			<a href='{{ mlj_uri.create_uri("",allkeys,o.replacekeys) }}'><span>{{ o.localisation }}</span></a>
+			{% endif %}
+			{{ "|" if not loop.last }}
+		{% endfor %}
+
+	</div>
+	{% endif %}

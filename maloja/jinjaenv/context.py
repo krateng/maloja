@@ -72,6 +72,10 @@ def update_jinja_environment():
 			{"identifier":"longtrailing","replacekeys":{"trail":3},"localisation":"Long Trailing"},
 			{"identifier":"inert","replacekeys":{"trail":10},"localisation":"Inert","heavy":True},
 			{"identifier":"cumulative","replacekeys":{"trail":math.inf},"localisation":"Cumulative","heavy":True}
+		],
+		"xassociated": [
+			{"identifier":"include_associated","replacekeys":{"associated":True},"localisation":"Associated"},
+			{"identifier":"exclude_associated","replacekeys":{"associated":False},"localisation":"Exclusive"}
 		]
 	}
 
