@@ -29,6 +29,8 @@
 
 		<div class="iconsubset associateicons" data-entity_type="album" data-entity_id="{{ info.id }}" data-entity_name="{{ info.album.albumtitle }}">
 		{% include 'icons/add_album.jinja' %}
+		<!-- no remove album since that is not a specified association - every track only has one album, so the removal should
+		be handled on the track page (or for now, not at all) -->
 		{% include 'icons/association_mark.jinja' %}
 		{% include 'icons/association_unmark.jinja' %}
 		{% include 'icons/association_cancel.jinja' %}

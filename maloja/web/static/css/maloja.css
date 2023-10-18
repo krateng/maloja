@@ -162,7 +162,9 @@ we want icons to not be displayed in list rows, but show them with reduced opaci
 .mergeicons:not(.somethingmarked_for_merge) #mergeicon, /* can't merge when nothing is selected */
 .mergeicons.marked_for_merge #mergeicon, /* cant merge into one of the things we have selected */
 .associateicons:not(.sources_marked_for_associate) #associatealbumicon,
-.associateicons:not(.sources_marked_for_associate) #associateartisticon /* nothing marked yet, can't associate with this */
+.associateicons:not(.sources_marked_for_associate) #associateartisticon,
+.associateicons:not(.sources_marked_for_associate) #removealbumicon,
+.associateicons:not(.sources_marked_for_associate) #removeartisticon /* nothing marked yet, can't associate with this */
  {
 	pointer-events: none;
 	opacity:0.5;

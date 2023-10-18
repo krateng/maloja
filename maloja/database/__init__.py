@@ -269,11 +269,15 @@ def merge_albums(target_id,source_ids):
 
 
 @waitfordb
-def associate_albums_to_artist(target_id,source_ids):
+def associate_albums_to_artist(target_id,source_ids,remove=False):
 	sources = [sqldb.get_album(id) for id in source_ids]
 	target = sqldb.get_artist(target_id)
-	log(f"Adding {sources} into {target}")
-	sqldb.add_artists_to_albums(artist_ids=[target_id],album_ids=source_ids)
+	if remove:
+		log(f"Removing {sources} from {target}")
+		sqldb.remove_artists_from_albums(artist_ids=[target_id],album_ids=source_ids)
+	else:
+		log(f"Adding {sources} into {target}")
+		sqldb.add_artists_to_albums(artist_ids=[target_id],album_ids=source_ids)
 	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
@@ -281,11 +285,15 @@ def associate_albums_to_artist(target_id,source_ids):
 	return result
 
 @waitfordb
-def associate_tracks_to_artist(target_id,source_ids):
+def associate_tracks_to_artist(target_id,source_ids,remove=False):
 	sources = [sqldb.get_track(id) for id in source_ids]
 	target = sqldb.get_artist(target_id)
-	log(f"Adding {sources} into {target}")
-	sqldb.add_artists_to_tracks(artist_ids=[target_id],track_ids=source_ids)
+	if remove:
+		log(f"Removing {sources} from {target}")
+		sqldb.remove_artists_from_tracks(artist_ids=[target_id],track_ids=source_ids)
+	else:
+		log(f"Adding {sources} into {target}")
+		sqldb.add_artists_to_tracks(artist_ids=[target_id],track_ids=source_ids)
 	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
@@ -294,10 +302,14 @@ def associate_tracks_to_artist(target_id,source_ids):
 
 @waitfordb
 def associate_tracks_to_album(target_id,source_ids):
+	# target_id None means remove from current album!
 	sources = [sqldb.get_track(id) for id in source_ids]
-	target = sqldb.get_album(target_id)
-	log(f"Adding {sources} into {target}")
-	sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+	if target_id:
+		target = sqldb.get_album(target_id)
+		log(f"Adding {sources} into {target}")
+		sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+	else:
+		sqldb.remove_album(source_ids)
 	result = {'sources':sources,'target':target}
 	dbcache.invalidate_entity_cache()
 	dbcache.invalidate_caches()
@@ -350,7 +362,7 @@ def get_tracks(dbconn=None,**keys):
 def get_artists(dbconn=None):
 	return sqldb.get_artists(dbconn=dbconn)
 
-
+@waitfordb
 def get_albums_artist_appears_on(dbconn=None,**keys):
 
 	artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)

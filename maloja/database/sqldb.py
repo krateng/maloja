@@ -397,6 +397,14 @@ def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
 	for track_id in track_to_album_id_dict:
 		add_track_to_album(track_id,track_to_album_id_dict[track_id],dbconn=dbconn)
 
+@connection_provider
+def remove_album(*track_ids,dbconn=None):
+	
+	DB['tracks'].update().where(
+		DB['tracks'].c.track_id.in_(track_ids)
+	).values(
+		album_id=None
+	)
 
 ### these will 'get' the ID of an entity, creating it if necessary
 
@@ -640,6 +648,29 @@ def add_artists_to_tracks(track_ids,artist_ids,dbconn=None):
 
 	return True
 
+@connection_provider
+def remove_artists_from_tracks(track_ids,artist_ids,dbconn=None):
+
+	# only tracks that have at least one other artist
+	subquery = DB['trackartists'].select().where(
+		~DB['trackartists'].c.artist_id.in_(artist_ids)
+	).with_only_columns(
+		DB['trackartists'].c.track_id
+	).distinct().alias('sub')
+
+	op = DB['trackartists'].delete().where(
+		sql.and_(
+			DB['trackartists'].c.track_id.in_(track_ids),
+			DB['trackartists'].c.artist_id.in_(artist_ids),
+			DB['trackartists'].c.track_id.in_(subquery.select())
+		)
+	)
+
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
+
 
 @connection_provider
 def add_artists_to_albums(album_ids,artist_ids,dbconn=None):
@@ -655,6 +686,22 @@ def add_artists_to_albums(album_ids,artist_ids,dbconn=None):
 	return True
 
 
+@connection_provider
+def remove_artists_from_albums(album_ids,artist_ids,dbconn=None):
+
+	# no check here, albums are allowed to have zero artists
+
+	op = DB['albumartists'].delete().where(
+		sql.and_(
+			DB['albumartists'].c.album_id.in_(album_ids),
+			DB['albumartists'].c.artist_id.in_(artist_ids)
+		)
+	)
+
+	result = dbconn.execute(op)
+	clean_db(dbconn=dbconn)
+
+	return True
 
 ### Merge
 

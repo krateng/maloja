@@ -453,6 +453,53 @@ function associate(element) {
 
 }
 
+function removeAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
+	var requests_todo = 0;
+	for (var target_entity_type of associate_sources[entity_type]) {
+		var key = "marked_for_associate_" + target_entity_type;
+		var current_stored = getStoredList(key);
+
+		if (current_stored.length != 0) {
+			requests_todo += 1;
+			callback_func = function(req){
+				if (req.status == 200) {
+
+					toggleAssociationIcons(parentElement);
+					notifyCallback(req);
+					requests_todo -= 1;
+					if (requests_todo == 0) {
+						setTimeout(window.location.reload.bind(window.location),1000);
+					}
+
+				}
+				else {
+					notifyCallback(req);
+				}
+			};
+
+			neo.xhttpreq(
+				"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
+				data={
+					'source_ids':current_stored,
+					'target_id':entity_id,
+					'remove': true
+				},
+				method="POST",
+				callback=callback_func,
+				json=true
+			);
+
+			storeList(key,[]);
+		}
+
+	}
+}
+
 function cancelMerge(element) {
 	const parentElement = element.closest('[data-entity_id]');
 

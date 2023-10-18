@@ -774,23 +774,25 @@ def merge_artists(target_id,source_ids):
 @api.post("associate_albums_to_artist")
 @authenticated_function(api=True)
 @catch_exceptions
-def associate_albums_to_artist(target_id,source_ids):
-	result = database.associate_albums_to_artist(target_id,source_ids)
+def associate_albums_to_artist(target_id,source_ids,remove=False):
+	result = database.associate_albums_to_artist(target_id,source_ids,remove=remove)
+	descword = "removed" if remove else "added"
 	if result:
 		return {
 			"status":"success",
-			"desc":f"{result['target']} was added as album artist of {', '.join(src['albumtitle'] for src in result['sources'])}"
+			"desc":f"{result['target']} was {descword} as album artist of {', '.join(src['albumtitle'] for src in result['sources'])}"
 		}
 
 @api.post("associate_tracks_to_artist")
 @authenticated_function(api=True)
 @catch_exceptions
-def associate_tracks_to_artist(target_id,source_ids):
-	result = database.associate_tracks_to_artist(target_id,source_ids)
+def associate_tracks_to_artist(target_id,source_ids,remove=False):
+	result = database.associate_tracks_to_artist(target_id,source_ids,remove=remove)
+	descword = "removed" if remove else "added"
 	if result:
 		return {
 			"status":"success",
-			"desc":f"{result['target']} was added as artist for {', '.join(src['title'] for src in result['sources'])}"
+			"desc":f"{result['target']} was {descword} as artist for {', '.join(src['title'] for src in result['sources'])}"
 		}
 
 @api.post("associate_tracks_to_album")
@@ -801,7 +803,7 @@ def associate_tracks_to_album(target_id,source_ids):
 	if result:
 		return {
 			"status":"success",
-			"desc":f"{', '.join(src['title'] for src in result['sources'])} were added to {result['target']['albumtitle']}"
+			"desc":f"{', '.join(src['title'] for src in result['sources'])} were " + f"added to {result['target']['albumtitle']}" if target_id else "removed from their album"
 		}
 
 
