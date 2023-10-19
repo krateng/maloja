@@ -425,6 +425,8 @@ def get_pulse(dbconn=None,**keys):
 @waitfordb
 def get_performance(dbconn=None,**keys):
 
+	separate = keys.get('separate')
+
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
@@ -443,7 +445,7 @@ def get_performance(dbconn=None,**keys):
 			#artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 			# ^this is the most useless line in programming history
 			# but I like consistency
-			charts = get_charts_artists(timerange=rng,resolve_ids=False,dbconn=dbconn)
+			charts = get_charts_artists(timerange=rng,resolve_ids=False,separate=separate,dbconn=dbconn)
 			rank = None
 			for c in charts:
 				if c["artist_id"] == artist_id:

@@ -62,7 +62,9 @@
 
 	{% endif %}
 
-	{% if 'artist' in filterkeys %}
+	<!-- we do this only for things filtered by artist (to include or not include their subunits etc), but NOT for get_performance
+	since it's more intuitive to fall under the separate/combined logic below -->
+	{% if ('artist' in filterkeys) and (not artistchart) %}
 	<div>
 		{% for o in xassociated %}
 			{% if o.replacekeys | map('compare_key_in_dicts',o.replacekeys,allkeys) | alltrue %}

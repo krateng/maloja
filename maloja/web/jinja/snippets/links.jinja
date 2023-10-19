@@ -45,14 +45,14 @@
 {%- endmacro %}
 
 
-{% macro link_rank(filterkeys,timerange,rank=None,percent=None) %}
+{% macro link_rank(filterkeys,specialkeys,timerange,rank=None,percent=None) %}
 
 	{% if 'track' in filterkeys %}
 		{% set url = mlj_uri.create_uri("/charts_tracks",{'timerange':timerange}) %}
 	{% elif 'album' in filterkeys %}
 		{% set url = mlj_uri.create_uri("/charts_albums",{'timerange':timerange}) %}
 	{% elif 'artist' in filterkeys %}
-		{% set url = mlj_uri.create_uri("/charts_artists",{'timerange':timerange}) %}
+		{% set url = mlj_uri.create_uri("/charts_artists",{'timerange':timerange},specialkeys) %}
 	{% endif %}
 
 	{% set rankclass = {1:'gold',2:'silver',3:'bronze'}[rank] or "" %}
