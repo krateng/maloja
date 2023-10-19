@@ -21,7 +21,9 @@
 					{{ filterdesc.desc(filterkeys,limitkeys) }}
 
 					<br/><br/>
+					{% with artistchart = True %}
 					{% include 'snippets/timeselection.jinja' %}
+					{% endwith %}
 				</td>
 			</tr>
 		</table>

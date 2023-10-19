@@ -469,12 +469,14 @@ def get_performance(dbconn=None,**keys):
 @waitfordb
 def get_top_artists(dbconn=None,**keys):
 
+	separate = keys.get('separate')
+
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
 		try:
-			res = get_charts_artists(timerange=rng,dbconn=dbconn)[0]
+			res = get_charts_artists(timerange=rng,separate=separate,dbconn=dbconn)[0]
 			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"],"associated_artists":sqldb.get_associated_artists(res["artist"])})
 		except Exception:
 			results.append({"range":rng,"artist":None,"scrobbles":0})

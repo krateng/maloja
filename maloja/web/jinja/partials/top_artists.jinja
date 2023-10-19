@@ -1,7 +1,7 @@
 {% import 'snippets/links.jinja' as links %}
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
-{% set ranges = dbc.get_top_artists(limitkeys,delimitkeys) %}
+{% set ranges = dbc.get_top_artists(limitkeys,delimitkeys,specialkeys) %}
 
 {% set maxbar = ranges|map(attribute="scrobbles")|max|default(1) %}
 {% if maxbar < 1 %}{% set maxbar = 1 %}{% endif %}
@@ -12,7 +12,7 @@
 	{% set thisrange = e.range %}
 	{% set artist = e.artist %}
 	<tr>
-		<td><a href="{{ mlj_uri.create_uri("/charts_artists",{'timerange':thisrange}) }}">{{ thisrange.desc() }}</a></td>
+		<td><a href="{{ mlj_uri.create_uri("/charts_artists",{'timerange':thisrange},specialkeys) }}">{{ thisrange.desc() }}</a></td>
 
 		{% if artist is none %}
 			<td><div></div></td>
@@ -20,9 +20,9 @@
 			<td class='amount'>0</td>
 			<td class='bar'></td>
 		{% else %}
-		{{ entityrow.row(artist,counting=e.associated_artists) }}
-		<td class='amount'>{{ links.link_scrobbles([{'artist':artist,'timerange':thisrange,'associated':True}],amount=e.scrobbles) }}</td>
-		<td class='bar'> {{ links.link_scrobbles([{'artist':artist,'timerange':thisrange,'associated':True}],percent=e.scrobbles*100/maxbar) }}</td>
+		{{ entityrow.row(artist,counting=([] if specialkeys.separate else e.associated_artists)) }}
+		<td class='amount'>{{ links.link_scrobbles([{'artist':artist,'associated':(not specialkeys.separate),'timerange':thisrange}],amount=e.scrobbles) }}</td>
+		<td class='bar'> {{ links.link_scrobbles([{'artist':artist,'associated':(not specialkeys.separate),'timerange':thisrange}],percent=e.scrobbles*100/maxbar) }}</td>
 		{% endif %}
 
 	</tr>
