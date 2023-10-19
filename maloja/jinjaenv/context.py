@@ -76,6 +76,10 @@ def update_jinja_environment():
 		"xassociated": [
 			{"identifier":"include_associated","replacekeys":{"associated":True},"localisation":"Associated"},
 			{"identifier":"exclude_associated","replacekeys":{"associated":False},"localisation":"Exclusive"}
+		],
+		"xseparate": [
+			{"identifier":"count_combined","replacekeys":{"separate":False},"localisation":"Combined"},
+			{"identifier":"count_separate","replacekeys":{"separate":True},"localisation":"Separate"}
 		]
 	}
 

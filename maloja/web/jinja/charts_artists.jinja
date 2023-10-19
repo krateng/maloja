@@ -32,7 +32,7 @@
 			<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
 			{{ filterdesc.desc(filterkeys,limitkeys) }}
 			<br/><br/>
-			{% with delimitkeys = {} %}
+			{% with delimitkeys = {}, artistchart=True %}
 			{% include 'snippets/timeselection.jinja' %}
 			{% endwith %}
 
