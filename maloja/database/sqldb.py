@@ -399,7 +399,7 @@ def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
 
 @connection_provider
 def remove_album(*track_ids,dbconn=None):
-	
+
 	DB['tracks'].update().where(
 		DB['tracks'].c.track_id.in_(track_ids)
 	).values(
@@ -439,10 +439,11 @@ def get_track_id(trackdict,create_new=True,update_album=False,dbconn=None):
 			if trackdict.get('album') and create_new:
 				# if we don't supply create_new, it means we just want to get info about a track
 				# which means no need to write album info, even if it was new
+				
 				# if we havent set update_album, we only want to assign the album in case the track
 				# has no album yet. this means we also only want to create a potentially new album in that case
 				album_id = get_album_id(trackdict['album'],create_new=(update_album or not row.album_id),dbconn=dbconn)
-				add_track_to_album(row.id,album_id,replace=(update_album or not row.album_id),dbconn=dbconn)
+				add_track_to_album(row.id,album_id,replace=update_album,dbconn=dbconn)
 
 
 			return row.id

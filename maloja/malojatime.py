@@ -1,7 +1,7 @@
 from datetime import timezone, timedelta, date, time, datetime
 from calendar import monthrange
-from os.path import commonprefix
 import math
+from abc import ABC, abstractmethod
 
 from .pkg_global.conf import malojaconfig
 
@@ -28,7 +28,7 @@ def register_scrobbletime(timestamp):
 
 
 # Generic Time Range
-class MTRangeGeneric:
+class MTRangeGeneric(ABC):
 
 	# despite the above, ranges that refer to the exact same real time range should evaluate as equal
 	def __eq__(self,other):
@@ -67,6 +67,15 @@ class MTRangeGeneric:
 
 	def __contains__(self,timestamp):
 		return timestamp >= self.first_stamp() and timestamp <= self.last_stamp()
+
+	@abstractmethod
+	def first_stamp(self):
+		pass
+
+	@abstractmethod
+	def last_stamp(self):
+		pass
+
 
 # Any range that has one defining base unit, whether week, year, etc.
 class MTRangeSingular(MTRangeGeneric):

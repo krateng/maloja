@@ -2,10 +2,10 @@ import os
 import math
 import traceback
 
-from bottle import response, static_file, request, FormsDict
+from bottle import response, static_file, FormsDict
 
 from doreah.logging import log
-from doreah.auth import authenticated_api, authenticated_api_with_alternate, authenticated_function
+from doreah.auth import authenticated_function
 
 # nimrodel API
 from nimrodel import EAPI as API

@@ -1,9 +1,7 @@
 # technical
-import sys
 import os
 from threading import Thread
 from importlib import resources
-import datauri
 import time
 
 

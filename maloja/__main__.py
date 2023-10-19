@@ -130,7 +130,7 @@ def run_supervisor():
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
 	conf.malojaconfig.load_environment()
-	direct()
+	run_server()
 
 def print_info():
 	print_header_info()
@@ -172,7 +172,7 @@ def main(*args,**kwargs):
 	}
 
 	if "version" in kwargs:
-		print(info.VERSION)
+		print(pkginfo.VERSION)
 		return True
 	else:
 		try:
