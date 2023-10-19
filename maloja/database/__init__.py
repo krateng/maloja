@@ -384,8 +384,8 @@ def get_tracks_without_album(dbconn=None,resolve_ids=True):
 @waitfordb
 def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	associated = keys.get('associated',True)
-	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=associated,dbconn=dbconn)
+	separate = keys.get('separate',False)
+	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=(not separate),dbconn=dbconn)
 	for entry in result:
 		if "artist" in entry:
 			entry['associated_artists'] = sqldb.get_associated_artists(entry['artist'])

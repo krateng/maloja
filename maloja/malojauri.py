@@ -78,6 +78,7 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 	#5
 	specialkeys = {}
 	if "remote" in keys: specialkeys["remote"] = keys["remote"]
+	specialkeys["separate"] = (keys.get('separate','no').lower() == 'yes')
 
 
 	return filterkeys, limitkeys, delimitkeys, amountkeys, specialkeys
@@ -143,6 +144,9 @@ def internal_to_uri(keys):
 		urikeys.append("page",str(keys["page"]))
 	if "perpage" in keys:
 		urikeys.append("perpage",str(keys["perpage"]))
+
+	if keys.get("separate",False):
+		urikeys.append("separate","yes")
 
 
 	return urikeys
