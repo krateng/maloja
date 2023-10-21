@@ -534,6 +534,7 @@ def add_picture(b64,artist:Multi=[],title=None,albumtitle=None):
 	if title is not None: keys.append("title",title)
 	elif albumtitle is not None: keys.append("albumtitle",albumtitle)
 	k_filter, _, _, _, _ = uri_to_internal(keys)
+	if "associated" in k_filter: del k_filter["associated"]
 	if "track" in k_filter: k_filter = k_filter["track"]
 	elif "album" in k_filter: k_filter = k_filter["album"]
 	url = images.set_image(b64,**k_filter)
