@@ -25,7 +25,6 @@
 			{% if condensed %}<a href="/album?{{ encodedalbum }}">{% endif %}
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.album.albumtitle | e }}</h1>
 			{%- if condensed -%}</a>{% endif %}
-				{# awards.certs(album) #}
 				<span class="rank"><a href="/charts_albums?max=100">#{{ info.position }}</a></span>
 				<br/>
 
@@ -39,7 +38,7 @@
 
 			{{ awards.medals(info) }}
 			{{ awards.topweeks(info) }}
-
+            {{ awards.subcerts(info) }}
 
 		</td>
 	</tr>

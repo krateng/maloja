@@ -26,7 +26,6 @@
 			{% if condensed %}<a href="/track?{{ encodedtrack }}">{% endif %}
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title | e }}</h1>
 			{%- if condensed -%}</a>{% endif %}
-				{%- if not condensed -%}{{ awards.certs(track) }}{% endif %}
 				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
 				<br/>
 				{% if info.track.album %}
