@@ -7,6 +7,7 @@
 <div id="showcase_container">
 
 {% for album in ownalbums %}
+{% set info = dbc.album_info({'album':album}) %}
 <table class="album">
 	<tr><td>&nbsp</td></tr>
 	<tr><td>
