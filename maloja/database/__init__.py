@@ -624,6 +624,11 @@ def album_info(dbconn=None,**keys):
 	c = [e for e in alltimecharts if e["album"] == album][0]
 	scrobbles = c["scrobbles"]
 	position = c["rank"]
+	cert = None
+	threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD_ALBUM","SCROBBLES_PLATINUM_ALBUM","SCROBBLES_DIAMOND_ALBUM"]
+	if scrobbles >= threshold_diamond: cert = "diamond"
+	elif scrobbles >= threshold_platinum: cert = "platinum"
+	elif scrobbles >= threshold_gold: cert = "gold"
 
 	return {
 		"album":album,
@@ -634,6 +639,7 @@ def album_info(dbconn=None,**keys):
 			"silver": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['silver']],
 			"bronze": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['bronze']],
 		},
+		"certification":cert,
 		"topweeks":len([e for e in cached.weekly_topalbums if e == album_id]),
 		"id":album_id
 	}

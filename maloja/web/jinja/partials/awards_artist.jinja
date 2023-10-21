@@ -52,9 +52,9 @@
 
 
 
-{% macro certs(artist) %}
+{% macro subcerts(artist) %}
 
-<!-- CERTS -->
+<!-- SUBCERTS -->
 
 {% set charts = db.get_charts_tracks(artist=artist,timerange=malojatime.alltime()) %}
 {% for e in charts -%}

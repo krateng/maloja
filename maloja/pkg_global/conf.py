@@ -155,9 +155,12 @@ malojaconfig = Configuration(
 			"use_global_cache":(tp.Boolean(),									"Use global DB Cache",					True)
 		},
 		"Fluff":{
-			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),
-			"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum",		500,				"How many scrobbles a track needs to be considered 'Platinum' status"),
-			"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond",		1000,				"How many scrobbles a track needs to be considered 'Diamond' status"),
+			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold (Track)",	250,				"How many scrobbles a track needs to be considered 'Gold' status"),
+			"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum (Track)",500,				"How many scrobbles a track needs to be considered 'Platinum' status"),
+			"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond (Track)",1000,				"How many scrobbles a track needs to be considered 'Diamond' status"),
+			"scrobbles_gold_album":(tp.Integer(),								"Scrobbles for Gold (Album)",	500,				"How many scrobbles an album needs to be considered 'Gold' status"),
+			"scrobbles_platinum_album":(tp.Integer(),							"Scrobbles for Platinum (Album)",750,				"How many scrobbles an album needs to be considered 'Platinum' status"),
+			"scrobbles_diamond_album":(tp.Integer(),							"Scrobbles for Diamond (Album)",1500,				"How many scrobbles an album needs to be considered 'Diamond' status"),
 			"name":(tp.String(),												"Name",							"Generic Maloja User")
 		},
 		"Third Party Services":{

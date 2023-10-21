@@ -1,3 +1,5 @@
+{% import 'snippets/links.jinja' as links %}
+
 {% macro medals(info) %}
 
 <!-- MEDALS -->
@@ -38,5 +40,41 @@
 	</a>
 	{% endif %}
 </span>
+
+{%- endmacro %}
+
+
+
+
+{% macro certs(album) %}
+
+<!-- CERTS -->
+
+{% set info = db.album_info(album=album) %}
+{% if info.certification is not none %}
+	<img class="certrecord"
+				src="/media/record_{{ info.certification }}.png"
+				title="This album has reached {{ info.certification.capitalize() }} status" />
+{% endif %}
+
+{%- endmacro %}
+
+{% macro subcerts(album) %}
+
+<!-- SUBCERTS -->
+
+{% set charts = db.get_charts_tracks(album=album.album,timerange=malojatime.alltime()) %}
+{% for e in charts -%}
+	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_diamond -%}{% set cert = 'diamond' %}{%- endif -%}
+
+	{%- if cert -%}
+	<a href='{{ links.url(e.track) }}'><img class="certrecord_small"
+					src="/media/record_{{ cert }}.png"
+					title="{{ e.track.title }} has reached {{ cert.capitalize() }} status" /></a>
+	{%- endif %}
+
+{%- endfor %}
 
 {%- endmacro %}

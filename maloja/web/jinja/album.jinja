@@ -15,6 +15,10 @@
 
 {% set encodedalbum = mlj_uri.uriencode({'album':album}) %}
 
+{% block custombodyclasses %}
+    {% if info.certification %}certified certified_{{ info.certification }}{% endif %}
+{% endblock %}
+
 
 {% block icon_bar %}
 	{% if adminmode %}
@@ -68,7 +72,6 @@
 		<td class="text">
 			<span>{{ links.links(album.artists) }}</span><br/>
 			<h1 id="main_entity_name" class="headerwithextra">{{ info.album.albumtitle | e }}</h1>
-				{# awards.certs(album) #}
 				<span class="rank"><a href="/charts_albums?max=100">#{{ info.position }}</a></span>
 				<br/>
 
@@ -82,6 +85,7 @@
 
 			{{ awards.medals(info) }}
 			{{ awards.topweeks(info) }}
+			{{ awards.subcerts(info) }}
 
 
 		</td>
