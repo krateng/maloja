@@ -12,12 +12,12 @@
 		<td class="image">
 			{% if adminmode %}
 			<div
-				class="changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
+				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
 				style="background-image:url('{{ images.get_track_image(track) }}');"
 				title="Drag & Drop to upload new image"
 			></div>
 			{% else %}
-			<div style="background-image:url('{{ images.get_track_image(track) }}');">
+			<div class="shiny alwaysshiny" style="background-image:url('{{ images.get_track_image(track) }}');">
 			</div>
 			{% endif %}
 		</td>

@@ -2,17 +2,17 @@
 
 <!-- MEDALS -->
 {% for year in info.medals.gold -%}
-<a title="Best Track in {{ year }}" class="hidelink medal shiny gold" href='/charts_tracks?max=50&amp;in={{ year }}'>
+<a title="Best Track in {{ year }}" class="hidelink medal shiny hovershiny gold" href='/charts_tracks?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}
 {% for year in info.medals.silver -%}
-<a title="Second best Track in {{ year }}" class="hidelink medal shiny silver" href='/charts_tracks?max=50&amp;in={{ year }}'>
+<a title="Second best Track in {{ year }}" class="hidelink medal shiny hovershiny silver" href='/charts_tracks?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}
 {% for year in info.medals.bronze -%}
-<a title="Third best Track in {{ year }}" class="hidelink medal shiny bronze" href='/charts_tracks?max=50&amp;in={{ year }}'>
+<a title="Third best Track in {{ year }}" class="hidelink medal shiny hovershiny bronze" href='/charts_tracks?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}

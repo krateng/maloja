@@ -11,7 +11,7 @@
 	<tr><td>&nbsp</td></tr>
 	<tr><td>
 		<a href="{{ links.url(album) }}">
-			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+			<div class="shiny alwaysshiny certified_{{ info.certification }} lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
 		</a>
 	</td></tr>
 	<tr><td>
@@ -23,11 +23,12 @@
 {% endfor %}
 
 {% for album in otheralbums %}
+{% set info = dbc.album_info({'album':album}) %}
 <table class="album">
 	<tr><td>Appears on</td></tr>
 	<tr><td>
 		<a href="{{ links.url(album) }}">
-			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+			<div class="shiny alwaysshiny certified_{{ info.certification }} lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
 		</a>
 	</td></tr>
 	<tr><td>

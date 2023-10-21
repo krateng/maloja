@@ -18,21 +18,28 @@ body {
 */
 }
 
+
 body.certified {
-    background: radial-gradient(circle at top left, rgba(var(--bg_special_color),0.5) 0%, var(--current-bg-color) 20%);
-    background-position: top left;
+    background: radial-gradient(circle at top left, rgba(var(--shine_color),0.2) 0%, var(--current-bg-color) 20%);
+    background-position: 0px 0px;
     background-repeat: no-repeat;
     background-attachment: fixed;
     height:100%;
 }
-body.certified.certified_diamond {
-    --bg_special_color: var(--color-diamond);
+
+
+.certified_diamond {
+    --shine_color: var(--color-diamond);
 }
-body.certified.certified_platinum{
-    --bg_special_color: var(--color-platinum);
+.certified_platinum{
+    --shine_color: var(--color-platinum);
 }
-body.certified.certified_gold {
-    --bg_special_color: var(--color-gold);
+.certified_gold {
+    --shine_color: var(--color-gold);
+}
+
+body.certified .top_info .image div {
+    position: relative;
 }
 
 
@@ -498,6 +505,8 @@ h2.headerwithextra+span.afterheader {
 	padding:3px;
 	margin:2px;
 	border-radius:2px;
+	color:black;
+	--shine_color: 255, 255, 255;
 }
 .shiny {
 	overflow: hidden;
@@ -518,13 +527,13 @@ h2.headerwithextra+span.afterheader {
   background: rgba(255, 255, 255, 0.13);
   background: linear-gradient(
     to right,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.13) 77%,
-    rgba(255, 255, 255, 0.5) 92%,
-    rgba(255, 255, 255, 0.0) 100%
+    rgba(var(--shine_color), 0.0) 0%,
+    rgba(var(--shine_color), 0.13) 77%,
+    rgba(var(--shine_color), 0.5) 92%,
+    rgba(var(--shine_color), 0.0) 100%
   );
 }
-.shiny:hover:after {
+.shiny.hovershiny:hover:after {
   opacity: 1;
   top: -30%;
   left: -30%;
@@ -532,23 +541,42 @@ h2.headerwithextra+span.afterheader {
   transition-duration: 0.7s, 0.7s, 0.15s;
   transition-timing-function: ease;
 }
-.shiny:active:after {
+.shiny.hovershiny:active:after {
   opacity: 0;
 }
+.shiny.alwaysshiny:after {
+    animation: shiny 9s infinite linear;
+}
 
 
-a.gold {
+.shiny.gold {
 	background-color:gold;
-	color:black;
 }
-a.silver {
+.shiny.silver {
 	background-color:silver;
-	color:black;
 }
-a.bronze {
+.shiny.bronze {
 	background-color:#cd7f32;
-	color:black;
 }
+
+@keyframes shiny {
+  0% {
+    top: -110%;
+    left: -210%;
+    opacity: 0;
+  }
+  50% {
+    top: -30%;
+    left: -30%;
+    opacity: 1;
+  }
+  100% {
+    top: -30%;
+    left: -30%;
+    opacity: 0;
+  }
+}
+
 
 
 
