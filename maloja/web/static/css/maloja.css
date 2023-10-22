@@ -1,9 +1,13 @@
 @import url("/grisons.css");
 
 :root {
-    --color-diamond: 103, 161, 253;
-    --color-platinum: 229, 228, 226;
-    --color-gold: 255,215,0;
+    --color-certified-diamond: 103, 161, 253;
+    --color-certified-platinum: 229, 228, 226;
+    --color-certified-gold: 255, 215, 0;
+
+    --color-rank-gold: var(--color-certified-gold);
+    --color-rank-silver: 192, 192, 192;
+    --color-rank-bronze: 205, 127, 50;
 }
 
 body {
@@ -29,13 +33,13 @@ body.certified {
 
 
 .certified_diamond {
-    --shine_color: var(--color-diamond);
+    --shine_color: var(--color-certified-diamond);
 }
 .certified_platinum{
-    --shine_color: var(--color-platinum);
+    --shine_color: var(--color-certified-platinum);
 }
 .certified_gold {
-    --shine_color: var(--color-gold);
+    --shine_color: var(--color-certified-gold);
 }
 
 body.certified .top_info .image div {
@@ -550,13 +554,13 @@ h2.headerwithextra+span.afterheader {
 
 
 .shiny.gold {
-	background-color:gold;
+	background-color: rgba(var(--color-rank-gold),1);
 }
 .shiny.silver {
-	background-color:silver;
+	background-color: rgba(var(--color-rank-silver),1);
 }
 .shiny.bronze {
-	background-color:#cd7f32;
+	background-color: rgba(var(--color-rank-bronze),1);
 }
 
 @keyframes shiny {
