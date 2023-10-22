@@ -6,14 +6,13 @@
 
 {% import 'partials/awards_track.jinja' as awards %}
 
-
 <table class="top_info">
 	<tr>
 		<td class="image">
 			{% if adminmode %}
 			<div
 				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
-				style="background-image:url('{{ images.get_track_image(track) }}');"
+				style="background-image:url('{{ images.get_track_image(info.track) }}');"
 				title="Drag & Drop to upload new image"
 			></div>
 			{% else %}

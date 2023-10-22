@@ -23,7 +23,7 @@
 			{% if adminmode %}
 			<div
 				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
-				style="background-image:url('{{ images.get_artist_image(artist) }}');"
+				style="background-image:url('{{ images.get_artist_image(info.artist) }}');"
 				title="Drag & Drop to upload new image"
 			></div>
 			{% else %}
