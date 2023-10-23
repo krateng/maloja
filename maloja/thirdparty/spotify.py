@@ -14,8 +14,8 @@ class Spotify(MetadataInterface):
 	}
 
 	metadata = {
-		"trackurl": "https://api.spotify.com/v1/search?q={title}&artist:{artist}%20type=track&access_token={token}",
-		"albumurl": "https://api.spotify.com/v1/search?q={title}&artist:{artist}%20type=album&access_token={token}",
+		"trackurl": "https://api.spotify.com/v1/search?q={title}%20artist:{artist}&type=track&access_token={token}",
+		"albumurl": "https://api.spotify.com/v1/search?q={title}%20artist:{artist}&type=album&access_token={token}",
 		"artisturl": "https://api.spotify.com/v1/search?q={artist}&type=artist&access_token={token}",
 		"response_type":"json",
 		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"], # use album art
