@@ -42,22 +42,3 @@
 {%- endmacro %}
 
 
-
-
-
-
-
-
-
-{% macro certs(track) %}
-
-<!-- CERTS -->
-
-{% set info = db.track_info(track=track) %}
-{% if info.certification is not none %}
-	<img class="certrecord"
-				src="/media/record_{{ info.certification }}.png"
-				title="This track has reached {{ info.certification.capitalize() }} status" />
-{% endif %}
-
-{%- endmacro %}

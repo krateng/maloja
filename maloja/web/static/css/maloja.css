@@ -42,6 +42,12 @@ body.certified {
     --shine_color: var(--color-certified-gold);
 }
 
+.certified.smallcerticon svg {
+    /* we just use shine color as the color variable that represents the respective color of the currently applicable
+     certification - even when no shine is involved */
+    fill: rgba(var(--shine_color),1);
+}
+
 body.certified .top_info .image div {
     position: relative;
 }

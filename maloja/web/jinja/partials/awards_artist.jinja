@@ -56,6 +56,22 @@
 
 <!-- SUBCERTS -->
 
+
+{% set albumcharts = db.get_charts_albums(artist=artist,timerange=malojatime.alltime()) %}
+{% for e in albumcharts -%}
+	{%- if e.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
+	{%- if cert -%}
+	<a href='{{ links.url(e.album) }}' class="hidelink certified certified_{{ cert }} smallcerticon" title="{{ e.album.albumtitle }} has reached {{ cert.capitalize() }} status">
+    	    {% include 'icons/cert_album.jinja' %}
+    	</a>
+	{%- endif %}
+
+{%- endfor %}
+
+
 {% set charts = db.get_charts_tracks(artist=artist,timerange=malojatime.alltime()) %}
 {% for e in charts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
@@ -63,11 +79,13 @@
 	{%- if e.scrobbles >= settings.scrobbles_diamond -%}{% set cert = 'diamond' %}{%- endif -%}
 
 	{%- if cert -%}
-	<a href='{{ links.url(e.track) }}'><img class="certrecord_small"
-					src="/media/record_{{ cert }}.png"
-					title="{{ e.track.title }} has reached {{ cert.capitalize() }} status" /></a>
+	<a href='{{ links.url(e.track) }}' class="hidelink certified certified_{{ cert }} smallcerticon" title="{{ e.track.title }} has reached {{ cert.capitalize() }} status">
+    	    {% include 'icons/cert_track.jinja' %}
+    	</a>
 	{%- endif %}
 
 {%- endfor %}
+
+
 
 {%- endmacro %}
