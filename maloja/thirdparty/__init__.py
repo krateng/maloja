@@ -230,7 +230,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 	def get_image_album(self,album):
 		artists, title = album
-		artiststring = urllib.parse.quote(", ".join(artists))
+		artiststring = urllib.parse.quote(", ".join(artists or []))
 		titlestring = urllib.parse.quote(title)
 		response = urllib.request.urlopen(
 			self.metadata["albumurl"].format(artist=artiststring,title=titlestring,**self.settings)
