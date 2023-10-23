@@ -81,9 +81,10 @@ Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out th
 
 Of note are these settings which should be passed as environmental variables to the container:
 
+* `MALOJA_SKIP_SETUP` -- Make the server setup process non-interactive. Maloja will not work properly in a container without this variable set. This is done by default in the provided Containerfile.
+* `MALOJA_FORCE_PASSWORD` -- Set an admin password for Maloja. You only need this on the first run.
 * `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
   * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
-* `MALOJA_FORCE_PASSWORD` -- Set an admin password for maloja
 
 You must publish a port on your host machine to bind to the container's web port (default 42010). The container uses IPv4 per default.
 
