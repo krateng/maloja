@@ -28,10 +28,14 @@ def profile(func):
 		if FULL_PROFILE:
 			profiler.disable()
 
-		log(f"Executed {func.__name__} ({args}, {kwargs}) in {clock.stop():.2f}s",module="debug_performance")
+		seconds = clock.stop()
+		realfunc = func
+		while(hasattr(realfunc,'__innerfunc__')):
+			realfunc = realfunc.__innerfunc__
+		log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.2f}s",module="debug_performance")
 		if FULL_PROFILE:
 			try:
-				pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{func.__name__}.stats"))
+				pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{realfunc.__name__}.stats"))
 			except Exception:
 				pass
 
