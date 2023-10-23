@@ -24,32 +24,27 @@ body {
 
 
 body.certified {
-    background: radial-gradient(circle at top left, rgba(var(--shine_color),0.2) 0%, var(--current-bg-color) 20%);
+    background: radial-gradient(circle at top left, rgba(var(--certification-color),0.5) 0%, var(--current-bg-color) 20%);
     background-position: 0px 0px;
     background-repeat: no-repeat;
     background-attachment: fixed;
     height:100%;
 }
 
-
+/* just make sure that whenever anything is certified, we set this variable.
+ how its used is the job of the specific elements */
 .certified_diamond {
-    --shine_color: var(--color-certified-diamond);
+    --certification-color: var(--color-certified-diamond);
 }
 .certified_platinum{
-    --shine_color: var(--color-certified-platinum);
+    --certification-color: var(--color-certified-platinum);
 }
 .certified_gold {
-    --shine_color: var(--color-certified-gold);
+    --certification-color: var(--color-certified-gold);
 }
 
 .certified.smallcerticon svg {
-    /* we just use shine color as the color variable that represents the respective color of the currently applicable
-     certification - even when no shine is involved */
-    fill: rgba(var(--shine_color),1);
-}
-
-body.certified .top_info .image div {
-    position: relative;
+    fill: rgba(var(--certification-color),1);
 }
 
 
@@ -516,12 +511,28 @@ h2.headerwithextra+span.afterheader {
 	margin:2px;
 	border-radius:2px;
 	color:black;
-	--shine_color: 255, 255, 255;
+	--shine-color: 255, 255, 255;
+	background-color: rgba(var(--rank-color),1);
 }
+.medal.gold {
+    --rank-color: var(--color-rank-gold);
+}
+.medal.silver {
+    --rank-color: var(--color-rank-silver);
+}
+.medal.bronze {
+    --rank-color: var(--color-rank-bronze);
+}
+
 .shiny {
 	overflow: hidden;
 	position:relative;
 	display: inline-block;
+}
+
+.alwaysshiny {
+    /* alwaysshiny elements in general use the certification color for their shine */
+    --shine-color: var(--certification-color);
 }
 
 .shiny:after {
@@ -537,10 +548,11 @@ h2.headerwithextra+span.afterheader {
   background: rgba(255, 255, 255, 0.13);
   background: linear-gradient(
     to right,
-    rgba(var(--shine_color), 0.0) 0%,
-    rgba(var(--shine_color), 0.13) 77%,
-    rgba(var(--shine_color), 0.5) 92%,
-    rgba(var(--shine_color), 0.0) 100%
+    rgba(var(--shine-color), 0.0) 0%,
+    rgba(var(--shine-color), 0.13) 77%,
+    rgba(var(--shine-color), 0.5) 92%,
+    rgba(var(--shine-color), 0.0) 100%
+    /* shiny things just use the shine-color var, they are unaware of cert status directly */
   );
 }
 .shiny.hovershiny:hover:after {
@@ -558,16 +570,6 @@ h2.headerwithextra+span.afterheader {
     animation: shiny 9s infinite linear;
 }
 
-
-.shiny.gold {
-	background-color: rgba(var(--color-rank-gold),1);
-}
-.shiny.silver {
-	background-color: rgba(var(--color-rank-silver),1);
-}
-.shiny.bronze {
-	background-color: rgba(var(--color-rank-bronze),1);
-}
 
 @keyframes shiny {
   0% {
