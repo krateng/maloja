@@ -1449,8 +1449,12 @@ def get_associated_artists(*artists,resolve_ids=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_associated_artist_map(artists,resolve_ids=True,dbconn=None):
-	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
+def get_associated_artist_map(artists=[],artist_ids=None,resolve_ids=True,dbconn=None):
+
+	ids_supplied = (artist_ids is not None)
+
+	if not ids_supplied:
+		artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
 
 
 	jointable = sql.join(
@@ -1476,7 +1480,9 @@ def get_associated_artist_map(artists,resolve_ids=True,dbconn=None):
 		else:
 			artists_to_associated[row.target_artist].append(row.id)
 
-	artists_to_associated = {artists[artist_ids.index(k)]:v for k,v in artists_to_associated.items()}
+	if not ids_supplied:
+		# if we supplied the artists, we want to convert back for the result
+		artists_to_associated = {artists[artist_ids.index(k)]:v for k,v in artists_to_associated.items()}
 
 	return artists_to_associated
 

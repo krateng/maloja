@@ -400,10 +400,12 @@ def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	separate = keys.get('separate',False)
 	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=(not separate),dbconn=dbconn)
 
-	map = sqldb.get_associated_artist_map([entry['artist'] for entry in result if 'artist' in entry])
-	for entry in result:
-		if "artist" in entry:
-			entry['associated_artists'] = map[entry['artist']]
+	if resolve_ids:
+		# only add associated info if we resolve
+		map = sqldb.get_associated_artist_map(artist_ids=[entry['artist_id'] for entry in result if 'artist_id' in entry])
+		for entry in result:
+			if "artist_id" in entry:
+				entry['associated_artists'] = map[entry['artist_id']]
 	return result
 
 @waitfordb
