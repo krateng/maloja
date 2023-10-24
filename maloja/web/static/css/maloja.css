@@ -209,45 +209,67 @@ we want icons to not be displayed in list rows, but show them with reduced opaci
 Footer
 **/
 
-div.footer {
+div#footer {
 	position:fixed;
+	bottom:0;
+	left:0;
+	right:0;
+	padding-left:20px;
+	padding-right:20px;
 	height:20px;
-	/**width:100%;**/
+
 	background-color: var(--base-color-dark);
-	bottom:0px;
-	left:0px;
-	right:0px;
+
+	display: flex;
+    align-items: center;
+
 	padding:10px;
 	opacity:1;
 }
 
-div.footer div:nth-child(1) {
-	display:inline-block;
-	width:40%;
-	text-align:left;
-}
-div.footer div:nth-child(2) {
-	display:inline-block;
-	width:19%;
-	text-align:center;
-	color:gold;
-	font-size:110%;
-}
-div.footer div:nth-child(3) {
-	display:inline-block;
-	width:40%;
-	text-align:right;
+#left-side, #right-side {
+  flex: 1;
 }
 
-div.footer span a {
-	/*padding-left:20px;*/
-	background-repeat:no-repeat;
-	background-size:contain;
-	background-position:left;
-	/*background-image:url("https://github.com/favicon.ico");*/
+#left-side {
+  text-align: left;
+  padding-left: 10px;
 }
 
-div.footer input {
+#right-side {
+  text-align: right;
+  padding-right: 10px;
+}
+
+#notch {
+
+   --notch-size: 80px;
+  background-color: var(--base-color-dark);
+  width: var(--notch-size);
+  height: var(--notch-size);
+  position: relative;
+  margin-top: -5px;
+  z-index: 1;
+
+  border-radius: 50%;
+  transform: translate(0%, -30%);
+}
+
+#notch img {
+  position: absolute;
+  top: calc((var(--notch-size) - 100px) / 2);
+  left: calc((var(--notch-size) - 100px) / 2);
+
+  width: 100px;
+  height: auto;
+
+}
+#notch img:hover {
+    transform: scale(1.1);
+}
+
+
+div#footer input {
 	background-color:inherit;
 	border:0px;
 	border-bottom:1px solid beige;
@@ -261,7 +283,7 @@ div.footer input {
 	font-family:"Ubuntu";
 }
 
-div.footer input:focus {
+div#footer input:focus {
 	outline:none;
 	/**background-color:rgba(245,245,220,0.05);**/
 
@@ -341,38 +363,12 @@ div#notification_area div.notification:hover {
 
 @media (max-width: 1000px) {
 
-	div.footer {
-		position:fixed;
-		/*height:30px;*/
-		/**width:100%;**/
-		background-color: var(--base-color-dark);
-		bottom:0px;
-		left:0px;
-		right:0px;
-		padding:3px;
-		opacity:1;
-	}
-
-	div.footer div:nth-child(1) {
+	div#footer #left-side {
 		display:none;
 	}
-	div.footer div:nth-child(2) {
-		display:inline-block;
-		width:20%;
-		text-align:center;
-		color:gold;
-	}
-	div.footer div:nth-child(3) {
-		display:inline-block;
-		width:70%;
+	div#footer #right-side {
 		text-align:right;
 	}
-
-	div.footer input {
-
-		width:90%;
-	}
-
 
 }
 

@@ -67,22 +67,17 @@
 
 
 
+        <div id="footer">
+          <div id="left-side">
+            <a href="/about">About</a>
+          </div>
+          <div id="notch">
+            <a href="/"><img style="display:block;" src="/favicon.png" /></a>
+          </div>
+          <div id="right-side">
+            <span><input id="searchinput" placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
+          </div>
 
-		<div class="footer">
-			<div>
-				<!--<span>Get your own charts on
-					<a target="_blank" rel="noopener noreferrer" href="https://github.com/krateng/maloja">GitHub</a>,
-					<a target="_blank" rel="noopener noreferrer" href="https://pypi.org/project/malojaserver/">PyPI</a> or
-					<a target="_blank" rel="noopener noreferrer" href="https://hub.docker.com/r/krateng/maloja">Dockerhub</a>
-				</span>-->
-				<span><a href="/about">About</a></span>
-			</div>
-			<div>
-				<a href="/"><span style="font-weight:bold;">Maloja {% if settings["DEV_MODE"] %}[Developer Mode]{% endif %}</span></a>
-			</div>
-			<div>
-				<span><input id="searchinput" placeholder="Search for an artist or track..." oninput="search(this)" onblur="clearresults()" /></span>
-			</div>
 
 			<div id="resultwrap" class="hide">
 				<div class="searchresults">
