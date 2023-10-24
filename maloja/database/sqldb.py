@@ -828,7 +828,7 @@ def merge_albums(target_id,source_ids,dbconn=None):
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,associated=False,dbconn=None):
+def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,limit=None,reverse=False,associated=False,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -845,7 +845,13 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,as
 		DB['scrobbles'].c.timestamp<=to,
 		DB['scrobbles'].c.timestamp>=since,
 		DB['trackartists'].c.artist_id.in_(artist_ids)
-	).order_by(sql.asc('timestamp'))
+	)
+	if reverse:
+		op = op.order_by(sql.desc('timestamp'))
+	else:
+		op = op.order_by(sql.asc('timestamp'))
+	if limit:
+		op = op.limit(limit)
 	result = dbconn.execute(op).all()
 
 	# remove duplicates (multiple associated artists in the song, e.g. Irene & Seulgi being both counted as Red Velvet)
@@ -866,7 +872,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,as
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbconn=None):
+def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,limit=None,reverse=False,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -877,7 +883,13 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbco
 		DB['scrobbles'].c.timestamp<=to,
 		DB['scrobbles'].c.timestamp>=since,
 		DB['scrobbles'].c.track_id==track_id
-	).order_by(sql.asc('timestamp'))
+	)
+	if reverse:
+		op = op.order_by(sql.desc('timestamp'))
+	else:
+		op = op.order_by(sql.asc('timestamp'))
+	if limit:
+		op = op.limit(limit)
 	result = dbconn.execute(op).all()
 
 	if resolve_references:
@@ -887,7 +899,7 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,dbco
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,dbconn=None):
+def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,limit=None,reverse=False,dbconn=None):
 
 	if since is None: since=0
 	if to is None: to=now()
@@ -900,7 +912,13 @@ def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,dbco
 		DB['scrobbles'].c.timestamp<=to,
 		DB['scrobbles'].c.timestamp>=since,
 		DB['tracks'].c.album_id==album_id
-	).order_by(sql.asc('timestamp'))
+	)
+	if reverse:
+		op = op.order_by(sql.desc('timestamp'))
+	else:
+		op = op.order_by(sql.asc('timestamp'))
+	if limit:
+		op = op.limit(limit)
 	result = dbconn.execute(op).all()
 
 	if resolve_references:
