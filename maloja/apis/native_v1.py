@@ -205,9 +205,10 @@ def get_scrobbles_external(**keys):
 
 	result = database.get_scrobbles(**ckeys)
 
-	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
-	result = result[offset:]
-	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
+	# this should now all be served by the inner function
+	#offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
+	#result = result[offset:]
+	#if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
 
 	return {
 		"status":"ok",

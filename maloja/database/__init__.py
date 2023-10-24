@@ -323,7 +323,7 @@ def get_scrobbles(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 
 	reverse = keys.get('reverse',True) # comaptibility with old calls
-	if 'perpage' in keys:
+	if keys.get('perpage',math.inf) is not math.inf:
 		limit = (keys.get('page',0)+1) * keys.get('perpage',100)
 		behead = keys.get('page',0) * keys.get('perpage',100)
 	else:

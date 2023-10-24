@@ -243,7 +243,7 @@ div#footer {
 
 #notch {
 
-   --notch-size: 80px;
+   --notch-size: 70px;
   background-color: var(--base-color-dark);
   width: var(--notch-size);
   height: var(--notch-size);
@@ -252,15 +252,16 @@ div#footer {
   z-index: 1;
 
   border-radius: 50%;
-  transform: translate(0%, -30%);
+  transform: translate(0%, -40%);
 }
 
 #notch img {
+  --notch-img-size: 80px;
   position: absolute;
-  top: calc((var(--notch-size) - 100px) / 2);
-  left: calc((var(--notch-size) - 100px) / 2);
+  top: calc((var(--notch-size) - var(--notch-img-size)) / 2);
+  left: calc((var(--notch-size) - var(--notch-img-size)) / 2);
 
-  width: 100px;
+  width: var(--notch-img-size);
   height: auto;
 
 }
