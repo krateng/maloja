@@ -650,7 +650,10 @@ def add_artists_to_tracks(track_ids,artist_ids,dbconn=None):
 	])
 
 	result = dbconn.execute(op)
-	clean_db(dbconn=dbconn)
+
+	# the resulting tracks could now be duplicates of existing ones
+	# this also takes care of clean_db
+	merge_duplicate_tracks(dbconn=dbconn)
 
 	return True
 
@@ -673,7 +676,10 @@ def remove_artists_from_tracks(track_ids,artist_ids,dbconn=None):
 	)
 
 	result = dbconn.execute(op)
-	clean_db(dbconn=dbconn)
+
+	# the resulting tracks could now be duplicates of existing ones
+	# this also takes care of clean_db
+	merge_duplicate_tracks(dbconn=dbconn)
 
 	return True
 
@@ -687,7 +693,10 @@ def add_artists_to_albums(album_ids,artist_ids,dbconn=None):
 	])
 
 	result = dbconn.execute(op)
-	clean_db(dbconn=dbconn)
+
+	# the resulting albums could now be duplicates of existing ones
+	# this also takes care of clean_db
+	merge_duplicate_albums(dbconn=dbconn)
 
 	return True
 
@@ -705,7 +714,10 @@ def remove_artists_from_albums(album_ids,artist_ids,dbconn=None):
 	)
 
 	result = dbconn.execute(op)
-	clean_db(dbconn=dbconn)
+
+	# the resulting albums could now be duplicates of existing ones
+	# this also takes care of clean_db
+	merge_duplicate_albums(dbconn=dbconn)
 
 	return True
 
@@ -1587,10 +1599,15 @@ def renormalize_names():
 
 
 @connection_provider
-def merge_duplicate_tracks(artist_id,dbconn=None):
+def merge_duplicate_tracks(artist_id=None,dbconn=None):
+
+	affected_track_conditions = []
+	if artist_id:
+		affected_track_conditions = [DB['trackartists'].c.artist_id == artist_id]
+
 	rows = dbconn.execute(
 		DB['trackartists'].select().where(
-			DB['trackartists'].c.artist_id == artist_id
+			*affected_track_conditions
 		)
 	)
 	affected_tracks = [r.track_id for r in rows]
@@ -1623,10 +1640,15 @@ def merge_duplicate_tracks(artist_id,dbconn=None):
 
 
 @connection_provider
-def merge_duplicate_albums(artist_id,dbconn=None):
+def merge_duplicate_albums(artist_id=None,dbconn=None):
+
+	affected_album_conditions = []
+	if artist_id:
+		affected_album_conditions = [DB['albumartists'].c.artist_id == artist_id]
+
 	rows = dbconn.execute(
 		DB['albumartists'].select().where(
-			DB['albumartists'].c.artist_id == artist_id
+			*affected_album_conditions
 		)
 	)
 	affected_albums = [r.album_id for r in rows]
