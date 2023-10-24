@@ -898,20 +898,30 @@ def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,dbco
 
 @cached_wrapper
 @connection_provider
-def get_scrobbles(since=None,to=None,resolve_references=True,dbconn=None):
+def get_scrobbles(since=None,to=None,resolve_references=True,limit=None,reverse=False,dbconn=None):
+
 
 	if since is None: since=0
 	if to is None: to=now()
 
 	op = DB['scrobbles'].select().where(
-		DB['scrobbles'].c.timestamp<=to,
-		DB['scrobbles'].c.timestamp>=since,
-	).order_by(sql.asc('timestamp'))
+		DB['scrobbles'].c.timestamp.between(since,to)
+	)
+	if reverse:
+		op = op.order_by(sql.desc('timestamp'))
+	else:
+		op = op.order_by(sql.asc('timestamp'))
+	if limit:
+		op = op.limit(limit)
+
+
 	result = dbconn.execute(op).all()
 
 	if resolve_references:
 		result = scrobbles_db_to_dict(result,dbconn=dbconn)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
+
+
 	return result
 
 
@@ -924,8 +934,7 @@ def get_scrobbles_num(since=None,to=None,dbconn=None):
 	if to is None: to=now()
 
 	op = sql.select(sql.func.count()).select_from(DB['scrobbles']).where(
-		DB['scrobbles'].c.timestamp<=to,
-		DB['scrobbles'].c.timestamp>=since,
+		DB['scrobbles'].c.timestamp.between(since,to)
 	)
 	result = dbconn.execute(op).all()
 

@@ -8,7 +8,6 @@
 
 <table class='list'>
 	{% for s in scrobbles -%}
-		{%- if loop.index0 >= firstindex and loop.index0 < lastindex -%}
 		<tr>
 			<td class='time'>{{ malojatime.timestamp_desc(s["time"],short=shortTimeDesc) }}</td>
 			{{ entityrow.row(s.track) }}
@@ -41,6 +40,5 @@
 			</td>
 			{% endif %}
 		</tr>
-		{%- endif -%}
 	{% endfor %}
 </table>

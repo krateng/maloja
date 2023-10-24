@@ -321,17 +321,30 @@ def associate_tracks_to_album(target_id,source_ids):
 @waitfordb
 def get_scrobbles(dbconn=None,**keys):
 	(since,to) = keys.get('timerange').timestamps()
+
+	reverse = keys.get('reverse',True) # comaptibility with old calls
+	if 'perpage' in keys:
+		limit = (keys.get('page',0)+1) * keys.get('perpage',100)
+		behead = keys.get('page',0) * keys.get('perpage',100)
+	else:
+		limit = None
+		behead = 0
+
+
 	associated = keys.get('associated',False)
 	if 'artist' in keys:
-		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,associated=associated,dbconn=dbconn)
+		result = sqldb.get_scrobbles_of_artist(artist=keys['artist'],since=since,to=to,associated=associated,limit=limit,reverse=reverse,dbconn=dbconn)
 	elif 'track' in keys:
-		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,dbconn=dbconn)
+		result = sqldb.get_scrobbles_of_track(track=keys['track'],since=since,to=to,limit=limit,reverse=reverse,dbconn=dbconn)
 	elif 'album' in keys:
-		result = sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,dbconn=dbconn)
+		result = sqldb.get_scrobbles_of_album(album=keys['album'],since=since,to=to,limit=limit,reverse=reverse,dbconn=dbconn)
 	else:
-		result = sqldb.get_scrobbles(since=since,to=to,dbconn=dbconn)
+		result = sqldb.get_scrobbles(since=since,to=to,limit=limit,reverse=reverse,dbconn=dbconn)
 	#return result[keys['page']*keys['perpage']:(keys['page']+1)*keys['perpage']]
-	return list(reversed(result))
+
+	#print(result)
+
+	return list(result[behead:])
 
 
 @waitfordb

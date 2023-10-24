@@ -34,10 +34,12 @@ def profile(func):
 			realfunc = realfunc.__innerfunc__
 		log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.2f}s",module="debug_performance")
 		if FULL_PROFILE:
+			targetfilename = os.path.join(benchmarkfolder,f"{realfunc.__name__}.stats")
 			try:
-				pstats.Stats(profiler).dump_stats(os.path.join(benchmarkfolder,f"{realfunc.__name__}.stats"))
+				pstats.Stats(profiler).dump_stats(targetfilename)
+				log(f"Saved benchmark as {targetfilename}")
 			except Exception:
-				pass
+				log(f"Failed to save benchmark as {targetfilename}")
 
 		return result
 
