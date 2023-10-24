@@ -1431,6 +1431,40 @@ def get_associated_artists(*artists,resolve_ids=True,dbconn=None):
 
 @cached_wrapper
 @connection_provider
+def get_associated_artist_map(artists,resolve_ids=True,dbconn=None):
+	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
+
+
+	jointable = sql.join(
+		DB['associated_artists'],
+		DB['artists'],
+		DB['associated_artists'].c.source_artist == DB['artists'].c.id
+	)
+
+	# we need to select to avoid multiple 'id' columns that will then
+	# be misinterpreted by the row-dict converter
+	op = sql.select(
+		DB['artists'],
+		DB['associated_artists'].c.target_artist
+	).select_from(jointable).where(
+		DB['associated_artists'].c.target_artist.in_(artist_ids)
+	)
+	result = dbconn.execute(op).all()
+
+	artists_to_associated = {a_id:[] for a_id in artist_ids}
+	for row in result:
+		if resolve_ids:
+			artists_to_associated[row.target_artist].append(artists_db_to_dict([row],dbconn=dbconn)[0])
+		else:
+			artists_to_associated[row.target_artist].append(row.id)
+
+	artists_to_associated = {artists[artist_ids.index(k)]:v for k,v in artists_to_associated.items()}
+
+	return artists_to_associated
+
+
+@cached_wrapper
+@connection_provider
 def get_credited_artists(*artists,dbconn=None):
 	artist_ids = [get_artist_id(a,dbconn=dbconn) for a in artists]
 

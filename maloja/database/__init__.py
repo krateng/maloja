@@ -399,9 +399,11 @@ def get_charts_artists(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
 	separate = keys.get('separate',False)
 	result = sqldb.count_scrobbles_by_artist(since=since,to=to,resolve_ids=resolve_ids,associated=(not separate),dbconn=dbconn)
+
+	map = sqldb.get_associated_artist_map([entry['artist'] for entry in result if 'artist' in entry])
 	for entry in result:
 		if "artist" in entry:
-			entry['associated_artists'] = sqldb.get_associated_artists(entry['artist'])
+			entry['associated_artists'] = map[entry['artist']]
 	return result
 
 @waitfordb
