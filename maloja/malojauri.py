@@ -73,7 +73,11 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 	#different max than the internal one! the user doesn't get to disable pagination
 	if "page" in keys: amountkeys["page"] = int(keys["page"])
 	if "perpage" in keys: amountkeys["perpage"] = int(keys["perpage"])
-
+	#amountkeys["reverse"] = (keys.get("reverse","no").lower() == "yes")
+	# we have different defaults for different things, so here we need to actually pass true false or nothing dependent
+	# on whether its specified
+	if keys.get("reverse","").lower() == 'yes': amountkeys['reverse'] = True
+	elif keys.get("reverse","").lower() == 'no': amountkeys['reverse'] = False
 
 	#5
 	specialkeys = {}
@@ -144,6 +148,8 @@ def internal_to_uri(keys):
 		urikeys.append("page",str(keys["page"]))
 	if "perpage" in keys:
 		urikeys.append("perpage",str(keys["perpage"]))
+	if "reverse" in keys:
+		urikeys.append("reverse","yes" if keys['reverse'] else "no")
 
 	if keys.get("separate",False):
 		urikeys.append("separate","yes")

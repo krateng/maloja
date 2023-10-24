@@ -18,7 +18,7 @@ from ..pkg_global.conf import malojaconfig, data_dir
 
 
 from ..__pkginfo__ import VERSION
-from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
+from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri, create_uri
 from .. import images
 from ._apikeys import apikeystore, api_key_correct
 
@@ -142,6 +142,37 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 
 
 
+
+def add_pagination(endpoint,filterkeys=False,limitkeys=False,delimitkeys=False):
+
+	def decorator(func):
+		def wrapper(*args,**kwargs):
+
+			k_filter, k_limit, k_delimit, k_amount, _ = uri_to_internal(kwargs,api=True)
+			keydicts = []
+			if filterkeys: keydicts.append(k_filter)
+			if limitkeys: keydicts.append(k_limit)
+			if delimitkeys: keydicts.append(k_delimit)
+			keydicts.append(k_amount)
+
+
+			result = func(*args,**kwargs)
+
+			result['pagination'] = {
+				'page': k_amount['page'],
+				'perpage': k_amount['perpage'] if (k_amount['perpage'] is not math.inf) else None,
+				'next_page': create_uri(api.pathprefix + '/' + endpoint,*keydicts,{'page':k_amount['page']+1}) if len(result.get('list',[]))==k_amount['perpage'] else None,
+				'prev_page': create_uri(api.pathprefix + '/' + endpoint,*keydicts,{'page':k_amount['page']-1}) if k_amount['page'] > 0 else None
+			}
+
+			return result
+
+		wrapper.__doc__ = func.__doc__
+		wrapper.__annotations__ = func.__annotations__
+		return wrapper
+
+	return decorator
+
 @api.get("test")
 @catch_exceptions
 def test_server(key=None):
@@ -194,6 +225,7 @@ def server_info():
 @api.get("scrobbles")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
+@add_pagination("scrobbles",filterkeys=True,limitkeys=True)
 def get_scrobbles_external(**keys):
 	"""Returns a list of scrobbles.
 
