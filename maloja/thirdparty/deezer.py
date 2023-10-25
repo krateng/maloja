@@ -19,6 +19,8 @@ class Deezer(MetadataInterface):
 		"required_settings": [],
 	}
 
+	delay = 1
+
 	def get_image_track(self,track):
 		return None
 		# we can use the album pic from the track search,
@@ -29,4 +31,9 @@ class Deezer(MetadataInterface):
 		if result.get('data') == []:
 			return True
 		if result.get('error',{}).get('code',None) == 4:
+			self.delay += 1
+			# this is permanent (for the lifetime of the process)
+			# but that's actually ok
+			# since hitting the rate limit means we are doing this to fast
+			# and these requests arent really time sensitive
 			raise RateLimitExceeded()

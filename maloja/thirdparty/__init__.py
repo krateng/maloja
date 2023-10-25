@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ElementTree
 import json
 import urllib.parse, urllib.request
 import base64
+import time
 from doreah.logging import log
 from threading import BoundedSemaphore
 
@@ -196,6 +197,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		"activated_setting":None
 	}
 
+	delay = 0
+
 	# service provides this role only if the setting is active AND all
 	# necessary auth settings exist
 	def active_metadata(self):
@@ -219,6 +222,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
 		return imgurl
 
 	def get_image_artist(self,artist):
@@ -234,6 +238,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
 		return imgurl
 
 	def get_image_album(self,album):
@@ -251,6 +256,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
 		return imgurl
 
 	# default function to parse response by descending down nodes
