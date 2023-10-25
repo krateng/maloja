@@ -23,6 +23,14 @@ services = {
 	"metadata":[]
 }
 
+
+
+class InvalidResponse(Exception):
+	"""Invalid Response from Third Party"""
+
+class RateLimitExceeded(Exception):
+	"""Rate Limit exceeded"""
+
 # have a limited number of worker threads so we don't completely hog the cpu with
 # these requests. they are mostly network bound, so python will happily open up 200 new
 # requests and then when all the responses come in we suddenly can't load pages anymore
@@ -48,9 +56,9 @@ def get_image_track_all(track):
 					log("Got track image for " + str(track) + " from " + service.name)
 					return res
 				else:
-					log("Could not get track image for " + str(track) + " from " + service.name)
+					log(f"Could not get track image for {track} from {service.name}")
 			except Exception as e:
-				log("Error getting track image from " + service.name + ": " + repr(e))
+				log(f"Error getting track image from {service.name}: {e.__doc__}")
 def get_image_artist_all(artist):
 	with thirdpartylock:
 		for service in services["metadata"]:
@@ -60,9 +68,9 @@ def get_image_artist_all(artist):
 					log("Got artist image for " + str(artist) + " from " + service.name)
 					return res
 				else:
-					log("Could not get artist image for " + str(artist) + " from " + service.name)
+					log(f"Could not get artist image for {artist} from {service.name}")
 			except Exception as e:
-				log("Error getting artist image from " + service.name + ": " + repr(e))
+				log(f"Error getting artist image from {service.name}: {e.__doc__}")
 def get_image_album_all(album):
 	with thirdpartylock:
 		for service in services["metadata"]:
@@ -72,9 +80,9 @@ def get_image_album_all(album):
 					log("Got album image for " + str(album) + " from " + service.name)
 					return res
 				else:
-					log("Could not get album image for " + str(album) + " from " + service.name)
+					log(f"Could not get album image for {album} from {service.name}")
 			except Exception as e:
-				log("Error getting album image from " + service.name + ": " + repr(e))
+				log(f"Error getting album image from {service.name}: {e.__doc__}")
 
 
 class GenericInterface:
@@ -262,12 +270,20 @@ class MetadataInterface(GenericInterface,abstract=True):
 			try:
 				res = res[node]
 			except Exception:
-				return None
+				handleresult = self.handle_json_result_error(data) #allow the handler to throw custom exceptions
+				# it can also return True to indicate that this is not an error, but simply an instance of 'this api doesnt have any info'
+				if handleresult is True:
+					return None
+				#throw the generic error if the handler refused to do anything
+				raise InvalidResponse()
 		return res
 
 	def postprocess_url(self,url):
 		url = url.replace("http:","https:",1)
 		return url
+
+	def handle_json_result_error(self,result):
+		raise InvalidResponse()
 
 
 

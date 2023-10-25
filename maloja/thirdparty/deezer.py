@@ -1,4 +1,5 @@
-from . import MetadataInterface
+from . import MetadataInterface, RateLimitExceeded
+
 
 class Deezer(MetadataInterface):
 	name = "Deezer"
@@ -22,3 +23,10 @@ class Deezer(MetadataInterface):
 		return None
 		# we can use the album pic from the track search,
 		# but should do so via maloja logic
+
+
+	def handle_json_result_error(self,result):
+		if result.get('data') == []:
+			return True
+		if result.get('error',{}).get('code',None) == 4:
+			raise RateLimitExceeded()
