@@ -162,7 +162,7 @@ def dl_image(url):
 
 
 
-resolver = ThreadPoolExecutor(max_workers=MAX_RESOLVE_THREADS)
+resolver = ThreadPoolExecutor(max_workers=MAX_RESOLVE_THREADS,thread_name_prefix='image_resolve')
 
 ### getting images for any website embedding now ALWAYS returns just the generic link
 ### even if we have already cached it, we will handle that on request

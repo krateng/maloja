@@ -683,6 +683,7 @@ table.list {
 }
 
 table.list tr {
+    --current-bg-color: transparent;
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
 	height: 1.45em;
