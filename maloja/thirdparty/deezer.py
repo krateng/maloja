@@ -34,6 +34,6 @@ class Deezer(MetadataInterface):
 			self.delay += 1
 			# this is permanent (for the lifetime of the process)
 			# but that's actually ok
-			# since hitting the rate limit means we are doing this to fast
+			# since hitting the rate limit means we are doing this too fast
 			# and these requests arent really time sensitive
 			raise RateLimitExceeded()
