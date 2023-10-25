@@ -12,7 +12,7 @@
 
 body {
 	padding:15px;
-	padding-bottom:35px;
+	padding-bottom:60px;
 	/**
 	padding-top:45px;
 	padding-bottom:25px;
@@ -267,10 +267,7 @@ div#footer {
 }
 #notch img:hover {
     /*transform: scale(1.1);*/
-    animation-name: spin;
-    animation-duration: 4000ms;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+    animation: spin 4s linear infinite;
 }
 
 @keyframes spin {

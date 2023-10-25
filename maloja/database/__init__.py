@@ -431,9 +431,32 @@ def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
 @waitfordb
 def get_pulse(dbconn=None,**keys):
 
+	# amountkeys for pulse and performance aren't really necessary
+	# since the amount of entries is completely determined by the time keys
+	# but lets just include it in case
+	reverse = keys.get('reverse',False)
+	if keys.get('perpage',math.inf) is not math.inf:
+		limit = (keys.get('page',0)+1) * keys.get('perpage',100)
+		behead = keys.get('page',0) * keys.get('perpage',100)
+	else:
+		limit = math.inf
+		behead = 0
+
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
+	if reverse: rngs = reversed(list(rngs))
 	results = []
 	for rng in rngs:
+
+		# count down how many we need
+		if limit==0:
+			break
+		limit -= 1
+
+		# skip prev pages
+		if behead>0:
+			behead -= 1
+			continue
+
 		res = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k != 'timerange'},dbconn=dbconn)
 		results.append({"range":rng,"scrobbles":res})
 
@@ -442,12 +465,40 @@ def get_pulse(dbconn=None,**keys):
 @waitfordb
 def get_performance(dbconn=None,**keys):
 
+	# amountkeys for pulse and performance aren't really necessary
+	# since the amount of entries is completely determined by the time keys
+	# but lets just include it in case
+	reverse = keys.get('reverse',False)
+	if keys.get('perpage',math.inf) is not math.inf:
+		limit = (keys.get('page',0)+1) * keys.get('perpage',100)
+		behead = keys.get('page',0) * keys.get('perpage',100)
+	else:
+		limit = math.inf
+		behead = 0
+
 	separate = keys.get('separate')
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
+	if reverse: rngs = reversed(list(rngs))
 	results = []
 
 	for rng in rngs:
+
+		# count down how many we need
+		if limit==0:
+			break
+		limit -= 1
+
+		# skip prev pages
+		if behead>0:
+			behead -= 1
+			continue
+
+
+
+
+
+
 		if "track" in keys:
 			track_id = sqldb.get_track_id(keys['track'],dbconn=dbconn)
 			#track = sqldb.get_track(track_id,dbconn=dbconn)
