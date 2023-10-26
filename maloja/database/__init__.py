@@ -634,7 +634,7 @@ def artist_info(dbconn=None,**keys):
 			"topweeks":len([
 				week for week in ranges(step="week") if (week != twk) and any(
 					(e.get('artist_id') == artist_id) and (e.get('rank') == 1) for e in
-					sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+					sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,associated=True,dbconn=dbconn)
 				)
 				# we don't need to check the whole thing, just until rank is lower, but... well, its a list comprehension
 			])
@@ -864,9 +864,9 @@ def start_db():
 	with sqldb.engine.connect() as dbconn:
 		with dbconn.begin():
 			for week in ranges(step='week'):
-				_ = sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
-				_ = sqldb.count_scrobbles_by_track(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
-				_ = sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,associated=True,dbconn=dbconn)
+				sqldb.count_scrobbles_by_track(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
 
 
 
