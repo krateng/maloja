@@ -10,12 +10,12 @@ div#startpage {
 
 @media (min-width: 2201px) {
 	div#startpage {
-		grid-template-columns: 30vw 30vw 30vw;
+		grid-template-columns: 15vw 15vw 15vw 15vw 15vw 15vw;
 		grid-template-rows: 45vh 45vh;
 
 		grid-template-areas:
-			"charts_artists charts_tracks charts_albums"
-			"lastscrobbles featured pulse";
+			"charts_artists charts_artists charts_tracks charts_tracks charts_albums charts_albums"
+			"empty1 lastscrobbles lastscrobbles pulse pulse empty2";
 	}
 }
 
@@ -27,7 +27,7 @@ div#startpage {
 		grid-template-areas:
 			"charts_artists lastscrobbles"
 			"charts_tracks pulse"
-			"charts_albums featured";
+			"charts_albums empty";
 	}
 }
 
