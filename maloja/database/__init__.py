@@ -597,6 +597,24 @@ def artist_info(dbconn=None,**keys):
 	albums = sqldb.get_albums_of_artists(set([artist_id]),dbconn=dbconn)
 	isalbumartist = len(albums.get(artist_id,[]))>0
 
+	cert = None
+	own_track_charts = get_charts_tracks(timerange=alltime(),resolve_ids=False,artist=artist,dbconn=dbconn)
+	own_album_charts = get_charts_albums(timerange=alltime(),resolve_ids=False,artist=artist,dbconn=dbconn)
+	if own_track_charts:
+		c = own_track_charts[0]
+		scrobbles = c["scrobbles"]
+		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND"]
+		if scrobbles >= threshold_diamond: cert = "diamond"
+		elif scrobbles >= threshold_platinum: cert = "platinum"
+		elif scrobbles >= threshold_gold: cert = "gold"
+	if own_album_charts:
+		c = own_album_charts[0]
+		scrobbles = c["scrobbles"]
+		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD_ALBUM","SCROBBLES_PLATINUM_ALBUM","SCROBBLES_DIAMOND_ALBUM"]
+		if scrobbles >= threshold_diamond: cert = "diamond"
+		elif scrobbles >= threshold_platinum and cert != "diamond": cert = "platinum"
+		elif scrobbles >= threshold_gold and not cert: cert = "gold"
+
 	twk = thisweek()
 	tyr = thisyear()
 
@@ -631,6 +649,7 @@ def artist_info(dbconn=None,**keys):
 					sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
 				)]
 			},
+			"certification":cert,
 			"topweeks":len([
 				week for week in ranges(step="week") if (week != twk) and any(
 					(e.get('artist_id') == artist_id) and (e.get('rank') == 1) for e in

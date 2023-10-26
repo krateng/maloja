@@ -26,6 +26,10 @@
 
 {% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
+{% block custombodyclasses %}
+    {% if info.certification %}certified certified_{{ info.certification }}{% endif %}
+{% endblock %}
+
 {% block icon_bar %}
 	{% if adminmode %}
 		{% include 'icons/edit.jinja' %}
