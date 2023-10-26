@@ -15,14 +15,13 @@ def no_aux_mode(func):
 # rest of the project
 from ..cleanup import CleanerAgent
 from .. import images
-from ..malojatime import register_scrobbletime, time_stamps, ranges, alltime, today, thisweek, MTRangeComposite
+from ..malojatime import register_scrobbletime, ranges, alltime, today, thisweek, thisyear, MTRangeComposite
 from ..malojauri import uri_to_internal, internal_to_uri, compose_querystring
 from ..thirdparty import proxy_scrobble_all
 from ..pkg_global.conf import data_dir, malojaconfig
 from ..apis import apikeystore
 #db
 from . import sqldb
-from . import cached
 from . import dbcache
 from . import exceptions
 
@@ -598,6 +597,8 @@ def artist_info(dbconn=None,**keys):
 	albums = sqldb.get_albums_of_artists(set([artist_id]),dbconn=dbconn)
 	isalbumartist = len(albums.get(artist_id,[]))>0
 
+	twk = thisweek()
+	tyr = thisyear()
 
 	# base info for everyone
 	result = {
@@ -617,11 +618,26 @@ def artist_info(dbconn=None,**keys):
 			"position":position,
 			"associated":others,
 			"medals":{
-				"gold": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['gold']],
-				"silver": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['silver']],
-				"bronze": [year for year in cached.medals_artists if artist_id in cached.medals_artists[year]['bronze']],
+				"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('artist_id') == artist_id) and (e.get('rank') == 1) for e in
+					sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)],
+				"silver": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('artist_id') == artist_id) and (e.get('rank') == 2) for e in
+					sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)],
+				"bronze": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('artist_id') == artist_id) and (e.get('rank') == 3) for e in
+					sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)]
 			},
-			"topweeks":len([e for e in cached.weekly_topartists if e == artist_id])
+			"topweeks":len([
+				week for week in ranges(step="week") if (week != twk) and any(
+					(e.get('artist_id') == artist_id) and (e.get('rank') == 1) for e in
+					sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)
+				# we don't need to check the whole thing, just until rank is lower, but... well, its a list comprehension
+			])
 		})
 
 	else:
@@ -659,18 +675,34 @@ def track_info(dbconn=None,**keys):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
+	twk = thisweek()
+	tyr = thisyear()
 
 	return {
 		"track":track,
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['gold']],
-			"silver": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['silver']],
-			"bronze": [year for year in cached.medals_tracks if track_id in cached.medals_tracks[year]['bronze']],
+			"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('track_id') == track_id) and (e.get('rank') == 1) for e in
+				sqldb.count_scrobbles_by_track(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)],
+			"silver": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('track_id') == track_id) and (e.get('rank') == 2) for e in
+				sqldb.count_scrobbles_by_track(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)],
+			"bronze": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('track_id') == track_id) and (e.get('rank') == 3) for e in
+				sqldb.count_scrobbles_by_track(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)]
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_toptracks if e == track_id]),
+		"topweeks":len([
+			week for week in ranges(step="week") if (week != twk) and any(
+				(e.get('track_id') == track_id) and (e.get('rank') == 1) for e in
+				sqldb.count_scrobbles_by_track(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)
+		]),
 		"id":track_id
 	}
 
@@ -705,17 +737,34 @@ def album_info(dbconn=None,**keys):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
+	twk = thisweek()
+	tyr = thisyear()
+
 	return {
 		"album":album,
 		"scrobbles":scrobbles,
 		"position":position,
 		"medals":{
-			"gold": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['gold']],
-			"silver": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['silver']],
-			"bronze": [year for year in cached.medals_albums if album_id in cached.medals_albums[year]['bronze']],
+			"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
+				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)],
+			"silver": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('album_id') == album_id) and (e.get('rank') == 2) for e in
+				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)],
+			"bronze": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+				(e.get('album_id') == album_id) and (e.get('rank') == 3) for e in
+				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)]
 		},
 		"certification":cert,
-		"topweeks":len([e for e in cached.weekly_topalbums if e == album_id]),
+		"topweeks":len([
+			week for week in ranges(step="week") if (week != twk) and any(
+				(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
+				sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+			)
+		]),
 		"id":album_id
 	}
 
@@ -808,15 +857,16 @@ def start_db():
 	except IndexError:
 		register_scrobbletime(int(datetime.datetime.now().timestamp()))
 
-
-	# create cached information
-	# these are already run from the decorator!
-	#cached.update_medals()
-	#cached.update_weekly()
-
 	dbstatus['complete'] = True
 
-
+	# cache some stuff that we'll probably need
+	# (would be done anyway by start page)
+	with sqldb.engine.connect() as dbconn:
+		with dbconn.begin():
+			for week in ranges(step='week'):
+				_ = sqldb.count_scrobbles_by_artist(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				_ = sqldb.count_scrobbles_by_track(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				_ = sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
 
 
 
