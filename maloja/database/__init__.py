@@ -623,7 +623,8 @@ def artist_info(dbconn=None,**keys):
 		"artist":artist,
 		"scrobbles":scrobbles,
 		"id":artist_id,
-		"isalbumartist":isalbumartist
+		"isalbumartist":isalbumartist,
+		"certification":cert,
 	}
 
 	# check if credited to someone else
@@ -649,7 +650,6 @@ def artist_info(dbconn=None,**keys):
 					sqldb.count_scrobbles_by_artist(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
 				)]
 			},
-			"certification":cert,
 			"topweeks":len([
 				week for week in ranges(step="week") if (week != twk) and any(
 					(e.get('artist_id') == artist_id) and (e.get('rank') == 1) for e in
