@@ -123,8 +123,8 @@ def dynamic_image():
 
 	if result['type'] == 'noimage' and result['value'] == 'wait':
 		# still being worked on
-		response.status = 503
-		response.set_header('Retry-After',5)
+		response.status = 202
+		response.set_header('Retry-After',15)
 		return
 	if result['type'] in ('url','localurl'):
 		redirect(result['value'],307)

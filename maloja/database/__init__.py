@@ -810,8 +810,9 @@ def start_db():
 
 
 	# create cached information
-	cached.update_medals()
-	cached.update_weekly()
+	# these are already run from the decorator!
+	#cached.update_medals()
+	#cached.update_weekly()
 
 	dbstatus['complete'] = True
 

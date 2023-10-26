@@ -8,25 +8,35 @@ from doreah.timing import Clock
 from ..pkg_global.conf import data_dir
 
 
-profiler = cProfile.Profile()
+
 
 FULL_PROFILE = False
+SINGLE_CALLS = False
+# only save the last single call instead of adding up all calls
+# of that function for more representative performance result
+
+if SINGLE_CALLS:
+	profiler = cProfile.Profile()
 
 def profile(func):
 	def newfunc(*args,**kwargs):
-
-		if FULL_PROFILE:
-			benchmarkfolder = data_dir['logs']("benchmarks")
-			os.makedirs(benchmarkfolder,exist_ok=True)
 
 		clock = Clock()
 		clock.start()
 
 		if FULL_PROFILE:
-			profiler.enable()
+			benchmarkfolder = data_dir['logs']("benchmarks")
+			os.makedirs(benchmarkfolder,exist_ok=True)
+			if not SINGLE_CALLS:
+				localprofiler = cProfile.Profile()
+			else:
+				localprofiler = profiler
+			localprofiler.enable()
+
 		result = func(*args,**kwargs)
+
 		if FULL_PROFILE:
-			profiler.disable()
+			localprofiler.disable()
 
 		seconds = clock.stop()
 		realfunc = func
@@ -36,7 +46,7 @@ def profile(func):
 		if FULL_PROFILE:
 			targetfilename = os.path.join(benchmarkfolder,f"{realfunc.__name__}.stats")
 			try:
-				pstats.Stats(profiler).dump_stats(targetfilename)
+				pstats.Stats(localprofiler).dump_stats(targetfilename)
 				log(f"Saved benchmark as {targetfilename}")
 			except Exception:
 				log(f"Failed to save benchmark as {targetfilename}")
