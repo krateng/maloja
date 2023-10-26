@@ -721,14 +721,9 @@ def album_info(dbconn=None,**keys):
 
 	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
 
-	try:
-		c = [e for e in alltimecharts if e["album"] == album][0]
-		scrobbles = c["scrobbles"]
-		position = c["rank"]
-	except IndexError as e:
-		log(f"Error while finding album chart position for {album}",module="debug_special")
-		log(f"{e}",module="debug_special")
-		scrobbles, position = 0,0
+	c = [e for e in alltimecharts if e["album"] == album][0]
+	scrobbles = c["scrobbles"]
+	position = c["rank"]
 
 
 	cert = None

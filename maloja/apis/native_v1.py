@@ -663,8 +663,13 @@ def search(**keys):
 			'link': "/album?" + compose_querystring(internal_to_uri({"album":al})),
 			'image': images.get_album_image(al)
 		}
-		if not result['album']['artists']: result['album']['displayArtist'] = malojaconfig["DEFAULT_ALBUM_ARTIST"]
-		albums_result.append(result)
+		mutable_result = result.copy()
+		mutable_result['album'] = result['album'].copy()
+		if not mutable_result['album']['artists']: mutable_result['album']['displayArtist'] = malojaconfig["DEFAULT_ALBUM_ARTIST"]
+		# we don't wanna actually mutate the dict here because this is in the cache
+		# TODO: This should be globally solved!!!!! immutable dicts with mutable overlays???
+		# this is a major flaw in the architecture!
+		albums_result.append(mutable_result)
 
 	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_],"albums":albums_result[:max_]}
 
