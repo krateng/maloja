@@ -727,7 +727,7 @@ def track_info(dbconn=None,**keys):
 
 
 @waitfordb
-def album_info(dbconn=None,**keys):
+def album_info(dbconn=None,reduced=False,**keys):
 
 	album = keys.get('album')
 	if album is None: raise exceptions.MissingEntityParameter()
@@ -751,35 +751,41 @@ def album_info(dbconn=None,**keys):
 	elif scrobbles >= threshold_platinum: cert = "platinum"
 	elif scrobbles >= threshold_gold: cert = "gold"
 
-	twk = thisweek()
-	tyr = thisyear()
+	if reduced:
+		extrainfo = {}
+	else:
+		twk = thisweek()
+		tyr = thisyear()
+		extrainfo = {
+			"medals":{
+				"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
+					sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)],
+				"silver": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('album_id') == album_id) and (e.get('rank') == 2) for e in
+					sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)],
+				"bronze": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
+					(e.get('album_id') == album_id) and (e.get('rank') == 3) for e in
+					sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)]
+			},
+			"topweeks":len([
+				week for week in ranges(step="week") if (week != twk) and any(
+					(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
+					sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
+				)
+			])
+		}
 
 	return {
 		"album":album,
 		"scrobbles":scrobbles,
 		"position":position,
-		"medals":{
-			"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
-				(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
-				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
-			)],
-			"silver": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
-				(e.get('album_id') == album_id) and (e.get('rank') == 2) for e in
-				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
-			)],
-			"bronze": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
-				(e.get('album_id') == album_id) and (e.get('rank') == 3) for e in
-				sqldb.count_scrobbles_by_album(since=year.first_stamp(),to=year.last_stamp(),resolve_ids=False,dbconn=dbconn)
-			)]
-		},
 		"certification":cert,
-		"topweeks":len([
-			week for week in ranges(step="week") if (week != twk) and any(
-				(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
-				sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
-			)
-		]),
-		"id":album_id
+		"id":album_id,
+		**extrainfo
 	}
 
 

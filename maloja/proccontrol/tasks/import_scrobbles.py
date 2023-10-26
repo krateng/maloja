@@ -49,7 +49,7 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite_legacy
 
-	elif re.match(r"maloja_export_[0-9]+\.json",filename):
+	elif re.match(r"maloja_export_?[0-9]*\.json",filename):
 		typeid,typedesc = "maloja","Maloja"
 		importfunc = parse_maloja
 
@@ -99,7 +99,7 @@ def import_scrobbles(inputf):
 							"albumtitle":scrobble.get('album_name') or None,
 							"artists":scrobble.get('album_artists') or scrobble['track_artists'] or None
 							# TODO: use same heuristics as with parsing to determine album?
-						}
+						} if scrobble.get('album_name') else None
 				 	},
 				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,

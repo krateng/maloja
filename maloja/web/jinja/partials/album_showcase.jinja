@@ -7,7 +7,7 @@
 <div id="showcase_container">
 
 {% for album in ownalbums %}
-{% set info = dbc.album_info({'album':album}) %}
+{% set info = dbc.album_info({'album':album,'reduced':True}) %}
 <table class="album">
 	<tr><td>&nbsp</td></tr>
 	<tr><td>
@@ -24,7 +24,7 @@
 {% endfor %}
 
 {% for album in otheralbums %}
-{% set info = dbc.album_info({'album':album}) %}
+{% set info = dbc.album_info({'album':album,'reduced':True}) %}
 <table class="album">
 	<tr><td>Appears on</td></tr>
 	<tr><td>

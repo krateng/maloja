@@ -42,6 +42,10 @@ body.certified {
 .certified_gold {
     --certification-color: var(--color-certified-gold);
 }
+.certified_None {
+    --certification-color: none;
+    /* overwrite this for non-certified elements on certified pages (albums of artist) */
+}
 
 .certified.smallcerticon svg {
     fill: rgba(var(--certification-color),1);
