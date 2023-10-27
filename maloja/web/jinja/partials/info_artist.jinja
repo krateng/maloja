@@ -1,9 +1,9 @@
 {% import 'snippets/links.jinja' as links %}
-{% import 'partials/awards_artist.jinja' as awards %}
+{% import 'partials/awards_artist.jinja' as awards with context %}
 
 
 {% set artist = filterkeys.artist %}
-{% set info = db.artist_info(artist=artist) %}
+{% set info = dbc.artist_info({'artist':artist}) %}
 {% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
 {% set credited = info.get('replace') %}

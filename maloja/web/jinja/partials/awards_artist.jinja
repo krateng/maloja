@@ -57,7 +57,7 @@
 <!-- SUBCERTS -->
 
 
-{% set albumcharts = db.get_charts_albums(artist=artist,timerange=malojatime.alltime()) %}
+{% set albumcharts = dbc.get_charts_albums({'artist':artist,'timerange':malojatime.alltime()}) %}
 {% for e in albumcharts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
@@ -72,7 +72,7 @@
 {%- endfor %}
 
 
-{% set charts = db.get_charts_tracks(artist=artist,timerange=malojatime.alltime()) %}
+{% set charts = dbc.get_charts_tracks({'artist':artist,'timerange':malojatime.alltime()}) %}
 {% for e in charts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}

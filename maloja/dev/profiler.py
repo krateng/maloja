@@ -50,9 +50,9 @@ def profile(func):
 			times.setdefault(realfunc,[]).append(seconds)
 
 		if SINGLE_CALLS:
-			log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.2f}s",module="debug_performance")
+			log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.3f}s",module="debug_performance")
 		else:
-			log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.2f}s (Average: { sum(times[realfunc])/len(times[realfunc]):.2f}s)",module="debug_performance")
+			log(f"Executed {realfunc.__name__} ({args}, {kwargs}) in {seconds:.3f}s (Average: { sum(times[realfunc])/len(times[realfunc]):.3f}s)",module="debug_performance")
 
 		if FULL_PROFILE:
 			targetfilename = os.path.join(benchmarkfolder,f"{realfunc.__name__}.stats")

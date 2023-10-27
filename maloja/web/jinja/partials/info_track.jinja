@@ -4,7 +4,7 @@
 {% set info = dbc.track_info({'track':track}) %}
 {% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
 
-{% import 'partials/awards_track.jinja' as awards %}
+{% import 'partials/awards_track.jinja' as awards with context %}
 
 <table class="top_info">
 	<tr>

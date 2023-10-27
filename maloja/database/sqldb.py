@@ -157,7 +157,7 @@ def connection_provider(func):
 					return func(*args,**kwargs)
 
 	wrapper.__innerfunc__ = func
-	wrapper.__name__ = f"connection_provider_{func.__name__}"
+	wrapper.__name__ = f"CONPR_{func.__name__}"
 	return wrapper
 
 @connection_provider

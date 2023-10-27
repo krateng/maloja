@@ -1,5 +1,5 @@
 {% import 'snippets/links.jinja' as links %}
-{% import 'partials/awards_album.jinja' as awards %}
+{% import 'partials/awards_album.jinja' as awards with context %}
 
 {% set album = filterkeys.album %}
 {% set info = dbc.album_info({'album':album}) %}
