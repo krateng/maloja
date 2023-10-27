@@ -49,7 +49,7 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite_legacy
 
-	elif re.match(r"maloja_export_?[0-9]*\.json",filename):
+	elif re.match(r"maloja_export[_0-9]*\.json",filename):
 		typeid,typedesc = "maloja","Maloja"
 		importfunc = parse_maloja
 

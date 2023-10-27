@@ -10,8 +10,9 @@ div#startpage {
 
 @media (min-width: 2201px) {
 	div#startpage {
-		grid-template-columns: 15vw 15vw 15vw 15vw 15vw 15vw;
-		grid-template-rows: 45vh 45vh;
+		grid-template-columns: repeat(6, 14vw);
+		grid-template-rows: repeat(2, 45vh);
+		grid-column-gap: 2vw;
 
 		grid-template-areas:
 			"charts_artists charts_artists charts_tracks charts_tracks charts_albums charts_albums"
