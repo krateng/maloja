@@ -63,6 +63,8 @@ def waitfordb(func):
 	def newfunc(*args,**kwargs):
 		if not dbstatus['healthy']: raise exceptions.DatabaseNotBuilt()
 		return func(*args,**kwargs)
+
+	newfunc.__name__ = func.__name__
 	return newfunc
 
 
@@ -421,8 +423,12 @@ def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 @waitfordb
 def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
 	(since,to) = keys.get('timerange').timestamps()
+	appearing = keys.get('appearing',False)
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
+		if appearing:
+			result = sqldb.count_scrobbles_of_artist_by_album(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
+		else:
+			result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
 	else:
 		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result
@@ -736,14 +742,17 @@ def album_info(dbconn=None,reduced=False,**keys):
 	if not album_id: raise exceptions.AlbumDoesNotExist(album['albumtitle'])
 
 	album = sqldb.get_album(album_id,dbconn=dbconn)
-	alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
 
-	#scrobbles = get_scrobbles_num(track=track,timerange=alltime())
+	extrainfo = {}
 
-	c = [e for e in alltimecharts if e["album"] == album][0]
-	scrobbles = c["scrobbles"]
-	position = c["rank"]
-
+	if reduced:
+		scrobbles = get_scrobbles_num(album=album,timerange=alltime())
+	else:
+		alltimecharts = get_charts_albums(timerange=alltime(),dbconn=dbconn)
+		c = [e for e in alltimecharts if e["album"] == album][0]
+		scrobbles = c["scrobbles"]
+		position = c["rank"]
+		extrainfo['position'] = position
 
 	cert = None
 	threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD_ALBUM","SCROBBLES_PLATINUM_ALBUM","SCROBBLES_DIAMOND_ALBUM"]
@@ -752,7 +761,7 @@ def album_info(dbconn=None,reduced=False,**keys):
 	elif scrobbles >= threshold_gold: cert = "gold"
 
 	if reduced:
-		extrainfo = {}
+		pass
 	else:
 		twk = thisweek()
 		tyr = thisyear()
@@ -782,7 +791,6 @@ def album_info(dbconn=None,reduced=False,**keys):
 	return {
 		"album":album,
 		"scrobbles":scrobbles,
-		"position":position,
 		"certification":cert,
 		"id":album_id,
 		**extrainfo

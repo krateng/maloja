@@ -51,6 +51,8 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 				cache[key] = result
 				return result
 
+		outer_func.__name__ = f"cache_wrap_{inner_func.__name__}"
+
 		return outer_func
 
 

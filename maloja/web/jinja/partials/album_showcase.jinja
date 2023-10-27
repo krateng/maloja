@@ -1,80 +1,56 @@
 {% import 'snippets/links.jinja' as links %}
 
-{% set info = dbc.get_albums_artist_appears_on(filterkeys,limitkeys) %}
-{% set ownalbums = info.own_albums %}
-{% set otheralbums = info.appears_on %}
 
 <div id="showcase_container">
 
-{% for album in ownalbums %}
-{% set info = dbc.album_info({'album':album,'reduced':True}) %}
+
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'appearing':False}) %}
+
+{%- set cert = None -%}
+{%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
 <table class="album">
 	<tr><td>&nbsp</td></tr>
 	<tr><td>
-		<a href="{{ links.url(album) }}">
-			<div class="shiny alwaysshiny certified_{{ info.certification }} lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		<a href="{{ links.url(entry.album) }}">
+			<div class="shiny alwaysshiny certified_{{ cert }} lazy" data-bg="{{ images.get_album_image(entry.album) }}"'></div>
 		</a>
 	</td></tr>
 	<tr><td>
-		<span class="album_artists">{{ links.links(album.artists) }}</span><br/>
-		<span class="album_title">{{ links.link(album) }}</span>
+		<span class="album_artists">{{ links.links(entry.album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(entry.album) }}</span>
 	</td></tr>
 
 </table>
 {% endfor %}
 
-{% for album in otheralbums %}
-{% set info = dbc.album_info({'album':album,'reduced':True}) %}
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'appearing':True}) %}
+
+
+{% if artist not in (entry.album.artists or []) %}
+
+{%- set cert = None -%}
+{%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
 <table class="album">
 	<tr><td>Appears on</td></tr>
 	<tr><td>
-		<a href="{{ links.url(album) }}">
-			<div class="shiny alwaysshiny certified_{{ info.certification }} lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
+		<a href="{{ links.url(entry.album) }}">
+			<div class="shiny alwaysshiny certified_{{ cert }} lazy" data-bg="{{ images.get_album_image(entry.album) }}"'></div>
 		</a>
 	</td></tr>
 	<tr><td>
-		<span class="album_artists">{{ links.links(album.artists) }}</span><br/>
-		<span class="album_title">{{ links.link(album) }}</span>
+		<span class="album_artists">{{ links.links(entry.album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(entry.album) }}</span>
 	</td></tr>
 
 </table>
+
+{% endif %}
 {% endfor %}
 
-<!--
-<table class="album_showcase">
-<tr>
-{% for album in ownalbums %}<td></td>{% endfor %}
-{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
-{% for album in otheralbums %}<td>Appears on</td>{% endfor %}
-</tr>
-
-<tr>
-{% for album in ownalbums %}
-	<td>
-		<a href="{{ links.url(album) }}">
-			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
-		</a>
-	</td>
-{% endfor %}
-{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
-{% for album in otheralbums %}
-	<td class="album_appearon">
-		<a href="{{ links.url(album) }}">
-			<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'></div>
-		</a>
-	</td>
-{% endfor %}
-</tr>
-
-<tr>
-{% for album in ownalbums %}
-	<td>{{ album.albumtitle }}</td>
-{% endfor %}
-{% if ownalbums and otheralbums%}<td class="album_separator_column"></td>{% endif %}
-{% for album in otheralbums %}
-	<td>{{ album.albumtitle }}</td>
-{% endfor %}
-</tr>
-</table>
--->
 </div>

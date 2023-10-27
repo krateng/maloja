@@ -157,6 +157,7 @@ def connection_provider(func):
 					return func(*args,**kwargs)
 
 	wrapper.__innerfunc__ = func
+	wrapper.__name__ = f"connection_provider_{func.__name__}"
 	return wrapper
 
 @connection_provider
@@ -1184,7 +1185,7 @@ def count_scrobbles_of_artist_by_album(since,to,artist,associated=False,resolve_
 
 	if resolve_ids:
 		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
-		result = [{'scrobbles':row.count,'album':albums[row.album_id],'album_id':row.album_id} for row in result]
+		result = [{'scrobbles':row.count,'album':albums[row.album_id],'album_id':row.album_id} for row in result if row.album_id]
 	else:
 		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
 	result = rank(result,key='scrobbles')
