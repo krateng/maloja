@@ -4,7 +4,7 @@
 <div id="showcase_container">
 
 
-{% for entry in dbc.get_charts_albums(filterkeys,limitkeys) %}
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
 
 {%- set cert = None -%}
 {%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
@@ -26,7 +26,7 @@
 </table>
 {% endfor %}
 
-{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'appearing':True}) %}
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
 
 
 {% if artist not in (entry.album.artists or []) %}

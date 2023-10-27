@@ -421,14 +421,12 @@ def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 	return result
 
 @waitfordb
-def get_charts_albums(dbconn=None,resolve_ids=True,**keys):
+def get_charts_albums(dbconn=None,resolve_ids=True,only_own_albums=False,**keys):
 	(since,to) = keys.get('timerange').timestamps()
-	appearing = keys.get('appearing',False)
+
 	if 'artist' in keys:
-		if appearing:
-			result = sqldb.count_scrobbles_of_artist_by_album(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
-		else:
-			result = sqldb.count_scrobbles_by_album_of_artist(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
+		result = sqldb.count_scrobbles_by_album_combined(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
+		result = [e for e in result if (not only_own_albums) or (keys['artist'] in (e['album']['artists'] or []))]
 	else:
 		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result

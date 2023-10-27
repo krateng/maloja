@@ -1111,6 +1111,69 @@ def count_scrobbles_by_album(since,to,resolve_ids=True,dbconn=None):
 	result = rank(result,key='scrobbles')
 	return result
 
+
+# get ALL albums the artist is in any way related to and rank them by TBD
+@cached_wrapper
+@connection_provider
+def count_scrobbles_by_album_combined(since,to,artist,associated=False,resolve_ids=True,dbconn=None):
+
+	if associated:
+		artist_ids = get_associated_artists(artist,resolve_ids=False,dbconn=dbconn) + [get_artist_id(artist,dbconn=dbconn)]
+	else:
+		artist_ids = [get_artist_id(artist,dbconn=dbconn)]
+
+	# get all tracks that either have a relevant trackartist
+	# or are on an album with a relevant albumartist
+	op1 = sql.select(DB['tracks'].c.id).select_from(
+		sql.join(
+			sql.join(
+				DB['tracks'],
+				DB['trackartists'],
+				DB['tracks'].c.id == DB['trackartists'].c.track_id
+			),
+			DB['albumartists'],
+			DB['tracks'].c.album_id == DB['albumartists'].c.album_id,
+			isouter=True
+		)
+	).where(
+		DB['tracks'].c.album_id.is_not(None), # tracks without albums don't matter
+		sql.or_(
+			DB['trackartists'].c.artist_id.in_(artist_ids),
+			DB['albumartists'].c.artist_id.in_(artist_ids)
+		)
+	)
+	relevant_tracks = dbconn.execute(op1).all()
+	relevant_track_ids = set(row.id for row in relevant_tracks)
+	#for row in relevant_tracks:
+	#	print(get_track(row.id))
+
+	op2 = sql.select(
+		sql.func.count(sql.func.distinct(DB['scrobbles'].c.timestamp)).label('count'),
+		DB['tracks'].c.album_id
+	).select_from(
+		sql.join(
+			DB['scrobbles'],
+			DB['tracks'],
+			DB['scrobbles'].c.track_id == DB['tracks'].c.id
+		)
+	).where(
+		DB['scrobbles'].c.timestamp.between(since,to),
+		DB['scrobbles'].c.track_id.in_(relevant_track_ids)
+	).group_by(DB['tracks'].c.album_id).order_by(sql.desc('count'))
+	result = dbconn.execute(op2).all()
+
+	if resolve_ids:
+		albums = get_albums_map([row.album_id for row in result],dbconn=dbconn)
+		result = [{'scrobbles':row.count,'album':albums[row.album_id],'album_id':row.album_id} for row in result]
+	else:
+		result = [{'scrobbles':row.count,'album_id':row.album_id} for row in result]
+	result = rank(result,key='scrobbles')
+
+	#from pprint import pprint
+	#pprint(result)
+	return result
+
+
 @cached_wrapper
 @connection_provider
 # this ranks the albums of that artist, not albums the artist appears on - even scrobbles
