@@ -605,7 +605,10 @@ def artist_info(dbconn=None,**keys):
 
 	cert = None
 	own_track_charts = get_charts_tracks(timerange=alltime(),resolve_ids=False,artist=artist,dbconn=dbconn)
-	own_album_charts = get_charts_albums(timerange=alltime(),resolve_ids=False,artist=artist,dbconn=dbconn)
+	own_album_charts = get_charts_albums(timerange=alltime(),resolve_ids=True,artist=artist,dbconn=dbconn)
+	# we resolve ids here which we don't need to. however, on the jinja page we make that same call
+	# later again with resolve ids, so its a cache miss and it doubles page load time
+	# TODO: find better solution
 	if own_track_charts:
 		c = own_track_charts[0]
 		scrobbles = c["scrobbles"]

@@ -4,7 +4,7 @@
 <div id="showcase_container">
 
 
-{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'appearing':False}) %}
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys) %}
 
 {%- set cert = None -%}
 {%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}

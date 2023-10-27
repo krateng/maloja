@@ -57,7 +57,8 @@
 <!-- SUBCERTS -->
 
 
-{% set albumcharts = dbc.get_charts_albums({'artist':artist,'timerange':malojatime.alltime()}) %}
+{% set albumcharts = dbc.get_charts_albums({'artist':artist,'timerange':malojatime.alltime(),'resolve_ids':True}) %}
+{# TODO: find better solution, we just resolve ids here because we have that in the cache anyway #}
 {% for e in albumcharts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
