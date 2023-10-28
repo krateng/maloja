@@ -309,7 +309,6 @@ def get_scrobbles_num_external(k_filter, k_limit, k_delimit, k_amount):
 	}
 
 
-
 @api.get("tracks")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
@@ -328,7 +327,6 @@ def get_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 		"status":"ok",
 		"list":result
 	}
-
 
 
 @api.get("artists")
@@ -389,17 +387,18 @@ def get_charts_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 		"list":result
 	}
 
+
 @api.get("charts/albums")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
-def get_charts_albums_external(**keys):
+@convert_kwargs
+def get_charts_albums_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns album charts
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, _, _, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time}
 
+	ckeys = {**k_filter, **k_limit}
 	result = database.get_charts_albums(**ckeys)
 
 	return {
@@ -467,8 +466,6 @@ def get_top_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	}
 
 
-
-
 @api.get("top/tracks")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
@@ -481,25 +478,27 @@ def get_top_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 
 	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_tracks(**ckeys)
-	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
+	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST/ALBUM AS WELL?
 
 	return {
 		"status":"ok",
 		"list":results
 	}
 
+
 @api.get("top/albums")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
-def get_top_albums_external(**keys):
+@convert_kwargs
+def get_top_albums_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns respective number 1 albums in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, k_internal, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
 
+	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_albums(**ckeys)
+	# IMPLEMENT THIS FOR TOP ALBUMS OF ARTIST AS WELL?
 
 	return {
 		"status":"ok",
