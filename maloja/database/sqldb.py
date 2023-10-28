@@ -389,7 +389,15 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 	result = dbconn.execute(op)
 
 	invalidate_entity_cache() # because album info has changed
-	invalidate_caches() # changing album info of tracks will change album charts
+	#invalidate_caches() # changing album info of tracks will change album charts
+	# ARE YOU FOR REAL
+	# it just took me like 3 hours to figure out that this one line makes the artist page load slow because
+	# we call this func with every new scrobble that contains album info, even if we end up not changing the album
+	# of course i was always debugging with the manual scrobble button which just doesnt send any album info
+	# and because we expel all caches every single time, the artist page then needs to recalculate the weekly charts of
+	# ALL OF RECORDED HISTORY in order to display top weeks
+	# lmao
+	# TODO: figure out something better
 
 
 	return True
