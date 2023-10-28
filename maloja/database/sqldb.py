@@ -853,8 +853,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
 
 	op = jointable.select().where(
-		DB['scrobbles'].c.timestamp<=to,
-		DB['scrobbles'].c.timestamp>=since,
+		DB['scrobbles'].c.timestamp.between(since,to),
 		DB['trackartists'].c.artist_id.in_(artist_ids)
 	)
 	if reverse:
@@ -870,9 +869,9 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 	seen = set()
 	filtered_result = []
 	for row in result:
-	    if row.timestamp not in seen:
-	        filtered_result.append(row)
-	        seen.add(row.timestamp)
+		if row.timestamp not in seen:
+			filtered_result.append(row)
+			seen.add(row.timestamp)
 	result = filtered_result
 
 

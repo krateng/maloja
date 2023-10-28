@@ -471,7 +471,12 @@ def get_pulse(dbconn=None,**keys):
 			continue
 
 		res = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k != 'timerange'},dbconn=dbconn)
-		results.append({"range":rng,"scrobbles":res})
+		if keys.get('artist') and keys.get('associated',False):
+			res_real = get_scrobbles_num(timerange=rng,**{k:keys[k] for k in keys if k not in ['timerange','associated']},associated=False,dbconn=dbconn)
+			# this isnt really efficient, we could do that in one db call, but i dont wanna reorganize rn
+		else:
+			res_real = res
+		results.append({"range":rng,"scrobbles":res,"real_scrobbles":res_real})
 
 	return results
 
