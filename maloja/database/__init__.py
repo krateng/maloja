@@ -436,6 +436,7 @@ def get_charts_albums(dbconn=None,resolve_ids=True,only_own_albums=False,**keys)
 	if 'artist' in keys:
 		result = sqldb.count_scrobbles_by_album_combined(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
 		if only_own_albums:
+			# TODO: this doesnt take associated into account and doesnt change ranks
 			result = [e for e in result if keys['artist'] in (e['album']['artists'] or [])]
 	else:
 		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)

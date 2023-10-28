@@ -2,7 +2,7 @@
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
 {% if charts is undefined %}
-	{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
+	{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
 {% endif %}
 {% if compare %}
 	{% if compare is true %}
