@@ -323,6 +323,7 @@ def album_dict_to_db(info,dbconn=None):
 
 ##### Actual Database interactions
 
+# TODO: remove all resolve_id args and do that logic outside the caching
 
 @connection_provider
 def add_scrobble(scrobbledict,update_album=False,dbconn=None):
