@@ -323,7 +323,8 @@ def album_dict_to_db(info,dbconn=None):
 
 ##### Actual Database interactions
 
-# TODO: remove all resolve_id args and do that logic outside the caching
+# TODO: remove all resolve_id args and do that logic outside the caching to improve hit chances
+# TODO: maybe also factor out all intitial get entity funcs (some here, some in __init__) and throw exceptions
 
 @connection_provider
 def add_scrobble(scrobbledict,update_album=False,dbconn=None):
@@ -836,9 +837,9 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 	if to is None: to=now()
 
 	if associated:
-		artist_ids = get_associated_artists(artist,resolve_ids=False,dbconn=dbconn) + [get_artist_id(artist,dbconn=dbconn)]
+		artist_ids = get_associated_artists(artist,resolve_ids=False,dbconn=dbconn) + [get_artist_id(artist,create_new=False,dbconn=dbconn)]
 	else:
-		artist_ids = [get_artist_id(artist,dbconn=dbconn)]
+		artist_ids = [get_artist_id(artist,create_new=False,dbconn=dbconn)]
 
 
 	jointable = sql.join(DB['scrobbles'],DB['trackartists'],DB['scrobbles'].c.track_id == DB['trackartists'].c.track_id)
@@ -879,7 +880,8 @@ def get_scrobbles_of_track(track,since=None,to=None,resolve_references=True,limi
 	if since is None: since=0
 	if to is None: to=now()
 
-	track_id = get_track_id(track,dbconn=dbconn)
+	track_id = get_track_id(track,create_new=False,dbconn=dbconn)
+
 
 	op = DB['scrobbles'].select().where(
 		DB['scrobbles'].c.timestamp<=to,
@@ -906,7 +908,7 @@ def get_scrobbles_of_album(album,since=None,to=None,resolve_references=True,limi
 	if since is None: since=0
 	if to is None: to=now()
 
-	album_id = get_album_id(album,dbconn=dbconn)
+	album_id = get_album_id(album,create_new=False,dbconn=dbconn)
 
 	jointable = sql.join(DB['scrobbles'],DB['tracks'],DB['scrobbles'].c.track_id == DB['tracks'].c.id)
 

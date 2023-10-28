@@ -505,7 +505,9 @@ def get_performance(dbconn=None,**keys):
 
 
 		if "track" in keys:
-			track_id = sqldb.get_track_id(keys['track'],dbconn=dbconn)
+			track_id = sqldb.get_track_id(keys['track'],create_new=False,dbconn=dbconn)
+			if not track_id:
+				raise exceptions.TrackDoesNotExist(keys['track'])
 			#track = sqldb.get_track(track_id,dbconn=dbconn)
 			charts = get_charts_tracks(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
@@ -514,7 +516,9 @@ def get_performance(dbconn=None,**keys):
 					rank = c["rank"]
 					break
 		elif "artist" in keys:
-			artist_id = sqldb.get_artist_id(keys['artist'],dbconn=dbconn)
+			artist_id = sqldb.get_artist_id(keys['artist'],create_new=False,dbconn=dbconn)
+			if not artist_id:
+				raise exceptions.ArtistDoesNotExist(keys['artist'])
 			#artist = sqldb.get_artist(artist_id,dbconn=dbconn)
 			# ^this is the most useless line in programming history
 			# but I like consistency
@@ -525,7 +529,9 @@ def get_performance(dbconn=None,**keys):
 					rank = c["rank"]
 					break
 		elif "album" in keys:
-			album_id = sqldb.get_album_id(keys['album'],dbconn=dbconn)
+			album_id = sqldb.get_album_id(keys['album'],create_new=False,dbconn=dbconn)
+			if not album_id:
+				raise exceptions.AlbumDoesNotExist(keys['album'])
 			#album = sqldb.get_album(album_id,dbconn=dbconn)
 			charts = get_charts_albums(timerange=rng,resolve_ids=False,dbconn=dbconn)
 			rank = None
@@ -688,7 +694,7 @@ def track_info(dbconn=None,**keys):
 	if track is None: raise exceptions.MissingEntityParameter()
 
 	track_id = sqldb.get_track_id(track,create_new=False,dbconn=dbconn)
-	if not track_id: raise exceptions.TrackDoesNotExist(track['title'])
+	if not track_id: raise exceptions.TrackDoesNotExist(track)
 
 	track = sqldb.get_track(track_id,dbconn=dbconn)
 	alltimecharts = get_charts_tracks(timerange=alltime(),resolve_ids=False,dbconn=dbconn)
@@ -742,7 +748,7 @@ def album_info(dbconn=None,reduced=False,**keys):
 	if album is None: raise exceptions.MissingEntityParameter()
 
 	album_id = sqldb.get_album_id(album,create_new=False,dbconn=dbconn)
-	if not album_id: raise exceptions.AlbumDoesNotExist(album['albumtitle'])
+	if not album_id: raise exceptions.AlbumDoesNotExist(album)
 
 	album = sqldb.get_album(album_id,dbconn=dbconn)
 
@@ -891,7 +897,6 @@ def start_db():
 	dbstatus['complete'] = True
 
 	# cache some stuff that we'll probably need
-	# (would be done anyway by start page)
 	with sqldb.engine.connect() as dbconn:
 		with dbconn.begin():
 			for week in ranges(step='week'):
