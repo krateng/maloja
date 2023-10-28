@@ -348,7 +348,23 @@ def get_charts_tracks_external(**keys):
 		"list":result
 	}
 
+@api.get("charts/albums")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True)
+def get_charts_albums_external(**keys):
+	"""Returns album charts
 
+	:return: list (List)
+	:rtype: Dictionary"""
+	k_filter, k_time, _, _, _ = uri_to_internal(keys)
+	ckeys = {**k_filter, **k_time}
+
+	result = database.get_charts_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":result
+	}
 
 
 @api.get("pulse")
@@ -434,7 +450,23 @@ def get_top_tracks_external(**keys):
 		"list":results
 	}
 
+@api.get("top/albums")
+@catch_exceptions
+@add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
+def get_top_albums_external(**keys):
+	"""Returns respective number 1 albums in specified time frames
 
+	:return: list (List)
+	:rtype: Dictionary"""
+	_, k_time, k_internal, _, _ = uri_to_internal(keys)
+	ckeys = {**k_time, **k_internal}
+
+	results = database.get_top_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":results
+	}
 
 
 @api.get("artistinfo")
