@@ -4,7 +4,7 @@ import urllib
 import math
 
 # this also sets defaults!
-def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api=False):
+def uri_to_internal(keys,accepted_entities=('artist','track','album'),forceTrack=False,forceArtist=False,forceAlbum=False,api=False):
 
 	# output:
 	# 1	keys that define the filtered object like artist or track
@@ -15,33 +15,30 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,forceAlbum=False,api
 	# if we force a type, that only means that the other types are not allowed
 	# it could still have no type at all (any call that isn't filtering by entity)
 
-	type = None
-	if forceTrack and "title" in keys: type = "track"
-	if forceArtist and "artist" in keys: type = "artist"
-	if forceAlbum and "albumtitle" in keys: type = "album"
+	if forceTrack: accepted_entities = ('track',)
+	if forceArtist: accepted_entities = ('artist',)
+	if forceAlbum: accepted_entities = ('album',)
 
-	if (not forceTrack) and (not forceAlbum) and (not forceArtist) and (not type):
-		if "title" in keys: type = "track"
-		elif "albumtitle" in keys: type = "album"
-		elif "artist" in keys: type = "artist"
+	# API backwards compatibility
+	if "artist" in keys and "artist" not in accepted_entities:
+		if "track" in accepted_entities:
+			keys['trackartist'] = keys['artist']
+		elif "album" in accepted_entities:
+			keys['albumartist'] = keys['artist']
 
 
 	# 1
-	if type == "track":
-		filterkeys = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
-	elif type == "artist":
-		filterkeys = {"artist":keys.get("artist")}
-		filterkeys["associated"] = (keys.get('associated','no').lower() == 'yes')
+	filterkeys = {}
+	if "track" in accepted_entities and "title" in keys:
+		filterkeys.update({"track":{"artists":keys.getall("trackartist"),"title":keys.get("title")}})
+	if "artist" in accepted_entities and "artist" in keys:
+		filterkeys.update({"artist": keys.get("artist"), "associated": (keys.get('associated', 'no').lower() == 'yes')})
 		# associated is only used for filtering by artist, to indicate that we include associated artists
 		# for actual artist charts, to show that we want to count them, use 'unified'
-	elif type == "album":
-		filterkeys = {"album":{"artists":keys.getall("artist"),"albumtitle":keys.get("albumtitle") or keys.get("title")}}
-	else:
-		filterkeys = {}
+	if "album" in accepted_entities and "albumtitle" in keys:
+		filterkeys.update({"album":{"artists":keys.getall("albumartist"),"albumtitle":keys.get("albumtitle")}})
 
-	# this can be the case regardless of actual entity filter
-	# e.g if i get scrobbles of an artist associated tells me i want all scrobbles by associated artists
-	# but seeing the artist charts (wich have no filterkeys) also is affected by this
+
 
 	# 2
 	limitkeys = {}
@@ -107,13 +104,13 @@ def internal_to_uri(keys):
 	if "artist" in keys:
 		urikeys.append("artist",keys["artist"])
 		if keys.get("associated"): urikeys.append("associated","yes")
-	elif "track" in keys:
+	if "track" in keys:
 		for a in keys["track"]["artists"]:
-			urikeys.append("artist",a)
+			urikeys.append("trackartist",a)
 		urikeys.append("title",keys["track"]["title"])
-	elif "album" in keys:
+	if "album" in keys:
 		for a in keys["album"].get("artists") or []:
-			urikeys.append("artist",a)
+			urikeys.append("albumartist",a)
 		urikeys.append("albumtitle",keys["album"]["albumtitle"])
 
 
