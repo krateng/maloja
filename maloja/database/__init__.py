@@ -422,6 +422,7 @@ def get_charts_tracks(dbconn=None,resolve_ids=True,**keys):
 
 @waitfordb
 def get_charts_albums(dbconn=None,resolve_ids=True,only_own_albums=False,**keys):
+	# TODO: different scrobble numbers for only own tracks on own album etc?
 	(since,to) = keys.get('timerange').timestamps()
 
 	if 'artist' in keys:

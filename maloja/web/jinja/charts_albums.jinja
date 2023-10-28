@@ -8,7 +8,7 @@
 	<script src="/datechange.js" async></script>
 {% endblock %}
 
-{% set charts = dbc.get_charts_albums(filterkeys,limitkeys) %}
+{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set topalbum = charts[0].album %}

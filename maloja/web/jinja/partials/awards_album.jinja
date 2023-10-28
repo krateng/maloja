@@ -48,7 +48,7 @@
 
 <!-- SUBCERTS -->
 
-{% set charts = db.get_charts_tracks(album=album.album,timerange=malojatime.alltime()) %}
+{% set charts = dbc.get_charts_tracks({'album':album.album,'timerange':malojatime.alltime()}) %}
 {% for e in charts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}

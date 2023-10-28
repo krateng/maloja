@@ -26,8 +26,6 @@ def update_jinja_environment():
 
 	JINJA_CONTEXT = {
 		# maloja
-		"db": database, #TODO: move these to connection manager as well
-		#"dbp":dbp,
 		"malojatime": malojatime,
 		"images": images,
 		"mlj_uri": malojauri,

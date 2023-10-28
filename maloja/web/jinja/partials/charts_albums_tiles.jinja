@@ -2,7 +2,7 @@
 
 
 {% if charts is undefined %}
-	{% set charts = dbc.get_charts_albums(limitkeys) %}
+	{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
 {% endif %}
 
 {% set charts_14 = charts | fixlength(14) %}
