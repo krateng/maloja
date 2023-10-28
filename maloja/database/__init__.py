@@ -782,7 +782,7 @@ def album_info(dbconn=None,reduced=False,**keys):
 	else:
 		twk = thisweek()
 		tyr = thisyear()
-		extrainfo = {
+		extrainfo.update({
 			"medals":{
 				"gold": [year.desc() for year in ranges(step='year') if (year != tyr) and any(
 					(e.get('album_id') == album_id) and (e.get('rank') == 1) for e in
@@ -803,7 +803,7 @@ def album_info(dbconn=None,reduced=False,**keys):
 					sqldb.count_scrobbles_by_album(since=week.first_stamp(),to=week.last_stamp(),resolve_ids=False,dbconn=dbconn)
 				)
 			])
-		}
+		})
 
 	return {
 		"album":album,
