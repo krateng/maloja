@@ -141,10 +141,11 @@ def print_info():
 	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
 	print()
 	try:
-		from setuptools.dist import pkg_resources
+		from importlib.metadata import distribution
 		for pkg in ("sqlalchemy","waitress","bottle","doreah","jinja2"):
-			print(col['cyan']     (f"{pkg}:".ljust(13)),pkg_resources.get_distribution(pkg).version)
+			print(col['cyan']     (f"{pkg}:".ljust(13)),distribution(pkg).version)
 	except ImportError:
+		raise
 		print("Could not determine dependency versions.")
 	print()
 

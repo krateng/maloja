@@ -625,18 +625,18 @@ def artist_info(dbconn=None,**keys):
 	# TODO: find better solution
 	if own_track_charts:
 		c = own_track_charts[0]
-		scrobbles = c["scrobbles"]
+		tscrobbles = c["scrobbles"]
 		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD","SCROBBLES_PLATINUM","SCROBBLES_DIAMOND"]
-		if scrobbles >= threshold_diamond: cert = "diamond"
-		elif scrobbles >= threshold_platinum: cert = "platinum"
-		elif scrobbles >= threshold_gold: cert = "gold"
+		if tscrobbles >= threshold_diamond: cert = "diamond"
+		elif tscrobbles >= threshold_platinum: cert = "platinum"
+		elif tscrobbles >= threshold_gold: cert = "gold"
 	if own_album_charts:
 		c = own_album_charts[0]
-		scrobbles = c["scrobbles"]
+		ascrobbles = c["scrobbles"]
 		threshold_gold, threshold_platinum, threshold_diamond = malojaconfig["SCROBBLES_GOLD_ALBUM","SCROBBLES_PLATINUM_ALBUM","SCROBBLES_DIAMOND_ALBUM"]
-		if scrobbles >= threshold_diamond: cert = "diamond"
-		elif scrobbles >= threshold_platinum and cert != "diamond": cert = "platinum"
-		elif scrobbles >= threshold_gold and not cert: cert = "gold"
+		if ascrobbles >= threshold_diamond: cert = "diamond"
+		elif ascrobbles >= threshold_platinum and cert != "diamond": cert = "platinum"
+		elif ascrobbles >= threshold_gold and not cert: cert = "gold"
 
 	twk = thisweek()
 	tyr = thisyear()
