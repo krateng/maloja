@@ -32,7 +32,7 @@
 				{% endif %}
 
 			<p class="stats">
-				{% if adminmode %}<button type="button" onclick="scrobble('{{ encodedtrack }}')">Scrobble now</button>{% endif %}
+				{% if adminmode %}<button type="button" onclick="scrobbleThisTrack()">Scrobble now</button>{% endif %}
 				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
 			</p>
 
