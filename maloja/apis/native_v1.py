@@ -72,6 +72,14 @@ errors = {
 			'desc':"The database is being upgraded. Please try again later."
 		}
 	}),
+	database.exceptions.EntityDoesNotExist: lambda e: (404,{
+		"status":"error",
+		"error":{
+			'type':'entity_does_not_exist',
+			'value':e.entitydict,
+			'desc':"This entity does not exist in the database."
+		}
+	}),
 	images.MalformedB64: lambda e: (400,{
 		"status":"failure",
 		"error":{

@@ -11,6 +11,8 @@ class TrackExists(EntityExists):
 class ArtistExists(EntityExists):
 	pass
 
+class AlbumExists(EntityExists):
+	pass
 
 class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
@@ -30,11 +32,11 @@ class MissingEntityParameter(Exception):
 
 class EntityDoesNotExist(HTTPError):
 	entitytype = 'Entity'
-	def __init__(self,name):
-		self.entityname = name
+	def __init__(self,entitydict):
+		self.entitydict = entitydict
 		super().__init__(
 			status=404,
-			body=f"The {self.entitytype} '{self.entityname}' does not exist in the database."
+			body=f"The {self.entitytype} '{self.entitydict}' does not exist in the database."
 		)
 
 class ArtistDoesNotExist(EntityDoesNotExist):
