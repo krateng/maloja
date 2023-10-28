@@ -53,7 +53,12 @@
 
 			<!-- scrobbles -->
 			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':(not specialkeys.separate),'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
-			<td class="bar">{{ links.link_scrobbles([{'artist':e['artist'],'associated':(not specialkeys.separate),'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
+			<td class="bar">
+			    {{ links.link_scrobbles([{'artist':e['artist'],'associated':False,'timerange':limitkeys.timerange}],percent=e['real_scrobbles']*100/maxbar) }}
+			    {%- if e['real_scrobbles'] != e['scrobbles'] -%}
+			    {{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],percent=(e['scrobbles']-e['real_scrobbles'])*100/maxbar) }}
+			    {%- endif %}
+			</td>
 		</tr>
 		{% endif %}
 	{% endfor %}

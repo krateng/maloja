@@ -905,6 +905,20 @@ table.list tr:hover td.bar div {
 	cursor:pointer;
 }
 
+/* extra bar for associated */
+table.list td.bar a:nth-child(2) div {
+    opacity: 0.7;
+}
+table.list td.bar:hover a:nth-child(2) div {
+    /* when we start hovering over the bar, but not the associated part, go back to normal bg color */
+	background-color: var(--text-color);
+}
+table.list td.bar:hover a:nth-child(2) div:hover {
+    /* restore full color when hovering the associated part */
+    background-color: var(--text-color-focus);
+}
+
+
 table.list td.chart {
 	width:400px;
 	/* background-color: var(--base-color); */

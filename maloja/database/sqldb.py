@@ -1063,11 +1063,14 @@ def count_scrobbles_by_artist(since,to,associated=True,resolve_ids=True,dbconn=N
 		# only count distinct scrobbles - because of artist replacement, we could end up
 		# with two artists of the same scrobble counting it twice for the same artist
 		# e.g. Irene and Seulgi adding two scrobbles to Red Velvet for one real scrobble
-		artistselect.label('artist_id')
+		artistselect.label('artist_id'),
 		# use the replaced artist as artist to count if it exists, otherwise original one
+		sql.func.sum(
+			sql.case((DB['trackartists'].c.artist_id == artistselect, 1), else_=0)
+		).label('really_by_this_artist')
+		# also select the original artist in any case as a separate column
 	).select_from(jointable2).where(
-		DB['scrobbles'].c.timestamp<=to,
-		DB['scrobbles'].c.timestamp>=since
+		DB['scrobbles'].c.timestamp.between(since,to)
 	).group_by(
 		artistselect
 	).order_by(sql.desc('count'))
@@ -1075,9 +1078,9 @@ def count_scrobbles_by_artist(since,to,associated=True,resolve_ids=True,dbconn=N
 
 	if resolve_ids:
 		artists = get_artists_map([row.artist_id for row in result],dbconn=dbconn)
-		result = [{'scrobbles':row.count,'artist':artists[row.artist_id],'artist_id':row.artist_id} for row in result]
+		result = [{'scrobbles':row.count,'real_scrobbles':row.really_by_this_artist,'artist':artists[row.artist_id],'artist_id':row.artist_id} for row in result]
 	else:
-		result = [{'scrobbles':row.count,'artist_id':row.artist_id} for row in result]
+		result = [{'scrobbles':row.count,'real_scrobbles':row.really_by_this_artist,'artist_id':row.artist_id} for row in result]
 	result = rank(result,key='scrobbles')
 	return result
 

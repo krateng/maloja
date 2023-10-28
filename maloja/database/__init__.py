@@ -564,9 +564,9 @@ def get_top_artists(dbconn=None,**keys):
 	for rng in rngs:
 		try:
 			res = get_charts_artists(timerange=rng,separate=separate,dbconn=dbconn)[0]
-			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"],"associated_artists":sqldb.get_associated_artists(res["artist"])})
+			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"],"real_scrobbles":res["real_scrobbles"],"associated_artists":sqldb.get_associated_artists(res["artist"])})
 		except Exception:
-			results.append({"range":rng,"artist":None,"scrobbles":0})
+			results.append({"range":rng,"artist":None,"scrobbles":0,"real_scrobbles":0})
 
 	return results
 

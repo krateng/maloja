@@ -22,7 +22,12 @@
 		{% else %}
 		{{ entityrow.row(artist,counting=([] if specialkeys.separate else e.associated_artists)) }}
 		<td class='amount'>{{ links.link_scrobbles([{'artist':artist,'associated':(not specialkeys.separate),'timerange':thisrange}],amount=e.scrobbles) }}</td>
-		<td class='bar'> {{ links.link_scrobbles([{'artist':artist,'associated':(not specialkeys.separate),'timerange':thisrange}],percent=e.scrobbles*100/maxbar) }}</td>
+		<td class='bar'>
+		    {{ links.link_scrobbles([{'artist':e['artist'],'associated':False,'timerange':e.range}],percent=e['real_scrobbles']*100/maxbar) }}
+            {%- if e['real_scrobbles'] != e['scrobbles'] -%}
+            {{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':e.range}],percent=(e['scrobbles']-e['real_scrobbles'])*100/maxbar) }}
+            {%- endif %}
+		</td>
 		{% endif %}
 
 	</tr>
