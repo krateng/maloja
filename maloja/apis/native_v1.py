@@ -4,6 +4,8 @@ import traceback
 
 from bottle import response, static_file, FormsDict
 
+from inspect import signature
+
 from doreah.logging import log
 from doreah.auth import authenticated_function
 
@@ -99,6 +101,8 @@ errors = {
 	})
 }
 
+
+# decorator to catch exceptions and return proper json responses
 def catch_exceptions(func):
 	def protector(*args,**kwargs):
 		try:
@@ -113,9 +117,11 @@ def catch_exceptions(func):
 
 	protector.__doc__ = func.__doc__
 	protector.__annotations__ = func.__annotations__
+	protector.__name__ = f"EXCPR_{func.__name__}"
 	return protector
 
 
+# decorator to expand the docstring with common arguments for the API explorer. DOESNT WRAP
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
 	def decorator(func):
 		timeformats = "Possible formats include '2022', '2022/08', '2022/08/01', '2022/W42', 'today', 'thismonth', 'monday', 'august'"
@@ -149,14 +155,39 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 	return decorator
 
 
+# decorator to take the URI keys and convert them into internal keys
+def convert_kwargs(func):
+
+	#params = tuple(p for p in signature(func).parameters)
+
+	def wrapper(*args,albumartist:Multi[str]=[],trackartist:Multi[str]=[],**kwargs):
+
+		kwargs = FormsDict(kwargs)
+		for a in albumartist:
+			kwargs.append("albumartist",a)
+		for a in trackartist:
+			kwargs.append("trackartist",a)
+
+		k_filter, k_limit, k_delimit, k_amount, k_special = uri_to_internal(kwargs,api=True)
+
+		try:
+			return func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount)
+		except TypeError:
+			return func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount,k_special=k_special)
+		# TODO: ....really?
+
+	wrapper.__doc__ = func.__doc__
+	wrapper.__name__ = f"CVKWA_{func.__name__}"
+	return wrapper
 
 
+# decorator to add pagination info to endpoints (like links to other pages)
+# this expects already converted uri args!!!
 def add_pagination(endpoint,filterkeys=False,limitkeys=False,delimitkeys=False):
 
 	def decorator(func):
-		def wrapper(*args,**kwargs):
+		def wrapper(*args,k_filter, k_limit, k_delimit, k_amount):
 
-			k_filter, k_limit, k_delimit, k_amount, _ = uri_to_internal(kwargs,api=True)
 			keydicts = []
 			if filterkeys: keydicts.append(k_filter)
 			if limitkeys: keydicts.append(k_limit)
@@ -164,7 +195,7 @@ def add_pagination(endpoint,filterkeys=False,limitkeys=False,delimitkeys=False):
 			keydicts.append(k_amount)
 
 
-			result = func(*args,**kwargs)
+			result = func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount)
 
 			result['pagination'] = {
 				'page': k_amount['page'],
@@ -177,9 +208,11 @@ def add_pagination(endpoint,filterkeys=False,limitkeys=False,delimitkeys=False):
 
 		wrapper.__doc__ = func.__doc__
 		wrapper.__annotations__ = func.__annotations__
+		wrapper.__name__ = f"PGNAT_{func.__name__}"
 		return wrapper
 
 	return decorator
+
 
 @api.get("test")
 @catch_exceptions
@@ -233,16 +266,16 @@ def server_info():
 @api.get("scrobbles")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
+@convert_kwargs
 @add_pagination("scrobbles",filterkeys=True,limitkeys=True)
-def get_scrobbles_external(**keys):
+def get_scrobbles_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns a list of scrobbles.
 
 	:return: list (List)
 	:rtype: Dictionary
 	"""
-	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
-	ckeys = {**k_filter, **k_time, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_amount}
 	result = database.get_scrobbles(**ckeys)
 
 	# this should now all be served by the inner function
@@ -259,15 +292,15 @@ def get_scrobbles_external(**keys):
 @api.get("numscrobbles")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
-def get_scrobbles_num_external(**keys):
+@convert_kwargs
+def get_scrobbles_num_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns amount of scrobbles.
 
 	:return: amount (Integer)
 	:rtype: Dictionary
 	"""
-	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_amount}
 	result = database.get_scrobbles_num(**ckeys)
 
 	return {
@@ -280,15 +313,15 @@ def get_scrobbles_num_external(**keys):
 @api.get("tracks")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def get_tracks_external(**keys):
-	"""Returns all tracks (optionally of an artist).
+@convert_kwargs
+def get_tracks_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns all tracks (optionally of an artist or on an album).
 
 	:return: list (List)
 	:rtype: Dictionary
 	"""
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter}
 
+	ckeys = {**k_filter}
 	result = database.get_tracks(**ckeys)
 
 	return {
@@ -301,11 +334,13 @@ def get_tracks_external(**keys):
 @api.get("artists")
 @catch_exceptions
 @add_common_args_to_docstring()
-def get_artists_external():
+@convert_kwargs
+def get_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns all artists.
 
 	:return: list (List)
 	:rtype: Dictionary"""
+
 	result = database.get_artists()
 
 	return {
@@ -320,14 +355,14 @@ def get_artists_external():
 @api.get("charts/artists")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True)
-def get_charts_artists_external(**keys):
+@convert_kwargs
+def get_charts_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns artist charts
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, _, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time}
 
+	ckeys = {**k_limit}
 	result = database.get_charts_artists(**ckeys)
 
 	return {
@@ -336,19 +371,17 @@ def get_charts_artists_external(**keys):
 	}
 
 
-
 @api.get("charts/tracks")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
-def get_charts_tracks_external(**keys):
+@convert_kwargs
+def get_charts_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns track charts
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	# force artist because track charts can never be of a track or album, only of an artist or global
-	ckeys = {**k_filter, **k_time}
 
+	ckeys = {**k_filter, **k_limit}
 	result = database.get_charts_tracks(**ckeys)
 
 	return {
@@ -362,14 +395,14 @@ def get_charts_tracks_external(**keys):
 @api.get("pulse")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
-def get_pulse_external(**keys):
+@convert_kwargs
+def get_pulse_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns amounts of scrobbles in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_delimit, **k_amount}
 	results = database.get_pulse(**ckeys)
 
 	return {
@@ -378,19 +411,17 @@ def get_pulse_external(**keys):
 	}
 
 
-
-
 @api.get("performance")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
-def get_performance_external(**keys):
+@convert_kwargs
+def get_performance_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns artist's or track's rank in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_delimit, **k_amount}
 	results = database.get_performance(**ckeys)
 
 	return {
@@ -404,14 +435,14 @@ def get_performance_external(**keys):
 @api.get("top/artists")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
-def get_top_artists_external(**keys):
+@convert_kwargs
+def get_top_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns respective number 1 artists in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, k_internal, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
 
+	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_artists(**ckeys)
 
 	return {
@@ -425,17 +456,16 @@ def get_top_artists_external(**keys):
 @api.get("top/tracks")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
-def get_top_tracks_external(**keys):
+@convert_kwargs
+def get_top_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns respective number 1 tracks in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, k_internal, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
 
-	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
-
+	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_tracks(**ckeys)
+	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
 
 	return {
 		"status":"ok",
@@ -448,12 +478,13 @@ def get_top_tracks_external(**keys):
 @api.get("artistinfo")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def artist_info_external(**keys):
+@convert_kwargs
+def artist_info_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns information about an artist
 
 	:return: artist (String), scrobbles (Integer), position (Integer), associated (List), medals (Mapping), topweeks (Integer)
 	:rtype: Dictionary"""
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
+
 	ckeys = {**k_filter}
 
 	return database.artist_info(**ckeys)
@@ -463,18 +494,14 @@ def artist_info_external(**keys):
 @api.get("trackinfo")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def track_info_external(artist:Multi[str]=[],**keys):
+@convert_kwargs
+def track_info_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns information about a track
 
 	:return: track (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
 	:rtype: Dictionary"""
-	# transform into a multidict so we can use our nomral uri_to_internal function
-	keys = FormsDict(keys)
-	for a in artist:
-		keys.append("artist",a)
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
-	ckeys = {**k_filter}
 
+	ckeys = {**k_filter}
 	return database.track_info(**ckeys)
 
 
@@ -561,24 +588,18 @@ def post_scrobble(
 @api.post("addpicture")
 @authenticated_function(alternate=api_key_correct,api=True)
 @catch_exceptions
-def add_picture(b64,artist:Multi=[],title=None,albumtitle=None):
-	"""Uploads a new image for an artist or track.
+@convert_kwargs
+def add_picture(k_filter, k_limit, k_delimit, k_amount, k_special):
+	"""Uploads a new image for an artist, album or track.
 
 	param string b64: Base 64 representation of the image
-	param string artist: Artist name. Can be supplied multiple times for tracks with multiple artists.
-	param string title: Title of the track. Optional.
 
 	"""
-	keys = FormsDict()
-	for a in artist:
-		keys.append("artist",a)
-	if title is not None: keys.append("title",title)
-	elif albumtitle is not None: keys.append("albumtitle",albumtitle)
-	k_filter, _, _, _, _ = uri_to_internal(keys)
+
 	if "associated" in k_filter: del k_filter["associated"]
 	if "track" in k_filter: k_filter = k_filter["track"]
 	elif "album" in k_filter: k_filter = k_filter["album"]
-	url = images.set_image(b64,**k_filter)
+	url = images.set_image(k_special['b64'],**k_filter)
 
 	return {
 		'status': 'success',

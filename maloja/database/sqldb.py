@@ -1018,6 +1018,15 @@ def get_tracks(dbconn=None):
 
 	return tracks_db_to_dict(result,dbconn=dbconn)
 
+@cached_wrapper
+@connection_provider
+def get_albums(dbconn=None):
+
+	op = DB['albums'].select()
+	result = dbconn.execute(op).all()
+
+	return albums_db_to_dict(result,dbconn=dbconn)
+
 ### functions that count rows for parameters
 
 @cached_wrapper

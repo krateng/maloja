@@ -78,8 +78,11 @@ def uri_to_internal(keys,accepted_entities=('artist','track','album'),forceTrack
 
 	#5
 	specialkeys = {}
-	if "remote" in keys: specialkeys["remote"] = keys["remote"]
+	#if "remote" in keys: specialkeys["remote"] = keys["remote"]
 	specialkeys["separate"] = (keys.get('separate','no').lower() == 'yes')
+	for k in keys:
+		if k not in ['separate']:
+			specialkeys[k] = keys[k]
 
 
 	return filterkeys, limitkeys, delimitkeys, amountkeys, specialkeys

@@ -373,6 +373,14 @@ def get_tracks(dbconn=None,**keys):
 	return result
 
 @waitfordb
+def get_albums(dbconn=None,**keys):
+	if keys.get('artist') is None:
+		result = sqldb.get_albums(dbconn=dbconn)
+	else:
+		result = sqldb.get_albums_of_artists([sqldb.get_artist_id(keys.get('artist'),create_new=False)],dbconn=dbconn)
+	return result
+
+@waitfordb
 def get_artists(dbconn=None):
 	return sqldb.get_artists(dbconn=dbconn)
 
