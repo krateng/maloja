@@ -347,7 +347,23 @@ def get_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	}
 
 
+@api.get("albums")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True)
+@convert_kwargs
+def get_albums_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns all albums (optionally of an artist).
 
+	:return: list (List)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_filter}
+	result = database.get_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":result
+	}
 
 
 @api.get("charts/artists")
@@ -534,6 +550,20 @@ def track_info_external(k_filter, k_limit, k_delimit, k_amount):
 
 	ckeys = {**k_filter}
 	return database.track_info(**ckeys)
+
+
+@api.get("albuminfo")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True)
+@convert_kwargs
+def album_info_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns information about an album
+
+	:return: album (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_filter}
+	return database.album_info(**ckeys)
 
 
 @api.post("newscrobble")
