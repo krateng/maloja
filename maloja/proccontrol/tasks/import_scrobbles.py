@@ -443,6 +443,7 @@ def parse_maloja(inputf):
 				'track_artists': s['track']['artists'],
 				'track_length': s['track']['length'],
 				'album_name': s['track'].get('album',{}).get('albumtitle','') if s['track'].get('album') is not None else '',
+				'album_artists': s['track'].get('album',{}).get('artists',None) if s['track'].get('album') is not None else '',
 				'scrobble_time': s['time'],
 				'scrobble_duration': s['duration']
 			},'')
