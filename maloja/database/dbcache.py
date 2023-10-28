@@ -43,6 +43,7 @@ if malojaconfig['USE_GLOBAL_CACHE']:
 				conn = None
 			global hits, misses
 			key = (serialize(args),serialize(kwargs), inner_func, kwargs.get("since"), kwargs.get("to"))
+			# TODO: also factor in default values to get better chance of hits
 
 			try:
 				return cache[key]

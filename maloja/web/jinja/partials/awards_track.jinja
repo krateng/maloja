@@ -17,6 +17,10 @@
 </a>
 {%- endfor %}
 
+{% if info.medals.gold or info.medals.silver or info.medals.bronze %}
+    <span class="spacer" ></span>
+{% endif %}
+
 {%- endmacro %}
 
 
@@ -38,6 +42,10 @@
 	</a>
 	{% endif %}
 </span>
+
+{% if info.topweeks > 0 %}
+    <span class="spacer" ></span>
+{% endif %}
 
 {%- endmacro %}
 
