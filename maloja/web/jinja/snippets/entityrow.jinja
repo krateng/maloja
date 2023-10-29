@@ -1,9 +1,11 @@
-{% macro row(entity,counting=[]) %}
+{% macro row(entity,counting=[],adminmode=False) %}
 
 {% import 'snippets/links.jinja' as links %}
 
-{% if entity is mapping and 'artists' in entity %}
+{% if entity is mapping and 'title' in entity %}
 	{% set img = images.get_track_image(entity) %}
+{% elif entity is mapping and 'albumtitle' in entity %}
+	{% set img = images.get_album_image(entity) %}
 {% else %}
 	{% set img = images.get_artist_image(entity) %}
 {% endif %}
@@ -20,6 +22,10 @@
 	<td class='track'>
 		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
 	</td>
+{% elif entity is mapping and 'albumtitle' in entity %}
+	<td class='album'>
+		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
+	</td>
 {% else %}
 	<td class='artist'>{{ links.link(entity) }}
 	{% if counting != [] %}
@@ -27,6 +33,18 @@
 	{% endif %}
 	</td>
 
+{% endif %}
+
+
+{% if adminmode %}
+<td>
+{% include 'icons/merge_mark.jinja' %}
+{% include 'icons/merge_unmark.jinja' %}
+{% if (entity is mapping)  %}
+{% include 'icons/association_mark.jinja' %}
+{% include 'icons/association_unmark.jinja' %}
+{% endif %}
+</td>
 {% endif %}
 
 {% endmacro %}

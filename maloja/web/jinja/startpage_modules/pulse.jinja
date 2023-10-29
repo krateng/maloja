@@ -1,0 +1,17 @@
+<h1><a class="stat_link_pulse" href="/pulse?trail=1&step=month">Pulse</a></h1>
+
+{% for range in xranges -%}
+	<span onclick="showStatsManual('pulse','{{ range.identifier }}')" class="stat_selector_pulse selector_pulse_{{ range.identifier }}">
+		{{ range.localisation }}
+	</span>
+	{{ "|" if not loop.last }}
+{%- endfor %}
+<br/><br/>
+
+{% for range in xranges -%}
+	<span class="stat_module_pulse pulse_{{ range.identifier }}" style="display:none;">
+		{%- with limitkeys={"since":range.firstrange},delimitkeys={"step":range.identifier} -%}
+		{% include 'partials/pulse.jinja' %}
+		{%- endwith -%}
+	</span>
+{%- endfor %}

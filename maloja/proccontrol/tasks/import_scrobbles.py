@@ -49,7 +49,7 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "spotify","Spotify"
 		importfunc = parse_spotify_lite_legacy
 
-	elif re.match(r"maloja_export_[0-9]+\.json",filename):
+	elif re.match(r"maloja_export[_0-9]*\.json",filename):
 		typeid,typedesc = "maloja","Maloja"
 		importfunc = parse_maloja
 
@@ -88,10 +88,6 @@ def import_scrobbles(inputf):
 
 			# extra info
 			extrainfo = {}
-			if scrobble.get('album_name'): extrainfo['album_name'] = scrobble['album_name']
-			if scrobble.get('album_artist'): extrainfo['album_artist'] = scrobble['album_artist']
-			# saving this in the scrobble instead of the track because for now it's not meant
-			# to be authorative information, just payload of the scrobble
 
 			scrobblebuffer.append({
 				"time":scrobble['scrobble_time'],
@@ -99,6 +95,11 @@ def import_scrobbles(inputf):
 				 		"artists":scrobble['track_artists'],
 				 		"title":scrobble['track_title'],
 				 		"length":scrobble['track_length'],
+						"album":{
+							"albumtitle":scrobble.get('album_name') or None,
+							"artists":scrobble.get('album_artists') or scrobble['track_artists'] or None
+							# TODO: use same heuristics as with parsing to determine album?
+						} if scrobble.get('album_name') else None
 				 	},
 				 	"duration":scrobble['scrobble_duration'],
 				 	"origin":"import:" + typeid,
@@ -441,7 +442,8 @@ def parse_maloja(inputf):
 				'track_title': s['track']['title'],
 				'track_artists': s['track']['artists'],
 				'track_length': s['track']['length'],
-				'album_name': s['track'].get('album',{}).get('name',''),
+				'album_name': s['track'].get('album',{}).get('albumtitle','') if s['track'].get('album') is not None else '',
+				'album_artists': s['track'].get('album',{}).get('artists',None) if s['track'].get('album') is not None else '',
 				'scrobble_time': s['time'],
 				'scrobble_duration': s['duration']
 			},'')

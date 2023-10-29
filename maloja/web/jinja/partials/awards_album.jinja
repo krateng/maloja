@@ -1,0 +1,73 @@
+{% import 'snippets/links.jinja' as links %}
+
+{% macro medals(info) %}
+
+<!-- MEDALS -->
+{% for year in info.medals.gold -%}
+<a title="Best Album in {{ year }}" class="hidelink medal shiny hovershiny gold" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.silver -%}
+<a title="Second best Album in {{ year }}" class="hidelink medal shiny hovershiny silver" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+{% for year in info.medals.bronze -%}
+<a title="Third best Album in {{ year }}" class="hidelink medal shiny hovershiny bronze" href='/charts_albums?max=50&amp;in={{ year }}'>
+	<span>{{ year }}</span>
+</a>
+{%- endfor %}
+
+{% if info.medals.gold or info.medals.silver or info.medals.bronze %}
+    <span class="spacer" ></span>
+{% endif %}
+
+{%- endmacro %}
+
+
+
+
+
+
+
+
+{% macro topweeks(info) %}
+
+{% set encodedalbum = mlj_uri.uriencode({'album':info.album}) %}
+
+<!-- TOPWEEKS -->
+<span>
+	{% if info.topweeks > 0 -%}
+	<a title="{{ info.topweeks }} weeks on #1" href="/performance?{{ encodedalbum }}&step=week">
+		<img class="star" src="/media/star.png" />{{ info.topweeks }}</a>
+	{%- endif %}
+</span>
+
+{% if info.topweeks > 0 %}
+    <span class="spacer" ></span>
+{% endif %}
+
+{%- endmacro %}
+
+
+
+{% macro subcerts(album) %}
+
+<!-- SUBCERTS -->
+
+{% set charts = dbc.get_charts_tracks({'album':album.album,'timerange':malojatime.alltime()}) %}
+{% for e in charts -%}
+	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_diamond -%}{% set cert = 'diamond' %}{%- endif -%}
+
+	{%- if cert -%}
+	<a href='{{ links.url(e.track) }}' class="hidelink certified certified_{{ cert }} smallcerticon" title="{{ e.track.title }} has reached {{ cert.capitalize() }} status">
+	    {% include 'icons/cert_track.jinja' %}
+	</a>
+	{%- endif %}
+
+{%- endfor %}
+
+{%- endmacro %}

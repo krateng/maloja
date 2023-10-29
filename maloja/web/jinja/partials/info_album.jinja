@@ -1,0 +1,45 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'partials/awards_album.jinja' as awards with context %}
+
+{% set album = filterkeys.album %}
+{% set info = dbc.album_info({'album':album}) %}
+{% set encodedalbum = mlj_uri.uriencode({'album':album}) %}
+
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			{% if adminmode %}
+			<div
+				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedalbum }}',b64)"
+				style="background-image:url('{{ images.get_album_image(info.album) }}');"
+				title="Drag & Drop to upload new image"
+			></div>
+			{% else %}
+			<div class="shiny alwaysshiny" style="background-image:url('{{ images.get_album_image(album) }}');">
+			</div>
+			{% endif %}
+		</td>
+		<td class="text">
+			<span>{{ links.links(album.artists) }}</span><br/>
+			{% if condensed %}<a href="/album?{{ encodedalbum }}">{% endif %}
+			<h1 id="main_entity_name" class="headerwithextra">{{ info.album.albumtitle | e }}</h1>
+			{%- if condensed -%}</a>{% endif %}
+				<span class="rank"><a href="/charts_albums?max=100">#{{ info.position }}</a></span>
+				<br/>
+
+			<p class="stats">
+				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
+			</p>
+
+
+
+
+
+			{{ awards.medals(info) }}
+			{{ awards.topweeks(info) }}
+            {{ awards.subcerts(info) }}
+
+		</td>
+	</tr>
+</table>

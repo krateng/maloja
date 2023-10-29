@@ -26,8 +26,6 @@ def update_jinja_environment():
 
 	JINJA_CONTEXT = {
 		# maloja
-		"db": database, #TODO: move these to connection manager as well
-		#"dbp":dbp,
 		"malojatime": malojatime,
 		"images": images,
 		"mlj_uri": malojauri,
@@ -72,6 +70,14 @@ def update_jinja_environment():
 			{"identifier":"longtrailing","replacekeys":{"trail":3},"localisation":"Long Trailing"},
 			{"identifier":"inert","replacekeys":{"trail":10},"localisation":"Inert","heavy":True},
 			{"identifier":"cumulative","replacekeys":{"trail":math.inf},"localisation":"Cumulative","heavy":True}
+		],
+		"xassociated": [
+			{"identifier":"include_associated","replacekeys":{"associated":True},"localisation":"Associated"},
+			{"identifier":"exclude_associated","replacekeys":{"associated":False},"localisation":"Exclusive"}
+		],
+		"xseparate": [
+			{"identifier":"count_combined","replacekeys":{"separate":False},"localisation":"Combined"},
+			{"identifier":"count_separate","replacekeys":{"separate":True},"localisation":"Separate"}
 		]
 	}
 

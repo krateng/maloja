@@ -26,6 +26,8 @@ class MusicBrainz(MetadataInterface):
 		return None
 		# not supported
 
+	def get_image_album(self,album):
+		return None
 
 	def get_image_track(self,track):
 		self.lock.acquire()

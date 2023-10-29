@@ -74,6 +74,11 @@ table.top_info td.text table.image_row td:hover {
 }
 
 
+span.spacer {
+    width: 9px;
+    display: inline-block;
+}
+
 
 
 /** SCROLLBAR **/

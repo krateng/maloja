@@ -5,20 +5,24 @@
 
 <!-- MEDALS -->
 {% for year in info.medals.gold -%}
-<a title="Best Artist in {{ year }}" class="hidelink medal shiny gold" href='/charts_artists?max=50&amp;in={{ year }}'>
+<a title="Best Artist in {{ year }}" class="hidelink medal shiny hovershiny gold" href='/charts_artists?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}
 {% for year in info.medals.silver -%}
-<a title="Second best Artist in {{ year }}" class="hidelink medal shiny silver" href='/charts_artists?max=50&amp;in={{ year }}'>
+<a title="Second best Artist in {{ year }}" class="hidelink medal shiny hovershiny silver" href='/charts_artists?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}
 {% for year in info.medals.bronze -%}
-<a title="Third best Artist in {{ year }}" class="hidelink medal shiny bronze" href='/charts_artists?max=50&amp;in={{ year }}'>
+<a title="Third best Artist in {{ year }}" class="hidelink medal shiny hovershiny bronze" href='/charts_artists?max=50&amp;in={{ year }}'>
 	<span>{{ year }}</span>
 </a>
 {%- endfor %}
+
+{% if info.medals.gold or info.medals.silver or info.medals.bronze %}
+    <span class="spacer" ></span>
+{% endif %}
 
 {%- endmacro %}
 
@@ -42,6 +46,10 @@
 	{%- endif %}
 </span>
 
+{% if info.topweeks > 0 %}
+    <span class="spacer" ></span>
+{% endif %}
+
 {%- endmacro %}
 
 
@@ -52,22 +60,40 @@
 
 
 
-{% macro certs(artist) %}
+{% macro subcerts(artist) %}
 
-<!-- CERTS -->
+<!-- SUBCERTS -->
 
-{% set charts = db.get_charts_tracks(artist=artist,timerange=malojatime.alltime()) %}
+
+{% set albumcharts = dbc.get_charts_albums({'artist':artist,'timerange':malojatime.alltime(),'resolve_ids':True,'only_own_albums':True}) %}
+{% for e in albumcharts -%}
+	{%- if e.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+	{%- if e.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
+	{%- if cert -%}
+	<a href='{{ links.url(e.album) }}' class="hidelink certified certified_{{ cert }} smallcerticon" title="{{ e.album.albumtitle }} has reached {{ cert.capitalize() }} status">
+    	    {% include 'icons/cert_album.jinja' %}
+    	</a>
+	{%- endif %}
+
+{%- endfor %}
+
+
+{% set charts = dbc.get_charts_tracks({'artist':artist,'timerange':malojatime.alltime()}) %}
 {% for e in charts -%}
 	{%- if e.scrobbles >= settings.scrobbles_gold -%}{% set cert = 'gold' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_platinum -%}{% set cert = 'platinum' %}{%- endif -%}
 	{%- if e.scrobbles >= settings.scrobbles_diamond -%}{% set cert = 'diamond' %}{%- endif -%}
 
 	{%- if cert -%}
-	<a href='{{ links.url(e.track) }}'><img class="certrecord_small"
-					src="/media/record_{{ cert }}.png"
-					title="{{ e.track.title }} has reached {{ cert.capitalize() }} status" /></a>
+	<a href='{{ links.url(e.track) }}' class="hidelink certified certified_{{ cert }} smallcerticon" title="{{ e.track.title }} has reached {{ cert.capitalize() }} status">
+    	    {% include 'icons/cert_track.jinja' %}
+    	</a>
 	{%- endif %}
 
 {%- endfor %}
+
+
 
 {%- endmacro %}

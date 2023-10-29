@@ -30,13 +30,13 @@ def print_header_info():
 
 def get_instance():
 	try:
-		return int(subprocess.check_output(["pidof","maloja"]))
+		return int(subprocess.check_output(["pgrep","-x","maloja"]))
 	except Exception:
 		return None
 
 def get_instance_supervisor():
 	try:
-		return int(subprocess.check_output(["pidof","maloja_supervisor"]))
+		return int(subprocess.check_output(["pgrep","-x","maloja_supervisor"]))
 	except Exception:
 		return None
 
@@ -130,7 +130,7 @@ def run_supervisor():
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
 	conf.malojaconfig.load_environment()
-	direct()
+	run_server()
 
 def print_info():
 	print_header_info()
@@ -141,14 +141,15 @@ def print_info():
 	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
 	print()
 	try:
-		import pkg_resources
+		from importlib.metadata import distribution
 		for pkg in ("sqlalchemy","waitress","bottle","doreah","jinja2"):
-			print(col['cyan']     (f"{pkg}:".ljust(13)),pkg_resources.get_distribution(pkg).version)
+			print(col['cyan']     (f"{pkg}:".ljust(13)),distribution(pkg).version)
 	except ImportError:
+		raise
 		print("Could not determine dependency versions.")
 	print()
 
-@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images'],shield=True)
+@mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images','prefer_existing'],shield=True)
 def main(*args,**kwargs):
 
 	actions = {
@@ -166,12 +167,13 @@ def main(*args,**kwargs):
 		"generate":generate.generate_scrobbles,	# maloja generate 400
 		"export":tasks.export,					# maloja export
 		"apidebug":apidebug.run,				# maloja apidebug
+		"parsealbums":tasks.parse_albums,		# maloja parsealbums --strategy majority
 		# aux
 		"info":print_info
 	}
 
 	if "version" in kwargs:
-		print(info.VERSION)
+		print(pkginfo.VERSION)
 		return True
 	else:
 		try:

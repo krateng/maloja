@@ -1,7 +1,7 @@
 
 
 
-	{% set allkeys = [filterkeys,limitkeys,delimitkeys,amountkeys] | combine_dicts %}
+	{% set allkeys = [filterkeys,limitkeys,delimitkeys,amountkeys,specialkeys] | combine_dicts %}
 
 
 
@@ -13,7 +13,7 @@
 			{% set nextrange = thisrange.next(1) %}
 
 			{% if prevrange is not none %}
-				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,{'timerange':prevrange}) }}'><span class='stat_selector'>{{ prevrange.desc() }}</span></a>
+				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,specialkeys,{'timerange':prevrange}) }}'><span class='stat_selector'>{{ prevrange.desc() }}</span></a>
 				«
 			{% endif %}
 			{% if prevrange is not none or nextrange is not none %}
@@ -21,7 +21,7 @@
 			{% endif %}
 			{% if nextrange is not none %}
 				»
-				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,{'timerange':nextrange}) }}'><span class='stat_selector'>{{ nextrange.desc() }}</span></a>
+				<a href='{{ mlj_uri.create_uri("",filterkeys,limitkeys,delimitkeys,specialkeys,{'timerange':nextrange}) }}'><span class='stat_selector'>{{ nextrange.desc() }}</span></a>
 			{% endif %}
 
 		</div>
@@ -60,4 +60,33 @@
 			{% endfor %}
 		</div>
 
+	{% endif %}
+
+	<!-- we do this only for things filtered by artist (to include or not include their subunits etc), but NOT for get_performance
+	since it's more intuitive to fall under the separate/combined logic below -->
+	{% if ('artist' in filterkeys) and (not artistchart) %}
+	<div>
+		{% for o in xassociated %}
+			{% if o.replacekeys | map('compare_key_in_dicts',o.replacekeys,allkeys) | alltrue %}
+			<span style='opacity:0.5;'>{{ o.localisation }}</span>
+			{% else %}
+			<a href='{{ mlj_uri.create_uri("",allkeys,o.replacekeys) }}'><span>{{ o.localisation }}</span></a>
+			{% endif %}
+			{{ "|" if not loop.last }}
+		{% endfor %}
+
+	</div>
+	{% endif %}
+
+	{% if artistchart %}
+	<div>
+	{% for o in xseparate %}
+		{% if o.replacekeys | map('compare_key_in_dicts',o.replacekeys,allkeys) | alltrue %}
+		<span style='opacity:0.5;'>{{ o.localisation }}</span>
+		{% else %}
+		<a href='{{ mlj_uri.create_uri("",allkeys,o.replacekeys) }}'><span>{{ o.localisation }}</span></a>
+		{% endif %}
+		{{ "|" if not loop.last }}
+	{% endfor %}
+	</div>
 	{% endif %}

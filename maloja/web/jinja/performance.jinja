@@ -25,7 +25,9 @@
 					<br/>
 					{{ filterdesc.desc(filterkeys,limitkeys,prefix='of') }}
 					<br/><br/>
+					{% with artistchart = (filterkeys.get('artist') is not none) %}
 					{% include 'snippets/timeselection.jinja' %}
+					{% endwith %}
 
 				</td>
 			</tr>

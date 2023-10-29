@@ -5,12 +5,11 @@
 {% import 'partials/awards_artist.jinja' as awards %}
 
 {% block scripts %}
-	<script src="/rangeselect.js"></script>
-	<script src="/edit.js"></script>
+	<script src="/statselect.js"></script>
 {% endblock %}
 
 {% set artist = filterkeys.artist %}
-{% set info = db.artist_info(artist=artist) %}
+{% set info = dbc.artist_info({'artist':artist}) %}
 
 {% set credited = info.get('replace') %}
 {% set included = info.get('associated') %}
@@ -27,13 +26,27 @@
 
 {% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
 
+{% block custombodyclasses %}
+    {% if info.certification %}certified certified_{{ info.certification }}{% endif %}
+{% endblock %}
+
 {% block icon_bar %}
 	{% if adminmode %}
 		{% include 'icons/edit.jinja' %}
+
+		<div class="iconsubset mergeicons" data-entity_type="artist" data-entity_id="{{ info.id }}" data-entity_name="{{ info.artist }}">
 		{% include 'icons/merge.jinja' %}
 		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_unmark.jinja' %}
 		{% include 'icons/merge_cancel.jinja' %}
-		<script>showValidMergeIcons();</script>
+		</div>
+
+		<div class="iconsubset associateicons" data-entity_type="artist" data-entity_id="{{ info.id }}" data-entity_name="{{ info.artist }}">
+		{% include 'icons/add_artist.jinja' %}
+		{% include 'icons/remove_artist.jinja' %}
+		{% include 'icons/association_cancel.jinja' %}
+		</div>
+
 	{% endif %}
 {% endblock %}
 
@@ -47,55 +60,35 @@
 
 
 
-<table class="top_info">
-	<tr>
-		<td class="image">
-			{% if adminmode %}
-			<div
-				class="changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
-				style="background-image:url('{{ images.get_artist_image(artist) }}');"
-				title="Drag & Drop to upload new image"
-			></div>
-			{% else %}
-			<div style="background-image:url('{{ images.get_artist_image(artist) }}');">
-			</div>
-			{% endif %}
-		</td>
-		<td class="text">
-			<h1 id="main_entity_name" class="headerwithextra">{{ info.artist | e }}</h1>
-				{% if competes %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
-				<br/>
-				{% if competes and included %}
-					<span>associated: {{ links.links(included) }}</span>
-				{% elif not competes %}
-					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>
-				{% endif %}
-
-			<p class="stats">
-				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
-			</p>
+{% include 'partials/info_artist.jinja' %}
 
 
+{% set albums_info = dbc.get_albums_artist_appears_on(filterkeys,limitkeys) %}
+{% set ownalbums = albums_info.own_albums %}
+{% set otheralbums = albums_info.appears_on %}
 
+{% if ownalbums or otheralbums %}
 
-			{% if competes %}
-				{{ awards.medals(info) }}
-				{{ awards.topweeks(info) }}
-			{% endif %}
-			{{ awards.certs(artist) }}
+{% if settings['ALBUM_SHOWCASE'] %}
+	<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Albums</a></h2>
+	{% include 'partials/album_showcase.jinja' %}
+{% else %}
+	<h2><a href='{{ mlj_uri.create_uri("/charts_albums",filterkeys) }}'>Top Albums</a></h2>
 
+	{% with amountkeys={"perpage":16,"page":0} %}
+	{% include 'partials/charts_albums.jinja' %}
+	{% endwith %}
+{% endif %}
 
-		</td>
-	</tr>
-</table>
+{% endif %}
 
-
+{% if info['scrobbles']>0 %}
 <h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
 
-
-{% with amountkeys={"perpage":15,"page":0} %}
+{% with amountkeys={"perpage":16,"page":0} %}
 {% include 'partials/charts_tracks.jinja' %}
 {% endwith %}
+
 
 <br/>
 
@@ -107,8 +100,8 @@
 			<br/>
 			{% for r in xranges %}
 			<span
-				onclick="showRangeManual('pulse','{{ r.identifier }}')"
-				class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+				onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+				class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
 				{{ r.localisation }}
 			</span>
@@ -120,7 +113,7 @@
 			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ r.identifier }}"
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 
@@ -140,8 +133,8 @@
 
 			{% for r in xranges %}
 				<span
-					onclick="showRangeManual('pulse','{{ r.identifier }}')"
-					class="stat_selector_pulse selector_pulse_{{ r.identifier }}"
+					onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+					class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
 					style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
 					{{ r.localisation }}
 				</span>
@@ -153,7 +146,7 @@
 			{% for r in xranges %}
 
 			<span
-				class="stat_module_pulse pulse_{{ r.identifier }}"
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
 				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
 				>
 
@@ -171,8 +164,9 @@
 
 <h2><a href='{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}'>Last Scrobbles</a></h2>
 
-{% with amountkeys = {"perpage":15,"page":0} %}
+{% with amountkeys = {"perpage":16,"page":0} %}
 {% include 'partials/scrobbles.jinja' %}
 {% endwith %}
+{% endif %}
 
 {% endblock %}

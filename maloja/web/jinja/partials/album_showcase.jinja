@@ -1,0 +1,56 @@
+{% import 'snippets/links.jinja' as links %}
+
+
+<div id="showcase_container">
+
+
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
+
+{%- set cert = None -%}
+{%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
+<table class="album">
+	<tr><td>&nbsp</td></tr>
+	<tr><td>
+		<a href="{{ links.url(entry.album) }}">
+			<div class="shiny alwaysshiny certified_{{ cert }} lazy" data-bg="{{ images.get_album_image(entry.album) }}"'></div>
+		</a>
+	</td></tr>
+	<tr><td>
+		<span class="album_artists">{{ links.links(entry.album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(entry.album) }}</span>
+	</td></tr>
+
+</table>
+{% endfor %}
+
+{% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
+
+
+{% if artist not in (entry.album.artists or []) %}
+
+{%- set cert = None -%}
+{%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_platinum_album -%}{% set cert = 'platinum' %}{%- endif -%}
+{%- if entry.scrobbles >= settings.scrobbles_diamond_album -%}{% set cert = 'diamond' %}{%- endif -%}
+
+<table class="album">
+	<tr><td>Appears on</td></tr>
+	<tr><td>
+		<a href="{{ links.url(entry.album) }}">
+			<div class="shiny alwaysshiny certified_{{ cert }} lazy" data-bg="{{ images.get_album_image(entry.album) }}"'></div>
+		</a>
+	</td></tr>
+	<tr><td>
+		<span class="album_artists">{{ links.links(entry.album.artists) }}</span><br/>
+		<span class="album_title">{{ links.link(entry.album) }}</span>
+	</td></tr>
+
+</table>
+
+{% endif %}
+{% endfor %}
+
+</div>

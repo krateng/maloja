@@ -1,0 +1,31 @@
+{% import 'snippets/links.jinja' as links %}
+
+
+{% if charts is undefined %}
+	{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':True}) %}
+{% endif %}
+
+{% set charts_14 = charts | fixlength(14) %}
+
+
+<div class="tiles">
+	{% if charts_14[0] is none %}
+		{% include 'icons/nodata.jinja' %}
+	{% endif %}
+	{% for entry in charts_14 %}
+		{% if entry is not none %}
+			{% set album = entry.album %}
+			{% set rank = entry.rank %}
+			<div class="tile">
+			<a href="{{ links.url(album) }}">
+				<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'>
+					<span class='stats'>#{{ rank }}</span> <span>{{ album.albumtitle }}</span>
+				</div>
+			</a>
+			</div>
+		{% else %}
+			<div></div>
+		{% endif %}
+	{% endfor %}
+
+</div>

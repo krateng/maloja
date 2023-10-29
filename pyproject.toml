@@ -3,7 +3,7 @@ name = "malojaserver"
 version = "3.1.5"
 description = "Self-hosted music scrobble database"
 readme = "./README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = { file="./LICENSE" }
 authors = [ { name="Johannes Krattenmacher", email="maloja@dev.krateng.ch" } ]
 
@@ -28,9 +28,10 @@ dependencies = [
 	"jinja2>=3.0.0",
 	"lru-dict>=1.1.6",
 	"psutil>=5.8.0",
-	"sqlalchemy>=1.4",
+	"sqlalchemy>=2.0",
 	"python-datauri>=1.1.0",
-	"requests>=2.27.1"
+	"requests>=2.27.1",
+	"setuptools>68.0.0"
 ]
 
 [project.optional-dependencies]

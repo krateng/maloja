@@ -1,0 +1,57 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
+{% if charts is undefined %}
+	{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
+{% endif %}
+{% if compare %}
+	{% if compare is true %}
+		{% set compare = limitkeys.timerange.next(step=-1) %}
+		{% if compare is none %}{% set compare = False %}{% endif %}
+	{% endif %}
+	{% if compare %}
+		{% set prevalbums = dbc.get_charts_albums(filterkeys,{'timerange':compare}) %}
+
+		{% set lastranks = {} %}
+		{% for t in prevalbums %}
+			{% if lastranks.update({"|".join(t.album.artists or [])+"||"+t.album.albumtitle:t.rank}) %}{% endif %}
+		{% endfor %}
+
+		{% for t in charts %}
+			{% if "|".join(t.album.artists or [])+"||"+t.album.albumtitle in lastranks %}
+				{% if t.update({'last_rank':lastranks["|".join(t.album.artists or [])+"||"+t.album.albumtitle]}) %}{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+{% endif %}
+
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
+
+{% set maxbar = charts[0]['scrobbles'] if charts != [] else 0 %}
+<table class='list'>
+	{% for e in charts %}
+		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
+		<tr class="listrow associateicons mergeicons" data-entity_id="{{ e['album_id'] }}" data-entity_type="album" data-entity_name="{{ e['album'].albumtitle }}">
+			<!-- Rank -->
+			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
+			<!-- Rank change -->
+			{% if compare %}
+				{% if e.last_rank is undefined %}<td class='rankup' title='New'>🆕</td>
+				{% elif e.last_rank < e.rank %}<td class='rankdown' title='Down from #{{ e.last_rank }}'>↘</td>
+				{% elif e.last_rank > e.rank %}<td class='rankup' title='Up from #{{ e.last_rank }}'>↗</td>
+				{% elif e.last_rank == e.rank %}<td class='ranksame' title='Unchanged'>➡</td>
+				{% endif %}
+			{% endif %}
+
+			<!-- artist -->
+			{{ entityrow.row(e['album'],adminmode=adminmode) }}
+
+			<!-- scrobbles -->
+			<td class="amount">{{ links.link_scrobbles([{'album':e.album,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
+			<td class="bar">{{ links.link_scrobbles([{'album':e.album,'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
+		</tr>
+		{% endif %}
+	{% endfor %}
+</table>

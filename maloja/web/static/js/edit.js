@@ -161,6 +161,11 @@ function doneEditing() {
 		    searchParams.set("title", newname);
 			var payload = {'id':entity_id,'title':newname}
 		}
+		else if (entity_type == 'album') {
+			var endpoint = "/apis/mlj_1/edit_album";
+		    searchParams.set("albumtitle", newname);
+			var payload = {'id':entity_id,'albumtitle':newname}
+		}
 
 		callback_func = function(req){
 			if (req.status == 200) {
@@ -182,61 +187,203 @@ function doneEditing() {
 	}
 }
 
-// MERGING
+// MERGING AND ASSOCIATION
 
-function showValidMergeIcons() {
+const associate_targets = {
+	album: ['artist'],
+	track: ['album','artist'],
+	artist: []
+};
+
+const associate_sources = {
+	artist: ['album','track'],
+	album: ['track'],
+	track: []
+};
+
+
+function getStoredList(key) {
 	const lcst = window.sessionStorage;
-	var key = "marked_for_merge_" + entity_type;
 	var current_stored = (lcst.getItem(key) || '').split(",");
 	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	return current_stored;
+}
+function storeList(key,list) {
+	const lcst = window.sessionStorage;
+	list = [...new Set(list)];
+	lcst.setItem(key,list); //this already formats it correctly
+}
 
-	var mergeicon = document.getElementById('mergeicon');
-	var mergemarkicon = document.getElementById('mergemarkicon');
-	var mergecancelicon = document.getElementById('mergecancelicon');
 
-	mergeicon.classList.add('hide');
-	mergemarkicon.classList.add('hide');
-	mergecancelicon.classList.add('hide');
 
-	if (current_stored.length == 0) {
-		mergemarkicon.classList.remove('hide');
+function markForMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+	key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
+	current_stored.push(entity_id);
+	storeList(key,current_stored)
+
+	notify("Marked " + entity_name + " for merge","Currently " + current_stored.length + " marked!")
+
+	toggleMergeIcons(parentElement);
+}
+
+function unmarkForMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+	var key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		current_stored.splice(current_stored.indexOf(entity_id),1);
+		storeList(key,current_stored);
+		notify("Unmarked " + entity_name + " from merge","Currently " + current_stored.length + " marked!")
+
+		toggleMergeIcons(parentElement);
 	}
 	else {
-		mergecancelicon.classList.remove('hide');
+		//notify(entity_name + " was not marked!","")
+	}
+}
 
-		if (current_stored.includes(entity_id)) {
+function markForAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
 
-		}
-		else {
-			mergemarkicon.classList.remove('hide');
-			mergeicon.classList.remove('hide');
-		}
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = getStoredList(key);
+	current_stored.push(entity_id);
+	storeList(key,current_stored);
+
+	notify("Marked " + entity_name + " to add to " + associate_targets[entity_type].join(" or "),"Currently " + current_stored.length + " marked!")
+
+	toggleAssociationIcons(parentElement);
+
+}
+
+function umarkForAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	var entity_name = parentElement.dataset.entity_name;
+	entity_id = parseInt(entity_id);
+
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		current_stored.splice(current_stored.indexOf(entity_id),1);
+		storeList(key,current_stored);
+
+		notify("Unmarked " + entity_name + " from association with " + associate_targets[entity_type].join(" or "),"Currently " + current_stored.length + " marked!")
+
+		toggleAssociationIcons(parentElement);
+	}
+	else {
+		//notify(entity_name + " was not marked!","")
 	}
 
 }
 
+function toggleAssociationIcons(element) {
+	var entity_type = element.dataset.entity_type;
+	var entity_id = element.dataset.entity_id;
+	entity_id = parseInt(entity_id);
 
-function markForMerge() {
-	const lcst = window.sessionStorage;
-	var key = "marked_for_merge_" + entity_type;
-	var current_stored = (lcst.getItem(key) || '').split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
-	current_stored.push(entity_id);
-	current_stored = [...new Set(current_stored)];
-	lcst.setItem(key,current_stored); //this already formats it correctly
-	notify("Marked " + entity_name + " for merge","Currently " + current_stored.length + " marked!")
-	showValidMergeIcons();
+	var key = "marked_for_associate_" + entity_type;
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		element.classList.add('marked_for_associate');
+	} else {
+		element.classList.remove('marked_for_associate');
+	}
+
+	if (current_stored.length > 0) {
+		element.classList.add('somethingmarked_for_associate');
+	}
+	else {
+		element.classList.remove('somethingmarked_for_associate');
+	}
+
+	var sourcetypes = associate_sources[entity_type];
+	var sourcelist = [];
+	for (var src of sourcetypes) {
+		var key = "marked_for_associate_" + src;
+		sourcelist = sourcelist.concat(getStoredList(key));
+	}
+	if (sourcelist.length > 0) {
+		element.classList.add('sources_marked_for_associate');
+	}
+	else {
+		element.classList.remove('sources_marked_for_associate');
+	}
+
 }
 
-function merge() {
-	const lcst = window.sessionStorage;
+function toggleMergeIcons(element) {
+	var entity_type = element.dataset.entity_type;
+	var entity_id = element.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
 	var key = "marked_for_merge_" + entity_type;
-	var current_stored = lcst.getItem(key).split(",");
-	current_stored = current_stored.filter((x)=>x).map((x)=>parseInt(x));
+	var current_stored = getStoredList(key);
+
+	if (current_stored.indexOf(entity_id) > -1) {
+		element.classList.add('marked_for_merge');
+	} else {
+		element.classList.remove('marked_for_merge');
+	}
+
+
+	if (current_stored.length > 0) {
+		element.classList.add('somethingmarked_for_merge');
+	}
+	else {
+		element.classList.remove('somethingmarked_for_merge');
+	}
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+	var listrows = document.getElementsByClassName('listrow');
+	for (var row of listrows) {
+		toggleAssociationIcons(row);
+		toggleMergeIcons(row); //just for the coloring, no icons
+	}
+	var topbars = document.getElementsByClassName('iconsubset');
+	for (var bar of topbars) {
+		toggleAssociationIcons(bar);
+		toggleMergeIcons(bar);
+	}
+})
+
+
+
+function merge() {
+	var key = "marked_for_merge_" + entity_type;
+	var current_stored = getStoredList(key);
 
 	callback_func = function(req){
 		if (req.status == 200) {
-			window.location.reload();
+			notifyCallback(req);
+			setTimeout(window.location.reload.bind(window.location),1000);
 		}
 		else {
 			notifyCallback(req);
@@ -254,13 +401,122 @@ function merge() {
 		json=true
 	);
 
-	lcst.removeItem(key);
+	storeList(key,[]);
 }
 
-function cancelMerge() {
-	const lcst = window.sessionStorage;
+
+
+function associate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
+	var requests_todo = 0;
+	for (var target_entity_type of associate_sources[entity_type]) {
+		var key = "marked_for_associate_" + target_entity_type;
+		var current_stored = getStoredList(key);
+
+		if (current_stored.length != 0) {
+			requests_todo += 1;
+			callback_func = function(req){
+				if (req.status == 200) {
+
+					toggleAssociationIcons(parentElement);
+					notifyCallback(req);
+					requests_todo -= 1;
+					if (requests_todo == 0) {
+						setTimeout(window.location.reload.bind(window.location),1000);
+					}
+
+				}
+				else {
+					notifyCallback(req);
+				}
+			};
+
+			neo.xhttpreq(
+				"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
+				data={
+					'source_ids':current_stored,
+					'target_id':entity_id
+				},
+				method="POST",
+				callback=callback_func,
+				json=true
+			);
+
+			storeList(key,[]);
+		}
+
+	}
+
+}
+
+function removeAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+	var entity_type = parentElement.dataset.entity_type;
+	var entity_id = parentElement.dataset.entity_id;
+	entity_id = parseInt(entity_id);
+
+	var requests_todo = 0;
+	for (var target_entity_type of associate_sources[entity_type]) {
+		var key = "marked_for_associate_" + target_entity_type;
+		var current_stored = getStoredList(key);
+
+		if (current_stored.length != 0) {
+			requests_todo += 1;
+			callback_func = function(req){
+				if (req.status == 200) {
+
+					toggleAssociationIcons(parentElement);
+					notifyCallback(req);
+					requests_todo -= 1;
+					if (requests_todo == 0) {
+						setTimeout(window.location.reload.bind(window.location),1000);
+					}
+
+				}
+				else {
+					notifyCallback(req);
+				}
+			};
+
+			neo.xhttpreq(
+				"/apis/mlj_1/associate_" + target_entity_type + "s_to_" + entity_type,
+				data={
+					'source_ids':current_stored,
+					'target_id':entity_id,
+					'remove': true
+				},
+				method="POST",
+				callback=callback_func,
+				json=true
+			);
+
+			storeList(key,[]);
+		}
+
+	}
+}
+
+function cancelMerge(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+
 	var key = "marked_for_merge_" + entity_type;
-	lcst.setItem(key,[]);
-	showValidMergeIcons();
-	notify("Cancelled merge!","")
+	storeList(key,[])
+	toggleMergeIcons(parentElement);
+	notify("Cancelled " + entity_type + " merge!","")
+}
+function cancelAssociate(element) {
+	const parentElement = element.closest('[data-entity_id]');
+
+	var entity_type = parentElement.dataset.entity_type;
+
+	var key = "marked_for_associate_" + entity_type;
+	storeList(key,[])
+	toggleAssociationIcons(parentElement);
+	notify("Cancelled " + entity_type + " association!","")
 }

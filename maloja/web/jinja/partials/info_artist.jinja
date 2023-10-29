@@ -1,0 +1,62 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'partials/awards_artist.jinja' as awards with context %}
+
+
+{% set artist = filterkeys.artist %}
+{% set info = dbc.artist_info({'artist':artist}) %}
+{% set encodedartist = mlj_uri.uriencode({'artist':artist}) %}
+
+{% set credited = info.get('replace') %}
+{% set included = info.get('associated') %}
+
+{% if credited is not none %}
+	{% set competes = false %}
+{% else %}
+	{% set credited = artist %}
+	{% set competes = true %}
+{% endif %}
+
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			{% if adminmode %}
+			<div
+				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedartist }}',b64)"
+				style="background-image:url('{{ images.get_artist_image(info.artist) }}');"
+				title="Drag & Drop to upload new image"
+			></div>
+			{% else %}
+			<div class="shiny alwaysshiny" style="background-image:url('{{ images.get_artist_image(artist) }}');">
+			</div>
+			{% endif %}
+		</td>
+		<td class="text">
+			{% if condensed %}<a href="/artist?{{ encodedartist }}">{% endif %}
+			<h1 id="main_entity_name" class="headerwithextra">{{ info.artist | e }}</h1>
+			{%- if condensed -%}</a>{% endif %}
+				{% if competes and info['scrobbles']>0 %}<span class="rank"><a href="/charts_artists?max=100">#{{ info.position }}</a></span>{% endif %}
+				<br/>
+				{% if competes and included and (not condensed) %}
+					<span>associated: {{ links.links(included) }}</span>
+				{% elif not competes %}
+					<span>Competing under {{ links.link(credited) }} (#{{ info.position }})</span>
+				{% endif %}
+
+			<p class="stats">
+				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
+			</p>
+
+
+
+
+			{% if competes %}
+				{{ awards.medals(info) }}
+				{{ awards.topweeks(info) }}
+			{% endif %}
+			{{ awards.subcerts(artist) }}
+
+
+		</td>
+	</tr>
+</table>

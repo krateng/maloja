@@ -4,8 +4,9 @@
 {% import 'snippets/filterdescription.jinja' as filterdesc %}
 {% import 'snippets/pagination.jinja' as pagination %}
 
+{% set totalscrobbles = dbc.get_scrobbles_num(filterkeys,limitkeys) %}
 {% set scrobbles = dbc.get_scrobbles(filterkeys,limitkeys,amountkeys) %}
-{% set pages = math.ceil(scrobbles.__len__() / amountkeys.perpage) %}
+{% set pages = math.ceil(totalscrobbles / amountkeys.perpage) %}
 
 {% if filterkeys.get('track') is not none %}
 	{% set img = images.get_track_image(filterkeys.track) %}
@@ -29,7 +30,7 @@
 				<h1>Scrobbles</h1><br/>
 				{{ filterdesc.desc(filterkeys,limitkeys) }}
 				<br/>
-				<p class="stats">{{ scrobbles.__len__() }} Scrobbles</p>
+				<p class="stats">{{ totalscrobbles }} Scrobbles</p>
 				<br/>
 				{% with delimitkeys = {} %}
 				{% include 'snippets/timeselection.jinja' %}

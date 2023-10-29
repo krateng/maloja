@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ElementTree
 import json
 import urllib.parse, urllib.request
 import base64
+import time
 from doreah.logging import log
 from threading import BoundedSemaphore
 
@@ -22,6 +23,14 @@ services = {
 	"import":[],
 	"metadata":[]
 }
+
+
+
+class InvalidResponse(Exception):
+	"""Invalid Response from Third Party"""
+
+class RateLimitExceeded(Exception):
+	"""Rate Limit exceeded"""
 
 # have a limited number of worker threads so we don't completely hog the cpu with
 # these requests. they are mostly network bound, so python will happily open up 200 new
@@ -44,26 +53,37 @@ def get_image_track_all(track):
 		for service in services["metadata"]:
 			try:
 				res = service.get_image_track(track)
-				if res is not None:
+				if res:
 					log("Got track image for " + str(track) + " from " + service.name)
 					return res
 				else:
-					log("Could not get track image for " + str(track) + " from " + service.name)
+					log(f"Could not get track image for {track} from {service.name}")
 			except Exception as e:
-				log("Error getting track image from " + service.name + ": " + repr(e))
+				log(f"Error getting track image from {service.name}: {e.__doc__}")
 def get_image_artist_all(artist):
 	with thirdpartylock:
 		for service in services["metadata"]:
 			try:
 				res = service.get_image_artist(artist)
-				if res is not None:
+				if res:
 					log("Got artist image for " + str(artist) + " from " + service.name)
 					return res
 				else:
-					log("Could not get artist image for " + str(artist) + " from " + service.name)
+					log(f"Could not get artist image for {artist} from {service.name}")
 			except Exception as e:
-				log("Error getting artist image from " + service.name + ": " + repr(e))
-
+				log(f"Error getting artist image from {service.name}: {e.__doc__}")
+def get_image_album_all(album):
+	with thirdpartylock:
+		for service in services["metadata"]:
+			try:
+				res = service.get_image_album(album)
+				if res:
+					log("Got album image for " + str(album) + " from " + service.name)
+					return res
+				else:
+					log(f"Could not get album image for {album} from {service.name}")
+			except Exception as e:
+				log(f"Error getting album image from {service.name}: {e.__doc__}")
 
 
 class GenericInterface:
@@ -177,6 +197,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		"activated_setting":None
 	}
 
+	delay = 0
+
 	# service provides this role only if the setting is active AND all
 	# necessary auth settings exist
 	def active_metadata(self):
@@ -200,6 +222,7 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
 		return imgurl
 
 	def get_image_artist(self,artist):
@@ -215,6 +238,25 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
+		return imgurl
+
+	def get_image_album(self,album):
+		artists, title = album
+		artiststring = urllib.parse.quote(", ".join(artists or []))
+		titlestring = urllib.parse.quote(title)
+		response = urllib.request.urlopen(
+			self.metadata["albumurl"].format(artist=artiststring,title=titlestring,**self.settings)
+		)
+
+		responsedata = response.read()
+		if self.metadata["response_type"] == "json":
+			data = json.loads(responsedata)
+			imgurl = self.metadata_parse_response_album(data)
+		else:
+			imgurl = None
+		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		time.sleep(self.delay)
 		return imgurl
 
 	# default function to parse response by descending down nodes
@@ -225,18 +267,29 @@ class MetadataInterface(GenericInterface,abstract=True):
 	def metadata_parse_response_track(self,data):
 		return self._parse_response("response_parse_tree_track", data)
 
+	def metadata_parse_response_album(self,data):
+		return self._parse_response("response_parse_tree_album", data)
+
 	def _parse_response(self, resp, data):
 		res = data
 		for node in self.metadata[resp]:
 			try:
 				res = res[node]
 			except Exception:
-				return None
+				handleresult = self.handle_json_result_error(data) #allow the handler to throw custom exceptions
+				# it can also return True to indicate that this is not an error, but simply an instance of 'this api doesnt have any info'
+				if handleresult is True:
+					return None
+				#throw the generic error if the handler refused to do anything
+				raise InvalidResponse()
 		return res
 
 	def postprocess_url(self,url):
 		url = url.replace("http:","https:",1)
 		return url
+
+	def handle_json_result_error(self,result):
+		raise InvalidResponse()
 
 
 

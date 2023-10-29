@@ -41,6 +41,3 @@ minor_release_name: "Soyeon"
     - "[Bugfix] Fixed image display on Safari"
     - "[Bugfix] Fixed entity editing on Firefox"
     - "[Bugfix] Made compatibile with SQLAlchemy 2.0"
-upcoming:
-    notes:
-    - "[Bugfix] Fixed configuration of time format"

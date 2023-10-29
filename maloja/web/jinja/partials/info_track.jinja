@@ -1,0 +1,49 @@
+{% import 'snippets/links.jinja' as links %}
+
+{% set track = filterkeys.track %}
+{% set info = dbc.track_info({'track':track}) %}
+{% set encodedtrack = mlj_uri.uriencode({'track':track}) %}
+
+{% import 'partials/awards_track.jinja' as awards with context %}
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			{% if adminmode %}
+			<div
+				class="shiny alwaysshiny changeable-image" data-uploader="b64=>upload('{{ encodedtrack }}',b64)"
+				style="background-image:url('{{ images.get_track_image(info.track) }}');"
+				title="Drag & Drop to upload new image"
+			></div>
+			{% else %}
+			<div class="shiny alwaysshiny" style="background-image:url('{{ images.get_track_image(track) }}');">
+			</div>
+			{% endif %}
+		</td>
+		<td class="text">
+			<span>{{ links.links(track.artists) }}</span><br/>
+			{% if condensed %}<a href="/track?{{ encodedtrack }}">{% endif %}
+			<h1 id="main_entity_name" class="headerwithextra">{{ info.track.title | e }}</h1>
+			{%- if condensed -%}</a>{% endif %}
+				<span class="rank"><a href="/charts_tracks?max=100">#{{ info.position }}</a></span>
+				<br/>
+				{% if info.track.album %}
+				from {{ links.link(info.track.album) }}<br/>
+				{% endif %}
+
+			<p class="stats">
+				{% if adminmode %}<button type="button" onclick="scrobbleThisTrack()">Scrobble now</button>{% endif %}
+				<a href="{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}">{{ info['scrobbles'] }} Scrobbles</a>
+			</p>
+
+
+
+
+
+			{{ awards.medals(info) }}
+			{{ awards.topweeks(info) }}
+
+
+		</td>
+	</tr>
+</table>

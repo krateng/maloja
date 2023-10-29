@@ -2,7 +2,7 @@
 {% import 'snippets/entityrow.jinja' as entityrow %}
 
 {% if charts is undefined %}
-	{% set charts = dbc.get_charts_artists(limitkeys) %}
+	{% set charts = dbc.get_charts_artists(limitkeys,specialkeys) %}
 {% endif %}
 
 {% if compare %}
@@ -11,7 +11,7 @@
 		{% if compare is none %}{% set compare = False %}{% endif %}
 	{% endif %}
 	{% if compare %}
-		{% set prevartists = dbc.get_charts_artists({'timerange':compare}) %}
+		{% set prevartists = dbc.get_charts_artists({'timerange':compare},specialkeys) %}
 
 		{% set lastranks = {} %}
 		{% for a in prevartists %}
@@ -30,12 +30,13 @@
 {% set lastindex = firstindex + amountkeys.perpage %}
 
 
+
 {% set maxbar = charts[0]['scrobbles'] if charts != [] else 0 %}
 
 <table class='list'>
 	{% for e in charts %}
 		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
-		<tr>
+		<tr class="listrow associateicons mergeicons" data-entity_id="{{ e['artist_id'] }}" data-entity_type="artist" data-entity_name="{{ e['artist'] }}">
 			<!-- Rank -->
 			<td class="rank">{%if loop.changed(e.scrobbles) %}#{{ e.rank }}{% endif %}</td>
 			<!-- Rank change -->
@@ -48,11 +49,16 @@
 			{% endif %}
 
 			<!-- artist -->
-			{{ entityrow.row(e['artist']) }}
+			{{ entityrow.row(e['artist'],adminmode=adminmode,counting=([] if specialkeys.separate else e.associated_artists)) }}
 
 			<!-- scrobbles -->
-			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
-			<td class="bar">{{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],percent=e['scrobbles']*100/maxbar) }}</td>
+			<td class="amount">{{ links.link_scrobbles([{'artist':e['artist'],'associated':(not specialkeys.separate),'timerange':limitkeys.timerange}],amount=e['scrobbles']) }}</td>
+			<td class="bar">
+			    {{ links.link_scrobbles([{'artist':e['artist'],'associated':False,'timerange':limitkeys.timerange}],percent=e['real_scrobbles']*100/maxbar) }}
+			    {%- if e['real_scrobbles'] != e['scrobbles'] -%}
+			    {{ links.link_scrobbles([{'artist':e['artist'],'associated':True,'timerange':limitkeys.timerange}],percent=(e['scrobbles']-e['real_scrobbles'])*100/maxbar) }}
+			    {%- endif %}
+			</td>
 		</tr>
 		{% endif %}
 	{% endfor %}
