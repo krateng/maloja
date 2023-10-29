@@ -6,6 +6,8 @@ from doreah.configuration import types as tp
 from ..__pkginfo__ import VERSION
 
 
+# this mode specifies whether we run some auxiliary task instead of the main server
+AUX_MODE = True
 
 
 # if DATA_DIRECTORY is specified, this is the directory to use for EVERYTHING, no matter what
@@ -148,14 +150,17 @@ malojaconfig = Configuration(
 		"Technical":{
 			"cache_expire_positive":(tp.Integer(),								"Image Cache Expiration", 				60,		"Days until images are refetched"),
 			"cache_expire_negative":(tp.Integer(),								"Image Cache Negative Expiration",		5,		"Days until failed image fetches are reattempted"),
-			"db_max_memory":(tp.Integer(min=0,max=100),							"RAM Percentage soft limit",			50,		"RAM Usage in percent at which Maloja should no longer increase its database cache."),
+			"db_max_memory":(tp.Integer(min=0,max=100),							"RAM Percentage soft limit",			70,		"RAM Usage in percent at which Maloja should no longer increase its database cache."),
 			"use_request_cache":(tp.Boolean(),									"Use request-local DB Cache",			False),
-			"use_global_cache":(tp.Boolean(),									"Use global DB Cache",					True)
+			"use_global_cache":(tp.Boolean(),									"Use global DB Cache",					True,	"This is vital for Maloja's performance. Do not disable this unless you have a strong reason to.")
 		},
 		"Fluff":{
-			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold",			250,				"How many scrobbles a track needs to be considered 'Gold' status"),
-			"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum",		500,				"How many scrobbles a track needs to be considered 'Platinum' status"),
-			"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond",		1000,				"How many scrobbles a track needs to be considered 'Diamond' status"),
+			"scrobbles_gold":(tp.Integer(),										"Scrobbles for Gold (Track)",	250,				"How many scrobbles a track needs to be considered 'Gold' status"),
+			"scrobbles_platinum":(tp.Integer(),									"Scrobbles for Platinum (Track)",500,				"How many scrobbles a track needs to be considered 'Platinum' status"),
+			"scrobbles_diamond":(tp.Integer(),									"Scrobbles for Diamond (Track)",1000,				"How many scrobbles a track needs to be considered 'Diamond' status"),
+			"scrobbles_gold_album":(tp.Integer(),								"Scrobbles for Gold (Album)",	500,				"How many scrobbles an album needs to be considered 'Gold' status"),
+			"scrobbles_platinum_album":(tp.Integer(),							"Scrobbles for Platinum (Album)",750,				"How many scrobbles an album needs to be considered 'Platinum' status"),
+			"scrobbles_diamond_album":(tp.Integer(),							"Scrobbles for Diamond (Album)",1500,				"How many scrobbles an album needs to be considered 'Diamond' status"),
 			"name":(tp.String(),												"Name",							"Generic Maloja User")
 		},
 		"Third Party Services":{
@@ -177,6 +182,7 @@ malojaconfig = Configuration(
 
 		},
 		"Database":{
+			"album_information_trust":(tp.Choice({'first':"First",'last':"Last",'majority':"Majority"}),	"Album Information Authority","first",															"Whether to trust the first album information that is sent with a track or update every time a different album is sent"),
 			"invalid_artists":(tp.Set(tp.String()),								"Invalid Artists",				["[Unknown Artist]","Unknown Artist","Spotify"],											"Artists that should be discarded immediately"),
 			"remove_from_title":(tp.Set(tp.String()),							"Remove from Title",			["(Original Mix)","(Radio Edit)","(Album Version)","(Explicit Version)","(Bonus Track)"],	"Phrases that should be removed from song titles"),
 			"delimiters_feat":(tp.Set(tp.String()),								"Featuring Delimiters",			["ft.","ft","feat.","feat","featuring"],													"Delimiters used for extra artists, even when in the title field"),
@@ -186,11 +192,14 @@ malojaconfig = Configuration(
 			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False)
 		},
 		"Web Interface":{
-			"default_range_charts_artists":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Artist Charts",	"year"),
-			"default_range_charts_tracks":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range Track Charts",	"year"),
+			"default_range_startpage":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range for Startpage Stats",	"year"),
 			"default_step_pulse":(tp.Choice({'year':'Year','month':"Month",'week':'Week','day':'Day'}),						"Default Pulse Step",			"month"),
 			"charts_display_tiles":(tp.Boolean(),								"Display Chart Tiles",			False),
+			"album_showcase":(tp.Boolean(),										"Display Album Showcase",		True,		"Display a graphical album showcase for artist overview pages instead of a chart list"),
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
+			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
+			"use_album_artwork_for_tracks":(tp.Boolean(),						"Use Album Artwork for tracks",	True),
+			"fancy_placeholder_art":(tp.Boolean(),								"Use fancy placeholder artwork",True),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
@@ -297,15 +306,6 @@ data_dir = {
 
 
 
-### write down the last ran version
-with open(pthj(dir_settings['state'],".lastmalojaversion"),"w") as filed:
-	filed.write(VERSION)
-	filed.write("\n")
-
-
-
-
-
 ### DOREAH CONFIGURATION
 
 from doreah import config
@@ -331,7 +331,8 @@ config(
 
 custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
 
-
+from ..database.sqldb import set_maloja_info
+set_maloja_info({'last_run_version':VERSION})
 
 # what the fuck did i just write
 # this spaghetti file is proudly sponsored by the rice crackers i'm eating at the

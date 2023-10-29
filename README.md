@@ -4,10 +4,7 @@
 [![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/malojaserver/)
 [![](https://img.shields.io/docker/v/krateng/maloja?label=Dockerhub&style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/krateng/maloja)
 
-[![](https://img.shields.io/pypi/l/malojaserver?style=for-the-badge)](https://github.com/krateng/maloja/blob/master/LICENSE)
-[![](https://img.shields.io/codeclimate/maintainability/krateng/maloja?style=for-the-badge)](https://codeclimate.com/github/krateng/maloja)
-
-Simple self-hosted music scrobble database to create personal listening statistics. No recommendations, no social network, no nonsense.
+Simple self-hosted music scrobble database to create personal listening statistics.
 
 ![screenshot](https://raw.githubusercontent.com/krateng/maloja/master/screenshot.png)
 
@@ -18,9 +15,9 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 * [Features](#features)
 * [How to install](#how-to-install)
 	* [Requirements](#requirements)
+	* [Docker / Podman](#docker--podman)
 	* [PyPI](#pypi)
 	* [From Source](#from-source)
-	* [Docker / Podman](#docker--podman)
 	* [Extras](#extras)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
@@ -47,9 +44,45 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 
 Maloja should run on any x86 or ARM machine that runs Python.
 
-I can support you with issues best if you use **Alpine Linux**.
+It is highly recommended to use **Docker** or **Podman**.
 
 Your CPU should have a single core passmark score of at the very least 1500. 500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
+
+### Docker / Podman
+
+Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
+
+Of note are these settings which should be passed as environmental variables to the container:
+
+* `MALOJA_SKIP_SETUP` -- Make the server setup process non-interactive. Maloja will not work properly in a container without this variable set. This is done by default in the provided Containerfile.
+* `MALOJA_FORCE_PASSWORD` -- Set an admin password for Maloja. You only need this on the first run.
+* `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
+	* Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
+
+You must publish a port on your host machine to bind to the container's web port (default 42010). The container uses IPv4 per default.
+
+An example of a minimum run configuration to access maloja via `localhost:42010`:
+
+```console
+	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
+```
+
+#### Linux Host
+
+**NOTE:** If you are using [rootless containers with Podman](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#why_podman_) this DOES NOT apply to you.
+
+If you are running Docker on a **Linux Host** you should specify `user:group` ids of the user who owns the folder on the host machine bound to `MALOJA_DATA_DIRECTORY` in order to avoid [docker file permission problems.](https://ikriv.com/blog/?p=4698) These can be specified using the [environmental variables **PUID** and **PGID**.](https://docs.linuxserver.io/general/understanding-puid-and-pgid)
+
+To get the UID and GID for the current user run these commands from a terminal:
+
+* `id -u` -- prints UID (EX `1000`)
+* `id -g` -- prints GID (EX `1001`)
+
+The modified run command with these variables would look like:
+
+```console
+	docker run -e PUID=1000 -e PGID=1001 -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
+```
 
 ### PyPI
 
@@ -78,41 +111,6 @@ Then install all the requirements and build the package, e.g.:
 	pip install .
 ```
 
-### Docker / Podman
-
-Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
-
-Of note are these settings which should be passed as environmental variables to the container:
-
-* `MALOJA_SKIP_SETUP` -- Make the server setup process non-interactive. Maloja will not work properly in a container without this variable set. This is done by default in the provided Containerfile.
-* `MALOJA_FORCE_PASSWORD` -- Set an admin password for Maloja. You only need this on the first run.
-* `MALOJA_DATA_DIRECTORY` -- Set the directory in the container where configuration folders/files should be located
-  * Mount a [volume](https://docs.docker.com/engine/reference/builder/#volume) to the specified directory to access these files outside the container (and to make them persistent)
-
-You must publish a port on your host machine to bind to the container's web port (default 42010). The container uses IPv4 per default.
-
-An example of a minimum run configuration to access maloja via `localhost:42010`:
-
-```console
-	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
-```
-
-#### Linux Host
-
-**NOTE:** If you are using [rootless containers with Podman](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#why_podman_) this DOES NOT apply to you.
-
-If you are running Docker on a **Linux Host** you should specify `user:group` ids of the user who owns the folder on the host machine bound to `MALOJA_DATA_DIRECTORY` in order to avoid [docker file permission problems.](https://ikriv.com/blog/?p=4698) These can be specified using the [environmental variables **PUID** and **PGID**.](https://docs.linuxserver.io/general/understanding-puid-and-pgid)
-
-To get the UID and GID for the current user run these commands from a terminal:
-
-* `id -u` -- prints UID (EX `1000`)
-* `id -g` -- prints GID (EX `1001`)
-
-The modified run command with these variables would look like:
-
-```console
-	docker run -e PUID=1000 -e PGID=1001 -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
-```
 
 ### Extras
 
@@ -120,31 +118,13 @@ The modified run command with these variables would look like:
 
 * Put your server behind a reverse proxy for SSL encryption. Make sure that you're proxying to the IPv6 or IPv4 address according to your settings.
 
-* You can set up a cronjob to start your server on system boot, and potentially restart it on a regular basis:
-
-```
-@reboot sleep 15 && maloja start
-42 0 7 * * maloja restart
-```
-
 
 ## How to use
 
 ### Basic control
 
-Start and stop the server in the background with
-
-```console
-	maloja start
-	maloja stop
-	maloja restart
-```
-
-If you need to run the server in the foreground, use
-
-```console
-	maloja run
-```
+When not running in a container, you can run the application with `maloja run`. You can also run it in the background with
+`maloja start` and `maloja stop`, but this might not be supported in the future.
 
 
 ### Data
@@ -164,7 +144,6 @@ If you would like to import your previous scrobbles, use the command `maloja imp
 	maloja import my_last_fm_export.csv
 ```
 
----
 
 To backup your data, run `maloja backup`, optional with `--include_images`.
 

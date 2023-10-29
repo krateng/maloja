@@ -2,10 +2,12 @@ import os
 import math
 import traceback
 
-from bottle import response, static_file, request, FormsDict
+from bottle import response, static_file, FormsDict
+
+from inspect import signature
 
 from doreah.logging import log
-from doreah.auth import authenticated_api, authenticated_api_with_alternate, authenticated_function
+from doreah.auth import authenticated_function
 
 # nimrodel API
 from nimrodel import EAPI as API
@@ -18,7 +20,7 @@ from ..pkg_global.conf import malojaconfig, data_dir
 
 
 from ..__pkginfo__ import VERSION
-from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri
+from ..malojauri import uri_to_internal, compose_querystring, internal_to_uri, create_uri
 from .. import images
 from ._apikeys import apikeystore, api_key_correct
 
@@ -72,6 +74,14 @@ errors = {
 			'desc':"The database is being upgraded. Please try again later."
 		}
 	}),
+	database.exceptions.EntityDoesNotExist: lambda e: (404,{
+		"status":"error",
+		"error":{
+			'type':'entity_does_not_exist',
+			'value':e.entitydict,
+			'desc':"This entity does not exist in the database."
+		}
+	}),
 	images.MalformedB64: lambda e: (400,{
 		"status":"failure",
 		"error":{
@@ -91,6 +101,8 @@ errors = {
 	})
 }
 
+
+# decorator to catch exceptions and return proper json responses
 def catch_exceptions(func):
 	def protector(*args,**kwargs):
 		try:
@@ -105,9 +117,11 @@ def catch_exceptions(func):
 
 	protector.__doc__ = func.__doc__
 	protector.__annotations__ = func.__annotations__
+	protector.__name__ = f"EXCPR_{func.__name__}"
 	return protector
 
 
+# decorator to expand the docstring with common arguments for the API explorer. DOESNT WRAP
 def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=False,amountkeys=False):
 	def decorator(func):
 		timeformats = "Possible formats include '2022', '2022/08', '2022/08/01', '2022/W42', 'today', 'thismonth', 'monday', 'august'"
@@ -140,6 +154,64 @@ def add_common_args_to_docstring(filterkeys=False,limitkeys=False,delimitkeys=Fa
 		return func
 	return decorator
 
+
+# decorator to take the URI keys and convert them into internal keys
+def convert_kwargs(func):
+
+	#params = tuple(p for p in signature(func).parameters)
+
+	def wrapper(*args,albumartist:Multi[str]=[],trackartist:Multi[str]=[],**kwargs):
+
+		kwargs = FormsDict(kwargs)
+		for a in albumartist:
+			kwargs.append("albumartist",a)
+		for a in trackartist:
+			kwargs.append("trackartist",a)
+
+		k_filter, k_limit, k_delimit, k_amount, k_special = uri_to_internal(kwargs,api=True)
+
+		try:
+			return func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount)
+		except TypeError:
+			return func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount,k_special=k_special)
+		# TODO: ....really?
+
+	wrapper.__doc__ = func.__doc__
+	wrapper.__name__ = f"CVKWA_{func.__name__}"
+	return wrapper
+
+
+# decorator to add pagination info to endpoints (like links to other pages)
+# this expects already converted uri args!!!
+def add_pagination(endpoint,filterkeys=False,limitkeys=False,delimitkeys=False):
+
+	def decorator(func):
+		def wrapper(*args,k_filter, k_limit, k_delimit, k_amount):
+
+			keydicts = []
+			if filterkeys: keydicts.append(k_filter)
+			if limitkeys: keydicts.append(k_limit)
+			if delimitkeys: keydicts.append(k_delimit)
+			keydicts.append(k_amount)
+
+
+			result = func(*args,k_filter=k_filter, k_limit=k_limit, k_delimit=k_delimit, k_amount=k_amount)
+
+			result['pagination'] = {
+				'page': k_amount['page'],
+				'perpage': k_amount['perpage'] if (k_amount['perpage'] is not math.inf) else None,
+				'next_page': create_uri(api.pathprefix + '/' + endpoint,*keydicts,{'page':k_amount['page']+1}) if len(result.get('list',[]))==k_amount['perpage'] else None,
+				'prev_page': create_uri(api.pathprefix + '/' + endpoint,*keydicts,{'page':k_amount['page']-1}) if k_amount['page'] > 0 else None
+			}
+
+			return result
+
+		wrapper.__doc__ = func.__doc__
+		wrapper.__annotations__ = func.__annotations__
+		wrapper.__name__ = f"PGNAT_{func.__name__}"
+		return wrapper
+
+	return decorator
 
 
 @api.get("test")
@@ -194,20 +266,22 @@ def server_info():
 @api.get("scrobbles")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
-def get_scrobbles_external(**keys):
+@convert_kwargs
+@add_pagination("scrobbles",filterkeys=True,limitkeys=True)
+def get_scrobbles_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns a list of scrobbles.
 
 	:return: list (List)
 	:rtype: Dictionary
 	"""
-	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys,api=True)
-	ckeys = {**k_filter, **k_time, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_amount}
 	result = database.get_scrobbles(**ckeys)
 
-	offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
-	result = result[offset:]
-	if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
+	# this should now all be served by the inner function
+	#offset = (k_amount.get('page') * k_amount.get('perpage')) if k_amount.get('perpage') is not math.inf else 0
+	#result = result[offset:]
+	#if k_amount.get('perpage') is not math.inf: result = result[:k_amount.get('perpage')]
 
 	return {
 		"status":"ok",
@@ -218,15 +292,15 @@ def get_scrobbles_external(**keys):
 @api.get("numscrobbles")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,amountkeys=True)
-def get_scrobbles_num_external(**keys):
+@convert_kwargs
+def get_scrobbles_num_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns amount of scrobbles.
 
 	:return: amount (Integer)
 	:rtype: Dictionary
 	"""
-	k_filter, k_time, _, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_amount}
 	result = database.get_scrobbles_num(**ckeys)
 
 	return {
@@ -235,19 +309,18 @@ def get_scrobbles_num_external(**keys):
 	}
 
 
-
 @api.get("tracks")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def get_tracks_external(**keys):
-	"""Returns all tracks (optionally of an artist).
+@convert_kwargs
+def get_tracks_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns all tracks (optionally of an artist or on an album).
 
 	:return: list (List)
 	:rtype: Dictionary
 	"""
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter}
 
+	ckeys = {**k_filter}
 	result = database.get_tracks(**ckeys)
 
 	return {
@@ -256,15 +329,16 @@ def get_tracks_external(**keys):
 	}
 
 
-
 @api.get("artists")
 @catch_exceptions
 @add_common_args_to_docstring()
-def get_artists_external():
+@convert_kwargs
+def get_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns all artists.
 
 	:return: list (List)
 	:rtype: Dictionary"""
+
 	result = database.get_artists()
 
 	return {
@@ -273,20 +347,36 @@ def get_artists_external():
 	}
 
 
+@api.get("albums")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True)
+@convert_kwargs
+def get_albums_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns all albums (optionally of an artist).
 
+	:return: list (List)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_filter}
+	result = database.get_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":result
+	}
 
 
 @api.get("charts/artists")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True)
-def get_charts_artists_external(**keys):
+@convert_kwargs
+def get_charts_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns artist charts
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, _, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time}
 
+	ckeys = {**k_limit}
 	result = database.get_charts_artists(**ckeys)
 
 	return {
@@ -295,18 +385,17 @@ def get_charts_artists_external(**keys):
 	}
 
 
-
 @api.get("charts/tracks")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True)
-def get_charts_tracks_external(**keys):
+@convert_kwargs
+def get_charts_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns track charts
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, _, _, _ = uri_to_internal(keys,forceArtist=True)
-	ckeys = {**k_filter, **k_time}
 
+	ckeys = {**k_filter, **k_limit}
 	result = database.get_charts_tracks(**ckeys)
 
 	return {
@@ -315,19 +404,36 @@ def get_charts_tracks_external(**keys):
 	}
 
 
+@api.get("charts/albums")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True,limitkeys=True)
+@convert_kwargs
+def get_charts_albums_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns album charts
+
+	:return: list (List)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_filter, **k_limit}
+	result = database.get_charts_albums(**ckeys)
+
+	return {
+		"status":"ok",
+		"list":result
+	}
 
 
 @api.get("pulse")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
-def get_pulse_external(**keys):
+@convert_kwargs
+def get_pulse_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns amounts of scrobbles in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_delimit, **k_amount}
 	results = database.get_pulse(**ckeys)
 
 	return {
@@ -336,19 +442,17 @@ def get_pulse_external(**keys):
 	}
 
 
-
-
 @api.get("performance")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True,limitkeys=True,delimitkeys=True,amountkeys=True)
-def get_performance_external(**keys):
+@convert_kwargs
+def get_performance_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns artist's or track's rank in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	k_filter, k_time, k_internal, k_amount, _ = uri_to_internal(keys)
-	ckeys = {**k_filter, **k_time, **k_internal, **k_amount}
 
+	ckeys = {**k_filter, **k_limit, **k_delimit, **k_amount}
 	results = database.get_performance(**ckeys)
 
 	return {
@@ -362,14 +466,14 @@ def get_performance_external(**keys):
 @api.get("top/artists")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
-def get_top_artists_external(**keys):
+@convert_kwargs
+def get_top_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns respective number 1 artists in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, k_internal, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
 
+	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_artists(**ckeys)
 
 	return {
@@ -378,22 +482,19 @@ def get_top_artists_external(**keys):
 	}
 
 
-
-
 @api.get("top/tracks")
 @catch_exceptions
 @add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
-def get_top_tracks_external(**keys):
+@convert_kwargs
+def get_top_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns respective number 1 tracks in specified time frames
 
 	:return: list (List)
 	:rtype: Dictionary"""
-	_, k_time, k_internal, _, _ = uri_to_internal(keys)
-	ckeys = {**k_time, **k_internal}
 
-	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST AS WELL?
-
+	ckeys = {**k_limit, **k_delimit}
 	results = database.get_top_tracks(**ckeys)
+	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST/ALBUM AS WELL?
 
 	return {
 		"status":"ok",
@@ -401,17 +502,36 @@ def get_top_tracks_external(**keys):
 	}
 
 
+@api.get("top/albums")
+@catch_exceptions
+@add_common_args_to_docstring(limitkeys=True,delimitkeys=True)
+@convert_kwargs
+def get_top_albums_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns respective number 1 albums in specified time frames
+
+	:return: list (List)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_limit, **k_delimit}
+	results = database.get_top_albums(**ckeys)
+	# IMPLEMENT THIS FOR TOP ALBUMS OF ARTIST AS WELL?
+
+	return {
+		"status":"ok",
+		"list":results
+	}
 
 
 @api.get("artistinfo")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def artist_info_external(**keys):
+@convert_kwargs
+def artist_info_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns information about an artist
 
 	:return: artist (String), scrobbles (Integer), position (Integer), associated (List), medals (Mapping), topweeks (Integer)
 	:rtype: Dictionary"""
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceArtist=True)
+
 	ckeys = {**k_filter}
 
 	return database.artist_info(**ckeys)
@@ -421,19 +541,29 @@ def artist_info_external(**keys):
 @api.get("trackinfo")
 @catch_exceptions
 @add_common_args_to_docstring(filterkeys=True)
-def track_info_external(artist:Multi[str]=[],**keys):
+@convert_kwargs
+def track_info_external(k_filter, k_limit, k_delimit, k_amount):
 	"""Returns information about a track
 
 	:return: track (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
 	:rtype: Dictionary"""
-	# transform into a multidict so we can use our nomral uri_to_internal function
-	keys = FormsDict(keys)
-	for a in artist:
-		keys.append("artist",a)
-	k_filter, _, _, _, _ = uri_to_internal(keys,forceTrack=True)
-	ckeys = {**k_filter}
 
+	ckeys = {**k_filter}
 	return database.track_info(**ckeys)
+
+
+@api.get("albuminfo")
+@catch_exceptions
+@add_common_args_to_docstring(filterkeys=True)
+@convert_kwargs
+def album_info_external(k_filter, k_limit, k_delimit, k_amount):
+	"""Returns information about an album
+
+	:return: album (Mapping), scrobbles (Integer), position (Integer), medals (Mapping), certification (String), topweeks (Integer)
+	:rtype: Dictionary"""
+
+	ckeys = {**k_filter}
+	return database.album_info(**ckeys)
 
 
 @api.post("newscrobble")
@@ -444,7 +574,7 @@ def post_scrobble(
 		artists:list=[],
 		title:str="",
 		album:str=None,
-		albumartists:list=[],
+		albumartists:list=None,
 		duration:int=None,
 		length:int=None,
 		time:int=None,
@@ -470,7 +600,7 @@ def post_scrobble(
 	rawscrobble = {
 		'track_artists':(artist or []) + artists,
 		'track_title':title,
-		'album_name':album,
+		'album_title':album,
 		'album_artists':albumartists,
 		'scrobble_duration':duration,
 		'track_length':length,
@@ -478,7 +608,7 @@ def post_scrobble(
 	}
 
 	# for logging purposes, don't pass values that we didn't actually supply
-	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k]}
+	rawscrobble = {k:rawscrobble[k] for k in rawscrobble if rawscrobble[k] is not None} # [] should be passed
 
 
 	result = database.incoming_scrobble(
@@ -494,19 +624,23 @@ def post_scrobble(
 			'artists':result['track']['artists'],
 			'title':result['track']['title']
 		},
-		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}"
+		'desc':f"Scrobbled {result['track']['title']} by {', '.join(result['track']['artists'])}",
+		'warnings':[]
 	}
 	if extra_kwargs:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'invalid_keyword_ignored','value':k,
 			'desc':"This key was not recognized by the server and has been discarded."}
 			for k in extra_kwargs
 		]
 	if artist and artists:
-		responsedict['warnings'] = [
+		responsedict['warnings'] += [
 			{'type':'mixed_schema','value':['artist','artists'],
 			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
 		]
+
+	if len(responsedict['warnings']) == 0: del responsedict['warnings']
+
 	return responsedict
 
 
@@ -515,21 +649,18 @@ def post_scrobble(
 @api.post("addpicture")
 @authenticated_function(alternate=api_key_correct,api=True)
 @catch_exceptions
-def add_picture(b64,artist:Multi=[],title=None):
-	"""Uploads a new image for an artist or track.
+@convert_kwargs
+def add_picture(k_filter, k_limit, k_delimit, k_amount, k_special):
+	"""Uploads a new image for an artist, album or track.
 
 	param string b64: Base 64 representation of the image
-	param string artist: Artist name. Can be supplied multiple times for tracks with multiple artists.
-	param string title: Title of the track. Optional.
 
 	"""
-	keys = FormsDict()
-	for a in artist:
-		keys.append("artist",a)
-	if title is not None: keys.append("title",title)
-	k_filter, _, _, _, _ = uri_to_internal(keys)
+
+	if "associated" in k_filter: del k_filter["associated"]
 	if "track" in k_filter: k_filter = k_filter["track"]
-	url = images.set_image(b64,**k_filter)
+	elif "album" in k_filter: k_filter = k_filter["album"]
+	url = images.set_image(k_special['b64'],**k_filter)
 
 	return {
 		'status': 'success',
@@ -586,6 +717,7 @@ def search(**keys):
 
 	artists = database.db_search(query,type="ARTIST")
 	tracks = database.db_search(query,type="TRACK")
+	albums = database.db_search(query,type="ALBUM")
 
 
 
@@ -593,6 +725,7 @@ def search(**keys):
 	# also, shorter is better (because longer titles would be easier to further specify)
 	artists.sort(key=lambda x: ((0 if x.lower().startswith(query) else 1 if " " + query in x.lower() else 2),len(x)))
 	tracks.sort(key=lambda x: ((0 if x["title"].lower().startswith(query) else 1 if " " + query in x["title"].lower() else 2),len(x["title"])))
+	albums.sort(key=lambda x: ((0 if x["albumtitle"].lower().startswith(query) else 1 if " " + query in x["albumtitle"].lower() else 2),len(x["albumtitle"])))
 
 	# add links
 	artists_result = []
@@ -613,7 +746,22 @@ def search(**keys):
 		}
 		tracks_result.append(result)
 
-	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_]}
+	albums_result = []
+	for al in albums:
+		result = {
+			'album': al,
+			'link': "/album?" + compose_querystring(internal_to_uri({"album":al})),
+			'image': images.get_album_image(al)
+		}
+		mutable_result = result.copy()
+		mutable_result['album'] = result['album'].copy()
+		if not mutable_result['album']['artists']: mutable_result['album']['displayArtist'] = malojaconfig["DEFAULT_ALBUM_ARTIST"]
+		# we don't wanna actually mutate the dict here because this is in the cache
+		# TODO: This should be globally solved!!!!! immutable dicts with mutable overlays???
+		# this is a major flaw in the architecture!
+		albums_result.append(mutable_result)
+
+	return {"artists":artists_result[:max_],"tracks":tracks_result[:max_],"albums":albums_result[:max_]}
 
 
 @api.post("newrule")
@@ -708,6 +856,16 @@ def edit_track(id,title):
 		"status":"success"
 	}
 
+@api.post("edit_album")
+@authenticated_function(api=True)
+@catch_exceptions
+def edit_album(id,albumtitle):
+	"""Internal Use Only"""
+	result = database.edit_album(id,{'albumtitle':albumtitle})
+	return {
+		"status":"success"
+	}
+
 
 @api.post("merge_tracks")
 @authenticated_function(api=True)
@@ -716,7 +874,8 @@ def merge_tracks(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_tracks(target_id,source_ids)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"{', '.join(src['title'] for src in result['sources'])} were merged into {result['target']['title']}"
 	}
 
 @api.post("merge_artists")
@@ -726,8 +885,56 @@ def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
 	result = database.merge_artists(target_id,source_ids)
 	return {
-		"status":"success"
+		"status":"success",
+		"desc":f"{', '.join(src for src in result['sources'])} were merged into {result['target']}"
 	}
+
+@api.post("merge_albums")
+@authenticated_function(api=True)
+@catch_exceptions
+def merge_artists(target_id,source_ids):
+	"""Internal Use Only"""
+	result = database.merge_albums(target_id,source_ids)
+	return {
+		"status":"success",
+		"desc":f"{', '.join(src['albumtitle'] for src in result['sources'])} were merged into {result['target']['albumtitle']}"
+	}
+
+@api.post("associate_albums_to_artist")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_albums_to_artist(target_id,source_ids,remove=False):
+	result = database.associate_albums_to_artist(target_id,source_ids,remove=remove)
+	descword = "removed" if remove else "added"
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{result['target']} was {descword} as album artist of {', '.join(src['albumtitle'] for src in result['sources'])}"
+		}
+
+@api.post("associate_tracks_to_artist")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_tracks_to_artist(target_id,source_ids,remove=False):
+	result = database.associate_tracks_to_artist(target_id,source_ids,remove=remove)
+	descword = "removed" if remove else "added"
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{result['target']} was {descword} as artist for {', '.join(src['title'] for src in result['sources'])}"
+		}
+
+@api.post("associate_tracks_to_album")
+@authenticated_function(api=True)
+@catch_exceptions
+def associate_tracks_to_album(target_id,source_ids):
+	result = database.associate_tracks_to_album(target_id,source_ids)
+	if result:
+		return {
+			"status":"success",
+			"desc":f"{', '.join(src['title'] for src in result['sources'])} were " + f"added to {result['target']['albumtitle']}" if target_id else "removed from their album"
+		}
+
 
 @api.post("reparse_scrobble")
 @authenticated_function(api=True)

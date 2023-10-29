@@ -1,9 +1,7 @@
 # technical
-import sys
 import os
 from threading import Thread
 from importlib import resources
-import datauri
 import time
 
 
@@ -19,9 +17,10 @@ from doreah import auth
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
-from .images import resolve_track_image, resolve_artist_image
+from .images import image_request
 from .malojauri import uri_to_internal, remove_identical
 from .pkg_global.conf import malojaconfig, data_dir
+from .pkg_global import conf
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
 
@@ -120,20 +119,14 @@ def deprecated_api(pth):
 @webserver.route("/image")
 def dynamic_image():
 	keys = FormsDict.decode(request.query)
-	if keys['type'] == 'track':
-		result = resolve_track_image(keys['id'])
-	elif keys['type'] == 'artist':
-		result = resolve_artist_image(keys['id'])
+	result = image_request(**{k:int(keys[k]) for k in keys})
 
-	if result is None or result['value'] in [None,'']:
-		return ""
-	if result['type'] == 'raw':
-		# data uris are directly served as image because a redirect to a data uri
-		# doesnt work
-		duri = datauri.DataURI(result['value'])
-		response.content_type = duri.mimetype
-		return duri.data
-	if result['type'] == 'url':
+	if result['type'] == 'noimage' and result['value'] == 'wait':
+		# still being worked on
+		response.status = 202
+		response.set_header('Retry-After',15)
+		return
+	if result['type'] in ('url','localurl'):
 		redirect(result['value'],307)
 
 @webserver.route("/images/<pth:re:.*\\.jpeg>")
@@ -160,6 +153,9 @@ def static_image(pth):
 	resp.set_header("Content-Type", "image/" + ext)
 	return resp
 
+@webserver.route("/cacheimages/<uuid>")
+def static_proxied_image(uuid):
+	return static_file(uuid,root=data_dir['cache']('images'))
 
 @webserver.route("/login")
 def login():
@@ -218,8 +214,8 @@ def jinja_page(name):
 			res = template.render(**loc_context)
 		except TemplateNotFound:
 			abort(404,f"Not found: '{name}'")
-		except (ValueError, IndexError):
-			abort(404,"This Artist or Track does not exist")
+		#except (ValueError, IndexError):
+		#	abort(404,"This Artist or Track does not exist")
 
 	if malojaconfig["DEV_MODE"]: jinja_environment.cache.clear()
 
@@ -283,6 +279,8 @@ logging.getLogger().addHandler(WaitressLogHandler())
 
 
 def run_server():
+	conf.AUX_MODE = False
+
 	log("Starting up Maloja server...")
 
 	## start database

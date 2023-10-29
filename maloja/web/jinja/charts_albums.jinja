@@ -1,0 +1,52 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - Album Charts{% endblock %}
+
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/filterdescription.jinja' as filterdesc %}
+
+{% block scripts %}
+	<script src="/datechange.js" async></script>
+{% endblock %}
+
+{% set charts = dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
+{% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
+{% if charts[0] is defined %}
+	{% set topalbum = charts[0].album %}
+	{% set img = images.get_album_image(topalbum) %}
+{% else %}
+	{% set img = "/favicon.png" %}
+{% endif %}
+
+
+{% block content %}
+
+<table class="top_info">
+	<tr>
+		<td class="image">
+			<div style="background-image:url('{{ img }}')"></div>
+		</td>
+		<td class="text">
+			<h1>Album Charts</h1><a href="/top_albums"><span>View #1 Albums</span></a><br/>
+			{{ filterdesc.desc(filterkeys,limitkeys) }}
+			<br/><br/>
+			{% with delimitkeys = {} %}
+			{% include 'snippets/timeselection.jinja' %}
+			{% endwith %}
+
+		</td>
+	</tr>
+</table>
+
+{% if settings['CHARTS_DISPLAY_TILES'] %}
+	{% include 'partials/charts_albums_tiles.jinja' %}
+	<br/><br/>
+{% endif %}
+
+{% with compare=true %}
+{% include 'partials/charts_albums.jinja' %}
+{% endwith %}
+
+{% import 'snippets/pagination.jinja' as pagination %}
+{{ pagination.pagination(filterkeys,limitkeys,delimitkeys,amountkeys,pages) }}
+
+{% endblock %}

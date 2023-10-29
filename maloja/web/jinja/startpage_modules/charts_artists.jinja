@@ -1,0 +1,19 @@
+<h1><a class="stat_link_topartists" href="/charts_artists?in=alltime">Top Artists</a></h1>
+
+{% for r in xcurrent -%}
+	<span onclick="showStatsManual('topartists','{{ r.identifier }}')" class="stat_selector_topartists selector_topartists_{{ r.identifier }}">
+		{{ r.localisation }}
+	</span>
+	{{ "|" if not loop.last }}
+{%- endfor %}
+
+<br/><br/>
+
+
+{% for r in xcurrent -%}
+	<section class="stat_module_topartists topartists_{{ r.identifier }}" style="display:none;">
+		{%- with limitkeys = {"timerange":r.range} -%}
+		{% include 'partials/charts_artists_tiles.jinja' %}
+		{%- endwith -%}
+	</section>
+{%- endfor %}

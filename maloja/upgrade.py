@@ -11,6 +11,9 @@ from .pkg_global.conf import data_dir, dir_settings
 from .apis import _apikeys
 
 
+from .database.sqldb import get_maloja_info, set_maloja_info
+
+
 # Dealing with old style tsv files - these should be phased out everywhere
 def read_tsvs(path,types):
 	result = []
@@ -40,7 +43,7 @@ def upgrade_apikeys():
 		except Exception:
 			pass
 
-
+# v2 to v3 iupgrade
 def upgrade_db(callback_add_scrobbles):
 
 	oldfolder = os.path.join(dir_settings['state'],"scrobbles")
@@ -88,3 +91,13 @@ def upgrade_db(callback_add_scrobbles):
 				callback_add_scrobbles(scrobblelist)
 				os.rename(os.path.join(oldfolder,sf),os.path.join(newfolder,sf))
 			log("Done!",color='yellow')
+
+
+# 3.2 album support
+def parse_old_albums():
+	setting_name = "db_upgrade_albums"
+	if get_maloja_info([setting_name]).get(setting_name):
+		pass
+	else:
+		pass
+		#set_maloja_info({setting_name:True})

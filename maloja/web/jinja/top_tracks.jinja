@@ -1,6 +1,7 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - #1 Tracks{% endblock %}
 
+{% import 'snippets/filterdescription.jinja' as filterdesc %}
 
 <!-- find representative -->
 
@@ -17,7 +18,7 @@
 				</td>
 				<td class="text">
 					<h1>#1 Tracks</h1><br/>
-					<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+					{{ filterdesc.desc(filterkeys,limitkeys) }}
 
 					<br/><br/>
 					{% include 'snippets/timeselection.jinja' %}

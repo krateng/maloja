@@ -1,11 +1,16 @@
 {% extends "abstracts/base.jinja" %}
 {% block title %}Maloja - Artist Charts{% endblock %}
 
+{% import 'snippets/filterdescription.jinja' as filterdesc %}
+
 {% block scripts %}
 	<script src="/datechange.js" async></script>
 {% endblock %}
 
-{% set charts = dbc.get_charts_artists(filterkeys,limitkeys) %}
+{% set charts = dbc.get_charts_artists(filterkeys,limitkeys,specialkeys) %}
+
+
+
 {% set pages = math.ceil(charts.__len__() / amountkeys.perpage) %}
 {% if charts[0] is defined %}
 	{% set topartist = charts[0].artist %}
@@ -25,9 +30,9 @@
 		</td>
 		<td class="text">
 			<h1>Artist Charts</h1><a href="/top_artists"><span>View #1 Artists</span></a><br/>
-			<span>{{ limitkeys.timerange.desc(prefix=True) }}</span>
+			{{ filterdesc.desc(filterkeys,limitkeys) }}
 			<br/><br/>
-			{% with delimitkeys = {} %}
+			{% with delimitkeys = {}, artistchart=True %}
 			{% include 'snippets/timeselection.jinja' %}
 			{% endwith %}
 

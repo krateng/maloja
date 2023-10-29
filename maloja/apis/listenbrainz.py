@@ -75,7 +75,7 @@ class Listenbrainz(APIHandler):
 				self.scrobble({
 					'track_artists':[artiststr],
 					'track_title':titlestr,
-					'album_name':albumstr,
+					'album_title':albumstr,
 					'scrobble_time':timestamp,
 					'track_length': additional.get("duration"),
 					**extrafields

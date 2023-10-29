@@ -1,0 +1,144 @@
+{% extends "abstracts/base.jinja" %}
+{% block title %}Maloja - {{ info.album.albumtitle }}{% endblock %}
+
+{% import 'snippets/links.jinja' as links %}
+
+{% block scripts %}
+	<script src="/statselect.js"></script>
+{% endblock %}
+
+{% set album = filterkeys.album %}
+{% set info = dbc.album_info({'album':album}) %}
+
+{% set initialrange ='month' %}
+
+
+{% set encodedalbum = mlj_uri.uriencode({'album':album}) %}
+
+{% block custombodyclasses %}
+    {% if info.certification %}certified certified_{{ info.certification }}{% endif %}
+{% endblock %}
+
+
+{% block icon_bar %}
+	{% if adminmode %}
+		{% include 'icons/edit.jinja' %}
+
+		<div class="iconsubset mergeicons" data-entity_type="album" data-entity_id="{{ info.id }}" data-entity_name="{{ info.album.albumtitle }}">
+		{% include 'icons/merge.jinja' %}
+		{% include 'icons/merge_mark.jinja' %}
+		{% include 'icons/merge_unmark.jinja' %}
+		{% include 'icons/merge_cancel.jinja' %}
+		</div>
+
+		<div class="iconsubset associateicons" data-entity_type="album" data-entity_id="{{ info.id }}" data-entity_name="{{ info.album.albumtitle }}">
+		{% include 'icons/add_album.jinja' %}
+		<!-- no remove album since that is not a specified association - every track only has one album, so the removal should
+		be handled on the track page (or for now, not at all) -->
+		{% include 'icons/association_mark.jinja' %}
+		{% include 'icons/association_unmark.jinja' %}
+		{% include 'icons/association_cancel.jinja' %}
+		</div>
+
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<script>
+	const entity_id = {{ info.id }};
+	const entity_type = 'album';
+	const entity_name = {{ album.albumtitle | tojson }};
+</script>
+
+
+{% import 'partials/awards_album.jinja' as awards %}
+
+
+{% include 'partials/info_album.jinja' %}
+
+<h2><a href='{{ mlj_uri.create_uri("/charts_tracks",filterkeys) }}'>Top Tracks</a></h2>
+
+
+{% with amountkeys={"perpage":16,"page":0} %}
+{% include 'partials/charts_tracks.jinja' %}
+{% endwith %}
+
+<br/>
+
+
+<table class="twopart">
+
+	<tr>
+		<td>
+			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/pulse",filterkeys) }}'>Pulse</a></h2>
+			<br/>
+			{% for r in xranges %}
+			<span
+				onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+				class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
+				style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
+				{{ r.localisation }}
+			</span>
+			{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% for r in xranges %}
+
+			<span
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
+				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
+				>
+
+			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
+			{% include 'partials/pulse.jinja' %}
+			{% endwith %}
+			</span>
+
+			{% endfor %}
+		</td>
+		<td>
+			<!-- We use the same classes / function calls here because we want it to switch together with pulse -->
+			<h2 class="headerwithextra"><a href='{{ mlj_uri.create_uri("/performance",filterkeys) }}'>Performance</a></h2>
+			<br/>
+			{% for r in xranges %}
+				<span
+					onclick="showStatsManual('pulseperformancecombined','{{ r.identifier }}')"
+					class="stat_selector_pulseperformancecombined selector_pulseperformancecombined_{{ r.identifier }}"
+					style="{{ 'opacity:0.5;' if initialrange==r.identifier else '' }}">
+					{{ r.localisation }}
+				</span>
+				{% if not loop.last %}|{% endif %}
+			{% endfor %}
+
+      		<br/><br/>
+
+			{% for r in xranges %}
+
+			<span
+				class="stat_module_pulseperformancecombined pulseperformancecombined_{{ r.identifier }}"
+				style="{{ 'display:none;' if initialrange!=r.identifier else '' }}"
+				>
+
+			{% with limitkeys={"since":r.firstrange},delimitkeys={'step':r.identifier,'trail':1} %}
+			{% include 'partials/performance.jinja' %}
+			{% endwith %}
+			</span>
+
+			{% endfor %}
+
+		</td>
+	</tr>
+</table>
+
+
+<h2><a href='{{ mlj_uri.create_uri("/scrobbles",filterkeys) }}'>Last Scrobbles</a></h2>
+
+{% with amountkeys = {"perpage":16,"page":0} %}
+{% include 'partials/scrobbles.jinja' %}
+{% endwith %}
+
+
+{% endblock %}

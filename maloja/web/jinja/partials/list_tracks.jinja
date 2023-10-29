@@ -1,0 +1,27 @@
+{% import 'snippets/links.jinja' as links %}
+{% import 'snippets/entityrow.jinja' as entityrow %}
+
+
+
+{% set firstindex = amountkeys.page * amountkeys.perpage %}
+{% set lastindex = firstindex + amountkeys.perpage %}
+
+
+<table class='list'>
+	{% for e in list %}
+		{% if loop.index0 >= firstindex and loop.index0 < lastindex %}
+		<tr class="listrow associateicons mergeicons" data-entity_id="{{ e['track_id'] }}" data-entity_type="track" data-entity_name="{{ e['track'].title }}">
+
+			<!-- artist -->
+			{{ entityrow.row(e['track'],adminmode=adminmode) }}
+
+		</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+<script>
+
+
+
+</script>

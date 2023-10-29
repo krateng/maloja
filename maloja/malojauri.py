@@ -4,7 +4,7 @@ import urllib
 import math
 
 # this also sets defaults!
-def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
+def uri_to_internal(keys,accepted_entities=('artist','track','album'),forceTrack=False,forceArtist=False,forceAlbum=False,api=False):
 
 	# output:
 	# 1	keys that define the filtered object like artist or track
@@ -12,14 +12,33 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
 	# 3	keys that define interal time ranges
 	# 4	keys that define amount limits
 
+	# if we force a type, that only means that the other types are not allowed
+	# it could still have no type at all (any call that isn't filtering by entity)
+
+	if forceTrack: accepted_entities = ('track',)
+	if forceArtist: accepted_entities = ('artist',)
+	if forceAlbum: accepted_entities = ('album',)
+
+	# API backwards compatibility
+	if "artist" in keys and "artist" not in accepted_entities:
+		if "track" in accepted_entities:
+			keys['trackartist'] = keys['artist']
+		elif "album" in accepted_entities:
+			keys['albumartist'] = keys['artist']
+
+
 	# 1
-	if "title" in keys and not forceArtist:
-		filterkeys = {"track":{"artists":keys.getall("artist"),"title":keys.get("title")}}
-	elif "artist" in keys and not forceTrack:
-		filterkeys = {"artist":keys.get("artist")}
-		if "associated" in keys: filterkeys["associated"] = True
-	else:
-		filterkeys = {}
+	filterkeys = {}
+	if "track" in accepted_entities and "title" in keys:
+		filterkeys.update({"track":{"artists":keys.getall("trackartist"),"title":keys.get("title")}})
+	if "artist" in accepted_entities and "artist" in keys:
+		filterkeys.update({"artist": keys.get("artist"), "associated": (keys.get('associated', 'no').lower() == 'yes')})
+		# associated is only used for filtering by artist, to indicate that we include associated artists
+		# for actual artist charts, to show that we want to count them, use 'unified'
+	if "album" in accepted_entities and "albumtitle" in keys:
+		filterkeys.update({"album":{"artists":keys.getall("albumartist"),"albumtitle":keys.get("albumtitle")}})
+
+
 
 	# 2
 	limitkeys = {}
@@ -51,11 +70,20 @@ def uri_to_internal(keys,forceTrack=False,forceArtist=False,api=False):
 	#different max than the internal one! the user doesn't get to disable pagination
 	if "page" in keys: amountkeys["page"] = int(keys["page"])
 	if "perpage" in keys: amountkeys["perpage"] = int(keys["perpage"])
-
+	#amountkeys["reverse"] = (keys.get("reverse","no").lower() == "yes")
+	# we have different defaults for different things, so here we need to actually pass true false or nothing dependent
+	# on whether its specified
+	if keys.get("reverse","").lower() == 'yes': amountkeys['reverse'] = True
+	elif keys.get("reverse","").lower() == 'no': amountkeys['reverse'] = False
 
 	#5
 	specialkeys = {}
-	if "remote" in keys: specialkeys["remote"] = keys["remote"]
+	#if "remote" in keys: specialkeys["remote"] = keys["remote"]
+	specialkeys["separate"] = (keys.get('separate','no').lower() == 'yes')
+	for k in keys:
+		if k in ['remote','b64']:
+			# TODO: better solution!
+			specialkeys[k] = keys[k]
 
 
 	return filterkeys, limitkeys, delimitkeys, amountkeys, specialkeys
@@ -80,10 +108,15 @@ def internal_to_uri(keys):
 	if "artist" in keys:
 		urikeys.append("artist",keys["artist"])
 		if keys.get("associated"): urikeys.append("associated","yes")
-	elif "track" in keys:
+	if "track" in keys:
 		for a in keys["track"]["artists"]:
-			urikeys.append("artist",a)
+			urikeys.append("trackartist",a)
 		urikeys.append("title",keys["track"]["title"])
+	if "album" in keys:
+		for a in keys["album"].get("artists") or []:
+			urikeys.append("albumartist",a)
+		urikeys.append("albumtitle",keys["album"]["albumtitle"])
+
 
 	#time
 	if "timerange" in keys:
@@ -116,6 +149,11 @@ def internal_to_uri(keys):
 		urikeys.append("page",str(keys["page"]))
 	if "perpage" in keys:
 		urikeys.append("perpage",str(keys["perpage"]))
+	if "reverse" in keys:
+		urikeys.append("reverse","yes" if keys['reverse'] else "no")
+
+	if keys.get("separate",False):
+		urikeys.append("separate","yes")
 
 
 	return urikeys

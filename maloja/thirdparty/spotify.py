@@ -14,10 +14,12 @@ class Spotify(MetadataInterface):
 	}
 
 	metadata = {
-		"trackurl": "https://api.spotify.com/v1/search?q=artist:{artist}%20track:{title}&type=track&access_token={token}",
-		"artisturl": "https://api.spotify.com/v1/search?q=artist:{artist}&type=artist&access_token={token}",
+		"trackurl": "https://api.spotify.com/v1/search?q={title}%20artist:{artist}&type=track&access_token={token}",
+		"albumurl": "https://api.spotify.com/v1/search?q={title}%20artist:{artist}&type=album&access_token={token}",
+		"artisturl": "https://api.spotify.com/v1/search?q={artist}&type=artist&access_token={token}",
 		"response_type":"json",
-		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"],
+		"response_parse_tree_track": ["tracks","items",0,"album","images",0,"url"], # use album art
+		"response_parse_tree_album": ["albums","items",0,"images",0,"url"],
 		"response_parse_tree_artist": ["artists","items",0,"images",0,"url"],
 		"required_settings": ["apiid","secret"],
 	}
@@ -44,7 +46,7 @@ class Spotify(MetadataInterface):
 				else:
 					expire = responsedata.get("expires_in",3600)
 					self.settings["token"] = responsedata["access_token"]
-					log("Successfully authenticated with Spotify")
+					#log("Successfully authenticated with Spotify")
 				Timer(expire,self.authorize).start()
 			except Exception as e:
 				log("Error while authenticating with Spotify: " + repr(e))

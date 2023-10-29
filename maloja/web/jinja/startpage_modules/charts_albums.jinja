@@ -1,0 +1,19 @@
+<h1><a class="stat_link_topalbums" href="/charts_albums?in=alltime">Top Albums</a></h1>
+
+{% for r in xcurrent -%}
+	<span onclick="showStatsManual('topalbums','{{ r.identifier }}')" class="stat_selector_topalbums selector_topalbums_{{ r.identifier }}">
+		{{ r.localisation }}
+	</span>
+	{{ "|" if not loop.last }}
+{%- endfor %}
+
+<br/><br/>
+
+
+{% for r in xcurrent -%}
+	<section class="stat_module_topalbums topalbums_{{ r.identifier }}" style="display:none;">
+		{%- with limitkeys = {"timerange":r.range} -%}
+		{% include 'partials/charts_albums_tiles.jinja' %}
+		{%- endwith -%}
+	</section>
+{%- endfor %}

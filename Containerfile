@@ -12,6 +12,7 @@ COPY --chown=abc:abc ./requirements.txt ./requirements.txt
 # it may be possible to decrease image size slightly by using build stage and
 # copying all site-packages to runtime stage but the image is already pretty small
 RUN \
+  echo "" && \
   echo "**** install build packages ****" && \
 	apk add --no-cache --virtual=build-deps \
 		gcc \
@@ -23,18 +24,22 @@ RUN \
 		libc-dev \
 		py3-pip \
 		linux-headers && \
+  echo "" && \
 	echo "**** install runtime packages ****" && \
 	apk add --no-cache \
 		python3 \
 		py3-lxml \
 		tzdata && \
+  echo "" && \
 	echo "**** install pip dependencies ****" && \
 	python3 -m ensurepip && \
   pip3 install -U --no-cache-dir \
 	  pip \
 	  wheel && \
+  echo "" && \
   echo "**** install maloja requirements ****" && \
   pip3 install --no-cache-dir -r requirements.txt && \
+  echo "" && \
 	echo "**** cleanup ****" && \
 	apk del --purge \
 		build-deps && \
@@ -47,6 +52,7 @@ RUN \
 COPY --chown=abc:abc . .
 
 RUN \
+  echo "" && \
 	echo "**** install maloja ****" && \
 	apk add --no-cache --virtual=install-deps \
 	  py3-pip && \

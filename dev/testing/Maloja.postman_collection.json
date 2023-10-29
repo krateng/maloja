@@ -189,7 +189,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{data.artist1}}\",\n    \"title\": \"{{data.title1}}\"\n}"
+									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artist\": \"{{data.artist1}}\",\n    \"title\": \"{{data.title1}}\",\n    \"album\": \"{{data.album}}\",\n    \"albumartists\":[\n        \"{{data.artist1}}\",\n        \"{{data.artist3}}\"\n    ]\n}"
 								},
 								"url": {
 									"raw": "{{url}}/apis/mlj_1/newscrobble",
@@ -219,7 +219,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artists\": [\"{{data.artist1}}\",\"{{data.artist2}}\"],\n    \"title\": \"{{data.title1}}\"\n}"
+									"raw": "{\n    \"key\": \"{{api_key}}\",\n    \"artists\": [\"{{data.artist1}}\",\"{{data.artist2}}\"],\n    \"title\": \"{{data.title1}}\",\n    \"album\": \"{{data.album}}\",\n    \"albumartists\":[\n        \"{{data.artist1}}\",\n        \"{{data.artist3}}\"\n    ]\n}"
 								},
 								"url": {
 									"raw": "{{url}}/apis/mlj_1/newscrobble",
@@ -866,6 +866,11 @@
 		{
 			"key": "data.title3",
 			"value": "One in a Million"
+		},
+		{
+			"key": "data.album",
+			"value": "The Epic Collection",
+			"type": "default"
 		},
 		{
 			"key": "data.timestamp1",

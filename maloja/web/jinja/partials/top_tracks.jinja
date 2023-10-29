@@ -12,7 +12,7 @@
 	{% set thisrange = e.range %}
 	{% set track = e.track %}
 	<tr>
-		<td>{{ thisrange.desc() }}</td>
+		<td><a href="{{ mlj_uri.create_uri("/charts_tracks",{'timerange':thisrange}) }}">{{ thisrange.desc() }}</a></td>
 
 		{% if track is none %}
 			<td><div></div></td>

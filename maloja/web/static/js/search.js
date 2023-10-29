@@ -23,11 +23,13 @@ function html_to_fragment(html) {
 
 var results_artists;
 var results_tracks;
+var results_albums;
 var searchresultwrap;
 
 window.addEventListener("DOMContentLoaded",function(){
 	results_artists = document.getElementById("searchresults_artists");
 	results_tracks = document.getElementById("searchresults_tracks");
+	results_albums = document.getElementById("searchresults_albums");
 	searchresultwrap = document.getElementById("resultwrap");
 });
 
@@ -50,14 +52,18 @@ function searchresult() {
 		// any older searches are now rendered irrelevant
 		while (searches[0] != this) { searches.splice(0,1) }
 		var result = JSON.parse(this.responseText);
-		var artists = result["artists"].slice(0,5)
-		var tracks = result["tracks"].slice(0,5)
+		var artists = result["artists"].slice(0,4)
+		var tracks = result["tracks"].slice(0,4)
+		var albums = result["albums"].slice(0,4)
 
 		while (results_artists.firstChild) {
 			results_artists.removeChild(results_artists.firstChild);
 		}
 		while (results_tracks.firstChild) {
 			results_tracks.removeChild(results_tracks.firstChild);
+		}
+		while (results_albums.firstChild) {
+			results_albums.removeChild(results_albums.firstChild);
 		}
 
 		for (var i=0;i<artists.length;i++) {
@@ -86,6 +92,21 @@ function searchresult() {
 			node.children[1].children[2].textContent = title;
 
 			results_tracks.appendChild(node);
+		}
+		for (var i=0;i<albums.length;i++) {
+
+			artists = albums[i]["album"].hasOwnProperty("displayArtist") ? albums[i]["album"]["displayArtist"] : albums[i]["album"]["artists"].join(", ");
+			albumtitle = albums[i]["album"]["albumtitle"];
+			link = albums[i]["link"];
+			image = albums[i]["image"];
+
+			var node = oneresult.cloneNode(true);
+			node.setAttribute("onclick","goto('" + link + "')");
+			node.children[0].style.backgroundImage = "url('" + image + "')";
+			node.children[1].children[0].textContent = artists;
+			node.children[1].children[2].textContent = albumtitle;
+
+			results_albums.appendChild(node);
 		}
 		searchresultwrap.classList.remove("hide")
 

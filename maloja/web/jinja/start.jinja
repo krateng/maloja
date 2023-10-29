@@ -3,109 +3,28 @@
 
 {% block scripts %}
 
-	<script>document.addEventListener('DOMContentLoaded',function() {
-		showRange('topartists','{{ settings["DEFAULT_RANGE_CHARTS_ARTISTS"] }}');
-		showRange('toptracks','{{ settings["DEFAULT_RANGE_CHARTS_TRACKS"] }}');
-		showRange('pulse','{{ settings["DEFAULT_STEP_PULSE"] }}');
-	})</script>
-	<script src="/rangeselect.js"></script>
-	<script src="/cookies.js"></script>
+<script src="/statselect.js"></script>
+
+	<link rel="stylesheet" href="/static/css/startpage.css" />
 {% endblock %}
 
 {% block content -%}
 
-
-		<!-- ARTIST CHARTS -->
-		<h1><a class="stat_link_topartists" href="/charts_artists?in=alltime">Top Artists</a></h1>
-
-		{% for r in xcurrent -%}
-			<span onclick="showRangeManual('topartists','{{ r.identifier }}')" class="stat_selector_topartists selector_topartists_{{ r.identifier }}">
-				{{ r.localisation }}
-			</span>
-			{{ "|" if not loop.last }}
-		{%- endfor %}
-
-		<br/><br/>
+	<div id="startpage">
 
 
-		{% for r in xcurrent -%}
-			<span class="stat_module_topartists topartists_{{ r.identifier }}" style="display:none;">
-				{%- with limitkeys = {"timerange":r.range} -%}
-				{% include 'partials/charts_artists_tiles.jinja' %}
-				{%- endwith -%}
-			</span>
-		{%- endfor %}
+	{% for module in ['charts_artists','charts_tracks','charts_albums','pulse','lastscrobbles'] %}
+	<section id="start_page_module_{{ module }}" style="grid-area: {{ module }}">
+	<!-- MODULE: {{ module }} -->
+
+	{% include 'startpage_modules/' + module + '.jinja' %}
 
 
+	<!-- END MODULE: {{ module }} -->
+	</section>
+	{% endfor %}
 
+	</div>
 
-		<!-- TRACK CHARTS -->
-		<h1><a class="stat_link_toptracks" href="/charts_tracks?in=alltime">Top Tracks</a></h1>
-
-		{% for r in xcurrent -%}
-			<span onclick="showRangeManual('toptracks','{{ r.identifier }}')" class="stat_selector_toptracks selector_toptracks_{{ r.identifier }}">
-				{{ r.localisation }}
-			</span>
-			{{ "|" if not loop.last }}
-		{%- endfor %}
-
-		<br/><br/>
-
-
-		{% for r in xcurrent -%}
-			<span class="stat_module_toptracks toptracks_{{ r.identifier }}" style="display:none;">
-				{%- with limitkeys = {"timerange":r.range} -%}
-				{% include 'partials/charts_tracks_tiles.jinja' %}
-				{%- endwith -%}
-			</span>
-		{%- endfor %}
-
-
-		<div class="sidelist">
-			<!-- SCROBBLES -->
-
-			<h1><a href="/scrobbles">Last Scrobbles</a></h1>
-
-			{% for range in xcurrent %}
-				<span class="stats">{{ range.localisation }}</span>
-				<a href='/scrobbles?in={{ range.identifier }}'>{{ dbc.get_scrobbles_num({'timerange':range.range}) }}</a>
-			{% endfor %}
-			<br/><br/>
-
-			<span class="stat_module">
-
-
-				{%- with amountkeys = {"perpage":12,"page":0}, shortTimeDesc=True -%}
-				{% include 'partials/scrobbles.jinja' %}
-				{%- endwith -%}
-			</span>
-
-
-			<br/>
-
-
-
-
-			<!-- PULSE -->
-			<h1><a class="stat_link_pulse" href="/pulse?trail=1&step=month">Pulse</a></h1>
-
-			{% for range in xranges -%}
-				<span onclick="showRangeManual('pulse','{{ range.identifier }}')" class="stat_selector_pulse selector_pulse_{{ range.identifier }}">
-					{{ range.localisation }}
-				</span>
-				{{ "|" if not loop.last }}
-			{%- endfor %}
-			<br/><br/>
-
-			{% for range in xranges -%}
-				<span class="stat_module_pulse pulse_{{ range.identifier }}" style="display:none;">
-					{%- with limitkeys={"since":range.firstrange},delimitkeys={"step":range.identifier} -%}
-					{% include 'partials/pulse.jinja' %}
-					{%- endwith -%}
-				</span>
-			{%- endfor %}
-
-
-		</div>
 
 {%- endblock %}

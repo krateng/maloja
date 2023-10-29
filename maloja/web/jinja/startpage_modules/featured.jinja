@@ -1,0 +1,65 @@
+<!-- TODO: THIS IS PRELIMINARY. not sure if i want to keep this, but for now let's fill up that empty slot on the start page -->
+
+<h1>Featured</h1>
+
+{% set featured = dbc.get_featured() %}
+
+{% set entitytypes = [
+	{'identifier':'artist','localisation':"Artist", 'template':"info_artist.jinja", 'filterkeys':{"artist": featured.artist } },
+	{'identifier':'track','localisation':"Track", 'template':"info_track.jinja", 'filterkeys':{"track": featured.track } },
+	{'identifier':'album','localisation':"Album", 'template':"info_album.jinja", 'filterkeys':{"album": featured.album } }
+] %}
+
+
+{% for t in entitytypes -%}
+	<span onclick="showStatsManual('featured','{{ t.identifier }}')" class="stat_selector_featured selector_featured_{{ t.identifier }}">
+		{{ t.localisation }}
+	</span>
+	{{ "|" if not loop.last }}
+{%- endfor %}
+
+<br/><br/><br/>
+
+
+{% for t in entitytypes -%}
+	<section class="stat_module_featured featured_{{ t.identifier }}" style="display:none;">
+		{%- with filterkeys = t.filterkeys -%}
+		{%- with condensed = true -%}
+		{% if filterkeys[t.identifier] %}
+			{% include 'partials/' + t.template %}
+		{% endif %}
+		{%- endwith -%}
+		{%- endwith -%}
+	</section>
+{%- endfor %}
+
+
+
+
+<script>
+function showFeatured(t) {
+	// Make all modules disappear
+	var modules = document.getElementsByClassName("stat_module_featured");
+	for (var i=0;i<modules.length;i++) {
+		modules[i].setAttribute("style","display:none;");
+	}
+
+	// Make requested module appear
+	var reactivate = document.getElementsByClassName("featured_" + t);
+	for (var i=0;i<reactivate.length;i++) {
+		reactivate[i].setAttribute("style","");
+	}
+
+	// Set all selectors to unselected
+	var selectors = document.getElementsByClassName("stat_selector_featured");
+	for (var i=0;i<selectors.length;i++) {
+		selectors[i].setAttribute("style","");
+	}
+
+	// Set the active selector to selected
+	var reactivate = document.getElementsByClassName("stat_selector_featured_" + t);
+	for (var i=0;i<reactivate.length;i++) {
+		reactivate[i].setAttribute("style","opacity:0.5;");
+	}
+}
+</script>

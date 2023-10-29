@@ -1,9 +1,18 @@
 @import url("/grisons.css");
 
+:root {
+    --color-certified-diamond: 103, 161, 253;
+    --color-certified-platinum: 229, 228, 226;
+    --color-certified-gold: 255, 215, 0;
+
+    --color-rank-gold: var(--color-certified-gold);
+    --color-rank-silver: 192, 192, 192;
+    --color-rank-bronze: 205, 127, 50;
+}
 
 body {
 	padding:15px;
-	padding-bottom:35px;
+	padding-bottom:60px;
 	/**
 	padding-top:45px;
 	padding-bottom:25px;
@@ -11,6 +20,35 @@ body {
 /*
 	font-size:1.65vh;
 */
+}
+
+
+body.certified {
+    background: radial-gradient(circle at top left, rgba(var(--certification-color),0.5) 0%, var(--current-bg-color) 20%);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height:100%;
+}
+
+/* just make sure that whenever anything is certified, we set this variable.
+ how its used is the job of the specific elements */
+.certified_diamond {
+    --certification-color: var(--color-certified-diamond);
+}
+.certified_platinum{
+    --certification-color: var(--color-certified-platinum);
+}
+.certified_gold {
+    --certification-color: var(--color-certified-gold);
+}
+.certified_None {
+    --certification-color: none;
+    /* overwrite this for non-certified elements on certified pages (albums of artist) */
+}
+
+.certified.smallcerticon svg {
+    fill: rgba(var(--certification-color),1);
 }
 
 
@@ -67,6 +105,10 @@ div#icon_bar {
 	right:30px;
 	top:30px;
 }
+.iconsubset {
+	display: inline-block;
+	padding-left:20px;
+}
 
 div#icon_bar div.clickable_icon {
 	display: inline-block;
@@ -83,51 +125,165 @@ div.clickable_icon.danger:hover svg {
 	fill: red;
 }
 
+#icon_bar svg {
+	width:24px;
+	height:24px;
+}
+.list svg {
+	height:16px;
+}
+.list div.clickable_icon {
+	display: inline-block;
+}
 
+.list {
+	--color_bg_merge: rgba(0,0,90,0.7);
+	--color_fg_merge: lightblue;
+	--color_bg_associate: rgba(50,20,0,0.7);
+	--color_fg_associate: orange;
+}
+
+.list tr.marked_for_associate {
+	background-color: var(--color_bg_associate);
+	color: var(--color_fg_associate);
+}
+.list tr.marked_for_merge {
+	background-color: var(--color_bg_merge);
+	color: var(--color_fg_merge);;
+}
+
+@keyframes slideBackground {
+  0% {
+    background-position: 100% 0;
+  }
+	50% {
+		background-position: 0 0;
+	}
+  100% {
+    background-position: 100% 0;
+  }
+}
+@keyframes colorChange {
+  0% {
+    color: var(--color_fg_associate);
+  }
+  50% {
+    color: var(--color_fg_merge);
+  }
+  100% {
+    color: var(--color_fg_associate);
+  }
+}
+
+.list tr.marked_for_associate.marked_for_merge {
+	background: linear-gradient(to left, var(--color_bg_associate), var(--color_bg_merge));
+  background-size: 100% 100%;
+  animation: colorChange 4s infinite ease-in-out;
+}
+
+
+/* this is just to 'factor out' that big selector down there.
+we want icons to not be displayed in list rows, but show them with reduced opacity in the top bar */
+.list {
+	--display_inactive_icons: none;
+}
+#icon_bar {
+	--display_inactive_icons: inline-block;
+}
+
+.associateicons.marked_for_associate .associationmarkicon, /* already marked, cant mark again */
+.associateicons:not(.marked_for_associate) .associationunmarkicon, /* not marked, cant unmark */
+.associateicons:not(.somethingmarked_for_associate) .associatecancelicon, /* cant cancel when nothing is marked */
+.mergeicons.marked_for_merge #mergemarkicon, /* already marked, cant mark again */
+.mergeicons:not(.marked_for_merge) #mergeunmarkicon, /* not marked, cant unmark */
+.mergeicons:not(.somethingmarked_for_merge) #mergecancelicon, /* cant cancel when nothing is marked */
+.mergeicons:not(.somethingmarked_for_merge) #mergeicon, /* can't merge when nothing is selected */
+.mergeicons.marked_for_merge #mergeicon, /* cant merge into one of the things we have selected */
+.associateicons:not(.sources_marked_for_associate) #associatealbumicon,
+.associateicons:not(.sources_marked_for_associate) #associateartisticon,
+.associateicons:not(.sources_marked_for_associate) #removealbumicon,
+.associateicons:not(.sources_marked_for_associate) #removeartisticon /* nothing marked yet, can't associate with this */
+ {
+	pointer-events: none;
+	opacity:0.5;
+	display: var(--display_inactive_icons);
+}
 
 /**
 Footer
 **/
 
-div.footer {
+div#footer {
 	position:fixed;
+	bottom:0;
+	left:0;
+	right:0;
+	padding-left:20px;
+	padding-right:20px;
 	height:20px;
-	/**width:100%;**/
+
 	background-color: var(--base-color-dark);
-	bottom:0px;
-	left:0px;
-	right:0px;
+
+	display: flex;
+    align-items: center;
+
 	padding:10px;
 	opacity:1;
 }
 
-div.footer div:nth-child(1) {
-	display:inline-block;
-	width:40%;
-	text-align:left;
-}
-div.footer div:nth-child(2) {
-	display:inline-block;
-	width:19%;
-	text-align:center;
-	color:gold;
-	font-size:110%;
-}
-div.footer div:nth-child(3) {
-	display:inline-block;
-	width:40%;
-	text-align:right;
+#left-side, #right-side {
+  flex: 1;
 }
 
-div.footer span a {
-	/*padding-left:20px;*/
-	background-repeat:no-repeat;
-	background-size:contain;
-	background-position:left;
-	/*background-image:url("https://github.com/favicon.ico");*/
+#left-side {
+  text-align: left;
+  padding-left: 10px;
 }
 
-div.footer input {
+#right-side {
+  text-align: right;
+  padding-right: 10px;
+}
+
+#notch {
+
+   --notch-size: 70px;
+  background-color: var(--base-color-dark);
+  width: var(--notch-size);
+  height: var(--notch-size);
+  position: relative;
+  margin-top: -5px;
+  z-index: 1;
+
+  border-radius: 50%;
+  transform: translate(0%, -40%);
+}
+
+#notch img {
+  --notch-img-size: 80px;
+  position: absolute;
+  top: calc((var(--notch-size) - var(--notch-img-size)) / 2);
+  left: calc((var(--notch-size) - var(--notch-img-size)) / 2);
+
+  width: var(--notch-img-size);
+  height: auto;
+
+}
+#notch img:hover {
+    /*transform: scale(1.1);*/
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    } to {
+        transform: rotate(360deg);
+    }
+}
+
+
+div#footer input {
 	background-color:inherit;
 	border:0px;
 	border-bottom:1px solid beige;
@@ -141,7 +297,7 @@ div.footer input {
 	font-family:"Ubuntu";
 }
 
-div.footer input:focus {
+div#footer input:focus {
 	outline:none;
 	/**background-color:rgba(245,245,220,0.05);**/
 
@@ -189,7 +345,7 @@ div.searchresults tr td:nth-child(2) {
 	padding-left:10px;
 }
 
-div.searchresults table.searchresults_tracks td span:nth-child(1) {
+div.searchresults table.searchresults_extrainfo td span:nth-child(1) {
 	font-size:12px;
 	color:grey;
 
@@ -209,7 +365,7 @@ div#notification_area {
 div#notification_area div.notification {
 	background-color:white;
 	width:400px;
-	height:50px;
+	min-height:50px;
 	margin-bottom:7px;
 	padding:9px;
 	opacity:0.4;
@@ -221,38 +377,12 @@ div#notification_area div.notification:hover {
 
 @media (max-width: 1000px) {
 
-	div.footer {
-		position:fixed;
-		/*height:30px;*/
-		/**width:100%;**/
-		background-color: var(--base-color-dark);
-		bottom:0px;
-		left:0px;
-		right:0px;
-		padding:3px;
-		opacity:1;
-	}
-
-	div.footer div:nth-child(1) {
+	div#footer #left-side {
 		display:none;
 	}
-	div.footer div:nth-child(2) {
-		display:inline-block;
-		width:20%;
-		text-align:center;
-		color:gold;
-	}
-	div.footer div:nth-child(3) {
-		display:inline-block;
-		width:70%;
+	div#footer #right-side {
 		text-align:right;
 	}
-
-	div.footer input {
-
-		width:90%;
-	}
-
 
 }
 
@@ -390,11 +520,29 @@ h2.headerwithextra+span.afterheader {
 	padding:3px;
 	margin:2px;
 	border-radius:2px;
+	color:black;
+	--shine-color: 255, 255, 255;
+	background-color: rgba(var(--rank-color),1);
 }
+.medal.gold {
+    --rank-color: var(--color-rank-gold);
+}
+.medal.silver {
+    --rank-color: var(--color-rank-silver);
+}
+.medal.bronze {
+    --rank-color: var(--color-rank-bronze);
+}
+
 .shiny {
 	overflow: hidden;
 	position:relative;
 	display: inline-block;
+}
+
+.alwaysshiny {
+    /* alwaysshiny elements in general use the certification color for their shine */
+    --shine-color: var(--certification-color);
 }
 
 .shiny:after {
@@ -410,13 +558,14 @@ h2.headerwithextra+span.afterheader {
   background: rgba(255, 255, 255, 0.13);
   background: linear-gradient(
     to right,
-    rgba(255, 255, 255, 0.13) 0%,
-    rgba(255, 255, 255, 0.13) 77%,
-    rgba(255, 255, 255, 0.5) 92%,
-    rgba(255, 255, 255, 0.0) 100%
+    rgba(var(--shine-color), 0.0) 0%,
+    rgba(var(--shine-color), 0.13) 77%,
+    rgba(var(--shine-color), 0.5) 92%,
+    rgba(var(--shine-color), 0.0) 100%
+    /* shiny things just use the shine-color var, they are unaware of cert status directly */
   );
 }
-.shiny:hover:after {
+.shiny.hovershiny:hover:after {
   opacity: 1;
   top: -30%;
   left: -30%;
@@ -424,23 +573,32 @@ h2.headerwithextra+span.afterheader {
   transition-duration: 0.7s, 0.7s, 0.15s;
   transition-timing-function: ease;
 }
-.shiny:active:after {
+.shiny.hovershiny:active:after {
   opacity: 0;
 }
+.shiny.alwaysshiny:after {
+    animation: shiny 9s infinite linear;
+}
 
 
-a.gold {
-	background-color:gold;
-	color:black;
+@keyframes shiny {
+  0% {
+    top: -110%;
+    left: -210%;
+    opacity: 0;
+  }
+  50% {
+    top: -30%;
+    left: -30%;
+    opacity: 1;
+  }
+  100% {
+    top: -30%;
+    left: -30%;
+    opacity: 0;
+  }
 }
-a.silver {
-	background-color:silver;
-	color:black;
-}
-a.bronze {
-	background-color:#cd7f32;
-	color:black;
-}
+
 
 
 
@@ -515,12 +673,21 @@ table.twopart>tbody>tr>td {
 
 
 
+/* only on startpage for now, implement this for all tables??? */
+section table.list {
+	max-width: 100%;
+	width: 100%;
+	table-layout: fixed;
+}
+
 
 table.list {
 	border-collapse:collapse;
+
 }
 
 table.list tr {
+    --current-bg-color: transparent;
 	background-color: var(--current-bg-color);
 	border-color: var(--current-bg-color);
 	height: 1.45em;
@@ -560,13 +727,18 @@ table.list tr:hover {
 }
 
 table.list td.time {
-	width:11%;
+	width:9em;
 	color: var(--text-color-tertiary);
+}
+
+table.list td.timerange {
+	width:9em;
 }
 
 
 table.list tr td.rank {
 	padding-right: 4px;
+	width: 5em;
 
 }
 
@@ -601,8 +773,8 @@ table.list td.icon div {
 }
 
 table.list td.artists,td.artist,td.title,td.track {
-	min-width:100px;
-
+	min-width:500px;
+	max-width: 40em;
 
 }
 
@@ -733,6 +905,20 @@ table.list tr:hover td.bar div {
 	cursor:pointer;
 }
 
+/* extra bar for associated */
+table.list td.bar a:nth-child(2) div {
+    opacity: 0.7;
+}
+table.list td.bar:hover a:nth-child(2) div {
+    /* when we start hovering over the bar, but not the associated part, go back to normal bg color */
+	background-color: var(--text-color);
+}
+table.list td.bar:hover a:nth-child(2) div:hover {
+    /* restore full color when hovering the associated part */
+    background-color: var(--text-color-focus);
+}
+
+
 table.list td.chart {
 	width:400px;
 	/* background-color: var(--base-color); */
@@ -800,53 +986,78 @@ table.misc td {
 
 
 
+div.tiles {
+	display: grid;
+	grid-template-columns: repeat(18, calc(100% / 18));
+	grid-template-rows: repeat(6, calc(100% / 6));
+	grid-auto-flow: row dense;
 
+	aspect-ratio: 3 / 1;
 
-
-
-table.tiles_top td {
-	padding:0px;
-	border:0px;
 }
 
-table.tiles_top:hover td td {
+div.tiles div {
+	height: 100%;
+	width: 100%;
+	background-size: cover;
+	background-position:top center;
+	overflow: hidden;
+}
+
+div.tiles:hover div {
 	opacity:0.5;
 	filter: grayscale(80%);
 }
-table.tiles_top:hover td td:hover {
+div.tiles:hover div:hover {
 	opacity:1;
 	filter: grayscale(0%);
 }
 
-table.tiles_top, table.tiles_sub {
-	border-collapse: collapse;
+div.tiles div.tile:nth-child(1) {
+	grid-column: span 6;
+	grid-row: span 6;
+
+	font-size:100%
+}
+
+div.tiles div.tile:nth-child(2),
+div.tiles div.tile:nth-child(3),
+div.tiles div.tile:nth-child(4),
+div.tiles div.tile:nth-child(5) {
+	grid-column: span 3;
+	grid-row: span 3;
+
+	font-size:80%
+}
+
+div.tiles div.tile:nth-child(2),
+div.tiles div.tile:nth-child(4) {
+	grid-column-start: 7;
+	grid-column-end: span 3;
+}
+div.tiles div.tile:nth-child(3),
+div.tiles div.tile:nth-child(5) {
+	grid-column-start: 10;
+	grid-column-end: span 3;
+}
+
+div.tiles div.tile:nth-child(6),
+div.tiles div.tile:nth-child(7),
+div.tiles div.tile:nth-child(8),
+div.tiles div.tile:nth-child(9),
+div.tiles div.tile:nth-child(10),
+div.tiles div.tile:nth-child(11),
+div.tiles div.tile:nth-child(12),
+div.tiles div.tile:nth-child(13),
+div.tiles div.tile:nth-child(14) {
+	grid-column: span 2;
+	grid-row: span 2;
+
+	font-size:60%
 }
 
 
-
-table.tiles_top>tbody>tr>td {
-	height:300px;
-	width:300px;
-}
-
-
-table.tiles_sub {
-	height:100%;
-	width:100%;
-}
-
-table.tiles_sub div {
-	height:100%;
-	width:100%;
-}
-
-table.tiles_top td div {
-	background-size:cover;
-	background-position:top center;
-	vertical-align:bottom;
-}
-
-table.tiles_top td span {
+div.tiles span {
 	background-color:rgba(0,0,0,0.7);
 	display: inline-block;
 	margin-top:2%;
@@ -854,49 +1065,72 @@ table.tiles_top td span {
 	max-width: 67%;
 	vertical-align: text-top;
 }
-table.tiles_top td a:hover {
-	text-decoration: none;
-}
-
-table.tiles_1x1 td {
-	height:100%;
-	width:100%;
-	font-size:100%
-}
-table.tiles_2x2 td {
-	height:50%;
-	width:50%;
-	font-size:80%
-}
-table.tiles_3x3 td {
-	height:33.333%;
-	width:33.333%;
-	font-size:60%
-}
-table.tiles_4x4 td {
-	font-size:50%
-}
-table.tiles_5x5 td {
-	font-size:40%
-}
-
-/* Safari fix */
-table.tiles_sub.tiles_3x3 td div {
-        min-height: 100px;
-        min-width: 100px;
-}
-table.tiles_sub.tiles_2x2 td div {
-        min-height: 150px;
-        min-width: 150px;
-}
-table.tiles_sub.tiles_1x1 td div {
-        min-height: 300px;
-        min-width: 300px;
-}
-table.tiles_sub a span {
+div.tiles span {
         overflow-wrap: anywhere;
 }
 
+div.tiles a:hover {
+	text-decoration: none;
+}
+
+
+
+
+
+
+
+
+
+
+div#showcase_container {
+		display: flex;
+		margin-top: -15px;
+		padding-bottom: 20px;
+		align-items: flex-start;
+		flex-wrap: wrap;
+}
+
+div#showcase_container table.album {
+	width: 180px;
+}
+
+div#showcase_container table.album tr td {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+div#showcase_container table.album tr:nth-child(1) td {
+	height:8px;
+	opacity: 0.3;
+	text-align: center;
+}
+div#showcase_container table.album tr:nth-child(2) td {
+	height:150px;
+	padding-top:2px;
+	padding-bottom:2px;
+}
+div#showcase_container table.album tr:nth-child(3) td {
+	height:15px;
+}
+div#showcase_container div {
+	height: 150px;
+	width: 150px;
+
+	background-size: cover;
+	background-position: top;
+
+	box-shadow: 0px 0px 10px 10px rgba(0,0,0,0.5);
+}
+
+div#showcase_container table:hover div {
+	box-shadow: 0px 0px 10px 10px var(--ctrl-element-color-main);
+}
+
+div#showcase_container span.album_artists {
+	font-size: 80%;
+}
+div#showcase_container span.album_title {
+	font-weight: bold;
+}
 
 
 .summary_rank {
@@ -935,36 +1169,4 @@ table.tiles_sub a span {
 span.stat_module_pulse, span.stat_module_topartists, span.stat_module_toptracks {
 	display: inline-block;
 	vertical-align: top;
-}
-
-/*
-**
-**
-** SIDE LIST ON START PAGE
-**
-**
-*/
-
-
-@media (min-width: 1600px) {
-div.sidelist {
-	position:absolute;
-	right:0px;
-	top:0px;
-	width:40%;
-	height:100%;
-	--current-bg-color: var(--base-color-light); /* drag this information through inheritances */
-	background-color: var(--current-bg-color);
-	padding-left:30px;
-	padding-right:30px;
-}
-}
-
-div.sidelist table {
-	width:100%;
-	table-layout:fixed;
-}
-
-div.sidelist table.list td.time {
-	width:17%;
 }

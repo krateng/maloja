@@ -1,5 +1,7 @@
-var lastArtists = []
-var lastTrack = ""
+var lastArtists = [];
+var lastTrack = "";
+var lastAlbumartists = [];
+var lastAlbum = "";
 
 
 function addArtist(artist) {
@@ -10,10 +12,22 @@ function addArtist(artist) {
 	document.getElementById("artists_td").insertBefore(artistelement,newartistfield);
 	newartistfield.placeholder = "Backspace to remove last"
 }
+function addAlbumartist(artist) {
+	var newartistfield = document.getElementById("albumartists");
+	var artistelement = document.createElement("span");
+	artistelement.innerHTML = artist;
+	artistelement.style = "padding:5px;";
+	document.getElementById("albumartists_td").insertBefore(artistelement,newartistfield);
+	newartistfield.placeholder = "Backspace to remove last"
+}
 
 function keyDetect(event) {
 	if (event.key === "Enter" || event.key === "Tab") { addEnteredArtist() }
 	if (event.key === "Backspace" && document.getElementById("artists").value == "") { removeArtist() }
+}
+function keyDetect2(event) {
+	if (event.key === "Enter" || event.key === "Tab") { addEnteredAlbumartist() }
+	if (event.key === "Backspace" && document.getElementById("albumartists").value == "") { removeAlbumartist() }
 }
 
 function addEnteredArtist() {
@@ -24,6 +38,14 @@ function addEnteredArtist() {
 		addArtist(newartist);
 	}
 }
+function addEnteredAlbumartist() {
+	var newartistfield = document.getElementById("albumartists");
+	var newartist = newartistfield.value.trim();
+	newartistfield.value = "";
+	if (newartist != "") {
+		addAlbumartist(newartist);
+	}
+}
 function removeArtist() {
 	var artists = document.getElementById("artists_td").getElementsByTagName("span")
 	var lastartist = artists[artists.length-1]
@@ -32,13 +54,27 @@ function removeArtist() {
 		document.getElementById("artists").placeholder = "Separate with Enter"
 	}
 }
+function removeAlbumartist() {
+	var artists = document.getElementById("albumartists_td").getElementsByTagName("span")
+	var lastartist = artists[artists.length-1]
+	document.getElementById("albumartists_td").removeChild(lastartist);
+	if (artists.length < 1) {
+		document.getElementById("albumartists").placeholder = "Separate with Enter"
+	}
+}
 
 function clear() {
 	document.getElementById("title").value = "";
 	document.getElementById("artists").value = "";
+	document.getElementById("album").value = "";
+	document.getElementById("albumartists").value = "";
 	var artists = document.getElementById("artists_td").getElementsByTagName("span")
 	while (artists.length > 0) {
 			removeArtist();
+	}
+	var albumartists = document.getElementById("albumartists_td").getElementsByTagName("span")
+	while (albumartists.length > 0) {
+			removeAlbumartist();
 	}
 }
 
@@ -55,31 +91,63 @@ function scrobbleNew() {
 	for (let node of artistnodes) {
 		artists.push(node.textContent);
 	}
+
+	var albumartistnodes = document.getElementById("albumartists_td").getElementsByTagName("span");
+	var albumartists = [];
+	for (let node of albumartistnodes) {
+		albumartists.push(node.textContent);
+	}
+
+	if (albumartists.length == 0) {
+		var use_track_artists = document.getElementById('use_track_artists_for_album').checked;
+		if (use_track_artists) {
+			albumartists = null;
+		}
+	}
+
 	var title = document.getElementById("title").value;
-	scrobble(artists,title);
+	var album = document.getElementById("album").value;
+
+	if (document.getElementById("use_custom_time").checked) {
+		var date = new Date(document.getElementById("scrobble_datetime").value + ':00Z');
+		var timestamp = (date.getTime() + (date.getTimezoneOffset() * 60000)) / 1000;
+	}
+	else {
+		var timestamp = null;
+	}
+
+
+
+	scrobble(artists,title,albumartists,album,timestamp);
 }
 
-function scrobble(artists,title) {
+function scrobble(artists,title,albumartists,album,timestamp) {
 
 	lastArtists = artists;
 	lastTrack = title;
+	lastAlbum = album;
+	lastAlbumartists = albumartists;
 
 	var payload = {
 		"artists":artists,
-		"title":title
+		"title":title,
+		"album": album
 	}
+	if (albumartists != null) {
+		payload['albumartists'] = albumartists;
+	}
+	if (timestamp != null) {
+		payload['time'] = timestamp;
+	}
+
+	console.log(payload);
 
 
 	if (title != "" && artists.length > 0) {
 		neo.xhttpreq("/apis/mlj_1/newscrobble",data=payload,method="POST",callback=notifyCallback,json=true)
 	}
 
-	document.getElementById("title").value = "";
-	document.getElementById("artists").value = "";
-	var artists = document.getElementById("artists_td").getElementsByTagName("span");
-	while (artists.length > 0) {
-			removeArtist();
-	}
+	clear()
 }
 
 function scrobbledone(req) {
@@ -98,6 +166,10 @@ function repeatLast() {
 		addArtist(artist);
 	}
 	document.getElementById("title").value = lastTrack;
+	for (let artist of lastAlbumartists) {
+		addAlbumartist(artist);
+	}
+	document.getElementById("album").value = lastAlbum;
 }
 
 

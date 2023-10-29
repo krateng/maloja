@@ -26,6 +26,7 @@ class CleanerAgent:
 		self.rules_belongtogether = [r[1] for r in rawrules if r[0]=="belongtogether"]
 		self.rules_notanartist = [r[1] for r in rawrules if r[0]=="notanartist"]
 		self.rules_replacetitle = {r[1].lower():r[2] for r in rawrules if r[0]=="replacetitle"}
+		self.rules_replacealbumtitle = {r[1].lower():r[2] for r in rawrules if r[0]=="replacealbumtitle"}
 		self.rules_replaceartist = {r[1].lower():r[2] for r in rawrules if r[0]=="replaceartist"}
 		self.rules_ignoreartist = [r[1].lower() for r in rawrules if r[0]=="ignoreartist"]
 		self.rules_addartists = {r[2].lower():(r[1].lower(),r[3]) for r in rawrules if r[0]=="addartists"}
@@ -188,9 +189,14 @@ class CleanerAgent:
 			if st in title.lower(): artists += self.rules_artistintitle[st].split("␟")
 		return (title,artists)
 
+	def parseAlbumtitle(self,t):
+		if t.strip().lower() in self.rules_replacealbumtitle:
+			return self.rules_replacealbumtitle[t.strip().lower()]
 
+		t = t.replace("[","(").replace("]",")")
 
-
+		t = t.strip()
+		return t
 
 
 def flatten(lis):
