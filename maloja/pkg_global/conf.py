@@ -189,7 +189,8 @@ malojaconfig = Configuration(
 			"delimiters_informal":(tp.Set(tp.String()),							"Informal Delimiters",			["vs.","vs","&"],																			"Delimiters in informal artist strings with spaces expected around them"),
 			"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/","|","␝","␞","␟"],																	"Delimiters used to tag multiple artists when only one tag field is available"),
 			"filters_remix":(tp.Set(tp.String()),								"Remix Filters",				["Remix", "Remix Edit", "Short Mix", "Extended Mix", "Soundtrack Version"],					"Filters used to recognize the remix artists in the title"),
-			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False)
+			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False),
+			"week_offset":(tp.Integer(),										"Week Begin Offset",			0,																							"Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday")
 		},
 		"Web Interface":{
 			"default_range_startpage":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range for Startpage Stats",	"year"),
