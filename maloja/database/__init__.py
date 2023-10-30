@@ -110,15 +110,18 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 	scrobbledict = rawscrobble_to_scrobbledict(rawscrobble, fix, client)
 	albumupdate = (malojaconfig["ALBUM_INFORMATION_TRUST"] == 'last')
 
+	if scrobbledict:
 
-	sqldb.add_scrobble(scrobbledict,update_album=albumupdate,dbconn=dbconn)
-	proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
+		sqldb.add_scrobble(scrobbledict,update_album=albumupdate,dbconn=dbconn)
+		proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
 
-	dbcache.invalidate_caches(scrobbledict['time'])
+		dbcache.invalidate_caches(scrobbledict['time'])
 
+		#return {"status":"success","scrobble":scrobbledict}
+		return scrobbledict
 
-	#return {"status":"success","scrobble":scrobbledict}
-	return scrobbledict
+	else:
+		raise exceptions.MissingScrobbleParameters('artist')
 
 
 @waitfordb
@@ -131,14 +134,16 @@ def reparse_scrobble(timestamp):
 
 	newscrobble = rawscrobble_to_scrobbledict(scrobble['rawscrobble'])
 
-	track_id = sqldb.get_track_id(newscrobble['track'])
+	if newscrobble:
 
-	# check if id changed
-	if sqldb.get_track_id(scrobble['track']) != track_id:
-		sqldb.edit_scrobble(timestamp, {'track':newscrobble['track']})
-		dbcache.invalidate_entity_cache()
-		dbcache.invalidate_caches()
-		return sqldb.get_scrobble(timestamp=timestamp)
+		track_id = sqldb.get_track_id(newscrobble['track'])
+
+		# check if id changed
+		if sqldb.get_track_id(scrobble['track']) != track_id:
+			sqldb.edit_scrobble(timestamp, {'track':newscrobble['track']})
+			dbcache.invalidate_entity_cache()
+			dbcache.invalidate_caches()
+			return sqldb.get_scrobble(timestamp=timestamp)
 
 	return False
 
@@ -189,6 +194,11 @@ def rawscrobble_to_scrobbledict(rawscrobble, fix=True, client=None):
 
 	if not scrobbledict["track"]["album"]["albumtitle"]:
 		del scrobbledict["track"]["album"]
+
+	# discard if invalid
+	if len(scrobbledict['track']['artists']) == 0:
+		return None
+	# TODO: other checks
 
 	return scrobbledict
 
