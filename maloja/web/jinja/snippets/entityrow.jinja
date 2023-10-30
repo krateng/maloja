@@ -15,7 +15,7 @@
     <div class="lazy" data-bg="{{ img }}"></div>
 {% endif %}
 </td>
-{% if entity is mapping and 'artists' in entity %}
+{% if entity is mapping and 'title' in entity %}
 	{% if settings['TRACK_SEARCH_PROVIDER'] %}
 		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
 	{% endif %}
