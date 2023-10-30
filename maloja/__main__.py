@@ -143,11 +143,22 @@ def print_info():
 	try:
 		from importlib.metadata import distribution
 		for pkg in ("sqlalchemy","waitress","bottle","doreah","jinja2"):
-			print(col['cyan']     (f"{pkg}:".ljust(13)),distribution(pkg).version)
-	except ImportError:
-		raise
+			print(col['cyan'](f"{pkg}:".ljust(13)),distribution(pkg).version)
+	except Exception:
 		print("Could not determine dependency versions.")
 	print()
+	try:
+		import platform
+		pyimpl = platform.python_implementation()
+		pyvers = '.'.join(platform.python_version_tuple())
+		print(col['magenta'](f"Python:".ljust(13)),pyimpl,pyvers)
+		osname = platform.system()
+		osvers = platform.release()
+		print(col['magenta'](f"OS:".ljust(13)),osname,osvers)
+		arch = platform.machine()
+		print(col['magenta'](f"Architecture:".ljust(13)),arch)
+	except Exception:
+		print("Could not determine system information.")
 
 @mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images','prefer_existing'],shield=True)
 def main(*args,**kwargs):
