@@ -18,3 +18,7 @@ minor_release_name: "Nicole"
     - "[Bugfix] Disabled DB maintenance while not running main server"
     - "[Bugfix] Removed some nonsensical ephemereal database entry creations"
     - "[Bugfix] Fixed API endpoint for track charts with no artist provided"
+    - "[Technical] Bumped Python and SQLAlchemy versions"
+    - "[Distribution] Removed build of arm/v7 image"
+3.2.1:
+    notes: []

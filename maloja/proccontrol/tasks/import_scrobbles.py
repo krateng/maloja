@@ -133,7 +133,9 @@ def import_scrobbles(inputf):
 
 def parse_spotify_lite_legacy(inputf):
 	pth = os.path
-	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
+	# use absolute paths internally for peace of mind. just change representation for console output
+	inputf = pth.abspath(inputf)
+	inputfolder = pth.dirname(inputf)
 	filenames = re.compile(r'StreamingHistory[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
@@ -143,8 +145,9 @@ def parse_spotify_lite_legacy(inputf):
 
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
-		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
+		if not ask("Import " + ", ".join(col['yellow'](pth.basename(i)) for i in inputfiles) + "?",default=True):
 			inputfiles = [inputf]
+			print("Only importing", col['yellow'](pth.basename(inputf)))
 
 	for inputf in inputfiles:
 
@@ -183,7 +186,9 @@ def parse_spotify_lite_legacy(inputf):
 
 def parse_spotify_lite(inputf):
 	pth = os.path
-	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
+	# use absolute paths internally for peace of mind. just change representation for console output
+	inputf = pth.abspath(inputf)
+	inputfolder = pth.dirname(inputf)
 	filenames = re.compile(r'Streaming_History_Audio.+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
@@ -193,8 +198,9 @@ def parse_spotify_lite(inputf):
 
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
-		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
+		if not ask("Import " + ", ".join(col['yellow'](pth.basename(i)) for i in inputfiles) + "?",default=True):
 			inputfiles = [inputf]
+			print("Only importing", col['yellow'](pth.basename(inputf)))
 
 	for inputf in inputfiles:
 
@@ -239,7 +245,9 @@ def parse_spotify_lite(inputf):
 
 def parse_spotify(inputf):
 	pth = os.path
-	inputfolder = pth.relpath(pth.dirname(pth.abspath(inputf)))
+	# use absolute paths internally for peace of mind. just change representation for console output
+	inputf = pth.abspath(inputf)
+	inputfolder = pth.dirname(inputf)
 	filenames = re.compile(r'endsong_[0-9]+\.json')
 	inputfiles = [os.path.join(inputfolder,f) for f in os.listdir(inputfolder) if filenames.match(f)]
 
@@ -249,8 +257,9 @@ def parse_spotify(inputf):
 
 	if inputfiles != [inputf]:
 		print("Spotify files should all be imported together to identify duplicates across the whole dataset.")
-		if not ask("Import " + ", ".join(col['yellow'](i) for i in inputfiles) + "?",default=True):
+		if not ask("Import " + ", ".join(col['yellow'](pth.basename(i)) for i in inputfiles) + "?",default=True):
 			inputfiles = [inputf]
+			print("Only importing", col['yellow'](pth.basename(inputf)))
 
 	# we keep timestamps here as well to remove duplicates because spotify's export
 	# is messy - this is specific to this import type and should not be mixed with
