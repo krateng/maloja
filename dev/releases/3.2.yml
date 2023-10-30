@@ -1,6 +1,6 @@
 minor_release_name: "Nicole"
 3.2.0:
-    commit: "765f8b3401123ded9b8118fd00e26de2fe5ca981"
+    commit: "34d0a49eb8deae2fb95233289521bb817732c772"
     notes:
     - "[Architecture] Switched to linuxserver.io container base image"
     - "[Architecture] Reworked image handling"
