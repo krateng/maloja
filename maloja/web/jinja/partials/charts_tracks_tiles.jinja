@@ -16,10 +16,12 @@
 		{% if entry is not none %}
 			{% set track = entry.track %}
 			{% set rank = entry.rank %}
+			{% set scrobbles = entry.scrobbles %}
 			<div class="tile">
 			<a href="{{ links.url(track) }}">
 				<div class="lazy" data-bg="{{ images.get_track_image(track) }}"'>
 					<span class='stats'>#{{ rank }}</span> <span>{{ track.title }}</span>
+					<p class="scrobbles"><span>{{ scrobbles }} {{ 'play' if scrobbles == 1 else 'plays' }}</span> </p>
 				</div>
 			</a>
 			</div>

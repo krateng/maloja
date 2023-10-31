@@ -1069,6 +1069,12 @@ div.tiles span {
         overflow-wrap: anywhere;
 }
 
+div.tiles p.scrobbles {
+	margin: 0;
+	top:100%;
+	position: sticky;
+}
+
 div.tiles a:hover {
 	text-decoration: none;
 }
