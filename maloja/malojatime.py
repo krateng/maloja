@@ -214,8 +214,6 @@ class MTRangeWeek(MTRangeSingular):
 		# do this so we can construct the week with overflow (eg 2020/-3)
 		thisisoyear_firstday = date.fromisocalendar(year,1,1) + timedelta(days=malojaconfig['WEEK_OFFSET']-1)
 		self.firstday = thisisoyear_firstday + timedelta(days=7*(week-1))
-		self.firstday = date(self.firstday.year,self.firstday.month,self.firstday.day)
-		# for compatibility with pre python3.8 (https://bugs.python.org/issue32417)
 
 		self.lastday = self.firstday + timedelta(days=6)
 

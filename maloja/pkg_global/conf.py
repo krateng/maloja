@@ -190,7 +190,8 @@ malojaconfig = Configuration(
 			"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/","|","␝","␞","␟"],																	"Delimiters used to tag multiple artists when only one tag field is available"),
 			"filters_remix":(tp.Set(tp.String()),								"Remix Filters",				["Remix", "Remix Edit", "Short Mix", "Extended Mix", "Soundtrack Version"],					"Filters used to recognize the remix artists in the title"),
 			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False),
-			"week_offset":(tp.Integer(),										"Week Begin Offset",			0,																							"Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday")
+			"week_offset":(tp.Integer(),										"Week Begin Offset",			0,																							"Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday"),
+			"timezone":(tp.Integer(),											"UTC Offset",					0)
 		},
 		"Web Interface":{
 			"default_range_startpage":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range for Startpage Stats",	"year"),
@@ -204,7 +205,6 @@ malojaconfig = Configuration(
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
-			"timezone":(tp.Integer(),											"UTC Offset",					0),
 			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p"),
 			"theme":(tp.String(),												"Theme",						"maloja")
 		}
