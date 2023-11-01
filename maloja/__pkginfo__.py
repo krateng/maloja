@@ -4,7 +4,7 @@
 # you know what f*ck it
 # this is hardcoded for now because of that damn project / package name discrepancy
 # i'll fix it one day
-VERSION = "3.2.0"
+VERSION = "3.2.1"
 HOMEPAGE = "https://github.com/krateng/maloja"
 
 
