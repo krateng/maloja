@@ -160,6 +160,14 @@ def print_info():
 	except Exception:
 		print("Could not determine system information.")
 
+
+def print_settings():
+	print_header_info()
+	maxlen = max(len(k) for k in conf.malojaconfig)
+	for k in conf.malojaconfig:
+		print(col['lightblue'](k.ljust(maxlen+2)),conf.malojaconfig[k])
+
+
 @mainfunction({"l":"level","v":"version","V":"version"},flags=['version','include_images','prefer_existing'],shield=True)
 def main(*args,**kwargs):
 
@@ -180,7 +188,8 @@ def main(*args,**kwargs):
 		"apidebug":apidebug.run,				# maloja apidebug
 		"parsealbums":tasks.parse_albums,		# maloja parsealbums --strategy majority
 		# aux
-		"info":print_info
+		"info":print_info,
+		"settings":print_settings
 	}
 
 	if "version" in kwargs:

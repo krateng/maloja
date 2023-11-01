@@ -33,14 +33,15 @@ class MusicBrainz(MetadataInterface):
 		self.lock.acquire()
 		try:
 			artists, title = track
-			artiststring = ", ".join(artists) #Join artists collection into string
-			titlestring = title
+			searchstr = f'recording:"{title}"'
+			for artist in artists:
+				searchstr += f' artist:"{artist}"'
 			querystr = urllib.parse.urlencode({
 				"fmt":"json",
-				"query":"{title} {artist}".format(artist=artiststring,title=titlestring)
+				"query":searchstr
 			})
 			req = urllib.request.Request(**{
-				"url":"https://musicbrainz.org/ws/2/release?" + querystr,
+				"url":"https://musicbrainz.org/ws/2/recording?" + querystr,
 				"method":"GET",
 				"headers":{
 					"User-Agent":self.useragent
@@ -49,15 +50,27 @@ class MusicBrainz(MetadataInterface):
 			response = urllib.request.urlopen(req)
 			responsedata = response.read()
 			data = json.loads(responsedata)
-			mbid = data["releases"][0]["id"]
-			response = urllib.request.urlopen(
-				"https://coverartarchive.org/release/{mbid}?fmt=json".format(mbid=mbid)
-			)
-			responsedata = response.read()
-			data = json.loads(responsedata)
-			imgurl = self.metadata_parse_response_track(data)
-			if imgurl is not None: imgurl = self.postprocess_url(imgurl)
-			return imgurl
+			entity = data["recordings"][0]["releases"][0]
+			coverartendpoint = "release"
+			while True:
+				mbid = entity["id"]
+				try:
+					response = urllib.request.urlopen(
+						f"https://coverartarchive.org/{coverartendpoint}/{mbid}?fmt=json"
+					)
+					responsedata = response.read()
+					data = json.loads(responsedata)
+					imgurl = self.metadata_parse_response_track(data)
+				except:
+					imgurl = None
+				if imgurl is None:
+					entity = entity["release-group"]
+					# this will raise an error so we don't stay in the while loop forever
+					coverartendpoint = "release-group"
+					continue
+
+				imgurl = self.postprocess_url(imgurl)
+				return imgurl
 
 		except Exception:
 			return None
