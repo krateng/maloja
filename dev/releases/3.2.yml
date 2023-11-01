@@ -23,6 +23,7 @@ minor_release_name: "Nicole"
 3.2.1:
     notes:
     - "[Feature] Added setting for custom week offset"
+    - "[Feature] Added Musicbrainz album art fetching"
     - "[Bugfix] Fixed album entity rows being marked as track entity rows"
     - "[Bugfix] Fixed scrobbling of tracks when all artists have been removed by server parsing"
     - "[Bugfix] Fixed Spotify import of multiple files"
