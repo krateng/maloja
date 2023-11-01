@@ -7,13 +7,12 @@
 # pls don't sue me
 
 import xml.etree.ElementTree as ElementTree
-import json
 import requests
 import urllib.parse
 import base64
 import time
 from doreah.logging import log
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Thread
 
 from ..pkg_global.conf import malojaconfig
 from .. import database
@@ -53,6 +52,7 @@ def proxy_scrobble_all(artists,title,timestamp):
 def get_image_track_all(track):
 	with thirdpartylock:
 		for service in services["metadata"]:
+			if "track" not in service.metadata["enabled_entity_types"]: continue
 			try:
 				res = service.get_image_track(track)
 				if res:
@@ -65,6 +65,7 @@ def get_image_track_all(track):
 def get_image_artist_all(artist):
 	with thirdpartylock:
 		for service in services["metadata"]:
+			if "artist" not in service.metadata["enabled_entity_types"]: continue
 			try:
 				res = service.get_image_artist(artist)
 				if res:
@@ -77,6 +78,7 @@ def get_image_artist_all(artist):
 def get_image_album_all(album):
 	with thirdpartylock:
 		for service in services["metadata"]:
+			if "album" not in service.metadata["enabled_entity_types"]: continue
 			try:
 				res = service.get_image_album(album)
 				if res:
@@ -109,7 +111,10 @@ class GenericInterface:
 		# avoid constant disk access, restart on adding services is acceptable
 		for key in self.settings:
 			self.settings[key] = malojaconfig[self.settings[key]]
-		self.authorize()
+		t = Thread(target=self.authorize)
+		t.daemon = True
+		t.start()
+		#self.authorize()
 
 	# this makes sure that of every class we define, we immediately create an
 	# instance (de facto singleton). then each instance checks if the requirements

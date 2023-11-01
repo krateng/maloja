@@ -19,6 +19,7 @@ class MusicBrainz(MetadataInterface):
 	metadata = {
 		"response_type":"json",
 		"required_settings": [],
+		"enabled_entity_types": ["album","track"]
 	}
 
 	def get_image_artist(self,artist):

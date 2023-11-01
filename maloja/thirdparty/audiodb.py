@@ -16,6 +16,7 @@ class AudioDB(MetadataInterface):
 		#"response_parse_tree_track": ["tracks",0,"astrArtistThumb"],
 		"response_parse_tree_artist": ["artists",0,"strArtistThumb"],
 		"required_settings": ["api_key"],
+		"enabled_entity_types": ["artist"]
 	}
 
 	def get_image_track(self,track):

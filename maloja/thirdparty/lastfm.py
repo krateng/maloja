@@ -32,6 +32,7 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		#"response_parse_tree_artist": ["artist","image",-1,"#text"],
 		"response_parse_tree_album": ["album","image",-1,"#text"],
 		"required_settings": ["apikey"],
+		"enabled_entity_types": ["track","album"]
 	}
 
 	def get_image_artist(self,artist):
