@@ -1,5 +1,5 @@
 from . import ProxyScrobbleInterface, ImportInterface
-import urllib.request
+import requests
 from doreah.logging import log
 import json
 
@@ -32,8 +32,8 @@ class OtherMalojaInstance(ProxyScrobbleInterface, ImportInterface):
 	def get_remote_scrobbles(self):
 		url = f"{self.settings['instance']}/apis/mlj_1/scrobbles"
 
-		response = urllib.request.urlopen(url)
-		data = json.loads(response.read().decode('utf-8'))
+		response = requests.get(url)
+		data = response.json()
 
 		for scrobble in data['list']:
 			yield scrobble

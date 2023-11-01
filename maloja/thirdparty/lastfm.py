@@ -1,6 +1,7 @@
 from . import MetadataInterface, ProxyScrobbleInterface, utf
 import hashlib
-import urllib.parse, urllib.request
+import requests
+import xml.etree.ElementTree as ElementTree
 from doreah.logging import log
 
 class LastFM(MetadataInterface, ProxyScrobbleInterface):
@@ -54,27 +55,37 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 
 	def authorize(self):
 		try:
-			result = self.request(
-				self.proxyscrobble['scrobbleurl'],
-				self.query_compose({
+			response = requests.post(
+				url=self.proxyscrobble['scrobbleurl'],
+				params=self.query_compose({
 					"method":"auth.getMobileSession",
 					"username":self.settings["username"],
 					"password":self.settings["password"],
 					"api_key":self.settings["apikey"]
 				}),
-				responsetype="xml"
+				headers={
+					"User-Agent":self.useragent
+				}
 			)
-			self.settings["sk"] = result.find("session").findtext("key")
+
+			data = ElementTree.fromstring(response.text)
+			self.settings["sk"] = data.find("session").findtext("key")
 		except Exception as e:
-			pass
-			#log("Error while authenticating with LastFM: " + repr(e))
+			log("Error while authenticating with LastFM: " + repr(e))
 
 
-	# creates signature and returns full query string
+	# creates signature and returns full query
 	def query_compose(self,parameters):
 		m = hashlib.md5()
 		keys = sorted(str(k) for k in parameters)
 		m.update(utf("".join(str(k) + str(parameters[k]) for k in keys)))
 		m.update(utf(self.settings["secret"]))
 		sig = m.hexdigest()
-		return urllib.parse.urlencode(parameters) + "&api_sig=" + sig
+		return {**parameters,"api_sig":sig}
+
+	def handle_json_result_error(self,result):
+		if "track" in result and not result.get("track").get('album',{}):
+			return True
+
+		if "error" in result and result.get("error") == 6:
+			return True

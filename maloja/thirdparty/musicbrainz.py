@@ -1,9 +1,7 @@
 from . import MetadataInterface
-import urllib.parse, urllib.request
-import json
+import requests
 import time
 import threading
-from ..__pkginfo__ import USER_AGENT
 
 class MusicBrainz(MetadataInterface):
 	name = "MusicBrainz"
@@ -11,7 +9,6 @@ class MusicBrainz(MetadataInterface):
 
 	# musicbrainz is rate-limited
 	lock = threading.Lock()
-	useragent = USER_AGENT
 
 
 	thumbnailsize_order = ['500','large','1200','250','small']
@@ -35,30 +32,32 @@ class MusicBrainz(MetadataInterface):
 			searchstr = f'release:"{title}"'
 			for artist in artists:
 				searchstr += f' artist:"{artist}"'
-			querystr = urllib.parse.urlencode({
-				"fmt":"json",
-				"query":searchstr
-			})
-			req = urllib.request.Request(**{
-				"url":"https://musicbrainz.org/ws/2/release?" + querystr,
-				"method":"GET",
+			res = requests.get(**{
+				"url":"https://musicbrainz.org/ws/2/release",
+				"params":{
+					"fmt":"json",
+					"query":searchstr
+				},
 				"headers":{
 					"User-Agent":self.useragent
 				}
 			})
-			response = urllib.request.urlopen(req)
-			responsedata = response.read()
-			data = json.loads(responsedata)
+			data = res.json()
 			entity = data["releases"][0]
 			coverartendpoint = "release"
 			while True:
 				mbid = entity["id"]
 				try:
-					response = urllib.request.urlopen(
-						f"https://coverartarchive.org/{coverartendpoint}/{mbid}?fmt=json"
+					response = requests.get(
+						f"https://coverartarchive.org/{coverartendpoint}/{mbid}",
+						params={
+							"fmt":"json"
+						},
+						headers={
+							"User-Agent":self.useragent
+						}
 					)
-					responsedata = response.read()
-					data = json.loads(responsedata)
+					data = response.json()
 					thumbnails = data['images'][0]['thumbnails']
 					for size in self.thumbnailsize_order:
 						if thumbnails.get(size) is not None:
@@ -88,30 +87,29 @@ class MusicBrainz(MetadataInterface):
 			searchstr = f'recording:"{title}"'
 			for artist in artists:
 				searchstr += f' artist:"{artist}"'
-			querystr = urllib.parse.urlencode({
-				"fmt":"json",
-				"query":searchstr
-			})
-			req = urllib.request.Request(**{
-				"url":"https://musicbrainz.org/ws/2/recording?" + querystr,
-				"method":"GET",
+			res = requests.get(**{
+				"url":"https://musicbrainz.org/ws/2/recording",
+				"params":{
+					"fmt":"json",
+					"query":searchstr
+				},
 				"headers":{
 					"User-Agent":self.useragent
 				}
 			})
-			response = urllib.request.urlopen(req)
-			responsedata = response.read()
-			data = json.loads(responsedata)
+			data = res.json()
 			entity = data["recordings"][0]["releases"][0]
 			coverartendpoint = "release"
 			while True:
 				mbid = entity["id"]
 				try:
-					response = urllib.request.urlopen(
-						f"https://coverartarchive.org/{coverartendpoint}/{mbid}?fmt=json"
+					response = requests.get(
+						f"https://coverartarchive.org/{coverartendpoint}/{mbid}",
+						params={
+							"fmt":"json"
+						}
 					)
-					responsedata = response.read()
-					data = json.loads(responsedata)
+					data = response.json()
 					thumbnails = data['images'][0]['thumbnails']
 					for size in self.thumbnailsize_order:
 						if thumbnails.get(size) is not None:

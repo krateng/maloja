@@ -8,7 +8,8 @@
 
 import xml.etree.ElementTree as ElementTree
 import json
-import urllib.parse, urllib.request
+import requests
+import urllib.parse
 import base64
 import time
 from doreah.logging import log
@@ -16,6 +17,7 @@ from threading import BoundedSemaphore
 
 from ..pkg_global.conf import malojaconfig
 from .. import database
+from ..__pkginfo__ import USER_AGENT
 
 
 services = {
@@ -100,6 +102,8 @@ class GenericInterface:
 	scrobbleimport = {}
 	metadata = {}
 
+	useragent = USER_AGENT
+
 	def __init__(self):
 		# populate from settings file once on creation
 		# avoid constant disk access, restart on adding services is acceptable
@@ -127,16 +131,6 @@ class GenericInterface:
 		return True
 		# per default. no authorization is necessary
 
-	# wrapper method
-	def request(self,url,data,responsetype):
-		response = urllib.request.urlopen(
-			url,
-			data=utf(data)
-		)
-		responsedata = response.read()
-		if responsetype == "xml":
-			data = ElementTree.fromstring(responsedata)
-			return data
 
 # proxy scrobbler
 class ProxyScrobbleInterface(GenericInterface,abstract=True):
@@ -155,11 +149,15 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 		)
 
 	def scrobble(self,artists,title,timestamp):
-		response = urllib.request.urlopen(
-			self.proxyscrobble["scrobbleurl"],
-			data=utf(self.proxyscrobble_postdata(artists,title,timestamp)))
-		responsedata = response.read()
+		response = requests.post(
+			url=self.proxyscrobble["scrobbleurl"],
+			data=self.proxyscrobble_postdata(artists,title,timestamp),
+			headers={
+				"User-Agent":self.useragent
+			}
+		)
 		if self.proxyscrobble["response_type"] == "xml":
+			responsedata = response.text
 			data = ElementTree.fromstring(responsedata)
 			return self.proxyscrobble_parse_response(data)
 
@@ -211,13 +209,15 @@ class MetadataInterface(GenericInterface,abstract=True):
 		artists, title = track
 		artiststring = urllib.parse.quote(", ".join(artists))
 		titlestring = urllib.parse.quote(title)
-		response = urllib.request.urlopen(
-			self.metadata["trackurl"].format(artist=artiststring,title=titlestring,**self.settings)
+		response = requests.get(
+			self.metadata["trackurl"].format(artist=artiststring,title=titlestring,**self.settings),
+			headers={
+				"User-Agent":self.useragent
+			}
 		)
 
-		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
-			data = json.loads(responsedata)
+			data = response.json()
 			imgurl = self.metadata_parse_response_track(data)
 		else:
 			imgurl = None
@@ -227,13 +227,15 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 	def get_image_artist(self,artist):
 		artiststring = urllib.parse.quote(artist)
-		response = urllib.request.urlopen(
-			self.metadata["artisturl"].format(artist=artiststring,**self.settings)
+		response = requests.get(
+			self.metadata["artisturl"].format(artist=artiststring,**self.settings),
+			headers={
+				"User-Agent":self.useragent
+			}
 		)
 
-		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
-			data = json.loads(responsedata)
+			data = response.json()
 			imgurl = self.metadata_parse_response_artist(data)
 		else:
 			imgurl = None
@@ -245,13 +247,15 @@ class MetadataInterface(GenericInterface,abstract=True):
 		artists, title = album
 		artiststring = urllib.parse.quote(", ".join(artists or []))
 		titlestring = urllib.parse.quote(title)
-		response = urllib.request.urlopen(
-			self.metadata["albumurl"].format(artist=artiststring,title=titlestring,**self.settings)
+		response = requests.get(
+			self.metadata["albumurl"].format(artist=artiststring,title=titlestring,**self.settings),
+			headers={
+				"User-Agent":self.useragent
+			}
 		)
 
-		responsedata = response.read()
 		if self.metadata["response_type"] == "json":
-			data = json.loads(responsedata)
+			data = response.json()
 			imgurl = self.metadata_parse_response_album(data)
 		else:
 			imgurl = None

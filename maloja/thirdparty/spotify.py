@@ -1,6 +1,5 @@
 from . import MetadataInterface, utf, b64
-import urllib.parse, urllib.request
-import json
+import requests
 from threading import Timer
 from doreah.logging import log
 
@@ -31,15 +30,14 @@ class Spotify(MetadataInterface):
 			try:
 				keys = {
 					"url":"https://accounts.spotify.com/api/token",
-					"method":"POST",
 					"headers":{
-						"Authorization":"Basic " + b64(utf(self.settings["apiid"] + ":" + self.settings["secret"])).decode("utf-8")
+						"Authorization":"Basic " + b64(utf(self.settings["apiid"] + ":" + self.settings["secret"])).decode("utf-8"),
+						"User-Agent": self.useragent
 					},
-					"data":bytes(urllib.parse.urlencode({"grant_type":"client_credentials"}),encoding="utf-8")
+					"data":{"grant_type":"client_credentials"}
 				}
-				req = urllib.request.Request(**keys)
-				response = urllib.request.urlopen(req)
-				responsedata = json.loads(response.read())
+				res = requests.post(**keys)
+				responsedata = res.json()
 				if "error" in responsedata:
 					log("Error authenticating with Spotify: " + responsedata['error_description'])
 					expire = 3600
@@ -52,3 +50,8 @@ class Spotify(MetadataInterface):
 				t.start()
 			except Exception as e:
 				log("Error while authenticating with Spotify: " + repr(e))
+
+	def handle_json_result_error(self,result):
+		result = result.get('tracks') or result.get('albums') or result.get('artists')
+		if not result['items']:
+			return True
