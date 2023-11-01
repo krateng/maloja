@@ -39,7 +39,7 @@ Settings File			| Environment Variable			| Type			| Description
 `scrobbles_diamond`	| `MALOJA_SCROBBLES_DIAMOND`  | Integer | How many scrobbles a track needs to be considered 'Diamond' status
 `name`	| `MALOJA_NAME`  | String | Name
 **Third Party Services**
-`metadata_providers`	| `MALOJA_METADATA_PROVIDERS`  | List | Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first.
+`metadata_providers`	| `MALOJA_METADATA_PROVIDERS`  | List | List of which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first. E. g. `metadata_providers = [deezer,musicbrainz]`
 `scrobble_lastfm`	| `MALOJA_SCROBBLE_LASTFM`  | Boolean | Proxy-Scrobble to Last.fm
 `lastfm_api_key`	| `MALOJA_LASTFM_API_KEY`  | String | Last.fm API Key
 `lastfm_api_secret`	| `MALOJA_LASTFM_API_SECRET`  | String | Last.fm API Secret
