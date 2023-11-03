@@ -55,24 +55,25 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		})
 
 	def authorize(self):
-		try:
-			response = requests.post(
-				url=self.proxyscrobble['scrobbleurl'],
-				params=self.query_compose({
-					"method":"auth.getMobileSession",
-					"username":self.settings["username"],
-					"password":self.settings["password"],
-					"api_key":self.settings["apikey"]
-				}),
-				headers={
-					"User-Agent":self.useragent
-				}
-			)
+		if all(self.settings[key] not in [None,"ASK",False] for key in ["username","password","apikey","secret"]):
+			try:
+				response = requests.post(
+					url=self.proxyscrobble['scrobbleurl'],
+					params=self.query_compose({
+						"method":"auth.getMobileSession",
+						"username":self.settings["username"],
+						"password":self.settings["password"],
+						"api_key":self.settings["apikey"]
+					}),
+					headers={
+						"User-Agent":self.useragent
+					}
+				)
 
-			data = ElementTree.fromstring(response.text)
-			self.settings["sk"] = data.find("session").findtext("key")
-		except Exception as e:
-			log("Error while authenticating with LastFM: " + repr(e))
+				data = ElementTree.fromstring(response.text)
+				self.settings["sk"] = data.find("session").findtext("key")
+			except Exception as e:
+				log("Error while authenticating with LastFM: " + repr(e))
 
 
 	# creates signature and returns full query

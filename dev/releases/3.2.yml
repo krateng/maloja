@@ -21,6 +21,7 @@ minor_release_name: "Nicole"
     - "[Technical] Bumped Python and SQLAlchemy versions"
     - "[Distribution] Removed build of arm/v7 image"
 3.2.1:
+    commit: "5495d6e38d95c0c2128e1de9a9553b55b6be945b"
     notes:
     - "[Feature] Added setting for custom week offset"
     - "[Feature] Added Musicbrainz album art fetching"
@@ -30,3 +31,6 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed process control on FreeBSD"
     - "[Bugfix] Fixed Spotify authentication thread blocking the process from terminating"
     - "[Technical] Upgraded all third party modules to use requests module and send User Agent"
+3.2.2:
+    notes:
+    - "[Bugfix] Fixed Last.fm authentication"
