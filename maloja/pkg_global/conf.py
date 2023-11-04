@@ -202,7 +202,7 @@ malojaconfig = Configuration(
 			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
 			"use_album_artwork_for_tracks":(tp.Boolean(),						"Use Album Artwork for tracks",	True),
 			"fancy_placeholder_art":(tp.Boolean(),								"Use fancy placeholder artwork",False),
-			"show_play_number_on_tiles":(tp.Boolean(),							"Show amount of plays on tails",			True),
+			"show_play_number_on_tiles":(tp.Boolean(),							"Show amount of plays on tiles",False),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
