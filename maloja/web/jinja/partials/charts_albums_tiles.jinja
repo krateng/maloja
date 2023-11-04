@@ -16,10 +16,14 @@
 		{% if entry is not none %}
 			{% set album = entry.album %}
 			{% set rank = entry.rank %}
+			{% set scrobbles = entry.scrobbles %}
 			<div class="tile">
 			<a href="{{ links.url(album) }}">
 				<div class="lazy" data-bg="{{ images.get_album_image(album) }}"'>
 					<span class='stats'>#{{ rank }}</span> <span>{{ album.albumtitle }}</span>
+					{% if settings['SHOW_PLAY_NUMBER_ON_TILES'] %}
+						<p class="scrobbles"><span>{{ scrobbles }} {{ 'play' if scrobbles == 1 else 'plays' }}</span> </p>
+					{% endif %}
 				</div>
 			</a>
 			</div>
