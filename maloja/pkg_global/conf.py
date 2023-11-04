@@ -164,7 +164,7 @@ malojaconfig = Configuration(
 			"name":(tp.String(),												"Name",							"Generic Maloja User")
 		},
 		"Third Party Services":{
-			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','musicbrainz'],	"Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
+			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','audiodb','musicbrainz'],	"Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
 			"scrobble_lastfm":(tp.Boolean(),									"Proxy-Scrobble to Last.fm",	False),
 			"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
 			"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
@@ -190,7 +190,8 @@ malojaconfig = Configuration(
 			"delimiters_formal":(tp.Set(tp.String()),							"Formal Delimiters",			[";","/","|","␝","␞","␟"],																	"Delimiters used to tag multiple artists when only one tag field is available"),
 			"filters_remix":(tp.Set(tp.String()),								"Remix Filters",				["Remix", "Remix Edit", "Short Mix", "Extended Mix", "Soundtrack Version"],					"Filters used to recognize the remix artists in the title"),
 			"parse_remix_artists":(tp.Boolean(),								"Parse Remix Artists",			False),
-			"week_offset":(tp.Integer(),										"Week Begin Offset",			0,																							"Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday")
+			"week_offset":(tp.Integer(),										"Week Begin Offset",			0,																							"Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday"),
+			"timezone":(tp.Integer(),											"UTC Offset",					0)
 		},
 		"Web Interface":{
 			"default_range_startpage":(tp.Choice({'alltime':'All Time','year':'Year','month':"Month",'week':'Week'}),	"Default Range for Startpage Stats",	"year"),
@@ -200,12 +201,11 @@ malojaconfig = Configuration(
 			"display_art_icons":(tp.Boolean(),									"Display Album/Artist Icons",	True),
 			"default_album_artist":(tp.String(),								"Default Albumartist",			"Various Artists"),
 			"use_album_artwork_for_tracks":(tp.Boolean(),						"Use Album Artwork for tracks",	True),
-			"fancy_placeholder_art":(tp.Boolean(),								"Use fancy placeholder artwork",True),
+			"fancy_placeholder_art":(tp.Boolean(),								"Use fancy placeholder artwork",False),
 			"show_play_number_on_tiles":(tp.Boolean(),							"Show amount of plays on tails",			True),
 			"discourage_cpu_heavy_stats":(tp.Boolean(),							"Discourage CPU-heavy stats",	False,					"Prevent visitors from mindlessly clicking on CPU-heavy options. Does not actually disable them for malicious actors!"),
 			"use_local_images":(tp.Boolean(),									"Use Local Images",				True),
 			#"local_image_rotate":(tp.Integer(),									"Local Image Rotate",			3600),
-			"timezone":(tp.Integer(),											"UTC Offset",					0),
 			"time_format":(tp.String(),											"Time Format",					"%d. %b %Y %I:%M %p"),
 			"theme":(tp.String(),												"Theme",						"maloja")
 		}

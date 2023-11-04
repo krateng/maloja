@@ -1,9 +1,7 @@
 from . import MetadataInterface
-import urllib.parse, urllib.request
-import json
+import requests
 import time
 import threading
-from ..__pkginfo__ import USER_AGENT
 
 class MusicBrainz(MetadataInterface):
 	name = "MusicBrainz"
@@ -11,15 +9,17 @@ class MusicBrainz(MetadataInterface):
 
 	# musicbrainz is rate-limited
 	lock = threading.Lock()
-	useragent = USER_AGENT
+
+
+	thumbnailsize_order = ['500','large','1200','250','small']
 
 	settings = {
 	}
 
 	metadata = {
 		"response_type":"json",
-		"response_parse_tree_track": ["images",0,"thumbnails","500"],
 		"required_settings": [],
+		"enabled_entity_types": ["album","track"]
 	}
 
 	def get_image_artist(self,artist):
@@ -27,37 +27,105 @@ class MusicBrainz(MetadataInterface):
 		# not supported
 
 	def get_image_album(self,album):
-		return None
+		self.lock.acquire()
+		try:
+			artists, title = album
+			searchstr = f'release:"{title}"'
+			for artist in artists:
+				searchstr += f' artist:"{artist}"'
+			res = requests.get(**{
+				"url":"https://musicbrainz.org/ws/2/release",
+				"params":{
+					"fmt":"json",
+					"query":searchstr
+				},
+				"headers":{
+					"User-Agent":self.useragent
+				}
+			})
+			data = res.json()
+			entity = data["releases"][0]
+			coverartendpoint = "release"
+			while True:
+				mbid = entity["id"]
+				try:
+					response = requests.get(
+						f"https://coverartarchive.org/{coverartendpoint}/{mbid}",
+						params={
+							"fmt":"json"
+						},
+						headers={
+							"User-Agent":self.useragent
+						}
+					)
+					data = response.json()
+					thumbnails = data['images'][0]['thumbnails']
+					for size in self.thumbnailsize_order:
+						if thumbnails.get(size) is not None:
+							imgurl = thumbnails.get(size)
+							continue
+				except:
+					imgurl = None
+				if imgurl is None:
+					entity = entity["release-group"]
+					# this will raise an error so we don't stay in the while loop forever
+					coverartendpoint = "release-group"
+					continue
+
+				imgurl = self.postprocess_url(imgurl)
+				return imgurl
+
+		except Exception:
+			return None
+		finally:
+			time.sleep(2)
+			self.lock.release()
 
 	def get_image_track(self,track):
 		self.lock.acquire()
 		try:
 			artists, title = track
-			artiststring = ", ".join(artists) #Join artists collection into string
-			titlestring = title
-			querystr = urllib.parse.urlencode({
-				"fmt":"json",
-				"query":"{title} {artist}".format(artist=artiststring,title=titlestring)
-			})
-			req = urllib.request.Request(**{
-				"url":"https://musicbrainz.org/ws/2/release?" + querystr,
-				"method":"GET",
+			searchstr = f'recording:"{title}"'
+			for artist in artists:
+				searchstr += f' artist:"{artist}"'
+			res = requests.get(**{
+				"url":"https://musicbrainz.org/ws/2/recording",
+				"params":{
+					"fmt":"json",
+					"query":searchstr
+				},
 				"headers":{
 					"User-Agent":self.useragent
 				}
 			})
-			response = urllib.request.urlopen(req)
-			responsedata = response.read()
-			data = json.loads(responsedata)
-			mbid = data["releases"][0]["id"]
-			response = urllib.request.urlopen(
-				"https://coverartarchive.org/release/{mbid}?fmt=json".format(mbid=mbid)
-			)
-			responsedata = response.read()
-			data = json.loads(responsedata)
-			imgurl = self.metadata_parse_response_track(data)
-			if imgurl is not None: imgurl = self.postprocess_url(imgurl)
-			return imgurl
+			data = res.json()
+			entity = data["recordings"][0]["releases"][0]
+			coverartendpoint = "release"
+			while True:
+				mbid = entity["id"]
+				try:
+					response = requests.get(
+						f"https://coverartarchive.org/{coverartendpoint}/{mbid}",
+						params={
+							"fmt":"json"
+						}
+					)
+					data = response.json()
+					thumbnails = data['images'][0]['thumbnails']
+					for size in self.thumbnailsize_order:
+						if thumbnails.get(size) is not None:
+							imgurl = thumbnails.get(size)
+							continue
+				except:
+					imgurl = None
+				if imgurl is None:
+					entity = entity["release-group"]
+					# this will raise an error so we don't stay in the while loop forever
+					coverartendpoint = "release-group"
+					continue
+
+				imgurl = self.postprocess_url(imgurl)
+				return imgurl
 
 		except Exception:
 			return None
