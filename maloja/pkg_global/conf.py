@@ -40,7 +40,7 @@ def get_env_vars(key,pathsuffix=[]):
 
 directory_info = {
 	"config":{
-		"sentinel":"rules",
+		"sentinel":".maloja_config_sentinel",
 		"possible_folders":[
 			"/etc/maloja",
 			os.path.expanduser("~/.local/share/maloja")
@@ -48,7 +48,7 @@ directory_info = {
 		"setting":"directory_config"
 	},
 	"cache":{
-		"sentinel":"dummy",
+		"sentinel":".maloja_cache_sentinel",
 		"possible_folders":[
 			"/var/cache/maloja",
 			os.path.expanduser("~/.local/share/maloja/cache")
@@ -56,7 +56,7 @@ directory_info = {
 		"setting":"directory_cache"
 	},
 	"state":{
-		"sentinel":"scrobbles",
+		"sentinel":".maloja_state_sentinel",
 		"possible_folders":[
 			"/var/lib/maloja",
 			os.path.expanduser("~/.local/share/maloja")
@@ -64,7 +64,7 @@ directory_info = {
 		"setting":"directory_state"
 	},
 	"logs":{
-		"sentinel":"dbfix",
+		"sentinel":".maloja_logs_sentinel",
 		"possible_folders":[
 			"/var/log/maloja",
 			os.path.expanduser("~/.local/share/maloja/logs")
@@ -83,19 +83,23 @@ def find_good_folder(datatype,configobject):
 	# check each possible folder if its used
 	for p in info['possible_folders']:
 		if os.path.exists(pthj(p,info['sentinel'])):
-			#print(p,"has been determined as maloja's folder for",datatype)
-			configobject[info['setting']] = p
-			return p
+			if is_dir_usable(p):
+				print(p,"was apparently used as maloja's folder for",datatype,"- fixing in settings")
+				configobject[info['setting']] = p
+				return p
+			else:
+				raise PermissionError(f"Can no longer use previously used path {p}")
 
 	#print("Could not find previous",datatype,"folder")
 	# check which one we can use
 	for p in info['possible_folders']:
 		if is_dir_usable(p):
-			#print(p,"has been selected as maloja's folder for",datatype)
+			print(p,"has been selected as maloja's folder for",datatype)
 			configobject[info['setting']] = p
 			return p
 	#print("No folder can be used for",datatype)
 	#print("This should not happen!")
+	raise PermissionError(f"No folder could be found for {datatype}")
 
 
 
@@ -281,18 +285,6 @@ else:
 		"logs":pthj(malojaconfig['DATA_DIRECTORY'],"logs"),
 	}
 
-# check if the directories are usable in case we explicitly specified them
-# this is of course redundant if we found them ourselves above, but it's easier
-# to do this now with the already built full paths
-for cat in dir_settings:
-	if is_dir_usable(dir_settings[cat]):
-		pass
-	else:
-		print("Directory",dir_settings[cat],"is not usable.")
-		print("Please change permissions or settings!")
-		raise PermissionError
-
-
 data_directories = {
 	"auth":pthj(dir_settings['state'],"auth"),
 	"backups":pthj(dir_settings['state'],"backups"),
@@ -310,7 +302,20 @@ data_directories = {
 }
 
 for identifier,path in data_directories.items():
-	os.makedirs(path,exist_ok=True)
+	try:
+		os.makedirs(path,exist_ok=True)
+		if not is_dir_usable(path): raise PermissionError(f"Directory {path} is not usable!")
+	except PermissionError:
+		# special case: cache does not contain info that can't be refetched, so no need to require user intervention
+		# just move to the next one
+		if identifier in ['cache']:
+			print("Cannot use",path,"for cache, finding new folder...")
+			find_good_folder('cache',malojaconfig)
+			data_directories['cache'] = dir_settings['cache'] = malojaconfig['DIRECTORY_CACHE']
+		else:
+			print("Directory",path,"is not usable.")
+			print("Please change permissions or settings!")
+			raise
 
 
 data_dir = {
