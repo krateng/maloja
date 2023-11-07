@@ -281,6 +281,17 @@ else:
 		"logs":pthj(malojaconfig['DATA_DIRECTORY'],"logs"),
 	}
 
+# check if the directories are usable in case we explicitly specified them
+# this is of course redundant if we found them ourselves above, but it's easier
+# to do this now with the already built full paths
+for cat in dir_settings:
+	if is_dir_usable(dir_settings[cat]):
+		pass
+	else:
+		print("Directory",dir_settings[cat],"is not usable.")
+		print("Please change permissions or settings!")
+		raise PermissionError
+
 
 data_directories = {
 	"auth":pthj(dir_settings['state'],"auth"),
