@@ -75,7 +75,14 @@ class Audioscrobbler(APIHandler):
 				key = apikeystore[client]
 				if md5(user + md5(key)) == token:
 					sessionkey = self.generate_key(client)
-					return 200,{"session":{"key":sessionkey}}
+					return 200,"""<lfm status="ok">
+  <session>
+    <name>%s</name>
+    <key>%s</key>
+    <subscriber>0</subscriber>
+  </session>
+</lfm>
+""" % (self.xml_escape(user), self.xml_escape(sessionkey))
 			raise InvalidAuthException()
 		else:
 			raise BadAuthException()
