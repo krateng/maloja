@@ -92,7 +92,7 @@ directory_info = {
 #   checks if one has been in use before and writes it to dict/config
 #   if not, determines which to use and writes it to dict/config
 # returns determined folder
-def find_good_folder(datatype,configobject):
+def find_good_folder(datatype):
 	info = directory_info[datatype]
 
 	possible_folders = info['possible_folders']
@@ -104,7 +104,6 @@ def find_good_folder(datatype,configobject):
 		if os.path.exists(pthj(p,info['sentinel'])):
 			if is_dir_usable(p):
 				#print(p,"was apparently used as maloja's folder for",datatype,"- fixing in settings")
-				configobject[info['setting']] = p
 				return p
 			else:
 				raise PermissionError(f"Can no longer use previously used {datatype} folder {p}")
@@ -114,7 +113,6 @@ def find_good_folder(datatype,configobject):
 	for p in possible_folders:
 		if is_dir_usable(p):
 			#print(p,"has been selected as maloja's folder for",datatype)
-			configobject[info['setting']] = p
 			return p
 	#print("No folder can be used for",datatype)
 	#print("This should not happen!")
@@ -130,7 +128,7 @@ maloja_dir_config = os.environ.get("MALOJA_DATA_DIRECTORY") or os.environ.get("M
 
 if maloja_dir_config is None:
 	# if nothing is set, we set our own
-	maloja_dir_config = find_good_folder('config',{})
+	maloja_dir_config = find_good_folder('config')
 else:
 	pass
 	# if there is an environment variable, this is 100% explicitly defined by the user, so we respect it
@@ -267,7 +265,7 @@ if not malojaconfig.readonly:
 			pass
 		# otherwise, find a good one
 		else:
-			find_good_folder(datatype,malojaconfig)
+			malojaconfig[directory_info[datatype]['setting']] = find_good_folder(datatype)
 
 
 
@@ -320,8 +318,7 @@ for identifier,path in data_directories.items():
 		# just move to the next one
 		if identifier in ['cache']:
 			print("Cannot use",path,"for cache, finding new folder...")
-			find_good_folder('cache',malojaconfig)
-			data_directories['cache'] = dir_settings['cache'] = malojaconfig['DIRECTORY_CACHE']
+			data_directories['cache'] = dir_settings['cache'] = malojaconfig['DIRECTORY_CACHE'] = find_good_folder('cache')
 		else:
 			print("Directory",path,"is not usable.")
 			print("Please change permissions or settings!")
