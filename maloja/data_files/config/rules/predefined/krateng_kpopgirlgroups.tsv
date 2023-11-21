@@ -160,8 +160,8 @@ replaceartist	여자친구 GFriend			GFriend
 # Girl's Generation
 replaceartist	소녀시대				Girls' Generation
 replaceartist	SNSD				Girls' Generation
-replaceartist Girls' Generation-TTS       TaeTiSeo
-countas       TaeTiSeo    Girls' Generation
+replaceartist	Girls' Generation-TTS	TaeTiSeo
+countas	TaeTiSeo	Girls' Generation
 
 # Apink
 replaceartist	A Pink					Apink
