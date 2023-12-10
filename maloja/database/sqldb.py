@@ -965,6 +965,17 @@ def get_scrobbles(since=None,to=None,resolve_references=True,limit=None,reverse=
 
 	return result
 
+@cached_wrapper
+@connection_provider
+def get_first_scrobble(dbconn=None):
+	op = DB['scrobbles'].select().order_by(sql.asc('timestamp')).limit(1)
+	result = dbconn.execute(op).all()
+
+	if len(result):
+		return scrobbles_db_to_dict(result, dbconn=dbconn)[0]
+	else:
+		return None
+
 
 # we can do that with above and resolve_references=False, but just testing speed
 @cached_wrapper

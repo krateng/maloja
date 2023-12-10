@@ -912,11 +912,9 @@ def start_db():
 	dbstatus['healthy'] = True
 
 	# inform time module about begin of scrobbling
-	try:
-		firstscrobble = sqldb.get_scrobbles()[0]
+	firstscrobble = sqldb.get_first_scrobble()
+	if firstscrobble is not None:
 		register_scrobbletime(firstscrobble['time'])
-	except IndexError:
-		register_scrobbletime(int(datetime.datetime.now().timestamp()))
 
 	dbstatus['complete'] = True
 
