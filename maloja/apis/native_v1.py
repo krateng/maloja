@@ -7,7 +7,6 @@ from bottle import response, static_file, FormsDict
 from inspect import signature
 
 from doreah.logging import log
-from doreah.auth import authenticated_function
 
 # nimrodel API
 from nimrodel import EAPI as API
@@ -15,7 +14,7 @@ from nimrodel import Multi
 
 
 from .. import database
-from ..pkg_global.conf import malojaconfig, data_dir
+from ..pkg_global.conf import malojaconfig, data_dir, auth
 
 
 
@@ -567,7 +566,7 @@ def album_info_external(k_filter, k_limit, k_delimit, k_amount):
 
 
 @api.post("newscrobble")
-@authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
+@auth.authenticated_function(alternate=api_key_correct,api=True,pass_auth_result_as='auth_result')
 @catch_exceptions
 def post_scrobble(
 		artist:Multi=None,
@@ -647,7 +646,7 @@ def post_scrobble(
 
 
 @api.post("addpicture")
-@authenticated_function(alternate=api_key_correct,api=True)
+@auth.authenticated_function(alternate=api_key_correct,api=True)
 @catch_exceptions
 @convert_kwargs
 def add_picture(k_filter, k_limit, k_delimit, k_amount, k_special):
@@ -670,7 +669,7 @@ def add_picture(k_filter, k_limit, k_delimit, k_amount, k_special):
 
 
 @api.post("importrules")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def import_rulemodule(**keys):
 	"""Internal Use Only"""
@@ -689,7 +688,7 @@ def import_rulemodule(**keys):
 
 
 @api.post("rebuild")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def rebuild(**keys):
 	"""Internal Use Only"""
@@ -765,7 +764,7 @@ def search(**keys):
 
 
 @api.post("newrule")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def newrule(**keys):
 	"""Internal Use Only"""
@@ -776,21 +775,21 @@ def newrule(**keys):
 
 
 @api.post("settings")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def set_settings(**keys):
 	"""Internal Use Only"""
 	malojaconfig.update(keys)
 
 @api.post("apikeys")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def set_apikeys(**keys):
 	"""Internal Use Only"""
 	apikeystore.update(keys)
 
 @api.post("import")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def import_scrobbles(identifier):
 	"""Internal Use Only"""
@@ -798,7 +797,7 @@ def import_scrobbles(identifier):
 	import_scrobbles(identifier)
 
 @api.get("backup")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def get_backup(**keys):
 	"""Internal Use Only"""
@@ -811,7 +810,7 @@ def get_backup(**keys):
 	return static_file(os.path.basename(archivefile),root=tmpfolder)
 
 @api.get("export")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def get_export(**keys):
 	"""Internal Use Only"""
@@ -825,7 +824,7 @@ def get_export(**keys):
 
 
 @api.post("delete_scrobble")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def delete_scrobble(timestamp):
 	"""Internal Use Only"""
@@ -837,7 +836,7 @@ def delete_scrobble(timestamp):
 
 
 @api.post("edit_artist")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def edit_artist(id,name):
 	"""Internal Use Only"""
@@ -847,7 +846,7 @@ def edit_artist(id,name):
 	}
 
 @api.post("edit_track")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def edit_track(id,title):
 	"""Internal Use Only"""
@@ -857,7 +856,7 @@ def edit_track(id,title):
 	}
 
 @api.post("edit_album")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def edit_album(id,albumtitle):
 	"""Internal Use Only"""
@@ -868,7 +867,7 @@ def edit_album(id,albumtitle):
 
 
 @api.post("merge_tracks")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def merge_tracks(target_id,source_ids):
 	"""Internal Use Only"""
@@ -879,7 +878,7 @@ def merge_tracks(target_id,source_ids):
 	}
 
 @api.post("merge_artists")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
@@ -890,7 +889,7 @@ def merge_artists(target_id,source_ids):
 	}
 
 @api.post("merge_albums")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def merge_artists(target_id,source_ids):
 	"""Internal Use Only"""
@@ -901,7 +900,7 @@ def merge_artists(target_id,source_ids):
 	}
 
 @api.post("associate_albums_to_artist")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def associate_albums_to_artist(target_id,source_ids,remove=False):
 	result = database.associate_albums_to_artist(target_id,source_ids,remove=remove)
@@ -913,7 +912,7 @@ def associate_albums_to_artist(target_id,source_ids,remove=False):
 		}
 
 @api.post("associate_tracks_to_artist")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def associate_tracks_to_artist(target_id,source_ids,remove=False):
 	result = database.associate_tracks_to_artist(target_id,source_ids,remove=remove)
@@ -925,7 +924,7 @@ def associate_tracks_to_artist(target_id,source_ids,remove=False):
 		}
 
 @api.post("associate_tracks_to_album")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def associate_tracks_to_album(target_id,source_ids):
 	result = database.associate_tracks_to_album(target_id,source_ids)
@@ -937,7 +936,7 @@ def associate_tracks_to_album(target_id,source_ids):
 
 
 @api.post("reparse_scrobble")
-@authenticated_function(api=True)
+@auth.authenticated_function(api=True)
 @catch_exceptions
 def reparse_scrobble(timestamp):
 	"""Internal Use Only"""

@@ -1,9 +1,9 @@
 import os
 
 import cProfile, pstats
+import time
 
 from doreah.logging import log
-from doreah.timing import Clock
 
 from ..pkg_global.conf import data_dir
 
@@ -27,8 +27,7 @@ def profile(func):
 
 	def newfunc(*args,**kwargs):
 
-		clock = Clock()
-		clock.start()
+		starttime = time.time()
 
 		if FULL_PROFILE:
 			benchmarkfolder = data_dir['logs']("benchmarks")
@@ -44,7 +43,7 @@ def profile(func):
 		if FULL_PROFILE:
 			localprofiler.disable()
 
-		seconds = clock.stop()
+		seconds = time.time() - starttime
 
 		if not SINGLE_CALLS:
 			times.setdefault(realfunc,[]).append(seconds)

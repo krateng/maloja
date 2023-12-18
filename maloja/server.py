@@ -12,14 +12,13 @@ from jinja2.exceptions import TemplateNotFound
 
 # doreah toolkit
 from doreah.logging import log
-from doreah import auth
 
 # rest of the project
 from . import database
 from .database.jinjaview import JinjaDBConnection
 from .images import image_request
 from .malojauri import uri_to_internal, remove_identical
-from .pkg_global.conf import malojaconfig, data_dir
+from .pkg_global.conf import malojaconfig, data_dir, auth
 from .pkg_global import conf
 from .jinjaenv.context import jinja_environment
 from .apis import init_apis, apikeystore
@@ -97,7 +96,7 @@ aliases = {
 
 ### API
 
-auth.authapi.mount(server=webserver)
+conf.auth.authapi.mount(server=webserver)
 init_apis(webserver)
 
 # redirects for backwards compatibility
@@ -197,7 +196,7 @@ def jinja_page(name):
 	if name in aliases: redirect(aliases[name])
 	keys = remove_identical(FormsDict.decode(request.query))
 
-	adminmode = request.cookies.get("adminmode") == "true" and auth.check(request)
+	adminmode = request.cookies.get("adminmode") == "true" and auth.check_request(request)
 
 	with JinjaDBConnection() as conn:
 
@@ -222,7 +221,7 @@ def jinja_page(name):
 	return res
 
 @webserver.route("/<name:re:admin.*>")
-@auth.authenticated
+@auth.authenticated_function()
 def jinja_page_private(name):
 	return jinja_page(name)
 
