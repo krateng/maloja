@@ -29,9 +29,7 @@ pthj = os.path.join
 def is_dir_usable(pth):
 	try:
 		os.makedirs(pth,exist_ok=True)
-		os.mknod(pthj(pth,".test"))
-		os.remove(pthj(pth,".test"))
-		return True
+		return os.access(pth,os.W_OK)
 	except Exception:
 		return False
 
@@ -322,6 +320,7 @@ for identifier,path in data_directories.items():
 		else:
 			print("Directory",path,"is not usable.")
 			print("Please change permissions or settings!")
+			print("Make sure Maloja has write and execute access to this directory.")
 			raise
 
 
