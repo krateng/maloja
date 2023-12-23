@@ -70,6 +70,7 @@ COPY container/root/ /
 ENV	\
 	# Docker-specific configuration
 	MALOJA_SKIP_SETUP=yes \
+	MALOJA_CONTAINER=yes \
 	PYTHONUNBUFFERED=1 \
 	# Prevents breaking change for previous container that ran maloja as root
 	# On linux hosts (non-podman rootless) these variables should be set to the

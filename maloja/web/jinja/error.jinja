@@ -8,8 +8,8 @@
 				<div style="background-image:url('/favicon.png')"></div>
 			</td>
 			<td class="text">
-				<h1>{{ error_desc }}</h1><br/>
-				{{ error_full_desc }}
+				<h1>{{ error_desc | e }}</h1><br/>
+				{{ error_full_desc | e }}
 
 			</td>
 		</tr>
