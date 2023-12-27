@@ -284,6 +284,12 @@ def image_request(artist_id=None,track_id=None,album_id=None):
 		if result is not None:
 			# we got an entry, even if it's that there is no image (value None)
 			if result['value'] is None:
+				# fallback to album regardless of setting (because we have no image)
+				if track_id:
+					track = database.sqldb.get_track(track_id)
+					if track.get("album"):
+						album_id = database.sqldb.get_album_id(track["album"])
+						return image_request(album_id=album_id)
 				# use placeholder
 				if malojaconfig["FANCY_PLACEHOLDER_ART"]:
 					placeholder_url = "https://generative-placeholders.glitch.me/image?width=300&height=300&style="
