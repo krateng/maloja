@@ -406,7 +406,7 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
 
 	for track_id in track_to_album_id_dict:
-		add_track_to_album(track_id,track_to_album_id_dict[track_id],dbconn=dbconn)
+		add_track_to_album(track_id,track_to_album_id_dict[track_id],replace=replace,dbconn=dbconn)
 
 @connection_provider
 def remove_album(*track_ids,dbconn=None):

@@ -318,7 +318,7 @@ def associate_tracks_to_album(target_id,source_ids):
 	if target_id:
 		target = sqldb.get_album(target_id)
 		log(f"Adding {sources} into {target}")
-		sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+		sqldb.add_tracks_to_albums({src:target_id for src in source_ids},replace=True)
 	else:
 		sqldb.remove_album(source_ids)
 	result = {'sources':sources,'target':target}
