@@ -10,3 +10,5 @@ sqlalchemy>=2.0
 python-datauri>=1.1.0
 requests>=2.27.1
 setuptools>68.0.0
+toml>=0.10.2
+PyYAML>=6.0.1
