@@ -987,6 +987,7 @@ table.misc td {
 
 
 div.tiles {
+    max-height: 600px;
 	display: grid;
 	grid-template-columns: repeat(18, calc(100% / 18));
 	grid-template-rows: repeat(6, calc(100% / 6));
