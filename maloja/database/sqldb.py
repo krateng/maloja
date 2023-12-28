@@ -328,7 +328,10 @@ def album_dict_to_db(info,dbconn=None):
 
 @connection_provider
 def add_scrobble(scrobbledict,update_album=False,dbconn=None):
-	add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
+	_, e = add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
+	if e > 0:
+		raise exc.DuplicateTimestamp(existing_scrobble=None,rejected_scrobble=scrobbledict)
+		# TODO: actually pass existing scrobble
 
 @connection_provider
 def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):

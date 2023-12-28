@@ -14,6 +14,13 @@ class ArtistExists(EntityExists):
 class AlbumExists(EntityExists):
 	pass
 
+
+class DuplicateTimestamp(Exception):
+	def __init__(self,existing_scrobble,rejected_scrobble):
+		self.existing_scrobble = existing_scrobble
+		self.rejected_scrobble = rejected_scrobble
+
+
 class DatabaseNotBuilt(HTTPError):
 	def __init__(self):
 		super().__init__(

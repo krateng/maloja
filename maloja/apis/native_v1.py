@@ -82,6 +82,14 @@ errors = {
 			'desc':"This entity does not exist in the database."
 		}
 	}),
+	database.exceptions.DuplicateTimestamp: lambda e: (409,{
+		"status":"error",
+		"error":{
+			'type':'duplicate_timestamp',
+			'value':e.rejected_scrobble,
+			'desc':"A scrobble is already registered with this timestamp."
+		}
+	}),
 	images.MalformedB64: lambda e: (400,{
 		"status":"failure",
 		"error":{
