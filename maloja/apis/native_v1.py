@@ -482,7 +482,7 @@ def get_top_artists_external(k_filter, k_limit, k_delimit, k_amount):
 	:rtype: Dictionary"""
 
 	ckeys = {**k_limit, **k_delimit}
-	results = database.get_top_artists(**ckeys)
+	results = database.get_top_artists(**ckeys,compatibility=True)
 
 	return {
 		"status":"ok",
@@ -501,7 +501,7 @@ def get_top_tracks_external(k_filter, k_limit, k_delimit, k_amount):
 	:rtype: Dictionary"""
 
 	ckeys = {**k_limit, **k_delimit}
-	results = database.get_top_tracks(**ckeys)
+	results = database.get_top_tracks(**ckeys,compatibility=True)
 	# IMPLEMENT THIS FOR TOP TRACKS OF ARTIST/ALBUM AS WELL?
 
 	return {
@@ -521,7 +521,7 @@ def get_top_albums_external(k_filter, k_limit, k_delimit, k_amount):
 	:rtype: Dictionary"""
 
 	ckeys = {**k_limit, **k_delimit}
-	results = database.get_top_albums(**ckeys)
+	results = database.get_top_albums(**ckeys,compatibility=True)
 	# IMPLEMENT THIS FOR TOP ALBUMS OF ARTIST AS WELL?
 
 	return {
