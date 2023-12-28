@@ -12,11 +12,12 @@ def export(targetfolder=None):
 		targetfolder = os.getcwd()
 
 	timestr = time.strftime("%Y_%m_%d_%H_%M_%S")
+	timestamp = int(time.time()) # ok this is technically a separate time get from above, but those ms are not gonna matter, and im too lazy to change it all to datetime
 	filename = f"maloja_export_{timestr}.json"
 	outputfile = os.path.join(targetfolder,filename)
 	assert not os.path.exists(outputfile)
 
-	data = {'scrobbles':get_scrobbles()}
+	data = {'maloja':{'export_time': timestamp },'scrobbles':get_scrobbles()}
 	with open(outputfile,'w') as outfd:
 		json.dump(data,outfd,indent=3)
 
