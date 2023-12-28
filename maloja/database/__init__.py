@@ -913,7 +913,7 @@ def start_db():
 
 	# inform time module about begin of scrobbling
 	try:
-		firstscrobble = sqldb.get_scrobbles()[0]
+		firstscrobble = sqldb.get_scrobbles(limit=1)[0]
 		register_scrobbletime(firstscrobble['time'])
 	except IndexError:
 		register_scrobbletime(int(datetime.datetime.now().timestamp()))
