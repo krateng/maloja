@@ -177,7 +177,7 @@ malojaconfig = Configuration(
 			"name":(tp.String(),												"Name",							"Generic Maloja User")
 		},
 		"Third Party Services":{
-			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','audiodb','musicbrainz'],	"Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
+			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','audiodb','musicbrainz'],	"List of which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
 			"scrobble_lastfm":(tp.Boolean(),									"Proxy-Scrobble to Last.fm",	False),
 			"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
 			"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
