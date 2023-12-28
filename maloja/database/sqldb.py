@@ -1075,7 +1075,7 @@ def count_scrobbles_by_artist(since,to,associated=True,resolve_ids=True,dbconn=N
 		DB['scrobbles'].c.timestamp.between(since,to)
 	).group_by(
 		artistselect
-	).order_by(sql.desc('count'))
+	).order_by(sql.desc('count'),sql.desc('really_by_this_artist'))
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:
