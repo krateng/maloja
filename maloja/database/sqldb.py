@@ -863,19 +863,24 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 		op = op.order_by(sql.desc('timestamp'))
 	else:
 		op = op.order_by(sql.asc('timestamp'))
-	if limit:
+	if limit and associated:
+		# if we count associated we cant limit here because we remove stuff later!
 		op = op.limit(limit)
 	result = dbconn.execute(op).all()
 
 	# remove duplicates (multiple associated artists in the song, e.g. Irene & Seulgi being both counted as Red Velvet)
 	# distinct on doesn't seem to exist in sqlite
-	seen = set()
-	filtered_result = []
-	for row in result:
-		if row.timestamp not in seen:
-			filtered_result.append(row)
-			seen.add(row.timestamp)
-	result = filtered_result
+	if associated:
+		seen = set()
+		filtered_result = []
+		for row in result:
+			if row.timestamp not in seen:
+				filtered_result.append(row)
+				seen.add(row.timestamp)
+		result = filtered_result
+		if limit:
+			result = result[:limit]
+
 
 
 	if resolve_references:
