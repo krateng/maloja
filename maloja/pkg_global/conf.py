@@ -1,4 +1,7 @@
 import os
+
+import doreah.auth
+import doreah.logging
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
@@ -330,26 +333,15 @@ data_dir = {
 
 
 
-### DOREAH CONFIGURATION
+### DOREAH OBJECTS
 
-from doreah import config
+auth = doreah.auth.AuthManager(singleuser=True,cookieprefix='maloja',stylesheets=("/maloja.css",),dbfile=data_dir['auth']("auth.sqlite"))
 
-config(
-	auth={
-		"multiuser":False,
-		"cookieprefix":"maloja",
-		"stylesheets":["/maloja.css"],
-		"dbfile":data_dir['auth']("auth.ddb")
-	},
-	logging={
-		"logfolder": data_dir['logs']() if malojaconfig["LOGGING"] else None
-	},
-	regular={
-		"offset": malojaconfig["TIMEZONE"]
-	}
-)
+#logger = doreah.logging.Logger(logfolder=data_dir['logs']() if malojaconfig["LOGGING"] else None)
+#log = logger.log
 
-
+# this is not how its supposed to be done, but lets ease the transition
+doreah.logging.defaultlogger.logfolder = data_dir['logs']() if malojaconfig["LOGGING"] else None
 
 
 

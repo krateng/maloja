@@ -6,9 +6,8 @@ try:
 except ImportError:
 	import distutils
 from doreah.io import col, ask, prompt
-from doreah import auth
 
-from .pkg_global.conf import data_dir, dir_settings, malojaconfig
+from .pkg_global.conf import data_dir, dir_settings, malojaconfig, auth
 
 
 
@@ -67,10 +66,10 @@ def setup():
 
 		if forcepassword is not None:
 			# user has specified to force the pw, nothing else matters
-			auth.defaultuser.setpw(forcepassword)
+			auth.change_pw(password=forcepassword)
 			print("Password has been set.")
-		elif auth.defaultuser.checkpw("admin"):
-			# if the actual pw is admin, it means we've never set this up properly (eg first start after update)
+		elif auth.still_has_factory_default_user():
+			# this means we've never set this up properly (eg first start after update)
 			while True:
 				newpw = prompt("Please set a password for web backend access. Leave this empty to generate a random password.",skip=SKIP,secret=True)
 				if newpw is None:
@@ -81,7 +80,7 @@ def setup():
 					newpw_repeat = prompt("Please type again to confirm.",skip=SKIP,secret=True)
 					if newpw != newpw_repeat: print("Passwords do not match!")
 					else: break
-			auth.defaultuser.setpw(newpw)
+			auth.change_pw(password=newpw)
 
 	except EOFError:
 		print("No user input possible. If you are running inside a container, set the environment variable",col['yellow']("MALOJA_SKIP_SETUP=yes"))

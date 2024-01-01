@@ -40,6 +40,7 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed Last.fm authentication"
 3.2.3:
     notes:
+    - "[Architecture] Upgraded doreah, significant rework of authentication"
     - "[Bugfix] Fixed initial permission check"
     - "[Bugfix] Fixed and updated various texts"
     - "[Bugfix] Fixed moving tracks to different album"

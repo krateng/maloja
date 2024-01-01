@@ -27,7 +27,6 @@ from . import exceptions
 
 # doreah toolkit
 from doreah.logging import log
-from doreah.auth import authenticated_api, authenticated_api_with_alternate
 import doreah
 
 
