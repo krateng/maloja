@@ -54,19 +54,22 @@ class Audioscrobbler(APIHandler):
 		token = keys.get("authToken")
 		user = keys.get("username")
 		password = keys.get("password")
+		format = keys.get("format") or "xml" # Audioscrobbler 2.0 uses XML by default
 		# either username and password
 		if user is not None and password is not None:
 			client = apikeystore.check_and_identify_key(password)
 			if client:
 				sessionkey = self.generate_key(client)
-				return 200,"""<lfm status="ok">
-  <session>
-    <name>%s</name>
-    <key>%s</key>
-    <subscriber>0</subscriber>
-  </session>
-</lfm>
-""" % (self.xml_escape(user), self.xml_escape(sessionkey))
+				if format == "json":
+					return 200,{"session":{"key":sessionkey}}
+				else:
+					return 200,"""<lfm status="ok">
+	<session>
+		<name>%s</name>
+		<key>%s</key>
+		<subscriber>0</subscriber>
+	</session>
+</lfm>""" % (self.xml_escape(user), self.xml_escape(sessionkey))
 			else:
 				raise InvalidAuthException()
 		# or username and token (deprecated by lastfm)
@@ -75,14 +78,16 @@ class Audioscrobbler(APIHandler):
 				key = apikeystore[client]
 				if md5(user + md5(key)) == token:
 					sessionkey = self.generate_key(client)
-					return 200,"""<lfm status="ok">
-  <session>
-    <name>%s</name>
-    <key>%s</key>
-    <subscriber>0</subscriber>
-  </session>
-</lfm>
-""" % (self.xml_escape(user), self.xml_escape(sessionkey))
+					if format == "json":
+						return 200,{"session":{"key":sessionkey}}
+					else:
+						return 200,"""<lfm status="ok">
+	<session>
+		<name>%s</name>
+		<key>%s</key>
+		<subscriber>0</subscriber>
+	</session>
+</lfm>""" % (self.xml_escape(user), self.xml_escape(sessionkey))
 			raise InvalidAuthException()
 		else:
 			raise BadAuthException()
