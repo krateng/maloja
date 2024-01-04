@@ -1,4 +1,4 @@
-FROM lsiobase/alpine:3.17 as base
+FROM lsiobase/alpine:3.19 as base
 
 WORKDIR /usr/src/app
 
@@ -32,13 +32,15 @@ RUN \
 		tzdata && \
   echo "" && \
 	echo "**** install pip dependencies ****" && \
+	python3 -m venv /venv && \
+    . /venv/bin/activate && \
 	python3 -m ensurepip && \
-  pip3 install -U --no-cache-dir \
+    pip install -U --no-cache-dir \
 	  pip \
 	  wheel && \
   echo "" && \
   echo "**** install maloja requirements ****" && \
-  pip3 install --no-cache-dir -r requirements.txt && \
+  pip install --no-cache-dir -r requirements.txt && \
   echo "" && \
 	echo "**** cleanup ****" && \
 	apk del --purge \
@@ -56,6 +58,8 @@ RUN \
 	echo "**** install maloja ****" && \
 	apk add --no-cache --virtual=install-deps \
 	  py3-pip && \
+	python3 -m venv /venv && \
+    . /venv/bin/activate && \
 	pip3 install /usr/src/app && \
 	apk del --purge \
 		install-deps && \

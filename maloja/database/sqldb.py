@@ -328,7 +328,10 @@ def album_dict_to_db(info,dbconn=None):
 
 @connection_provider
 def add_scrobble(scrobbledict,update_album=False,dbconn=None):
-	add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
+	_, e = add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
+	if e > 0:
+		raise exc.DuplicateTimestamp(existing_scrobble=None,rejected_scrobble=scrobbledict)
+		# TODO: actually pass existing scrobble
 
 @connection_provider
 def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):
@@ -406,7 +409,7 @@ def add_track_to_album(track_id,album_id,replace=False,dbconn=None):
 def add_tracks_to_albums(track_to_album_id_dict,replace=False,dbconn=None):
 
 	for track_id in track_to_album_id_dict:
-		add_track_to_album(track_id,track_to_album_id_dict[track_id],dbconn=dbconn)
+		add_track_to_album(track_id,track_to_album_id_dict[track_id],replace=replace,dbconn=dbconn)
 
 @connection_provider
 def remove_album(*track_ids,dbconn=None):
@@ -860,19 +863,24 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 		op = op.order_by(sql.desc('timestamp'))
 	else:
 		op = op.order_by(sql.asc('timestamp'))
-	if limit:
+	if limit and associated:
+		# if we count associated we cant limit here because we remove stuff later!
 		op = op.limit(limit)
 	result = dbconn.execute(op).all()
 
 	# remove duplicates (multiple associated artists in the song, e.g. Irene & Seulgi being both counted as Red Velvet)
 	# distinct on doesn't seem to exist in sqlite
-	seen = set()
-	filtered_result = []
-	for row in result:
-		if row.timestamp not in seen:
-			filtered_result.append(row)
-			seen.add(row.timestamp)
-	result = filtered_result
+	if associated:
+		seen = set()
+		filtered_result = []
+		for row in result:
+			if row.timestamp not in seen:
+				filtered_result.append(row)
+				seen.add(row.timestamp)
+		result = filtered_result
+		if limit:
+			result = result[:limit]
+
 
 
 	if resolve_references:
@@ -1072,7 +1080,7 @@ def count_scrobbles_by_artist(since,to,associated=True,resolve_ids=True,dbconn=N
 		DB['scrobbles'].c.timestamp.between(since,to)
 	).group_by(
 		artistselect
-	).order_by(sql.desc('count'))
+	).order_by(sql.desc('count'),sql.desc('really_by_this_artist'))
 	result = dbconn.execute(op).all()
 
 	if resolve_ids:

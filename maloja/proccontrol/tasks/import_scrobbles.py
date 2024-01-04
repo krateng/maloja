@@ -32,6 +32,8 @@ def import_scrobbles(inputf):
 	}
 
 	filename = os.path.basename(inputf)
+	importfunc = None
+
 
 	if re.match(r".*\.csv",filename):
 		typeid,typedesc = "lastfm","Last.fm"
@@ -62,7 +64,17 @@ def import_scrobbles(inputf):
 		typeid,typedesc = "rockbox","Rockbox"
 		importfunc = parse_rockbox
 
-	else:
+	elif re.match(r".*\.json",filename):
+		try:
+			with open(filename,'r') as fd:
+				data = json.load(fd)
+			if 'maloja' in data:
+				typeid,typedesc = "maloja","Maloja"
+				importfunc = parse_maloja
+		except Exception:
+			pass
+
+	if not importfunc:
 		print("File",inputf,"could not be identified as a valid import source.")
 		return result
 

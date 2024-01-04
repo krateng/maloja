@@ -4,4 +4,4 @@
 
 echo -e "\nMaloja is starting!"
 exec \
-	  s6-setuidgid abc python -m maloja run
+	  s6-setuidgid abc /venv/bin/python -m maloja run

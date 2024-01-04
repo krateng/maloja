@@ -1,4 +1,7 @@
 import os
+
+import doreah.auth
+import doreah.logging
 from doreah.configuration import Configuration
 from doreah.configuration import types as tp
 
@@ -177,7 +180,7 @@ malojaconfig = Configuration(
 			"name":(tp.String(),												"Name",							"Generic Maloja User")
 		},
 		"Third Party Services":{
-			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','audiodb','musicbrainz'],	"Which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
+			"metadata_providers":(tp.List(tp.String()),							"Metadata Providers",			['lastfm','spotify','deezer','audiodb','musicbrainz'],	"List of which metadata providers should be used in what order. Musicbrainz is rate-limited and should not be used first."),
 			"scrobble_lastfm":(tp.Boolean(),									"Proxy-Scrobble to Last.fm",	False),
 			"lastfm_api_key":(tp.String(),										"Last.fm API Key",				None),
 			"lastfm_api_secret":(tp.String(),									"Last.fm API Secret",			None),
@@ -330,26 +333,15 @@ data_dir = {
 
 
 
-### DOREAH CONFIGURATION
+### DOREAH OBJECTS
 
-from doreah import config
+auth = doreah.auth.AuthManager(singleuser=True,cookieprefix='maloja',stylesheets=("/maloja.css",),dbfile=data_dir['auth']("auth.sqlite"))
 
-config(
-	auth={
-		"multiuser":False,
-		"cookieprefix":"maloja",
-		"stylesheets":["/maloja.css"],
-		"dbfile":data_dir['auth']("auth.ddb")
-	},
-	logging={
-		"logfolder": data_dir['logs']() if malojaconfig["LOGGING"] else None
-	},
-	regular={
-		"offset": malojaconfig["TIMEZONE"]
-	}
-)
+#logger = doreah.logging.Logger(logfolder=data_dir['logs']() if malojaconfig["LOGGING"] else None)
+#log = logger.log
 
-
+# this is not how its supposed to be done, but lets ease the transition
+doreah.logging.defaultlogger.logfolder = data_dir['logs']() if malojaconfig["LOGGING"] else None
 
 
 

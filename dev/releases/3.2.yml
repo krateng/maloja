@@ -32,8 +32,15 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed Spotify authentication thread blocking the process from terminating"
     - "[Technical] Upgraded all third party modules to use requests module and send User Agent"
 3.2.2:
+    commit: "febaff97228b37a192f2630aa331cac5e5c3e98e"
     notes:
     - "[Security] Fixed XSS vulnerability in error page (Disclosed by https://github.com/NULLYUKI)"
     - "[Architecture] Reworked the default directory selection"
     - "[Feature] Added option to show scrobbles on tile charts"
     - "[Bugfix] Fixed Last.fm authentication"
+3.2.3:
+    notes:
+    - "[Architecture] Upgraded doreah, significant rework of authentication"
+    - "[Bugfix] Fixed initial permission check"
+    - "[Bugfix] Fixed and updated various texts"
+    - "[Bugfix] Fixed moving tracks to different album"

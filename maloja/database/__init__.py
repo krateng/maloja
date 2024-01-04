@@ -27,7 +27,6 @@ from . import exceptions
 
 # doreah toolkit
 from doreah.logging import log
-from doreah.auth import authenticated_api, authenticated_api_with_alternate
 import doreah
 
 
@@ -42,6 +41,7 @@ from collections import namedtuple
 from threading import Lock
 import yaml, json
 import math
+from itertools import takewhile
 
 # url handling
 import urllib
@@ -318,7 +318,7 @@ def associate_tracks_to_album(target_id,source_ids):
 	if target_id:
 		target = sqldb.get_album(target_id)
 		log(f"Adding {sources} into {target}")
-		sqldb.add_tracks_to_albums({src:target_id for src in source_ids})
+		sqldb.add_tracks_to_albums({src:target_id for src in source_ids},replace=True)
 	else:
 		sqldb.remove_album(source_ids)
 	result = {'sources':sources,'target':target}
@@ -570,7 +570,7 @@ def get_performance(dbconn=None,**keys):
 	return results
 
 @waitfordb
-def get_top_artists(dbconn=None,**keys):
+def get_top_artists(dbconn=None,compatibility=True,**keys):
 
 	separate = keys.get('separate')
 
@@ -578,42 +578,73 @@ def get_top_artists(dbconn=None,**keys):
 	results = []
 
 	for rng in rngs:
-		try:
-			res = get_charts_artists(timerange=rng,separate=separate,dbconn=dbconn)[0]
-			results.append({"range":rng,"artist":res["artist"],"scrobbles":res["scrobbles"],"real_scrobbles":res["real_scrobbles"],"associated_artists":sqldb.get_associated_artists(res["artist"])})
-		except Exception:
-			results.append({"range":rng,"artist":None,"scrobbles":0,"real_scrobbles":0})
+		result = {'range':rng}
+		res = get_charts_artists(timerange=rng,separate=separate,dbconn=dbconn)
+
+		result['top'] = [
+			{'artist': r['artist'], 'scrobbles': r['scrobbles'], 'real_scrobbles':r['real_scrobbles'], 'associated_artists': sqldb.get_associated_artists(r['artist'])}
+			for r in takewhile(lambda x:x['rank']==1,res)
+		]
+		# for third party applications
+		if compatibility:
+			if result['top']:
+				result.update(result['top'][0])
+			else:
+				result.update({'artist':None,'scrobbles':0,'real_scrobbles':0})
+
+		results.append(result)
 
 	return results
 
 
 @waitfordb
-def get_top_tracks(dbconn=None,**keys):
+def get_top_tracks(dbconn=None,compatibility=True,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
-		try:
-			res = get_charts_tracks(timerange=rng,dbconn=dbconn)[0]
-			results.append({"range":rng,"track":res["track"],"scrobbles":res["scrobbles"]})
-		except Exception:
-			results.append({"range":rng,"track":None,"scrobbles":0})
+		result = {'range':rng}
+		res = get_charts_tracks(timerange=rng,dbconn=dbconn)
+
+		result['top'] = [
+			{'track': r['track'], 'scrobbles': r['scrobbles']}
+			for r in takewhile(lambda x:x['rank']==1,res)
+		]
+		# for third party applications
+		if compatibility:
+			if result['top']:
+				result.update(result['top'][0])
+			else:
+				result.update({'track':None,'scrobbles':0})
+
+		results.append(result)
 
 	return results
 
 @waitfordb
-def get_top_albums(dbconn=None,**keys):
+def get_top_albums(dbconn=None,compatibility=True,**keys):
 
 	rngs = ranges(**{k:keys[k] for k in keys if k in ["since","to","within","timerange","step","stepn","trail"]})
 	results = []
 
 	for rng in rngs:
-		try:
-			res = get_charts_albums(timerange=rng,dbconn=dbconn)[0]
-			results.append({"range":rng,"album":res["album"],"scrobbles":res["scrobbles"]})
-		except Exception:
-			results.append({"range":rng,"album":None,"scrobbles":0})
+
+		result = {'range':rng}
+		res = get_charts_tracks(timerange=rng,dbconn=dbconn)
+
+		result['top'] = [
+			{'album': r['album'], 'scrobbles': r['scrobbles']}
+			for r in takewhile(lambda x:x['rank']==1,res)
+		]
+		# for third party applications
+		if compatibility:
+			if result['top']:
+				result.update(result['top'][0])
+			else:
+				result.update({'album':None,'scrobbles':0})
+
+		results.append(result)
 
 	return results
 
@@ -913,7 +944,7 @@ def start_db():
 
 	# inform time module about begin of scrobbling
 	try:
-		firstscrobble = sqldb.get_scrobbles()[0]
+		firstscrobble = sqldb.get_scrobbles(limit=1)[0]
 		register_scrobbletime(firstscrobble['time'])
 	except IndexError:
 		register_scrobbletime(int(datetime.datetime.now().timestamp()))
