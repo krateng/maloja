@@ -863,7 +863,7 @@ def get_scrobbles_of_artist(artist,since=None,to=None,resolve_references=True,li
 		op = op.order_by(sql.desc('timestamp'))
 	else:
 		op = op.order_by(sql.asc('timestamp'))
-	if limit and associated:
+	if limit and not associated:
 		# if we count associated we cant limit here because we remove stuff later!
 		op = op.limit(limit)
 	result = dbconn.execute(op).all()
