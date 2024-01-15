@@ -631,7 +631,7 @@ def get_top_albums(dbconn=None,compatibility=True,**keys):
 	for rng in rngs:
 
 		result = {'range':rng}
-		res = get_charts_tracks(timerange=rng,dbconn=dbconn)
+		res = get_charts_albums(timerange=rng,dbconn=dbconn)
 
 		result['top'] = [
 			{'album': r['album'], 'scrobbles': r['scrobbles']}
