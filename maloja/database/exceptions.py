@@ -26,7 +26,7 @@ class DuplicateTimestamp(Exception):
 
 
 # if it's the same scrobble
-class DuplicateScrobble(EntityExists):
+class DuplicateScrobble(Exception):
 	def __init__(self, scrobble):
 		self.scrobble = scrobble
 

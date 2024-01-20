@@ -328,34 +328,48 @@ def album_dict_to_db(info,dbconn=None):
 
 @connection_provider
 def add_scrobble(scrobbledict,update_album=False,dbconn=None):
-	_, e = add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
-	if e > 0:
+	_, ex, er = add_scrobbles([scrobbledict],update_album=update_album,dbconn=dbconn)
+	if er > 0:
 		raise exc.DuplicateTimestamp(existing_scrobble=None,rejected_scrobble=scrobbledict)
 		# TODO: actually pass existing scrobble
+	elif ex > 0:
+		raise exc.DuplicateScrobble(scrobble=scrobbledict)
 
 @connection_provider
 def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):
 
 	with SCROBBLE_LOCK:
 
-		ops = [
-			DB['scrobbles'].insert().values(
-				**scrobble_dict_to_db(s,update_album=update_album,dbconn=dbconn)
-			) for s in scrobbleslist
-		]
+	#	ops = [
+	#		DB['scrobbles'].insert().values(
+	#			**scrobble_dict_to_db(s,update_album=update_album,dbconn=dbconn)
+	#		) for s in scrobbleslist
+	#	]
 
-		success,errors = 0,0
-		for op in ops:
+		success, exists, errors = 0, 0, 0
+
+		for s in scrobbleslist:
+			scrobble_entry = scrobble_dict_to_db(s,update_album=update_album,dbconn=dbconn)
 			try:
-				dbconn.execute(op)
+				dbconn.execute(DB['scrobbles'].insert().values(
+					**scrobble_entry
+				))
 				success += 1
-			except sql.exc.IntegrityError as e:
-				errors += 1
+			except sql.exc.IntegrityError:
+				# get existing scrobble
+				result = dbconn.execute(DB['scrobbles'].select().where(
+					DB['scrobbles'].c.timestamp == scrobble_entry['timestamp']
+				)).first()
+				print("Existing",result)
+				if result.track_id == scrobble_entry['track_id']:
+					exists += 1
+				else:
+					errors += 1
 
-				# TODO check if actual duplicate
 
 	if errors > 0: log(f"{errors} Scrobbles have not been written to database!",color='red')
-	return success,errors
+	if exists > 0: log(f"{exists} Scrobbles have not been written to database (duplicate)", color='orange')
+	return success, exists, errors
 
 @connection_provider
 def delete_scrobble(scrobble_id,dbconn=None):

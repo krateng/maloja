@@ -89,6 +89,16 @@ errors = {
 			'desc':"A scrobble is already registered with this timestamp."
 		}
 	}),
+	database.exceptions.DuplicateScrobble: lambda e: (200,{
+		"status": "success",
+		"desc": "The scrobble is present in the database.",
+		"track": {},
+		"warnings": [{
+			'type': 'scrobble_exists',
+			'value': None,
+			'desc': 'This scrobble exists in the database (same timestamp and track). The submitted scrobble was not added.'
+		}]
+	}),
 	images.MalformedB64: lambda e: (400,{
 		"status":"failure",
 		"error":{
