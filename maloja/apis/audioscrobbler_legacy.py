@@ -23,11 +23,11 @@ class AudioscrobblerLegacy(APIHandler):
 			"scrobble":self.submit_scrobble
 		}
 		self.errors = {
-			BadAuthException:(403,"BADAUTH\n"),
-			InvalidAuthException:(403,"BADAUTH\n"),
-			InvalidMethodException:(400,"FAILED\n"),
-			InvalidSessionKey:(403,"BADSESSION\n"),
-			ScrobblingException:(500,"FAILED\n")
+			BadAuthException: (403, "BADAUTH\n"),
+			InvalidAuthException: (403, "BADAUTH\n"),
+			InvalidMethodException: (400, "FAILED\n"),
+			InvalidSessionKey: (403, "BADSESSION\n"),
+			Exception: (500, "FAILED\n")
 		}
 
 	def get_method(self,pathnodes,keys):

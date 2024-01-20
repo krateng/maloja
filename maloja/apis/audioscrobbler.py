@@ -21,11 +21,11 @@ class Audioscrobbler(APIHandler):
 			"track.scrobble":self.submit_scrobble
 		}
 		self.errors = {
-			BadAuthException:(400,{"error":6,"message":"Requires authentication"}),
-			InvalidAuthException:(401,{"error":4,"message":"Invalid credentials"}),
-			InvalidMethodException:(200,{"error":3,"message":"Invalid method"}),
-			InvalidSessionKey:(403,{"error":9,"message":"Invalid session key"}),
-			ScrobblingException:(500,{"error":8,"message":"Operation failed"})
+			BadAuthException: (400, {"error": 6, "message": "Requires authentication"}),
+			InvalidAuthException: (401, {"error": 4, "message": "Invalid credentials"}),
+			InvalidMethodException: (200, {"error": 3, "message": "Invalid method"}),
+			InvalidSessionKey: (403, {"error": 9, "message": "Invalid session key"}),
+			Exception: (500, {"error": 8, "message": "Operation failed"})
 		}
 
 	def get_method(self,pathnodes,keys):

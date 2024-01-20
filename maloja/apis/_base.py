@@ -25,6 +25,13 @@ __logmodulename__ = "apis"
 
 cla = CleanerAgent()
 
+
+
+# wrapper method: calls handle. final net to catch exceptions and map them to the handlers proper json / xml response
+# handle method: finds the method for this path / query. can only raise InvalidMethodException
+# scrobble: NOT the exposed scrobble method - helper for all APIs to scrobble their results with self-identification
+
+
 class APIHandler:
 	# make these classes singletons
 	_instance = None
@@ -64,35 +71,32 @@ class APIHandler:
 			response.status,result = self.handle(path,keys)
 		except Exception:
 			exceptiontype = sys.exc_info()[0]
-			if exceptiontype in self.errors:
-				response.status,result = self.errors[exceptiontype]
-				log(f"Error with {self.__apiname__} API: {exceptiontype} (Request: {path})")
+			for exc_type, exc_response in self.errors.items():
+				if isinstance(exceptiontype, exc_type):
+					response.status, result = exc_response
+					log(f"Error with {self.__apiname__} API: {exceptiontype} (Request: {path})")
+					break
 			else:
-				response.status,result = 500,{"status":"Unknown error","code":500}
+				# THIS SHOULD NOT HAPPEN
+				response.status, result = 500, {"status": "Unknown error", "code": 500}
 				log(f"Unhandled Exception with {self.__apiname__} API: {exceptiontype} (Request: {path})")
 
 		return result
-		#else:
-		#	result = {"error":"Invalid scrobble protocol"}
-		#	response.status = 500
 
 
 	def handle(self,path,keys):
 
 		try:
-			methodname = self.get_method(path,keys)
+			methodname = self.get_method(path, keys)
 			method = self.methods[methodname]
-		except Exception:
-			log("Could not find a handler for method " + str(methodname) + " in API " + self.__apiname__,module="debug")
-			log("Keys: " + str(keys),module="debug")
+		except KeyError:
+			log(f"Could not find a handler for method {methodname} in API {self.__apiname__}", module="debug")
+			log(f"Keys: {keys}", module="debug")
 			raise InvalidMethodException()
-		return method(path,keys)
+		return method(path, keys)
 
 
 	def scrobble(self,rawscrobble,client=None):
 
 		# fixing etc is handled by the main scrobble function
-		try:
-			return database.incoming_scrobble(rawscrobble,api=self.__apiname__,client=client)
-		except Exception:
-			raise ScrobblingException()
+		return database.incoming_scrobble(rawscrobble,api=self.__apiname__,client=client)
