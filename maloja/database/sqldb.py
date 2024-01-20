@@ -360,15 +360,14 @@ def add_scrobbles(scrobbleslist,update_album=False,dbconn=None):
 				result = dbconn.execute(DB['scrobbles'].select().where(
 					DB['scrobbles'].c.timestamp == scrobble_entry['timestamp']
 				)).first()
-				print("Existing",result)
 				if result.track_id == scrobble_entry['track_id']:
 					exists += 1
 				else:
 					errors += 1
 
 
-	if errors > 0: log(f"{errors} Scrobbles have not been written to database!",color='red')
-	if exists > 0: log(f"{exists} Scrobbles have not been written to database (duplicate)", color='orange')
+	if errors > 0: log(f"{errors} Scrobbles have not been written to database (duplicate timestamps)!", color='red')
+	if exists > 0: log(f"{exists} Scrobbles have not been written to database (already exist)", color='orange')
 	return success, exists, errors
 
 @connection_provider
