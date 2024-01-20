@@ -363,12 +363,14 @@ div#notification_area {
 	right:20px;
 }
 div#notification_area div.notification {
-	background-color:white;
+	background-color:black;
 	width:400px;
 	min-height:50px;
 	margin-bottom:7px;
 	padding:9px;
-	opacity:0.4;
+	opacity:0.5;
+	border-left: 8px solid var(--notification-color);
+	border-radius: 3px;
 }
 div#notification_area div.notification:hover {
 	opacity:0.95;

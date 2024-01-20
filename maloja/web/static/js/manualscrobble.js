@@ -126,7 +126,7 @@ function scrobble(artists,title,albumartists,album,timestamp) {
 	lastArtists = artists;
 	lastTrack = title;
 	lastAlbum = album;
-	lastAlbumartists = albumartists;
+	lastAlbumartists = albumartists || [];
 
 	var payload = {
 		"artists":artists,

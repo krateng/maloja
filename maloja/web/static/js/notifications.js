@@ -1,12 +1,14 @@
 // JS for feedback to the user whenever any XHTTP action is taken
 
 const colors = {
-	'warning':'red',
+    'error': 'red',
+	'warning':'#8ACC26',
 	'info':'green'
 }
 
+
 const notification_template = info => `
-	<div class="notification" style="background-color:${colors[info.notification_type]};">
+	<div class="notification" style="--notification-color: ${colors[info.notification_type]};">
 		<b>${info.title}</b><br/>
 		<span>${info.body}</span>
 
@@ -35,18 +37,24 @@ function notify(title,msg,notification_type='info',reload=false) {
 }
 
 function notifyCallback(request) {
-	var body = request.response;
+	var response = request.response;
 	var status = request.status;
 
 	if (status == 200) {
-		var notification_type = 'info';
+	    if (response.hasOwnProperty('warnings') && response.warnings.length > 0) {
+	        var notification_type = 'warning';
+	    }
+	    else {
+	        var notification_type = 'info';
+	    }
+
 		var title = "Success!";
-		var msg = body.desc || body;
+		var msg = response.desc || response;
 	}
 	else {
-		var notification_type = 'warning';
-		var title = "Error: " + body.error.type;
-		var msg = body.error.desc || "";
+		var notification_type = 'error';
+		var title = "Error: " + response.error.type;
+		var msg = response.error.desc || "";
 	}
 
 
