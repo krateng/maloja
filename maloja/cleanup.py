@@ -15,13 +15,15 @@ class CleanerAgent:
 	def updateRules(self):
 
 		rawrules = []
-		for f in os.listdir(data_dir["rules"]()):
-			if f.split('.')[-1].lower() != 'tsv': continue
-			filepath = data_dir["rules"](f)
-			with open(filepath,'r') as filed:
-				reader = csv.reader(filed,delimiter="\t")
-				rawrules += [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
-
+		try:
+			for f in os.listdir(data_dir["rules"]()):
+				if f.split('.')[-1].lower() != 'tsv': continue
+				filepath = data_dir["rules"](f)
+				with open(filepath,'r') as filed:
+					reader = csv.reader(filed,delimiter="\t")
+					rawrules += [[col for col in entry if col] for entry in reader if len(entry)>0 and not entry[0].startswith('#')]
+		except FileNotFoundError:
+			pass
 
 		self.rules_belongtogether = [r[1] for r in rawrules if r[0]=="belongtogether"]
 		self.rules_notanartist = [r[1] for r in rawrules if r[0]=="notanartist"]
