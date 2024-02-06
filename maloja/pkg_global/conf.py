@@ -332,12 +332,14 @@ for identifier,path in data_directories.items():
 			print("Make sure Maloja has write and execute access to this directory.")
 			raise
 
+class DataDirs:
+	def __init__(self, dirs):
+		self.dirs = dirs
 
-data_dir = {
-	k:lambda *x,k=k: pthj(data_directories[k],*x)  for k in data_directories
-}
+	def __getitem__(self, key):
+		return lambda *x, k=key: pthj(self.dirs[k], *x)
 
-
+data_dir = DataDirs(data_directories)
 
 ### DOREAH OBJECTS
 
