@@ -1705,6 +1705,11 @@ def clean_db(dbconn=None):
 		log(f"Database Cleanup...")
 
 		to_delete = [
+			# NULL associations
+			"from albumartists where album_id is NULL",
+			"from albumartists where artist_id is NULL",
+			"from trackartists where track_id is NULL",
+			"from trackartists where artist_id is NULL",
 			# tracks with no scrobbles (trackartist entries first)
 			"from trackartists where track_id in (select id from tracks where id not in (select track_id from scrobbles))",
 			"from tracks where id not in (select track_id from scrobbles)",
