@@ -783,6 +783,9 @@ table.list td.artists,td.artist,td.title,td.track {
 table.list td.track span.artist_in_trackcolumn {
 	color: var(--text-color-secondary);
 }
+table.list td.album span.artist_in_albumcolumn {
+	color: var(--text-color-secondary);
+}
 
 table.list td.searchProvider {
 	width: 20px;
