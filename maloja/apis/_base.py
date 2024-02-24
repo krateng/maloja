@@ -33,8 +33,12 @@ cla = CleanerAgent()
 
 
 class APIHandler:
+
+	__apiname__: str
+	errors: dict
 	# make these classes singletons
 	_instance = None
+
 	def __new__(cls, *args, **kwargs):
 		if not isinstance(cls._instance, cls):
 			cls._instance = object.__new__(cls, *args, **kwargs)
@@ -69,17 +73,16 @@ class APIHandler:
 
 		try:
 			response.status,result = self.handle(path,keys)
-		except Exception:
-			exceptiontype = sys.exc_info()[0]
+		except Exception as e:
 			for exc_type, exc_response in self.errors.items():
-				if isinstance(exceptiontype, exc_type):
+				if isinstance(e, exc_type):
 					response.status, result = exc_response
-					log(f"Error with {self.__apiname__} API: {exceptiontype} (Request: {path})")
+					log(f"Error with {self.__apiname__} API: {e} (Request: {path})")
 					break
 			else:
 				# THIS SHOULD NOT HAPPEN
 				response.status, result = 500, {"status": "Unknown error", "code": 500}
-				log(f"Unhandled Exception with {self.__apiname__} API: {exceptiontype} (Request: {path})")
+				log(f"Unhandled Exception with {self.__apiname__} API: {e} (Request: {path})")
 
 		return result
 
