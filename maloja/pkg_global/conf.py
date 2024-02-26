@@ -311,6 +311,12 @@ data_directories = {
 }
 
 for identifier,path in data_directories.items():
+	if path is None:
+		continue
+
+	if malojaconfig.readonly and (path == dir_settings['config'] or path.startswith(dir_settings['config']+'/')):
+		continue
+
 	try:
 		os.makedirs(path,exist_ok=True)
 		if not is_dir_usable(path): raise PermissionError(f"Directory {path} is not usable!")
@@ -321,17 +327,19 @@ for identifier,path in data_directories.items():
 			print("Cannot use",path,"for cache, finding new folder...")
 			data_directories['cache'] = dir_settings['cache'] = malojaconfig['DIRECTORY_CACHE'] = find_good_folder('cache')
 		else:
-			print("Directory",path,"is not usable.")
+			print(f"Directory for {identifier} ({path}) is not writeable.")
 			print("Please change permissions or settings!")
 			print("Make sure Maloja has write and execute access to this directory.")
 			raise
 
+class DataDirs:
+	def __init__(self, dirs):
+		self.dirs = dirs
 
-data_dir = {
-	k:lambda *x,k=k: pthj(data_directories[k],*x)  for k in data_directories
-}
+	def __getitem__(self, key):
+		return lambda *x, k=key: pthj(self.dirs[k], *x)
 
-
+data_dir = DataDirs(data_directories)
 
 ### DOREAH OBJECTS
 
@@ -344,8 +352,10 @@ auth = doreah.auth.AuthManager(singleuser=True,cookieprefix='maloja',stylesheets
 doreah.logging.defaultlogger.logfolder = data_dir['logs']() if malojaconfig["LOGGING"] else None
 
 
-
-custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
+try:
+	custom_css_files = [f for f in os.listdir(data_dir['css']()) if f.lower().endswith('.css')]
+except FileNotFoundError:
+	custom_css_files = []
 
 from ..database.sqldb import set_maloja_info
 set_maloja_info({'last_run_version':VERSION})

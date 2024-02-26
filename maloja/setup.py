@@ -24,6 +24,12 @@ ext_apikeys = [
 def copy_initial_local_files():
 	with resources.files("maloja") / 'data_files' as folder:
 		for cat in dir_settings:
+			if dir_settings[cat] is None:
+				continue
+
+			if cat == 'config' and malojaconfig.readonly:
+				continue
+
 			distutils.dir_util.copy_tree(os.path.join(folder,cat),dir_settings[cat],update=False)
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -37,7 +43,6 @@ def setup():
 	SKIP = malojaconfig["SKIP_SETUP"]
 
 	try:
-
 		print("Various external services can be used to display images. If not enough of them are set up, only local images will be used.")
 		for k in ext_apikeys:
 			keyname = malojaconfig.get_setting_info(k)['name']
@@ -45,6 +50,8 @@ def setup():
 			if key is False:
 				print(f"\tCurrently not using a {col['red'](keyname)} for image display.")
 			elif key is None or key == "ASK":
+				if malojaconfig.readonly:
+					continue
 				promptmsg = f"\tPlease enter your {col['gold'](keyname)}. If you do not want to use one at this moment, simply leave this empty and press Enter."
 				key = prompt(promptmsg,types=(str,),default=False,skip=SKIP)
 				malojaconfig[k] = key
