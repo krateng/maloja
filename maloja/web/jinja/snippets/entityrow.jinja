@@ -20,11 +20,11 @@
 		<td class='searchProvider'>{{ links.link_search(entity) }}</td>
 	{% endif %}
 	<td class='track'>
-		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
+		<span class='artist_in_trackcolumn'>{{ links.links(entity.artists, restrict_amount=True) }}</span> – {{ links.link(entity) }}
 	</td>
 {% elif entity is mapping and 'albumtitle' in entity %}
 	<td class='album'>
-		<span class='artist_in_albumcolumn'>{{ links.links(entity.artists) }}</span> – {{ links.link(entity) }}
+		<span class='artist_in_albumcolumn'>{{ links.links(entity.artists, restrict_amount=True) }}</span> – {{ links.link(entity) }}
 	</td>
 {% else %}
 	<td class='artist'>{{ links.link(entity) }}

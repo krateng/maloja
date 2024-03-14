@@ -8,9 +8,11 @@
 	<a href="{{ url(entity) }}">{{ name | e }}</a>
 {%- endmacro %}
 
-{% macro links(entities) -%}
+{% macro links(entities, restrict_amount=False) -%}
 	{% if entities is none or entities == [] %}
 		{{ settings["DEFAULT_ALBUM_ARTIST"] }}
+	{% elif entities.__len__() > 3 and restrict_amount %}
+	    {{ link(entities[0]) }} et al.
 	{% else %}
 		{% for entity in entities -%}
 			{{ link(entity) }}{{ ", " if not loop.last }}
