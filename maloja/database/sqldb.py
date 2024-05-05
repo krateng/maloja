@@ -246,7 +246,7 @@ class ScrobbleDict(TypedDict):
 def scrobbles_db_to_dict(rows, include_internal=False, dbconn=None) -> list[ScrobbleDict]:
 	tracks: list[TrackDict] = get_tracks_map(set(row.track_id for row in rows), dbconn=dbconn)
 	return [
-		cast({
+		cast(ScrobbleDict, {
 			**{
 				"time": row.timestamp,
 				"track": tracks[row.track_id],
@@ -257,7 +257,7 @@ def scrobbles_db_to_dict(rows, include_internal=False, dbconn=None) -> list[Scro
 				"extra": json.loads(row.extra or '{}'),
 				"rawscrobble": json.loads(row.rawscrobble or '{}')
 			} if include_internal else {})
-		}, ScrobbleDict)
+		})
 
 		for row in rows
 	]
@@ -271,12 +271,12 @@ def tracks_db_to_dict(rows, dbconn=None) -> list[TrackDict]:
 	artists = get_artists_of_tracks(set(row.id for row in rows), dbconn=dbconn)
 	albums = get_albums_map(set(row.album_id for row in rows), dbconn=dbconn)
 	return [
-		cast({
+		cast(TrackDict, {
 			"artists":artists[row.id],
 			"title":row.title,
 			"album":albums.get(row.album_id),
 			"length":row.length
-		}, TrackDict)
+		})
 		for row in rows
 	]
 
@@ -299,10 +299,10 @@ def artist_db_to_dict(row, dbconn=None) -> str:
 def albums_db_to_dict(rows, dbconn=None) -> list[AlbumDict]:
 	artists = get_artists_of_albums(set(row.id for row in rows), dbconn=dbconn)
 	return [
-		cast({
+		cast(AlbumDict, {
 			"artists": artists.get(row.id),
 			"albumtitle": row.albtitle,
-		}, AlbumDict)
+		})
 		for row in rows
 	]
 
@@ -1001,7 +1001,6 @@ def get_scrobbles(since=None,to=None,resolve_references=True,limit=None,reverse=
 	if resolve_references:
 		result = scrobbles_db_to_dict(result,dbconn=dbconn)
 	#result = [scrobble_db_to_dict(row,resolve_references=resolve_references) for i,row in enumerate(result) if i<max]
-
 
 	return result
 
