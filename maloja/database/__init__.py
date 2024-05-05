@@ -444,10 +444,11 @@ def get_charts_albums(dbconn=None,resolve_ids=True,only_own_albums=False,**keys)
 	(since,to) = keys.get('timerange').timestamps()
 
 	if 'artist' in keys:
-		result = sqldb.count_scrobbles_by_album_combined(since=since,to=to,artist=keys['artist'],associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
+		artist = sqldb.get_artist(sqldb.get_artist_id(keys['artist']))
+		result = sqldb.count_scrobbles_by_album_combined(since=since,to=to,artist=artist,associated=keys.get('associated',False),resolve_ids=resolve_ids,dbconn=dbconn)
 		if only_own_albums:
 			# TODO: this doesnt take associated into account and doesnt change ranks
-			result = [e for e in result if keys['artist'] in (e['album']['artists'] or [])]
+			result = [e for e in result if artist in (e['album']['artists'] or [])]
 	else:
 		result = sqldb.count_scrobbles_by_album(since=since,to=to,resolve_ids=resolve_ids,dbconn=dbconn)
 	return result

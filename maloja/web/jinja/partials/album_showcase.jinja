@@ -29,7 +29,7 @@
 {% for entry in dbc.get_charts_albums(filterkeys,limitkeys,{'only_own_albums':False}) %}
 
 
-{% if artist not in (entry.album.artists or []) %}
+{% if info.artist not in (entry.album.artists or []) %}
 
 {%- set cert = None -%}
 {%- if entry.scrobbles >= settings.scrobbles_gold_album -%}{% set cert = 'gold' %}{%- endif -%}

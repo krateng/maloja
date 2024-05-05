@@ -29,6 +29,8 @@ def uri_to_internal(keys,accepted_entities=('artist','track','album'),forceTrack
 
 	# 1
 	filterkeys = {}
+	# this only takes care of the logic - what kind of entity we're dealing with
+	# it does not check with the database if it exists or what the canonical name is!!!
 	if "track" in accepted_entities and "title" in keys:
 		filterkeys.update({"track":{"artists":keys.getall("trackartist"),"title":keys.get("title")}})
 	if "artist" in accepted_entities and "artist" in keys:
