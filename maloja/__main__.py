@@ -135,7 +135,7 @@ def debug():
 def print_info():
 	print_header_info()
 	print(col['lightblue']("Configuration Directory:"),conf.dir_settings['config'])
-	print(col['lightblue']("Data Directory:         "),conf.dir_settings['state'])
+	print(col['lightblue']("State Directory:        "),conf.dir_settings['state'])
 	print(col['lightblue']("Log Directory:          "),conf.dir_settings['logs'])
 	print(col['lightblue']("Network:                "),f"Dual Stack, Port {conf.malojaconfig['port']}" if conf.malojaconfig['host'] == "*" else f"IPv{ip_address(conf.malojaconfig['host']).version}, Port {conf.malojaconfig['port']}")
 	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
