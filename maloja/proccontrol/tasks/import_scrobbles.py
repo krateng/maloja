@@ -35,34 +35,38 @@ def import_scrobbles(inputf):
 	importfunc = None
 
 
-	if re.match(r".*\.csv",filename):
-		typeid,typedesc = "lastfm","Last.fm"
+	if re.match(r".*\.csv", filename):
+		typeid,typedesc = "lastfm", "Last.fm (benjaminbenben export)"
 		importfunc = parse_lastfm
 
-	elif re.match(r"Streaming_History_Audio.+\.json",filename):
-		typeid,typedesc = "spotify","Spotify"
+	elif re.match(r"Streaming_History_Audio.+\.json", filename):
+		typeid,typedesc = "spotify", "Spotify"
 		importfunc = parse_spotify_lite
 
-	elif re.match(r"endsong_[0-9]+\.json",filename):
-		typeid,typedesc = "spotify","Spotify"
+	elif re.match(r"endsong_[0-9]+\.json", filename):
+		typeid,typedesc = "spotify", "Spotify"
 		importfunc = parse_spotify
 
-	elif re.match(r"StreamingHistory[0-9]+\.json",filename):
-		typeid,typedesc = "spotify","Spotify"
+	elif re.match(r"StreamingHistory[0-9]+\.json", filename):
+		typeid,typedesc = "spotify", "Spotify"
 		importfunc = parse_spotify_lite_legacy
 
-	elif re.match(r"maloja_export[_0-9]*\.json",filename):
-		typeid,typedesc = "maloja","Maloja"
+	elif re.match(r"maloja_export[_0-9]*\.json", filename):
+		typeid,typedesc = "maloja", "Maloja"
 		importfunc = parse_maloja
 
 	# username_lb-YYYY-MM-DD.json
-	elif re.match(r".*_lb-[0-9-]+\.json",filename):
-		typeid,typedesc = "listenbrainz","ListenBrainz"
+	elif re.match(r".*_lb-[0-9-]+\.json", filename):
+		typeid,typedesc = "listenbrainz", "ListenBrainz"
 		importfunc = parse_listenbrainz
 
-	elif re.match(r"\.scrobbler\.log",filename):
-		typeid,typedesc = "rockbox","Rockbox"
+	elif re.match(r"\.scrobbler\.log", filename):
+		typeid,typedesc = "rockbox", "Rockbox"
 		importfunc = parse_rockbox
+
+	elif re.match(r"recenttracks-.*\.json", filename):
+		typeid, typedesc = "lastfm", "Last.fm (ghan export)"
+		importfunc = parse_lastfm_ghan
 
 	elif re.match(r".*\.json",filename):
 		try:
@@ -142,6 +146,7 @@ def import_scrobbles(inputf):
 
 
 	return result
+
 
 def parse_spotify_lite_legacy(inputf):
 	pth = os.path
@@ -255,6 +260,7 @@ def parse_spotify_lite(inputf):
 
 		print()
 
+
 def parse_spotify(inputf):
 	pth = os.path
 	# use absolute paths internally for peace of mind. just change representation for console output
@@ -366,6 +372,7 @@ def parse_spotify(inputf):
 
 		print()
 
+
 def parse_lastfm(inputf):
 
 	with open(inputf,'r',newline='') as inputfd:
@@ -399,6 +406,29 @@ def parse_lastfm(inputf):
 			except Exception as e:
 				yield ('FAIL',None,f"{row} (Line {line}) could not be parsed. Scrobble not imported. ({repr(e)})")
 				continue
+
+
+def parse_lastfm_ghan(inputf):
+	with open(inputf, 'r') as inputfd:
+		data = json.load(inputfd)
+
+	skip = 50000
+	for entry in data:
+		for track in entry['track']:
+			skip -= 1
+			#if skip: continue
+			#print(track)
+			#input()
+
+			yield ('CONFIDENT_IMPORT', {
+				'track_title': track['name'],
+				'track_artists': track['artist']['#text'],
+				'track_length': None,
+				'album_name': track['album']['#text'],
+				'scrobble_time': int(track['date']['uts']),
+				'scrobble_duration': None
+			}, '')
+
 
 def parse_listenbrainz(inputf):
 
