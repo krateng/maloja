@@ -79,7 +79,7 @@ class Listenbrainz(APIHandler):
 					'track_title':titlestr,
 					'album_title':albumstr,
 					'scrobble_time':timestamp,
-					'track_length': additional.get("duration"),
+					'track_length': additional.get("duration_ms") or additional.get("duration"),
 					**extrafields
 				},client=client)
 
