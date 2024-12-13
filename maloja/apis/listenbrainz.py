@@ -79,9 +79,7 @@ class Listenbrainz(APIHandler):
 					'track_title':titlestr,
 					'album_title':albumstr,
 					'scrobble_time':timestamp,
-					'track_length': additional.get("duration_ms") or additional.get("duration"),
 					'scrobble_duration': additional.get("duration_ms") or additional.get("duration"),
-					#Should we have track_length and scrobble_duration be the same? There is likely no difference?
 					**extrafields
 				},client=client)
 
