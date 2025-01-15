@@ -39,6 +39,7 @@ minor_release_name: "Nicole"
     - "[Feature] Added option to show scrobbles on tile charts"
     - "[Bugfix] Fixed Last.fm authentication"
 3.2.3:
+    commit: "a7dcd3df8a6b051a1f6d0b7d10cc5af83502445c"
     notes:
     - "[Architecture] Upgraded doreah, significant rework of authentication"
     - "[Bugfix] Fixed initial permission check"

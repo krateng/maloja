@@ -40,15 +40,8 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 
 ## How to install
 
-### Requirements
-
-Maloja should run on any x86 or ARM machine that runs Python.
-
-It is highly recommended to use **Docker** or **Podman**.
-
-Your CPU should have a single core passmark score of at the very least 1500. 500 MB RAM should give you a decent experience, but performance will benefit greatly from up to 2 GB.
-
-### Docker / Podman
+To avoid issues with version / dependency mismatches, Maloja should only be used in **Docker** or **Podman**, not on bare metal.
+I cannot offer any help for bare metal installations.
 
 Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
 
@@ -67,11 +60,7 @@ An example of a minimum run configuration to access maloja via `localhost:42010`
 	docker run -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
 ```
 
-#### Linux Host
-
-**NOTE:** If you are using [rootless containers with Podman](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#why_podman_) this DOES NOT apply to you.
-
-If you are running Docker on a **Linux Host** you should specify `user:group` ids of the user who owns the folder on the host machine bound to `MALOJA_DATA_DIRECTORY` in order to avoid [docker file permission problems.](https://ikriv.com/blog/?p=4698) These can be specified using the [environmental variables **PUID** and **PGID**.](https://docs.linuxserver.io/general/understanding-puid-and-pgid)
+If you are using [rootless containers with Podman](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#why_podman_) the following DOES NOT apply to you, but if you are running **Docker** on a **Linux Host** you should specify `user:group` ids of the user who owns the folder on the host machine bound to `MALOJA_DATA_DIRECTORY` in order to avoid [docker file permission problems.](https://ikriv.com/blog/?p=4698) These can be specified using the [environmental variables **PUID** and **PGID**.](https://docs.linuxserver.io/general/understanding-puid-and-pgid)
 
 To get the UID and GID for the current user run these commands from a terminal:
 
@@ -82,33 +71,6 @@ The modified run command with these variables would look like:
 
 ```console
 	docker run -e PUID=1000 -e PGID=1001 -p 42010:42010 -v $PWD/malojadata:/mljdata -e MALOJA_DATA_DIRECTORY=/mljdata krateng/maloja
-```
-
-### PyPI
-
-You can install Maloja with
-
-```console
-	pip install malojaserver
-```
-
-To make sure all dependencies are installed, you can also use one of the included scripts in the `install` folder.
-
-### From Source
-
-Clone this repository and enter the directory with
-
-```console
-	git clone https://github.com/krateng/maloja
-	cd maloja
-```
-
-Then install all the requirements and build the package, e.g.:
-
-```console
-	sh ./install/install_dependencies_alpine.sh
-	pip install -r requirements.txt
-	pip install .
 ```
 
 

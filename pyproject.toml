@@ -2,9 +2,9 @@
 name = "malojaserver"
 version = "3.2.3"
 description = "Self-hosted music scrobble database"
-readme = "./README.md"
+readme = "README.md"
 requires-python = ">=3.11"
-license = { file="./LICENSE" }
+license = { file="LICENSE" }
 authors = [ { name="Johannes Krattenmacher", email="maloja@dev.krateng.ch" } ]
 
 urls.repository = "https://github.com/krateng/maloja"
@@ -45,7 +45,7 @@ full = [
 maloja = "maloja.__main__:main"
 
 [build-system]
-requires = ["flit_core >=3.2,<4"]
+requires = ["flit_core >=3.10,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
