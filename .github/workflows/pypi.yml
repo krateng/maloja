@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+      - 'runaction-pypi'
 
 jobs:
   publish_to_pypi:
