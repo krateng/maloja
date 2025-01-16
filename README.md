@@ -85,8 +85,7 @@ The modified run command with these variables would look like:
 
 ### Basic control
 
-When not running in a container, you can run the application with `maloja run`. You can also run it in the background with
-`maloja start` and `maloja stop`, but this might not be supported in the future.
+When not running in a container, you can run the application with `maloja run`.
 
 
 ### Data
