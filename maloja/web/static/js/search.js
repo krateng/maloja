@@ -1,17 +1,23 @@
 var searches = []
+var debounceTimer;
 
 function search(searchfield) {
-	txt = searchfield.value;
-	if (txt == "") {
-		reallyclear()
-	}
-	else {
-		xhttp = new XMLHttpRequest();
-		searches.push(xhttp)
-		xhttp.onreadystatechange = searchresult
-		xhttp.open("GET","/api/search?max=5&query=" + encodeURIComponent(txt), true);
-		xhttp.send();
-	}
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const txt = searchfield.value;
+        if (txt == "") {
+            reallyclear();
+        }
+        else {
+            const xhttp = new XMLHttpRequest();
+            searches.push(xhttp);
+            xhttp.onreadystatechange = searchresult
+            xhttp.open("GET","/api/search?max=5&query=" + encodeURIComponent(txt), true);
+            xhttp.send();
+        }
+    }, 1000);
+
+
 }
 
 
