@@ -1,10 +1,7 @@
 import os
+import shutil
 
 from importlib import resources
-try:
-	from setuptools import distutils
-except ImportError:
-	import distutils
 from doreah.io import col, ask, prompt
 
 from .pkg_global.conf import data_dir, dir_settings, malojaconfig, auth
@@ -22,15 +19,14 @@ ext_apikeys = [
 
 
 def copy_initial_local_files():
-	with resources.files("maloja") / 'data_files' as folder:
-		for cat in dir_settings:
-			if dir_settings[cat] is None:
-				continue
+	data_file_source = resources.files("maloja") / 'data_files'
+	for cat in dir_settings:
+		if dir_settings[cat] is None:
+			continue
+		if cat == 'config' and malojaconfig.readonly:
+			continue
 
-			if cat == 'config' and malojaconfig.readonly:
-				continue
-
-			distutils.dir_util.copy_tree(os.path.join(folder,cat),dir_settings[cat],update=False)
+		shutil.copytree(data_file_source / cat, dir_settings[cat])
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):

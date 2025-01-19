@@ -30,7 +30,6 @@ dependencies = [
 	"sqlalchemy==2.0",
 	"python-datauri==3.0.*",
 	"requests==2.32.*",
-	"setuptools==75.8.*",
 	"toml==0.10.*",
 	"PyYAML==6.0.*"
 ]

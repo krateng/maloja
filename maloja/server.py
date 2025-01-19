@@ -165,16 +165,16 @@ def login():
 @webserver.route("/media/<name>.<ext>")
 def static(name,ext):
 	assert ext in ["txt","ico","jpeg","jpg","png","less","js","ttf","css"]
-	with resources.files('maloja') / 'web' / 'static' as staticfolder:
-		response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
+	staticfolder = resources.files('maloja') / 'web' / 'static'
+	response = static_file(ext + "/" + name + "." + ext,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
 # new, direct reference
 @webserver.route("/static/<path:path>")
 def static(path):
-	with resources.files('maloja') / 'web' / 'static' as staticfolder:
-		response = static_file(path,root=staticfolder)
+	staticfolder = resources.files('maloja') / 'web' / 'static'
+	response = static_file(path,root=staticfolder)
 	response.set_header("Cache-Control", "public, max-age=3600")
 	return response
 
