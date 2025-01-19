@@ -9,49 +9,14 @@ Clone the repository and enter it.
 
 ## Environment
 
-To avoid cluttering your system, consider using a [virtual environment](https://docs.python.org/3/tutorial/venv.html).
-
-Your system needs several packages installed. For supported distributions, this can be done with e.g.
-
-```console
-	sh ./install/install_dependencies_alpine.sh
-```
-
-For other distros, try to find the equivalents of the packages listed or simply check your error output.
-
-Then install all Python dependencies with
-
-```console
-	pip install -r requirements.txt
-```
+To avoid cluttering your system, consider using a [virtual environment](https://docs.python.org/3/tutorial/venv.html), or better yet run the included `docker-compose.yml` file.
+Your IDE should let you run the file directly, otherwise you can execute `docker compose -f dev/docker-compose.yml -p maloja up --force-recreate --build`.
 
 
 ## Running the server
 
-For development, you might not want to install maloja files all over your filesystem. Use the environment variable `MALOJA_DATA_DIRECTORY` to force all user files into one central directory - this way, you can also quickly change between multiple configurations.
+Use the environment variable `MALOJA_DATA_DIRECTORY` to force all user files into one central directory - this way, you can also quickly change between multiple configurations.
 
-You can quickly run the server with all your local changes with
-
-```console
-	python3 -m maloja run
-```
-
-You can also build the package with
-
-```console
-	pip install .
-```
-
-
-## Docker
-
-You can also always build and run the server with
-
-```console
-	sh ./dev/run_docker.sh
-```
-
-This will use the directory `testdata`.
 
 ## Further help
 
