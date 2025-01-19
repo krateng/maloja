@@ -1,0 +1,13 @@
+services:
+  maloja:
+    build:
+      context: ..
+      dockerfile: ./Containerfile
+    ports:
+    - "42010:42010"
+    volumes:
+    - "./testdata:/data"
+    environment:
+    - "MALOJA_DATA_DIRECTORY=/data"
+    - "PUID=1000"
+    - "PGID=1000"
