@@ -26,77 +26,6 @@ def print_header_info():
 	#print("#####")
 	print()
 
-
-
-def get_instance():
-	try:
-		return int(subprocess.check_output(["pgrep","-f","maloja$"]))
-	except Exception:
-		return None
-
-def get_instance_supervisor():
-	try:
-		return int(subprocess.check_output(["pgrep","-f","maloja_supervisor"]))
-	except Exception:
-		return None
-
-def restart():
-	if stop():
-		start()
-	else:
-		print(col["red"]("Could not stop Maloja!"))
-
-def start():
-	if get_instance_supervisor() is not None:
-		print("Maloja is already running.")
-	else:
-		print_header_info()
-		setup()
-		try:
-			#p = subprocess.Popen(["python3","-m","maloja.server"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-			sp = subprocess.Popen(["python3","-m","maloja","supervisor"],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-			print(col["green"]("Maloja started!"))
-
-			port = conf.malojaconfig["PORT"]
-
-			print("Visit your server address (Port " + str(port) + ") to see your web interface. Visit /admin_setup to get started.")
-			print("If you're installing this on your local machine, these links should get you there:")
-			print("\t" + col["blue"]("http://localhost:" + str(port)))
-			print("\t" + col["blue"]("http://localhost:" + str(port) + "/admin_setup"))
-			return True
-		except Exception:
-			print("Error while starting Maloja.")
-			return False
-
-
-def stop():
-
-	for attempt in [(signal.SIGTERM,2),(signal.SIGTERM,5),(signal.SIGKILL,3),(signal.SIGKILL,5)]:
-
-		pid_sv = get_instance_supervisor()
-		pid = get_instance()
-
-		if pid is None and pid_sv is None:
-			print("Maloja stopped!")
-			return True
-
-		if pid_sv is not None:
-			os.kill(pid_sv,attempt[0])
-		if pid is not None:
-			os.kill(pid,attempt[0])
-
-		time.sleep(attempt[1])
-
-	return False
-
-
-
-
-
-
-	print("Maloja stopped!")
-	return True
-
 def onlysetup():
 	print_header_info()
 	setup()
@@ -108,24 +37,6 @@ def run_server():
 	setproctitle("maloja")
 	from . import server
 	server.run_server()
-
-def run_supervisor():
-	setproctitle("maloja_supervisor")
-	while True:
-		log("Maloja is not running, starting...",module="supervisor")
-		try:
-			process = subprocess.Popen(
-			    ["python3", "-m", "maloja","run"],
-			    stdout=subprocess.DEVNULL,
-			    stderr=subprocess.DEVNULL,
-			)
-		except Exception as e:
-			log("Error starting Maloja: " + str(e),module="supervisor")
-		else:
-			try:
-				process.wait()
-			except Exception as e:
-				log("Maloja crashed: " + str(e),module="supervisor")
 
 def debug():
 	os.environ["MALOJA_DEV_MODE"] = 'true'
@@ -173,11 +84,7 @@ def main(*args,**kwargs):
 
 	actions = {
 		# server
-		"start":start,
-		"restart":restart,
-		"stop":stop,
 		"run":run_server,
-		"supervisor":run_supervisor,
 		"debug":debug,
 		"setup":onlysetup,
 		# admin scripts
