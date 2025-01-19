@@ -1,4 +1,4 @@
-FROM lsiobase/alpine:3.19 AS base
+FROM lsiobase/alpine:3.21 AS base
 
 WORKDIR /usr/src/app
 

@@ -2,6 +2,8 @@ import os
 import shutil
 
 from importlib import resources
+from pathlib import PosixPath
+
 from doreah.io import col, ask, prompt
 
 from .pkg_global.conf import data_dir, dir_settings, malojaconfig, auth
@@ -26,12 +28,19 @@ def copy_initial_local_files():
 		if cat == 'config' and malojaconfig.readonly:
 			continue
 
-		shutil.copytree(data_file_source / cat, dir_settings[cat])
+		# to avoid permission problems with the root dir
+		for subfolder in os.listdir(data_file_source / cat):
+			src = data_file_source / cat / subfolder
+			dst = PosixPath(dir_settings[cat]) / subfolder
+			if os.path.isdir(src):
+				shutil.copytree(src, dst, dirs_exist_ok=True)
+
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 def randomstring(length=32):
 	import random
 	return "".join(str(random.choice(charset)) for _ in range(length))
+
 
 def setup():
 
@@ -47,10 +56,11 @@ def setup():
 				print(f"\tCurrently not using a {col['red'](keyname)} for image display.")
 			elif key is None or key == "ASK":
 				if malojaconfig.readonly:
-					continue
-				promptmsg = f"\tPlease enter your {col['gold'](keyname)}. If you do not want to use one at this moment, simply leave this empty and press Enter."
-				key = prompt(promptmsg,types=(str,),default=False,skip=SKIP)
-				malojaconfig[k] = key
+					print(f"\tCurrently not using a {col['red'](keyname)} for image display - config is read only.")
+				else:
+					promptmsg = f"\tPlease enter your {col['gold'](keyname)}. If you do not want to use one at this moment, simply leave this empty and press Enter."
+					key = prompt(promptmsg,types=(str,),default=False,skip=SKIP)
+					malojaconfig[k] = key
 			else:
 				print(f"\t{col['lawngreen'](keyname)} found.")
 
