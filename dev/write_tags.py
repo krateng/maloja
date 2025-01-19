@@ -1,3 +1,7 @@
+"""
+Read the changelogs / version metadata and create all git tags
+"""
+
 import os
 import subprocess as sp
 import yaml

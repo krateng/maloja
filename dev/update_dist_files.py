@@ -1,3 +1,7 @@
+"""
+Create necessary files from sources of truth. Currently just the requirements.txt files.
+"""
+
 import toml
 import os
 import jinja2

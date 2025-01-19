@@ -45,3 +45,7 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed initial permission check"
     - "[Bugfix] Fixed and updated various texts"
     - "[Bugfix] Fixed moving tracks to different album"
+3.2.4:
+    notes:
+    - "[Architecture] Removed daemonization capabilities"
+    - "[Technical] Pinned dependencies"
