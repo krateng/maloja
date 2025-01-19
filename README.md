@@ -41,7 +41,7 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 ## How to install
 
 To avoid issues with version / dependency mismatches, Maloja should only be used in **Docker** or **Podman**, not on bare metal.
-I cannot offer any help for bare metal installations.
+I cannot offer any help for bare metal installations (but using venv should help).
 
 Pull the [latest image](https://hub.docker.com/r/krateng/maloja) or check out the repository and use the included Containerfile.
 

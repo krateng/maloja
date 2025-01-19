@@ -1,2 +1,2 @@
-pyvips>=2.1
+pyvips==2.2.*
 
