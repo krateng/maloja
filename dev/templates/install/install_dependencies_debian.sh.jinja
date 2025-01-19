@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-apt update
-apt install \
-	{{ (tool.osreqs.debian.build + tool.osreqs.debian.run + tool.osreqs.debian.opt) | join(' \\\n\t') }}

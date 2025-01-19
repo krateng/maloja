@@ -1,4 +1,0 @@
-#!/usr/bin/env sh
-apk update
-apk add \
-	{{ (tool.osreqs.alpine.build + tool.osreqs.alpine.run + tool.osreqs.alpine.opt) | join(' \\\n\t') }}
