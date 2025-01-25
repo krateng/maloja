@@ -27,7 +27,7 @@ class Listenbrainz(APIHandler):
 			InvalidMethodException: (200, {"code": 200, "error": "Invalid Method"}),
 			MalformedJSONException: (400, {"code": 400, "error": "Invalid JSON document submitted."}),
 			DuplicateScrobble: (200, {"status": "ok"}),
-			DuplicateTimestamp: (200, {"status": "ok"}),
+			DuplicateTimestamp: (409, {"error": "Scrobble with the same timestamp already exists."}),
 			Exception: (500, {"code": 500, "error": "Unspecified server error."})
 		}
 
