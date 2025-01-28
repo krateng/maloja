@@ -1,4 +1,4 @@
-var searches = []
+var searches = [];
 var debounceTimer;
 
 function search(searchfield) {
@@ -12,7 +12,7 @@ function search(searchfield) {
             const xhttp = new XMLHttpRequest();
             searches.push(xhttp);
             xhttp.onreadystatechange = searchresult
-            xhttp.open("GET","/api/search?max=5&query=" + encodeURIComponent(txt), true);
+            xhttp.open("GET","/apis/mlj_1/search?max=5&query=" + encodeURIComponent(txt), true);
             xhttp.send();
         }
     }, 1000);
