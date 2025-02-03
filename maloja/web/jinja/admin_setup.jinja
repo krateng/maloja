@@ -24,7 +24,7 @@
 			keys = "filename=" + encodeURIComponent(filename);
 			console.log(keys);
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/api/importrules", true);
+			xhttp.open("POST","/apis/mlj_1/importrules", true);
 			xhttp.send(keys);
 
 			e.innerHTML = e.innerHTML.replace("Add","Remove");
@@ -36,7 +36,7 @@
 			keys = "remove&filename=" + encodeURIComponent(filename);
 
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/api/importrules", true);
+			xhttp.open("POST","/apis/mlj_1/importrules", true);
 			xhttp.send(keys);
 
 			e.innerHTML = e.innerHTML.replace("Remove","Add");

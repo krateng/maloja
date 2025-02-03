@@ -15,7 +15,7 @@
 
 
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/api/newrule?", true);
+			xhttp.open("POST","/apis/mlj_1/newrule?", true);
 			xhttp.send(keys);
 			e = arguments[0];
 			line = e.parentNode;
@@ -25,7 +25,7 @@
 		function fullrebuild() {
 
 			var xhttp = new XMLHttpRequest();
-			xhttp.open("POST","/api/rebuild", true);
+			xhttp.open("POST","/apis/mlj_1/rebuild", true);
 			xhttp.send();
 			window.location = "/wait";
 
