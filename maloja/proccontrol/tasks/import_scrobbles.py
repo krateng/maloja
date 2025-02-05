@@ -34,9 +34,12 @@ def import_scrobbles(inputf):
 	filename = os.path.basename(inputf)
 	importfunc = None
 
+	if re.match(r"recenttracks-.*\.csv", filename):
+		typeid, typedesc = "lastfm", "Last.fm (ghan CSV)"
+		importfunc = parse_lastfm_ghan_csv
 
-	if re.match(r".*\.csv", filename):
-		typeid,typedesc = "lastfm", "Last.fm (benjaminbenben export)"
+	elif re.match(r".*\.csv", filename):
+		typeid,typedesc = "lastfm", "Last.fm (benjaminbenben CSV)"
 		importfunc = parse_lastfm
 
 	elif re.match(r"Streaming_History_Audio.+\.json", filename):
@@ -65,8 +68,8 @@ def import_scrobbles(inputf):
 		importfunc = parse_rockbox
 
 	elif re.match(r"recenttracks-.*\.json", filename):
-		typeid, typedesc = "lastfm", "Last.fm (ghan export)"
-		importfunc = parse_lastfm_ghan
+		typeid, typedesc = "lastfm", "Last.fm (ghan JSON)"
+		importfunc = parse_lastfm_ghan_json
 
 	elif re.match(r".*\.json",filename):
 		try:
@@ -83,7 +86,8 @@ def import_scrobbles(inputf):
 		return result
 
 
-	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](typedesc)} export")
+	print(f"Parsing {col['yellow'](inputf)} as {col['cyan'](typedesc)} export.")
+	print(col['red']("Please double-check if this is correct - if the import fails, the file might have been interpreted as the wrong type."))
 
 	timestamps = set()
 	scrobblebuffer = []
@@ -410,7 +414,7 @@ def parse_lastfm(inputf):
 				continue
 
 
-def parse_lastfm_ghan(inputf):
+def parse_lastfm_ghan_json(inputf):
 	with open(inputf, 'r') as inputfd:
 		data = json.load(inputfd)
 
@@ -428,6 +432,21 @@ def parse_lastfm_ghan(inputf):
 				'track_length': None,
 				'album_name': track['album']['#text'],
 				'scrobble_time': int(track['date']['uts']),
+				'scrobble_duration': None
+			}, '')
+
+
+def parse_lastfm_ghan_csv(inputf):
+	with open(inputf, 'r') as inputfd:
+		reader = csv.DictReader(inputfd)
+
+		for row in reader:
+			yield ('CONFIDENT_IMPORT', {
+				'track_title': row['track'],
+				'track_artists': row['artist'],
+				'track_length': None,
+				'album_name': row['album'],
+				'scrobble_time': int(row['uts']),
 				'scrobble_duration': None
 			}, '')
 
