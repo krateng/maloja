@@ -941,6 +941,13 @@ def start_db():
 	from . import associated
 	associated.load_associated_rules()
 
+	# import scrobbles
+	from ..proccontrol.tasks.import_scrobbles import import_scrobbles #lmao this codebase is so fucked
+	print(data_dir['import']())
+	for f in os.listdir(data_dir['import']()):
+		if f != 'dummy':
+			import_scrobbles(data_dir['import'](f))
+
 	dbstatus['healthy'] = True
 
 	# inform time module about begin of scrobbling

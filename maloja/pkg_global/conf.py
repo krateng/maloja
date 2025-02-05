@@ -298,6 +298,7 @@ data_directories = {
 	"auth":pthj(dir_settings['state'],"auth"),
 	"backups":pthj(dir_settings['state'],"backups"),
 	"images":pthj(dir_settings['state'],"images"),
+	"import":pthj(dir_settings['state'],"import"),
 	"scrobbles":pthj(dir_settings['state']),
 	"rules":pthj(dir_settings['config'],"rules"),
 	"clients":pthj(dir_settings['config']),
