@@ -22,6 +22,7 @@ RUN \
 		libxslt-dev \
 		libffi-dev \
 		libc-dev \
+		libmagic \
 		py3-pip \
 		linux-headers && \
   echo "" && \
