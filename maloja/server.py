@@ -3,6 +3,7 @@ import os
 from threading import Thread
 from importlib import resources
 import time
+from magic import from_file
 
 
 # server stuff
@@ -154,7 +155,8 @@ def static_image(pth):
 
 @webserver.route("/cacheimages/<uuid>")
 def static_proxied_image(uuid):
-	return static_file(uuid,root=data_dir['cache']('images'))
+	mimetype = from_file(os.path.join(data_dir['cache']('images'),uuid),True)
+	return static_file(uuid,root=data_dir['cache']('images'),mimetype=mimetype)
 
 @webserver.route("/login")
 def login():
