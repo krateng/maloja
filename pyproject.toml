@@ -29,6 +29,7 @@ dependencies = [
 	"psutil==5.9.*",
 	"sqlalchemy==2.0",
 	"python-datauri==3.0.*",
+	"python-magic==0.4.*",
 	"requests==2.32.*",
 	"toml==0.10.*",
 	"PyYAML==6.0.*"
