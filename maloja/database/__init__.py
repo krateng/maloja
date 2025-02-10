@@ -948,7 +948,6 @@ def start_db():
 
 	# import scrobbles
 	from ..proccontrol.tasks.import_scrobbles import import_scrobbles #lmao this codebase is so fucked
-	print(data_dir['import']())
 	for f in os.listdir(data_dir['import']()):
 		if f != 'dummy':
 			import_scrobbles(data_dir['import'](f))

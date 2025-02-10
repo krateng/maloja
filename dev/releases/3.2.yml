@@ -48,4 +48,10 @@ minor_release_name: "Nicole"
 3.2.4:
     notes:
     - "[Architecture] Removed daemonization capabilities"
+    - "[Architecture] Moved import to main server process"
+    - "[Feature] Implemented support for ghan's csv Last.fm export"
+    - "[Performance] Debounced search"
+    - "[Bugfix] Fixed stuck scrobbling from Navidrome"
+    - "[Bugfix] Fixed missing image mimetype"
     - "[Technical] Pinned dependencies"
+    - "[Technical] Upgraded Python and Alpine"
