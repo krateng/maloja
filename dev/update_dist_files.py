@@ -7,15 +7,15 @@ import os
 import jinja2
 
 env = jinja2.Environment(
-	loader=jinja2.FileSystemLoader('dev/templates'),
+	loader=jinja2.FileSystemLoader('./templates'),
 	autoescape=jinja2.select_autoescape(['html', 'xml']),
 	keep_trailing_newline=True
 )
 
-with open("pyproject.toml") as filed:
+with open("../pyproject.toml") as filed:
 	data = toml.load(filed)
 
-templatedir = "./dev/templates"
+templatedir = "./templates"
 
 for root,dirs,files in os.walk(templatedir):
 
@@ -27,7 +27,7 @@ for root,dirs,files in os.walk(templatedir):
 		if not f.endswith('.jinja'): continue
 
 		srcfile = os.path.join(root,f)
-		trgfile = os.path.join(reldirpath,f.replace(".jinja",""))
+		trgfile = os.path.join("..", reldirpath,f.replace(".jinja",""))
 
 
 		template = env.get_template(relfilepath)
