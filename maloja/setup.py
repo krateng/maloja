@@ -1,5 +1,6 @@
 import os
 import shutil
+import stat
 
 from importlib import resources
 from pathlib import PosixPath
@@ -34,6 +35,12 @@ def copy_initial_local_files():
 			dst = PosixPath(dir_settings[cat]) / subfolder
 			if os.path.isdir(src):
 				shutil.copytree(src, dst, dirs_exist_ok=True)
+				# fix permissions (u+w)
+				for dirpath, _, filenames in os.walk(dst):
+					os.chmod(dirpath, os.stat(dirpath).st_mode | stat.S_IWUSR)
+					for filename in filenames:
+						filepath = os.path.join(dirpath, filename)
+						os.chmod(filepath, os.stat(filepath).st_mode | stat.S_IWUSR)
 
 
 charset = list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") + list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
