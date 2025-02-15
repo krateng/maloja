@@ -1,13 +1,15 @@
 from datetime import timezone, timedelta, date, time, datetime
 from calendar import monthrange
 import math
+import zoneinfo
 from abc import ABC, abstractmethod
 
 from .pkg_global.conf import malojaconfig
 
 
 OFFSET = malojaconfig["TIMEZONE"]
-TIMEZONE = timezone(timedelta(hours=OFFSET))
+LOCATION_TIMEZONE = malojaconfig["LOCATION_TIMEZONE"]
+TIMEZONE = timezone(timedelta(hours=OFFSET)) if not LOCATION_TIMEZONE and LOCATION_TIMEZONE in zoneinfo.available_timezones() else zoneinfo.ZoneInfo(LOCATION_TIMEZONE)
 UTC = timezone.utc
 
 FIRST_SCROBBLE = int(datetime.utcnow().replace(tzinfo=UTC).timestamp())
