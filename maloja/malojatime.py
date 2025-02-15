@@ -9,7 +9,7 @@ from .pkg_global.conf import malojaconfig
 
 OFFSET = malojaconfig["TIMEZONE"]
 LOCATION_TIMEZONE = malojaconfig["LOCATION_TIMEZONE"]
-TIMEZONE = timezone(timedelta(hours=OFFSET)) if not LOCATION_TIMEZONE and LOCATION_TIMEZONE in zoneinfo.available_timezones() else zoneinfo.ZoneInfo(LOCATION_TIMEZONE)
+TIMEZONE = timezone(timedelta(hours=OFFSET)) if not LOCATION_TIMEZONE or LOCATION_TIMEZONE not in zoneinfo.available_timezones() else zoneinfo.ZoneInfo(LOCATION_TIMEZONE)
 UTC = timezone.utc
 
 FIRST_SCROBBLE = int(datetime.now(UTC).timestamp())
