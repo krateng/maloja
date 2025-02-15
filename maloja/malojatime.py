@@ -12,7 +12,7 @@ LOCATION_TIMEZONE = malojaconfig["LOCATION_TIMEZONE"]
 TIMEZONE = timezone(timedelta(hours=OFFSET)) if not LOCATION_TIMEZONE and LOCATION_TIMEZONE in zoneinfo.available_timezones() else zoneinfo.ZoneInfo(LOCATION_TIMEZONE)
 UTC = timezone.utc
 
-FIRST_SCROBBLE = int(datetime.utcnow().replace(tzinfo=UTC).timestamp())
+FIRST_SCROBBLE = int(datetime.now(UTC).timestamp())
 
 def register_scrobbletime(timestamp):
 	global FIRST_SCROBBLE
@@ -65,7 +65,7 @@ class MTRangeGeneric(ABC):
 
 	# whether we currently live or will ever again live in this range
 	def active(self):
-		return (self.last_stamp() > datetime.utcnow().timestamp())
+		return (self.last_stamp() > datetime.now(timezone.utc).timestamp())
 
 	def __contains__(self,timestamp):
 		return timestamp >= self.first_stamp() and timestamp <= self.last_stamp()
@@ -113,7 +113,7 @@ class MTRangeGregorian(MTRangeSingular):
 	# whether we currently live or will ever again live in this range
 # USE GENERIC SUPER METHOD INSTEAD
 #	def active(self):
-#		tod = datetime.datetime.utcnow().date()
+#		tod = datetime.datetime.now(timezone.utc).date()
 #		if tod.year > self.year: return False
 #		if self.precision == 1: return True
 #		if tod.year == self.year:
@@ -330,7 +330,7 @@ class MTRangeComposite(MTRangeGeneric):
 		if self.since is None: return FIRST_SCROBBLE
 		else: return self.since.first_stamp()
 	def last_stamp(self):
-		#if self.to is None: return int(datetime.utcnow().replace(tzinfo=timezone.utc).timestamp())
+		#if self.to is None: return int(datetime.now(timezone.utc).timestamp())
 		if self.to is None: return today().last_stamp()
 		else: return self.to.last_stamp()
 
@@ -423,8 +423,8 @@ def get_last_instance(category,current,target,amount):
 
 str_to_time_range = {
 	**{s:callable for callable,strlist in currenttime_string_representations for s in strlist},
-	**{s:(lambda i=index:get_last_instance(thismonth,datetime.utcnow().month,i,12)) for index,strlist in enumerate(month_string_representations,1) for s in strlist},
-	**{s:(lambda i=index:get_last_instance(today,datetime.utcnow().isoweekday()+1%7,i,7)) for index,strlist in enumerate(weekday_string_representations,1) for s in strlist}
+	**{s:(lambda i=index:get_last_instance(thismonth,datetime.now(timezone.utc).month,i,12)) for index,strlist in enumerate(month_string_representations,1) for s in strlist},
+	**{s:(lambda i=index:get_last_instance(today,datetime.now(timezone.utc).isoweekday()+1%7,i,7)) for index,strlist in enumerate(weekday_string_representations,1) for s in strlist}
 }
 
 
