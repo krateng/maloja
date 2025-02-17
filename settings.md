@@ -68,6 +68,7 @@ Settings File			| Environment Variable			| Type			| Description
 `parse_remix_artists`	| `MALOJA_PARSE_REMIX_ARTISTS`  | Boolean | Parse Remix Artists
 `week_offset`	| `MALOJA_WEEK_OFFSET`  | Integer | Start of the week for the purpose of weekly statistics. 0 = Sunday, 6 = Saturday
 `timezone`	| `MALOJA_TIMEZONE`  | Integer | UTC Offset
+`location_timezone`	| `MALOJA_LOCATION_TIMEZONE`  | String | Location Timezone (overrides `timezone`)
 **Web Interface**
 `default_range_startpage`	| `MALOJA_DEFAULT_RANGE_STARTPAGE`  | Choice | Default Range for Startpage Stats
 `default_step_pulse`	| `MALOJA_DEFAULT_STEP_PULSE`  | Choice | Default Pulse Step
