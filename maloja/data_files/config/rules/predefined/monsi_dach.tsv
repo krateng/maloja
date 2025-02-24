@@ -1,0 +1,28 @@
+# NAME: DACH artists
+# DESC: Some fixes for bands from Germany, Austria and Switzerland.
+
+belongtogether	5/8erl in Ehr'n
+belongtogether	Tony & The Bears
+belongtogether	Dicht & Ergreifend
+belongtogether	DICHT & ERGREIFEND
+belongtogether	Lenze & De Buam
+belongtogether	Buck Roger & The Sidetrackers
+replaceartist	Buck Roger and The Sidetrackers		Buck Roger & The Sidetrackers
+belongtogether	Da Huawa, da Meier und I
+replaceartist	Da Huawa, da Meier & I			Da Huawa, da Meier und I
+artistintitle	LaBrassBanda Version			LaBrassBanda
+countas		Stefan Dettl				LaBrassBanda
+belongtogether	Roy Bianco & Die Abbrunzati Boys
+replaceartist	Roy Bianco und Die Abbrunzati Boys	Roy Bianco & Die Abbrunzati Boys
+belongtogether	Paul & The Microcosm
+belongtogether	Klaus & Klaus
+replaceartist	Klaus und Klaus	Klaus & Klaus
+belongtogether	Lukas, Der Rapper
+belongtogether	Pizzera & Jaus
+countas		Vitus Jonas Lindbüchl			twiceasmad
+countas		Fin Dus					twiceasmad
+countas		PROVOKAT				twiceasmad
+countas		Julius Krebs				The Tonecooks
+belongtogether	Schmidbauer & Kälberer
+belongtogether	Tequila & the Sunrise Gang
+addartist	Julian Perretta				Georgia					Henri Purnell
