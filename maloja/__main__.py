@@ -50,6 +50,7 @@ def print_info():
 	print(col['lightblue']("Log Directory:          "),conf.dir_settings['logs'])
 	print(col['lightblue']("Network:                "),f"Dual Stack, Port {conf.malojaconfig['port']}" if conf.malojaconfig['host'] == "*" else f"IPv{ip_address(conf.malojaconfig['host']).version}, Port {conf.malojaconfig['port']}")
 	print(col['lightblue']("Timezone:               "),f"UTC{conf.malojaconfig['timezone']:+d}")
+	print(col['lightblue']("Location Timezone:      "),conf.malojaconfig['location_timezone'])
 	print()
 	try:
 		from importlib.metadata import distribution
