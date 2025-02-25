@@ -46,6 +46,7 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed and updated various texts"
     - "[Bugfix] Fixed moving tracks to different album"
 3.2.4:
+    commit: "c571ffbf077d2402238181ef10c9f0689ad8cf3a"
     notes:
     - "[Architecture] Removed daemonization capabilities"
     - "[Architecture] Moved import to main server process"

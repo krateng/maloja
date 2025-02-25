@@ -1,7 +1,7 @@
 # server
 from bottle import request, response, FormsDict
 
-from ..pkg_global import conf
+
 
 
 # decorator that makes sure this function is only run in normal operation,
@@ -935,6 +935,7 @@ def get_predefined_rulesets(dbconn=None):
 
 def start_db():
 
+	from ..pkg_global import conf
 	conf.AUX_MODE = True # that is, without a doubt, the worst python code you have ever seen
 
 	# Upgrade database

@@ -6,7 +6,7 @@ import os
 import subprocess as sp
 import yaml
 
-FOLDER = "dev/releases"
+FOLDER = "./releases"
 
 releases = {}
 for f in os.listdir(FOLDER):
