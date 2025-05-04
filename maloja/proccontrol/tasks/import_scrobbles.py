@@ -1,5 +1,6 @@
 import os, datetime, re
 import json, csv
+import openpyxl
 
 from doreah.io import col, ask, prompt
 
@@ -80,6 +81,10 @@ def import_scrobbles(inputf):
 				importfunc = parse_maloja
 		except Exception:
 			pass
+
+	elif re.match(r"deezer-data_*.xlsx", filename):
+		typeid, typedesc = "deezer", "Deezer"
+		importfunc = parse_deezer
 
 	if not importfunc:
 		print("File",inputf,"could not be identified as a valid import source.")
@@ -522,3 +527,22 @@ def parse_maloja(inputf):
 		except Exception as e:
 			yield ('FAIL',None,f"{s} could not be parsed. Scrobble not imported. ({repr(e)})")
 			continue
+
+def parse_deezer(inputf):
+	print("Warning: big history file can potentially take a long time to process.")
+	with openpyxl.load_workbook(inputf) as book:
+		songs_sheet = book['10_listeningHistory']
+		for row in songs_sheet.iter_rows(values_only=True, min_row=2):
+			try:
+				yield ('CONFIDENT_IMPORT', {
+					'track_title': row[0],
+					'track_artists': row[1],
+					'track_length': '',  # Use another system to get this
+					'album_name': row[3],
+					'album_artists': '',  # Use another system to get this
+					'scrobble_time': row[8],
+					'scrobble_duration': row[5]
+				}, '')
+			except Exception as e:
+				yield ('FAIL', None, f"{s} could not be parsed. Scrobble not imported. ({repr(e)})")
+				continue
