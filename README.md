@@ -14,10 +14,6 @@ You can check [my own Maloja page](https://maloja.krateng.ch) as an example inst
 ## Table of Contents
 * [Features](#features)
 * [How to install](#how-to-install)
-	* [Requirements](#requirements)
-	* [Docker / Podman](#docker--podman)
-	* [PyPI](#pypi)
-	* [From Source](#from-source)
 	* [Extras](#extras)
 * [How to use](#how-to-use)
 	* [Basic control](#basic-control)
