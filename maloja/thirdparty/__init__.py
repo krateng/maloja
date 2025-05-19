@@ -45,9 +45,9 @@ def import_scrobbles(identifier):
 			return service.import_scrobbles()
 	return False
 
-def proxy_scrobble_all(artists,title,timestamp):
+def proxy_scrobble_all(artists,title,album,timestamp):
 	for service in services["proxyscrobble"]:
-		service.scrobble(artists,title,timestamp)
+		service.scrobble(artists,title,album,timestamp)
 
 def get_image_track_all(track):
 	with thirdpartylock:
@@ -153,10 +153,10 @@ class ProxyScrobbleInterface(GenericInterface,abstract=True):
 			malojaconfig[self.proxyscrobble["activated_setting"]]
 		)
 
-	def scrobble(self,artists,title,timestamp):
+	def scrobble(self,artists,title,album,timestamp):
 		response = requests.post(
 			url=self.proxyscrobble["scrobbleurl"],
-			data=self.proxyscrobble_postdata(artists,title,timestamp),
+			data=self.proxyscrobble_postdata(artists,title,album,timestamp),
 			headers={
 				"User-Agent":self.useragent
 			}

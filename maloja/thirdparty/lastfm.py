@@ -44,15 +44,20 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 	def proxyscrobble_parse_response(self,data):
 		return data.attrib.get("status") == "ok" and data.find("scrobbles").attrib.get("ignored") == "0"
 
-	def proxyscrobble_postdata(self,artists,title,timestamp):
-		return self.query_compose({
+	def proxyscrobble_postdata(self,artists,title,album,timestamp):
+		parameters = {
 			"method":"track.scrobble",
 			"artist[0]":", ".join(artists),
 			"track[0]":title,
 			"timestamp":timestamp,
 			"api_key":self.settings["apikey"],
 			"sk":self.settings["sk"]
-		})
+		}
+
+		if album is not None:
+			parameters["album[0]"] = album
+
+		return self.query_compose(parameters)
 
 	def authorize(self):
 		if all(self.settings[key] not in [None,"ASK",False] for key in ["username","password","apikey","secret"]):

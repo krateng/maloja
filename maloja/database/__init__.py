@@ -114,8 +114,13 @@ def incoming_scrobble(rawscrobble,fix=True,client=None,api=None,dbconn=None):
 
 	if scrobbledict:
 
+		if 'album' in scrobbledict['track'] and 'albumtitle' in scrobbledict['track']['album']:
+			albumtitle = scrobbledict['track']['album']['albumtitle']
+		else:
+			albumtitle = None
+
 		sqldb.add_scrobble(scrobbledict,update_album=albumupdate,dbconn=dbconn)
-		proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],scrobbledict['time'])
+		proxy_scrobble_all(scrobbledict['track']['artists'],scrobbledict['track']['title'],albumtitle,scrobbledict['time'])
 
 		dbcache.invalidate_caches(scrobbledict['time'])
 
