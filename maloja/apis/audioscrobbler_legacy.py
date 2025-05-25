@@ -46,6 +46,9 @@ class AudioscrobblerLegacy(APIHandler):
 				key = apikeystore[client]
 				if self.check_token(auth,key,timestamp):
 					sessionkey = self.generate_key(client)
+					if ':' not in host:
+						port = 80 if protocol == 'http' else 443
+						host = f"{host}:{port}"
 					return 200, (
 						"OK\n"
 						f"{sessionkey}\n"
@@ -109,7 +112,7 @@ class AudioscrobblerLegacy(APIHandler):
 		    str(
 		        random.choice(
 		            list(range(10)) + list("abcdefghijklmnopqrstuvwxyz") +
-		            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(64))
+		            list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))) for _ in range(32))
 
 		self.mobile_sessions[key] = client
 		return key
