@@ -11,7 +11,7 @@ div#startpage {
 @media (min-width: 2201px) {
 	div#startpage {
 		grid-template-columns: repeat(6, 14vw);
-		grid-template-rows: repeat(2, 45vh);
+		grid-template-rows: repeat(2, minmax(45vh, max-content));
 		grid-column-gap: 2vw;
 
 		grid-template-areas:
@@ -23,7 +23,7 @@ div#startpage {
 @media (min-width: 1401px) and (max-width: 2200px) {
 	div#startpage {
 		grid-template-columns: repeat(2, 45vw);
-		grid-template-rows: repeat(3, 45vh);
+		grid-template-rows: repeat(2, minmax(45vh, max-content));
 
 		grid-template-areas:
 			"charts_artists lastscrobbles"
