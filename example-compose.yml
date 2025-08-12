@@ -10,9 +10,9 @@ services:
     - "42010:42010"
     # different directories for configuration, state and logs
     volumes:
-    - "$PWD/config:/etc/maloja"
-    - "$PWD/data:/var/lib/maloja"
-    - "$PWD/logs:/var/log/maloja"
+    - "$PWD/config:/config/config"
+    - "$PWD/data:/config/state"
+    - "$PWD/logs:/config/logs"
     #you can also have everything together instead:
     #volumes:
     #- "$PWD/data:/data"
