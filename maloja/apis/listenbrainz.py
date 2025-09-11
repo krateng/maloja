@@ -4,6 +4,8 @@ from .. import database
 import datetime
 from ._apikeys import apikeystore
 from ..database.exceptions import DuplicateScrobble, DuplicateTimestamp
+from .. import malojatime
+from ..malojatime import MTRangeComposite, MTRangeGregorian, today
 
 from ..pkg_global.conf import malojaconfig
 
@@ -19,7 +21,8 @@ class Listenbrainz(APIHandler):
 	def init(self):
 		self.methods = {
 			"submit-listens":self.submit,
-			"validate-token":self.validate_token
+			"validate-token":self.validate_token,
+			"art":self.art
 		}
 		self.errors = {
 			BadAuthException: (401, {"code": 401, "error": "You need to provide an Authorization header."}),
@@ -96,6 +99,44 @@ class Listenbrainz(APIHandler):
 			raise InvalidAuthException()
 		else:
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":malojaconfig["NAME"]}
+
+	def art(self,pathnodes,keys):
+		allowedtimes = ['this_week', 'this_month', 'this_year', 'week', 'month', 'quarter', 'year', 'half_yearly', 'all_time']
+		malojatimes = {
+			'this_week': malojatime.thisweek(),
+			'this_month': malojatime.thismonth(),
+			'this_year': malojatime.thisyear(),
+			'week': MTRangeComposite(since=today().next(-7),to=today()),
+			# I'm sure there's a more elegant way to do these; at the moment, the next function doesn't support specifying which precision to use
+			'month': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-1).month, today().day),to=today()),
+			'quarter': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-3).month, today().day),to=today()),
+			'year':  MTRangeComposite(since=MTRangeGregorian(malojatime.thisyear().next(-1).year, today().month, today().day),to=today()),
+			'half_yearly': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-6).month, today().day),to=today()),
+			'all_time': malojatime.alltime()
+		}
+		
+		if self.get_method(pathnodes, keys) == "grid-stats":
+			try:
+				"""
+				Confirm that all of the parameters are within values supported by the actual ListenBrainz API.
+				pathnodes values are also set as human-readable variables, for later!
+				"""
+				checks = [
+					((user_name := pathnodes[0]) == malojaconfig["NAME"]), # Because there's only one user, and thus any other input would fail
+					((time_range := pathnodes[1]) in malojatimes),
+					(1 <= int(dimension := pathnodes[2]) <= 5),
+					(int(layout := pathnodes[3]) == 0),
+					(128 <= int(image_size := pathnodes[4]) <= 1024)
+				]
+			except:
+				raise MalformedJSONException()
+			if not all(checks):
+				raise MalformedJSONException()
+			
+			print(malojatimes[time_range])
+			return 200,{"status":"ok"}
+			
+
 
 	def get_token_from_request_keys(self,keys):
 		if 'token' in keys:
