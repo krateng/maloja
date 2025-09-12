@@ -153,10 +153,8 @@ class Listenbrainz(APIHandler):
 		
 		if self.get_method(pathnodes, keys) == "grid-stats":
 			try:
-				"""
-				Confirm that all of the parameters are within values supported by the actual ListenBrainz API.
-				pathnodes values are also set as human-readable variables, for later!
-				"""
+				# Confirm that all of the parameters are within values supported by the actual ListenBrainz API.
+				# pathnodes values are also set as human-readable variables, for later!
 				checks = [
 					((user_name := pathnodes[0]) == malojaconfig["NAME"]), # Because there's only one user, and thus any other input would fail
 					((time_range := pathnodes[1]) in timeranges),
@@ -168,10 +166,16 @@ class Listenbrainz(APIHandler):
 				raise MalformedJSONException()
 			if not all(checks):
 				raise MalformedJSONException()
-			tile_size = image_size // dimension
-			albums = database.get_charts_albums(timerange=timeranges[time_range])[0:dimension**2]
+			
 			# Fetches the necessary top albums for the given time range.
 			# This implementation only does square grids at the moment, so all we need to do is get our dimension to the second power
+			albums = database.get_charts_albums(timerange=timeranges[time_range])[0:dimension**2]
+			# Exception if there's not enough albums to fill the grid
+			if len(albums) != dimension**2:
+				raise MalformedJSONException()
+			# Defines the size of each respective tile given the dimension
+			tile_size = image_size // dimension
+
 			description = ""
 			images = ""
 			for i in range(len(albums)):
@@ -181,8 +185,8 @@ class Listenbrainz(APIHandler):
 				images += image_template.format(
 					item_url = "/album?" + compose_querystring(internal_to_uri(albums[i])),
 					image_url = get_album_image(album_id=albums[i]['album_id']),
-					x = (i // dimension) * tile_size,
-					y = (i % dimension) * tile_size,
+					x = (i // dimension) * tile_size, # Row number * tile size
+					y = (i % dimension) * tile_size, # Column number * tile size
 					width = tile_size,
 					height = tile_size,
 					title = title,
