@@ -4,9 +4,10 @@ from .. import database
 import datetime
 from ._apikeys import apikeystore
 from ..database.exceptions import DuplicateScrobble, DuplicateTimestamp
-from .. import malojatime
-from ..malojatime import MTRangeComposite, MTRangeGregorian, today
+from ..malojatime import MTRangeComposite, MTRangeGregorian, today, thisweek, thismonth, thisyear, alltime
+from ..malojauri import compose_querystring, internal_to_uri
 
+from ..images import get_album_image
 from ..pkg_global.conf import malojaconfig
 
 
@@ -101,19 +102,54 @@ class Listenbrainz(APIHandler):
 			return 200,{"code":200,"message":"Token valid.","valid":True,"user_name":malojaconfig["NAME"]}
 
 	def art(self,pathnodes,keys):
-		allowedtimes = ['this_week', 'this_month', 'this_year', 'week', 'month', 'quarter', 'year', 'half_yearly', 'all_time']
-		malojatimes = {
-			'this_week': malojatime.thisweek(),
-			'this_month': malojatime.thismonth(),
-			'this_year': malojatime.thisyear(),
+		timeranges = {
+			'this_week': thisweek(),
+			'this_month': thismonth(),
+			'this_year': thisyear(),
 			'week': MTRangeComposite(since=today().next(-7),to=today()),
-			# I'm sure there's a more elegant way to do these; at the moment, the next function doesn't support specifying which precision to use
-			'month': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-1).month, today().day),to=today()),
-			'quarter': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-3).month, today().day),to=today()),
-			'year':  MTRangeComposite(since=MTRangeGregorian(malojatime.thisyear().next(-1).year, today().month, today().day),to=today()),
-			'half_yearly': MTRangeComposite(since=MTRangeGregorian(today().year, malojatime.thismonth().next(-6).month, today().day),to=today()),
-			'all_time': malojatime.alltime()
+			'month': MTRangeComposite(since=MTRangeGregorian(today().year, thismonth().next(-1).month, today().day),to=today()),
+			'quarter': MTRangeComposite(since=MTRangeGregorian(today().year, thismonth().next(-3).month, today().day),to=today()),
+			'year':  MTRangeComposite(since=MTRangeGregorian(thisyear().next(-1).year, today().month, today().day),to=today()),
+			'half_yearly': MTRangeComposite(since=MTRangeGregorian(today().year, thismonth().next(-6).month, today().day),to=today()),
+			'all_time': alltime()
 		}
+		timeranges_english = {
+			"this_week": "this week",
+			"this_month": "this month",
+			"this_year": "this year",
+			"week": "last week",
+			"month": "last month",
+			"quarter": "last quarter",
+			"year": "last year",
+			"half_yearly": "last 6 months",
+			"all_time": "of all time"
+		}
+		svg_template = """<svg version="1.1"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	role="img"
+	viewBox="0 0 {width} {height}"
+	width="{width}"
+	height="{height}">
+<title>Top {amount} Releases {time_range} for {user_name}</title>
+<desc>{description}</desc>
+
+<rect id="background" fill="#FFFFFF" x="0" ry="0" width="{width}" height="{height}"/>
+	{images}
+</svg>
+"""
+		image_template = """<a href="{item_url}"> target="_blank">
+<image
+        x="{x}"
+        y="{y}"
+        width="{width}"
+        height="{height}"
+        preserveAspectRatio="xMidYMid slice"
+        href="{image_url}">
+        <title>{title} - {artist}</title>
+</image>
+</a>
+"""
 		
 		if self.get_method(pathnodes, keys) == "grid-stats":
 			try:
@@ -123,18 +159,45 @@ class Listenbrainz(APIHandler):
 				"""
 				checks = [
 					((user_name := pathnodes[0]) == malojaconfig["NAME"]), # Because there's only one user, and thus any other input would fail
-					((time_range := pathnodes[1]) in malojatimes),
-					(1 <= int(dimension := pathnodes[2]) <= 5),
+					((time_range := pathnodes[1]) in timeranges),
+					(1 <= (dimension := int(pathnodes[2])) <= 5),
 					(int(layout := pathnodes[3]) == 0),
-					(128 <= int(image_size := pathnodes[4]) <= 1024)
+					(128 <= (image_size := int(pathnodes[4])) <= 1024)
 				]
 			except:
 				raise MalformedJSONException()
 			if not all(checks):
 				raise MalformedJSONException()
-			
-			print(malojatimes[time_range])
-			return 200,{"status":"ok"}
+			tile_size = image_size // dimension
+			albums = database.get_charts_albums(timerange=timeranges[time_range])[0:dimension**2]
+			# Fetches the necessary top albums for the given time range.
+			# This implementation only does square grids at the moment, so all we need to do is get our dimension to the second power
+			description = ""
+			images = ""
+			for i in range(len(albums)):
+				title = albums[i]['album']['albumtitle']
+				firstartist = albums[i]['album']['artists'][0]
+				description += f"{i+1}. {title} - {firstartist} \n"
+				images += image_template.format(
+					item_url = "/album?" + compose_querystring(internal_to_uri(albums[i])),
+					image_url = get_album_image(album_id=albums[i]['album_id']),
+					x = (i // dimension) * tile_size,
+					y = (i % dimension) * tile_size,
+					width = tile_size,
+					height = tile_size,
+					title = title,
+					artist = firstartist
+				)
+			return 200,svg_template.format(
+				width = image_size,
+				height = image_size,
+				amount = dimension**2,
+				time_range = timeranges_english[time_range],
+				user_name = user_name,
+				description = description,
+				images = images
+			)
+			# return 200,albums
 			
 
 
