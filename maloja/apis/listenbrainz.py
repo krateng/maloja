@@ -197,9 +197,6 @@ class Listenbrainz(APIHandler):
 				description = description,
 				images = images
 			)
-			# return 200,albums
-			
-
 
 	def get_token_from_request_keys(self,keys):
 		if 'token' in keys:
