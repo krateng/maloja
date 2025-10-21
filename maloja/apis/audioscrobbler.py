@@ -2,6 +2,7 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 from ._apikeys import apikeystore
+from ..database.exceptions import DuplicateScrobble, DuplicateTimestamp
 
 class Audioscrobbler(APIHandler):
 	__apiname__ = "Audioscrobbler"
@@ -25,6 +26,8 @@ class Audioscrobbler(APIHandler):
 			InvalidAuthException: (401, {"error": 4, "message": "Invalid credentials"}),
 			InvalidMethodException: (200, {"error": 3, "message": "Invalid method"}),
 			InvalidSessionKey: (403, {"error": 9, "message": "Invalid session key"}),
+			DuplicateScrobble: (200, {"status": "ok"}),
+			DuplicateTimestamp: (409, {"error": 8, "message": "Scrobble with the same timestamp already exists."}),
 			Exception: (500, {"error": 8, "message": "Operation failed"})
 		}
 

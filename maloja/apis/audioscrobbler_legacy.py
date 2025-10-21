@@ -2,6 +2,7 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 from ._apikeys import apikeystore
+from ..database.exceptions import DuplicateScrobble, DuplicateTimestamp
 
 from bottle import request
 
@@ -27,6 +28,8 @@ class AudioscrobblerLegacy(APIHandler):
 			InvalidAuthException: (403, "BADAUTH\n"),
 			InvalidMethodException: (400, "FAILED\n"),
 			InvalidSessionKey: (403, "BADSESSION\n"),
+			DuplicateScrobble: (200, "OK\n"),
+			DuplicateTimestamp: (409, "FAILED\n"),
 			Exception: (500, "FAILED\n")
 		}
 
