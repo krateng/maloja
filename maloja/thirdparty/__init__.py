@@ -197,7 +197,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 	metadata = {
 		"required_settings":[],
-		"activated_setting":None
+		"activated_setting":None,
+		"allowed_image_domains":[],
 	}
 
 	delay = 0
@@ -227,6 +228,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		if not self.validate_image_url(imgurl):
+			return None
 		time.sleep(self.delay)
 		return imgurl
 
@@ -245,6 +248,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		if not self.validate_image_url(imgurl):
+			return None
 		time.sleep(self.delay)
 		return imgurl
 
@@ -265,6 +270,8 @@ class MetadataInterface(GenericInterface,abstract=True):
 		else:
 			imgurl = None
 		if imgurl is not None: imgurl = self.postprocess_url(imgurl)
+		if not self.validate_image_url(imgurl):
+			return None
 		time.sleep(self.delay)
 		return imgurl
 
@@ -299,6 +306,20 @@ class MetadataInterface(GenericInterface,abstract=True):
 
 	def handle_json_result_error(self,result):
 		raise InvalidResponse()
+
+	def validate_image_url(self, url):
+		parsed = urllib.parse.urlparse(url)
+		if parsed.scheme == "http":
+			parsed.scheme = "https"
+		if parsed.scheme != "https":
+			return False
+		host = parsed.hostname
+		if not host:
+			return False
+		return any(
+			host == allowed or host.endswith(f".{allowed}")
+			for allowed in (self.metadata['allowed_image_domains'] or [])
+		)
 
 
 

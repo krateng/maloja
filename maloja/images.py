@@ -145,6 +145,9 @@ def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
 
 
 def dl_image(url):
+	if not validate_image_url(url):
+		log(f"Blocked image URL: {url}")
+		return None
 	try:
 		r = requests.get(url)
 		mime = r.headers.get('content-type') or 'image/jpg'

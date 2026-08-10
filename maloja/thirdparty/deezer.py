@@ -17,7 +17,10 @@ class Deezer(MetadataInterface):
 		"response_parse_tree_artist": ["data",0,"artist","picture_medium"],
 		"response_parse_tree_album": ["data",0,"album","cover_medium"],
 		"required_settings": [],
-		"enabled_entity_types": ["artist","album"]
+		"enabled_entity_types": ["artist","album"],
+		"allowed_image_domains": [
+			"dzcdn.net",
+		],
 	}
 
 	delay = 1

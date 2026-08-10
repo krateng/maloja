@@ -32,7 +32,10 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		#"response_parse_tree_artist": ["artist","image",-1,"#text"],
 		"response_parse_tree_album": ["album","image",-1,"#text"],
 		"required_settings": ["apikey"],
-		"enabled_entity_types": ["track","album"]
+		"enabled_entity_types": ["track","album"],
+		"allowed_image_domains": [
+			"lastfm.freetls.fastly.net", "lastfm.freetls.io", "lastfm-img.freetls.io",
+		]
 	}
 
 	def get_image_artist(self,artist):

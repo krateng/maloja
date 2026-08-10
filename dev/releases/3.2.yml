@@ -59,3 +59,4 @@ minor_release_name: "Nicole"
 3.2.5:
     notes:
     - "[Security] Fixed replay attack vulnerability in legacy scrobbler"
+    - "[Security] Limited URL domains for image cache store"

@@ -19,7 +19,10 @@ class MusicBrainz(MetadataInterface):
 	metadata = {
 		"response_type":"json",
 		"required_settings": [],
-		"enabled_entity_types": ["album","track"]
+		"enabled_entity_types": ["album","track"],
+		"allowed_image_domains": [
+			"coverartarchive.org", "musicbrainz.org",
+		]
 	}
 
 	def get_image_artist(self,artist):
@@ -73,6 +76,8 @@ class MusicBrainz(MetadataInterface):
 					continue
 
 				imgurl = self.postprocess_url(imgurl)
+				if not self.validate_image_url(imgurl):
+					return None
 				return imgurl
 
 		except Exception:
@@ -125,6 +130,8 @@ class MusicBrainz(MetadataInterface):
 					continue
 
 				imgurl = self.postprocess_url(imgurl)
+				if not self.validate_image_url(imgurl):
+					return None
 				return imgurl
 
 		except Exception:
