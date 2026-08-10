@@ -56,3 +56,6 @@ minor_release_name: "Nicole"
     - "[Bugfix] Fixed missing image mimetype"
     - "[Technical] Pinned dependencies"
     - "[Technical] Upgraded Python and Alpine"
+3.2.5:
+    notes:
+    - "[Security] Fixed replay attack vulnerability in legacy scrobbler"

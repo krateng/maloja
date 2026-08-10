@@ -2,6 +2,7 @@ from ._base import APIHandler
 from ._exceptions import *
 from .. import database
 from ._apikeys import apikeystore
+import time
 
 from bottle import request
 
@@ -17,6 +18,7 @@ class AudioscrobblerLegacy(APIHandler):
 
 		# no need to save these on disk, clients can always request a new session
 		self.mobile_sessions = {}
+		self.seen_tokens = set()
 		self.methods = {
 			"handshake":self.handshake,
 			"nowplaying":self.now_playing,
@@ -101,6 +103,20 @@ class AudioscrobblerLegacy(APIHandler):
 
 
 	def check_token(self, received_token, expected_key, ts):
+		# reject old timestamps to minimize replay attack vector
+		try:
+			ts_int = int(ts)
+		except (ValueError, TypeError):
+			return False
+		if abs(int(time.time()) - ts_int) > 180:
+			return False
+		# reject recently seen, this is ok to do in memory since attack surface
+		# is minimal
+		if (expected_key, ts_int) in self.seen_tokens:
+			return False
+		else:
+			self.seen_tokens.add((expected_key, ts_int))
+
 		expected_token = md5(md5(expected_key) + ts)
 		return received_token == expected_token
 
