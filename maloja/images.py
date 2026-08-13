@@ -7,6 +7,9 @@ from doreah.logging import log
 import itertools
 import os
 import urllib
+import urllib.parse
+import ipaddress
+import socket
 import random
 import base64
 import requests
@@ -145,8 +148,8 @@ def remove_image_from_cache(track_id=None,artist_id=None,album_id=None):
 
 
 def dl_image(url):
-	if not validate_image_url(url):
-		log(f"Blocked image URL: {url}")
+	if not validate_safe_url(url):
+		log(f"Blocked SSRF attempt: {url}")
 		return None
 	try:
 		r = requests.get(url)
@@ -162,7 +165,19 @@ def dl_image(url):
 		log(f"Image {url} could not be downloaded for local caching")
 		return None
 
-
+def validate_safe_url(url):
+	#extra check in addition to the 3rd party fetch checks
+	parsed = urllib.parse.urlparse(url)
+	if parsed.scheme not in ("http", "https"):
+		return False
+	try:
+		ip_str = socket.gethostbyname(parsed.hostname)
+		ip = ipaddress.ip_address(ip_str)
+		if ip.is_private or ip.is_loopback or ip.is_link_local:
+			return False
+	except (socket.gaierror, ValueError):
+		return False
+	return True
 
 
 resolver = ThreadPoolExecutor(max_workers=MAX_RESOLVE_THREADS,thread_name_prefix='image_resolve')

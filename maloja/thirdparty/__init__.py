@@ -314,12 +314,14 @@ class MetadataInterface(GenericInterface,abstract=True):
 		if parsed.scheme != "https":
 			return False
 		host = parsed.hostname
-		if not host:
-			return False
-		return any(
+		if host and any(
 			host == allowed or host.endswith(f".{allowed}")
 			for allowed in (self.metadata['allowed_image_domains'] or [])
-		)
+		):
+			return True
+		else:
+			log(f"Image URL {url} rejected due to domain validation.")
+			return False
 
 
 
