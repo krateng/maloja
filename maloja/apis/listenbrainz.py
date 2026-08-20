@@ -80,7 +80,7 @@ class Listenbrainz(APIHandler):
 					'track_title':titlestr,
 					'album_title':albumstr,
 					'scrobble_time':timestamp,
-					'track_length': additional.get("duration"),
+					'scrobble_duration': int(additional.get("duration_ms") / 1000) if additional.get("duration_ms") else additional.get("duration"),
 					**extrafields
 				},client=client)
 
