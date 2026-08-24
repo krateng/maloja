@@ -317,6 +317,7 @@ def associate_tracks_to_artist(target_id,source_ids,remove=False):
 def associate_tracks_to_album(target_id,source_ids):
 	# target_id None means remove from current album!
 	sources = [sqldb.get_track(id) for id in source_ids]
+	target = None
 	if target_id:
 		target = sqldb.get_album(target_id)
 		log(f"Adding {sources} into {target}")
