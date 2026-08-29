@@ -596,6 +596,8 @@ def post_scrobble(
 		length:int=None,
 		time:int=None,
 		nofix=None,
+		album_image=None,
+		track_image=None,
 		auth_result=None,
 		**extra_kwargs):
 	"""Submit a new scrobble.
@@ -609,6 +611,8 @@ def post_scrobble(
 	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
 	:param flag nofix: Skip server-side metadata parsing. Optional.
+	:param string album_image: Data URI base64 encoded album art. Optional.
+	:param string track_image: Data URI base64 encoded track art. Optional.
 
 	:return: status (String), track (Mapping)
 	:rtype: Dictionary
@@ -655,6 +659,19 @@ def post_scrobble(
 			{'type':'mixed_schema','value':['artist','artists'],
 			'desc':"These two fields are meant as alternative methods to submit information. Use of both is discouraged, but works at the moment."}
 		]
+	if album_image or track_image:
+		# Using the parameters supplied directly won't work because they aren't parsed
+		# for example, album artists will be all one big string instead of an array of strings
+		# so take details from `result`
+		artists = result['track']['artists']
+		title = result['track']['title']
+		if album_image:
+			if 'album' in result['track']:
+				albumartists = result['track']['album']['artists']
+				album = result['track']['album']['albumtitle']
+				images.set_image(album_image,artists=albumartists or artists,albumtitle=album)
+		if track_image:
+			images.set_image(track_image,artists=artists,title=title)
 
 	if len(responsedict['warnings']) == 0: del responsedict['warnings']
 
