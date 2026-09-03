@@ -79,7 +79,7 @@ Generally, most endpoints follow this structure:
 | Key | Type | Description |
 | --- | --- | --- |
 | `status` | String | Status of the request. Can be `success`, `ok`, `error`, `failure`, `no_operation` |
-| `error` | Mapping | Details about the error if one occured. |
+| `error` | Mapping | Details about the error if one occurred. |
 | `warnings` | List | Any warnings that did not result in failure, but should be noted. Field is omitted if there are no warnings! |
 | `desc` | String | Human-readable feedback. This can be shown directly to the user if desired. |
 | `list` | List | List of returned [entities](#entity-structure) |
