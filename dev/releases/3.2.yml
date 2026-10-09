@@ -57,6 +57,15 @@ minor_release_name: "Nicole"
     - "[Technical] Pinned dependencies"
     - "[Technical] Upgraded Python and Alpine"
 3.2.5:
+    commit: "35897a95f4eb9ea2485f2168dd9331e77c6a118d"
     notes:
     - "[Security] Fixed replay attack vulnerability in legacy scrobbler"
     - "[Security] Limited URL domains for image cache store"
+3.2.6:
+    commit: "52aae997fb6b8ad62c65498f4e91e7d65fbe242d"
+    notes:
+    - "[Security] Add image URL validation"
+3.2.7:
+    commit: "cde66579c3d406368d3090e0afe7431497aab65e"
+    notes:
+    - "[Security] Fix XSS exploit in stored metadata"
