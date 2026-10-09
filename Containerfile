@@ -70,17 +70,19 @@ RUN \
 
 
 
-COPY container/root/ /
+COPY --chmod=755 container/root/ /
 
+# Docker-specific configuration
 ENV	\
-	# Docker-specific configuration
 	MALOJA_SKIP_SETUP=yes \
 	MALOJA_CONTAINER=yes \
-	PYTHONUNBUFFERED=1 \
-	# Prevents breaking change for previous container that ran maloja as root
-	# On linux hosts (non-podman rootless) these variables should be set to the
-	# host user that should own the host folder bound to MALOJA_DATA_DIRECTORY
-	PUID=0 \
+	PYTHONUNBUFFERED=1
+
+# Prevents breaking change for previous container that ran maloja as root
+# On linux hosts (non-podman rootless) these variables should be set to the
+# host user that should own the host folder bound to MALOJA_DATA_DIRECTORY
+ENV \
+    PUID=0 \
 	PGID=0
 
 EXPOSE 42010

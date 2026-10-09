@@ -9,5 +9,6 @@ services:
     - "./testdata:/data"
     environment:
     - "MALOJA_DATA_DIRECTORY=/data"
+    - "MALOJA_FORCE_PASSWORD=tzuyu"
     - "PUID=1000"
     - "PGID=1000"
