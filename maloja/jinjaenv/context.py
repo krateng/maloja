@@ -16,7 +16,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 jinja_environment = Environment(
 	loader=PackageLoader('maloja', "web/jinja"),
-	autoescape=select_autoescape(['html', 'xml'])
+	autoescape=True,
 )
 
 
