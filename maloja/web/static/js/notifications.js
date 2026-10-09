@@ -6,14 +6,20 @@ const colors = {
 	'info':'green'
 }
 
+function notification_template(info) {
+	const div = document.createElement('div');
+	div.className = 'notification';
+	div.style.setProperty('--notification-color', colors[info.notification_type]);
 
-const notification_template = info => `
-	<div class="notification" style="--notification-color: ${colors[info.notification_type]};">
-		<b>${info.title}</b><br/>
-		<span>${info.body}</span>
+	const b = document.createElement('b');
+	b.textContent = info.title;
 
-	</div>
-`
+	const span = document.createElement('span');
+	span.textContent = info.body;
+
+	div.append(b, document.createElement('br'), span);
+	return div;
+}
 
 function htmlToElement(html) {
 	template = document.createElement('template');
@@ -29,7 +35,7 @@ function notify(title,msg,notification_type='info',reload=false) {
 		'notification_type':notification_type
 	}
 
-	var element = htmlToElement(notification_template(info));
+	var element = notification_template(info);
 
 	document.getElementById('notification_area').append(element);
 
