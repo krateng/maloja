@@ -31,6 +31,17 @@ def init_apis(server):
 		canonical = aliases[0]
 		api.nimrodelapi.mount(server=server,path="apis/" + canonical)
 
+		# mount() only serves the slashed root. last.fm accepts /2.0 without it.
+		def canonical_root(canon=canonical):
+			qs = urlencode(request.query)
+			url = "/apis/" + canon + "/"
+			if qs:
+				url += "?" + qs
+			redirect(url)
+
+		server.get("/apis/" + canonical)(canonical_root)
+		server.post("/apis/" + canonical)(canonical_root)
+
 		# redirects
 		for alias in aliases[1:]:
 			altpath = "/apis/" + alias + "/<pth:path>"
