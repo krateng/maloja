@@ -10,7 +10,7 @@ from ..pkg_global.conf import malojaconfig
 
 class Listenbrainz(APIHandler):
 	__apiname__ = "Listenbrainz"
-	__doclink__ = "https://listenbrainz.readthedocs.io/en/production/"
+	__doclink__ = "https://listenbrainz.readthedocs.io/en/latest/"
 	__aliases__ = [
 		"listenbrainz/1",
 		"lbrnz/1"
