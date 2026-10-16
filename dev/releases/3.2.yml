@@ -72,3 +72,6 @@ minor_release_name: "Nicole"
 3.2.8:
     notes:
     - "[Bugfix] Add additional allowed last.fm domain"
+3.2.9:
+    notes:
+    - "[Bugfix] Fix display of settings and API keys"
