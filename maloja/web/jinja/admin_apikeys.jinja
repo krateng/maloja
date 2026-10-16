@@ -6,5 +6,5 @@
 {% block maincontent %}
 Here you can add and remove API keys used by your scrobblers. It is recommended to use
 a different key for each scrobbler.<br/><br/>
-{{ apikeys.html() }}
+{{ apikeys.html() | safe }}
 {% endblock %}
