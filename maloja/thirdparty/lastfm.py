@@ -34,7 +34,7 @@ class LastFM(MetadataInterface, ProxyScrobbleInterface):
 		"required_settings": ["apikey"],
 		"enabled_entity_types": ["track","album"],
 		"allowed_image_domains": [
-			"lastfm.freetls.fastly.net", "lastfm.freetls.io", "lastfm-img.freetls.io",
+			"lastfm.freetls.fastly.net", "lastfm.freetls.io", "lastfm-img.freetls.fastly.net", "lastfm-img.freetls.io",
 		]
 	}
 
