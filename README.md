@@ -1,5 +1,8 @@
 # Maloja
 
+> [!IMPORTANT] 
+> Maloja is only receiving security updates. You can install it as is and it will work, but I'm working on a [successor](https://github.com/krateng/maloja-rs).
+
 [![](https://img.shields.io/github/v/tag/krateng/maloja?label=GitHub&style=for-the-badge&logo=github&logoColor=white)](https://github.com/krateng/maloja)
 [![](https://img.shields.io/pypi/v/malojaserver?label=PyPI&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/malojaserver/)
 [![](https://img.shields.io/docker/v/krateng/maloja?label=Dockerhub&style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/r/krateng/maloja)
