@@ -595,6 +595,7 @@ def post_scrobble(
 		duration:int=None,
 		length:int=None,
 		time:int=None,
+		identifiers:dict={},
 		nofix=None,
 		auth_result=None,
 		**extra_kwargs):
@@ -608,6 +609,7 @@ def post_scrobble(
 	:param int duration: Actual listened duration of the scrobble in seconds. Optional.
 	:param int length: Total length of the track in seconds. Optional.
 	:param int time: UNIX timestamp of the scrobble. Optional, not needed if scrobble is at time of request.
+	:param dict identifiers: Key-value dictionary of third-party identifiers (MusicBrainz ID, Spotify ID, etc) associated with the track
 	:param flag nofix: Skip server-side metadata parsing. Optional.
 
 	:return: status (String), track (Mapping)
@@ -621,7 +623,10 @@ def post_scrobble(
 		'album_artists':albumartists,
 		'scrobble_duration':duration,
 		'track_length':length,
-		'scrobble_time':time
+		'scrobble_time':time,
+		'identifiers':{
+			**identifiers
+		}
 	}
 
 	# for logging purposes, don't pass values that we didn't actually supply
