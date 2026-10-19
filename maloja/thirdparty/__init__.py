@@ -61,7 +61,7 @@ def get_image_track_all(track):
 				else:
 					log(f"Could not get track image for {track} from {service.name}")
 			except Exception as e:
-				log(f"Error getting track image from {service.name}: {e.__doc__}")
+				log(f"Error getting track image from {service.name}: {e!r}")
 def get_image_artist_all(artist):
 	with thirdpartylock:
 		for service in services["metadata"]:
@@ -74,7 +74,7 @@ def get_image_artist_all(artist):
 				else:
 					log(f"Could not get artist image for {artist} from {service.name}")
 			except Exception as e:
-				log(f"Error getting artist image from {service.name}: {e.__doc__}")
+				log(f"Error getting artist image from {service.name}: {e!r}")
 def get_image_album_all(album):
 	with thirdpartylock:
 		for service in services["metadata"]:
@@ -87,7 +87,7 @@ def get_image_album_all(album):
 				else:
 					log(f"Could not get album image for {album} from {service.name}")
 			except Exception as e:
-				log(f"Error getting album image from {service.name}: {e.__doc__}")
+				log(f"Error getting album image from {service.name}: {e!r}")
 
 
 class GenericInterface:
