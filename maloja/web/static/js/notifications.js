@@ -21,13 +21,6 @@ function notification_template(info) {
 	return div;
 }
 
-function htmlToElement(html) {
-	template = document.createElement('template');
-	html = html.trim();
-	template.innerHTML = html;
-   	return template.content.firstChild;
-}
-
 function notify(title,msg,notification_type='info',reload=false) {
 	info = {
 		'title':title,
