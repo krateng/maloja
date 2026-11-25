@@ -196,21 +196,30 @@ function searchresult_manualscrobbling() {
 		result = JSON.parse(this.responseText);
 		tracks = result["tracks"].slice(0,10);
 		console.log(tracks);
+
 		for (let t of tracks) {
+			row = document.createElement("tr");
+			col1 = document.createElement("td");
+			col2 = document.createElement("td");
+
 			track = document.createElement("span");
 			trackstr = t.track["artists"].join(", ") + " - " + t.track["title"];
-			tracklink = t["link"];
-			track.innerHTML = "<a href='" + tracklink + "'>" +  trackstr + "</a>";
-			row = document.createElement("tr")
-			col1 = document.createElement("td")
+			track_link = document.createElement("a");
+			track_link.href = t["link"];
+			track_link.textContent = trackstr;
+			track.appendChild(track_link);
+
+			col2.appendChild(track);
+
 			button = document.createElement("button")
-			button.innerHTML = "Scrobble!"
+			button.textContent = "Scrobble!";
 			button.onclick = function(){ scrobble(t.track["artists"],t.track["title"])};
-			col2 = document.createElement("td")
-			row.appendChild(col1)
-			col1.appendChild(button)
-			row.appendChild(col2)
-			col2.appendChild(track)
+
+			col1.appendChild(button);
+
+			row.appendChild(col1);
+			row.appendChild(col2);
+
 			document.getElementById("searchresults").appendChild(row);
 		}
 
