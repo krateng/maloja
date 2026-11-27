@@ -45,6 +45,10 @@ def import_scrobbles(inputf):
 	elif re.match(r"Streaming_History_Audio.+\.json", filename):
 		typeid,typedesc = "spotify", "Spotify"
 		importfunc = parse_spotify_lite
+        
+	elif re.match(r"StreamingHistory_music_[0-9]+\.json", filename):
+		typeid,typedesc = "spotify", "Spotify"
+		importfunc = parse_spotify_lite_legacy        
 
 	elif re.match(r"endsong_[0-9]+\.json", filename):
 		typeid,typedesc = "spotify", "Spotify"
